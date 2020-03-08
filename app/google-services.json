@@ -1,0 +1,48 @@
+{
+  "project_info": {
+    "project_number": "946343724106",
+    "firebase_url": "https://messangi-app.firebaseio.com",
+    "project_id": "messangi-app",
+    "storage_bucket": "messangi-app.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:946343724106:android:42e95f9f7f8d7ffec7d2b3",
+        "android_client_info": {
+          "package_name": "com.ogangi.Messangi.SDK.Demo"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "946343724106-3jq0c0ovs35l0l7b71dgseme9f4n6kp7.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.ogangi.Messangi.SDK.Demo",
+            "certificate_hash": "94a1d3ad073e30880ba09401a93ae3d095af18b4"
+          }
+        },
+        {
+          "client_id": "946343724106-n6seredb6mvj9te44t3amggs7dgbovk7.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBhnjFkkdEeDOdXjLs_uKY3dLuBUbjit8w"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "946343724106-n6seredb6mvj9te44t3amggs7dgbovk7.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

@@ -1,3 +1,5 @@
 <resources>
     <string name="app_name">DemotrationMessangi</string>
+    <string name="notifications_admin_channel_name">tres</string>
+    <string name="notifications_admin_channel_description">cuatro</string>
 </resources>
