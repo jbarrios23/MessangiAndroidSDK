@@ -37,7 +37,7 @@ public class MyFirebaseMessagingService extends FirebaseMessagingService  {
     public String icon;
     public String nameClass;
     public static String CLASS_TAG=MyFirebaseMessagingService.class.getSimpleName();
-//  public StorageController storageController;
+    public StorageController storageController;
     public Messangi messangi;
     public Activity activity;
     private static final int MY_PERMISSIONS_REQUEST_READ_PHONE_STATE = 1;
@@ -61,36 +61,24 @@ public class MyFirebaseMessagingService extends FirebaseMessagingService  {
          */
 
         SendTokenToBackend(s);
-        //startTimerForSendData();
-    }
-
-    private void startTimerForSendData() {
-        timer=new Timer();
-        timer.scheduleAtFixedRate(new TimerTask() {
-            @Override
-            public void run() {
-                Log.e(CLASS_TAG,"repeat "+timer.purge());
-                //verifiSdkVersion();
-            }
-        },20000,10000);
-
 
     }
-
     private void SendTokenToBackend(String s) {
         Log.e(CLASS_TAG,"SEND TOKEN TO BACKEND "+s);
-//        storageController=StorageController.getInstance(this);
-//        storageController.saveToken(s);
+        storageController=StorageController.getInstance(this);
+        storageController.saveToken("Token",s);
         createParameters();
 
     }
 
     private void createParameters() {
-        String type="ANDROID";
+        messangi = Messangi.getInstance(this);
+        String type=messangi.getType();
         Log.e(CLASS_TAG,"create type "+type);
-        Log.e(CLASS_TAG,"create model "+getDeviceName());
-        String myVersion = Build.VERSION.RELEASE; // os
-        Log.e(CLASS_TAG,"OS "+ myVersion);
+        String model=messangi.getDeviceName();
+        Log.e(CLASS_TAG,"create model "+model);
+        String os = messangi.getOS(); // os
+        Log.e(CLASS_TAG,"OS "+ os);
         //verifiPermission();
 
     }
@@ -130,28 +118,7 @@ public class MyFirebaseMessagingService extends FirebaseMessagingService  {
         }
     }
 
-    public String getDeviceName() {
-        String manufacturer = Build.MANUFACTURER;
-        String model = Build.MODEL;
-        if (model.toLowerCase().startsWith(manufacturer.toLowerCase())) {
-            return capitalize(model);
-        } else {
-            return capitalize(manufacturer) + " " + model;
-        }
-    }
 
-
-    private String capitalize(String s) {
-        if (s == null || s.length() == 0) {
-            return "";
-        }
-        char first = s.charAt(0);
-        if (Character.isUpperCase(first)) {
-            return s;
-        } else {
-            return Character.toUpperCase(first) + s.substring(1);
-        }
-    }
 
     @SuppressLint("PrivateApi")
     @Override
@@ -185,7 +152,7 @@ public class MyFirebaseMessagingService extends FirebaseMessagingService  {
         Intent notificationIntent=null;
 
         try {
-
+            //accion por defecto
             notificationIntent = new Intent(this,Class.forName(nameClass));
             Log.e(CLASS_TAG, "PIRMERO " );
         } catch (ClassNotFoundException e) {
@@ -220,31 +187,7 @@ public class MyFirebaseMessagingService extends FirebaseMessagingService  {
         notificationManager.notify(notificationId /* ID of notification */, notificationBuilder.build());
     }
 
-    private void verifiSdkVersion() {
-        int sdkVersion = Build.VERSION.SDK_INT; // sdk version;
-        messangi.setSdkVersion(sdkVersion);
-        Log.e(CLASS_TAG, "SDK VERSION "+sdkVersion );
-        if(messangi.getSdkVersion()==0|| messangi.getSdkVersion()!=sdkVersion){
-            messangi.setSdkVersion(sdkVersion);
-            Log.e(CLASS_TAG, "SE ACTUALIZO LA VERSION DEL SDK " );
 
-        }else{
-            Log.e(CLASS_TAG, "no se actulizo el SDK Version " );
-        }
-        String lenguaje=Locale.getDefault().getDisplayLanguage();
-        Log.e(CLASS_TAG, "DEVICE LENGUAJE "+lenguaje );
-
-        if(messangi.getLenguaje().equals("0")||!messangi.getLenguaje().equals(lenguaje)){
-            messangi.setLenguaje(lenguaje);
-            Log.e(CLASS_TAG, "SE ACTUALIZO EL LENGUAJE DEL DISPOSITIVO " );
-
-        }else{
-            Log.e(CLASS_TAG, "no se actulizo el Lenguaje " );
-        }
-
-        messangi.getPhone();
-        messangi.getExternalId();
-    }
 
     @RequiresApi(api = Build.VERSION_CODES.O)
     private void setupChannels(){
