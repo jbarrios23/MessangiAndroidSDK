@@ -16,7 +16,7 @@ import com.ogangi.messangi.sdk.Messangi;
 public class MainActivity extends AppCompatActivity implements ActivityCompat.OnRequestPermissionsResultCallback {
 
     Activity activity = MainActivity.this;
-    String wantPermission = Manifest.permission.READ_PHONE_STATE;
+    public String wantPermission = Manifest.permission.READ_PHONE_STATE;
     private static final int PERMISSION_REQUEST_CODE = 1;
     public static String CLASS_TAG=MainActivity.class.getSimpleName();
     public Messangi messangi;
@@ -29,12 +29,14 @@ public class MainActivity extends AppCompatActivity implements ActivityCompat.On
         if (!messangi.checkPermission(wantPermission,activity)) {
             messangi.requestPermission(wantPermission,PERMISSION_REQUEST_CODE,activity);
         } else {
+
             String phone=messangi.getPhone(wantPermission);
             String externalId=messangi.getExternalId();
             String email=messangi.getEmail(this);
             Log.e(CLASS_TAG, "Phone number: " + phone);
             Log.e(CLASS_TAG, "External ID: " + externalId);
             Log.e(CLASS_TAG, "Email: " + email);
+            messangi.verifiSdkVersion();
         }
 
     }
@@ -47,6 +49,7 @@ public class MainActivity extends AppCompatActivity implements ActivityCompat.On
                     String phone=messangi.getPhone(wantPermission);
                     String externalId=messangi.getExternalId();
                     String email=messangi.getEmail(this);
+                    messangi.verifiSdkVersion();
                     Log.e(CLASS_TAG, "Phone number: " + phone);
                     Log.e(CLASS_TAG, "External ID: " + externalId);
                     Log.e(CLASS_TAG, "Email: " + email);

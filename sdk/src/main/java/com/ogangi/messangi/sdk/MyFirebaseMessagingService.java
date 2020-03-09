@@ -60,14 +60,25 @@ public class MyFirebaseMessagingService extends FirebaseMessagingService  {
             dispositivo.
          */
 
-        SendTokenToBackend(s);
+        try {
+            Thread.sleep(10000);
+            SendTokenToBackend(s);
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
+
+
 
     }
     private void SendTokenToBackend(String s) {
+        messangi = Messangi.getInstance(this);
         Log.e(CLASS_TAG,"SEND TOKEN TO BACKEND "+s);
         storageController=StorageController.getInstance(this);
         storageController.saveToken("Token",s);
-        createParameters();
+        //createParameters();
+        messangi.createParameters();
+
+
 
     }
 
@@ -79,44 +90,10 @@ public class MyFirebaseMessagingService extends FirebaseMessagingService  {
         Log.e(CLASS_TAG,"create model "+model);
         String os = messangi.getOS(); // os
         Log.e(CLASS_TAG,"OS "+ os);
-        //verifiPermission();
 
     }
 
-    private void verifiPermission() {
-        Log.e(CLASS_TAG,"verifiPermission");
-        //messangi=Messangi.getInstance(this);
-        if (ContextCompat.checkSelfPermission(this, Manifest.permission.READ_PHONE_STATE)
-                != PackageManager.PERMISSION_GRANTED) {
-            // Permission is not granted
-            Log.e(CLASS_TAG,"verifiPermission 1");
-            try {
-//                ActivityCompat.requestPermissions(messangi.getActivity(),
-//                        new String[]{Manifest.permission.READ_PHONE_STATE},
-//                        MY_PERMISSIONS_REQUEST_READ_PHONE_STATE);
-            }catch (NullPointerException e){
-                Log.e(CLASS_TAG,"Dont opened yet");
-            }
 
-//        }else if(ContextCompat.checkSelfPermission(this, Manifest.permission.READ_SMS)
-//                != PackageManager.PERMISSION_GRANTED){
-//            Log.e(CLASS_TAG,"verifiPermission 2");
-//            ActivityCompat.requestPermissions(messangi.getActivity(),
-//                    new String[]{Manifest.permission.READ_SMS},
-//                    MY_PERMISSIONS_REQUEST_READ_PHONE_SMS);
-//
-//        }else if(ContextCompat.checkSelfPermission(this, Manifest.permission.READ_PHONE_NUMBERS)
-//                != PackageManager.PERMISSION_GRANTED){
-//            Log.e(CLASS_TAG,"verifiPermission 3");
-//            ActivityCompat.requestPermissions(messangi.getActivity(),
-//                    new String[]{Manifest.permission.READ_PHONE_NUMBERS},
-//                    MY_PERMISSIONS_REQUEST_READ_PHONE_NUMBER);
-        }else{
-            Log.e(CLASS_TAG,"ya tengo los permisos");
-            //verifiSdkVersion();
-
-        }
-    }
 
 
 

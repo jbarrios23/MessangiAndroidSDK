@@ -12,8 +12,13 @@ import androidx.lifecycle.OnLifecycleEvent;
 
 
 import com.ogangi.messangi.sdk.Messangi;
+import com.ogangi.messangi.sdk.network.Content;
+import com.ogangi.messangi.sdk.network.ServiceCallback;
 
-public class MyApplication extends Application implements LifecycleObserver {
+import java.sql.Array;
+import java.util.List;
+
+public class MyApplication extends Application implements LifecycleObserver{
     public static String CLASS_TAG=MyApplication.class.getSimpleName();
     public Messangi messangi;
     public Activity activity;
@@ -24,10 +29,13 @@ public class MyApplication extends Application implements LifecycleObserver {
         Log.e(CLASS_TAG,"App created "+this.getClass().getSimpleName());
         messangi=Messangi.getInstance(this);
         messangi.setIcon(R.mipmap.ic_launcher);
+        //messangi.verifiSdkVersion();
         String name=getPackageName()+"."+MyApplication.class.getSimpleName();
         messangi.setNameclass(name);
         messangi.setFirebaseTopic();
         messangi.setMessangiObserver(this);
+
+
 
     }
 
@@ -44,4 +52,6 @@ public class MyApplication extends Application implements LifecycleObserver {
         messangi.cancelTimerForSendData();
         //isAppInBackground(true);
     }
+
+
 }

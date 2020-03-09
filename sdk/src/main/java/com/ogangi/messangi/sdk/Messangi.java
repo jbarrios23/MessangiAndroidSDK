@@ -21,15 +21,26 @@ import androidx.lifecycle.LifecycleObserver;
 import androidx.lifecycle.ProcessLifecycleOwner;
 
 import com.google.firebase.messaging.FirebaseMessaging;
+import com.google.gson.Gson;
+import com.ogangi.messangi.sdk.network.ApiUtils;
+import com.ogangi.messangi.sdk.network.Content;
+import com.ogangi.messangi.sdk.network.EndPoint;
+import com.ogangi.messangi.sdk.network.MessangiDevice;
+import com.ogangi.messangi.sdk.network.ServiceCallback;
 
+import java.util.List;
 import java.util.Locale;
 import java.util.Timer;
 import java.util.TimerTask;
 import java.util.regex.Pattern;
 
+import retrofit2.Call;
+import retrofit2.Callback;
+import retrofit2.Response;
+
 import static android.content.ContentValues.TAG;
 
-public class Messangi {
+public class Messangi implements ServiceCallback{
 
     private static final String CLASS_TAG = Messangi.class.getSimpleName();
     private static Messangi mInstance;
@@ -37,20 +48,23 @@ public class Messangi {
     public String Nameclass;
     public String sdkVersion;
     public String lenguaje;
-
     public String externalId;
     public String email;
     public String phone;
     public Activity activity;
     public Timer timer;
     public int icon;
-    private static final int MY_PERMISSIONS_REQUEST_READ_PHONE_STATE = 1;
+    //private static final int MY_PERMISSIONS_REQUEST_READ_PHONE_STATE = 1;
+    public static EndPoint endPoint;
+    public StorageController storageController;
+    public String wantPermission = Manifest.permission.READ_PHONE_STATE;
 
     public Messangi(Context context){
         contexto=context;
         this.sdkVersion="0";
         this.lenguaje="0";
         this.icon=-1;
+        this.storageController=StorageController.getInstance(contexto);
 
 
     }
@@ -101,7 +115,13 @@ public class Messangi {
         TelephonyManager tMgr = (TelephonyManager)contexto
                 .getSystemService(Context.TELEPHONY_SERVICE);
 
-        externalId=tMgr.getDeviceId();
+        try{
+            externalId=tMgr.getDeviceId();
+        }catch (SecurityException e){
+            externalId="";
+            Log.e(CLASS_TAG," NO TIENE PERMISOS EXTERNAL ID "+ externalId);
+        }
+
         Log.e(CLASS_TAG," SEND IMEI "+ externalId);
         return externalId;
     }
@@ -143,7 +163,7 @@ public class Messangi {
     public String getPhone(String wantPermission) {
         TelephonyManager phoneMgr = (TelephonyManager) contexto.getSystemService(Context.TELEPHONY_SERVICE);
         if (ActivityCompat.checkSelfPermission(activity, wantPermission) != PackageManager.PERMISSION_GRANTED) {
-            return "No tiene numero registrado";
+            return "";
         }
 
         try{
@@ -152,7 +172,12 @@ public class Messangi {
                 phone="No tiene numero registrado";
             }
         }catch (NullPointerException e){
-           phone="No tiene numero registrado";
+            phone="";
+            Log.e(CLASS_TAG,"NO TIENE NUMERO REGISTRADO "+ phone);
+
+        }catch (SecurityException e){
+            phone="";
+            Log.e(CLASS_TAG,"NOT PERMISES PHONE NUMBER "+ phone);
         }
 
         Log.e(CLASS_TAG,"FOR SENDING PHONE NUMBER "+ phone);
@@ -218,7 +243,7 @@ public class Messangi {
         return null;
     }
 
-    private void verifiSdkVersion() {
+    public void verifiSdkVersion() {
         int sdkVersionInt = android.os.Build.VERSION.SDK_INT; // sdk version;
         String sdkVersion=String.valueOf(sdkVersionInt);
 
@@ -240,8 +265,33 @@ public class Messangi {
             Log.e(CLASS_TAG, "no se actulizo el Lenguaje " );
         }
 
-//        getPhone();
-//        getExternalId();
+        //createParameters();
+    }
+
+    public void createParameters() {
+
+        String externalId=getExternalId();
+        Log.e(CLASS_TAG,"create externalID "+externalId);
+        String type=getType();
+        Log.e(CLASS_TAG,"create type "+type);
+        String email=getEmail(contexto);
+        Log.e(CLASS_TAG,"create email "+email);
+        String phone=getPhone(wantPermission);
+        Log.e(CLASS_TAG,"create Phone "+phone);
+        String lenguaje=getLenguaje();
+        Log.e(CLASS_TAG,"create Lenguaje "+lenguaje);
+        String model=getDeviceName();
+        Log.e(CLASS_TAG,"create model "+model);
+        String os = getOS(); // os
+        Log.e(CLASS_TAG,"OS "+ os);
+        String sdkVersion=getSdkVersion();
+        Log.e(CLASS_TAG,"SDK version "+ sdkVersion);
+
+        if(storageController.hasToken("Token")) {
+            String pushToken = storageController.getToken("Token");
+            Log.e(CLASS_TAG,"create PushToken "+pushToken);
+        }
+
     }
 
     public void startTimerForSendData() {
@@ -251,6 +301,7 @@ public class Messangi {
             @Override
             public void run() {
                 Log.e(CLASS_TAG,"repeat "+timer.purge());
+                makeGetDevice(mInstance);
                 verifiSdkVersion();
             }
         },20000,10000);
@@ -314,8 +365,53 @@ public class Messangi {
     }
 
 
+    public  void makeGetDevice(final ServiceCallback context){
+        Log.e(CLASS_TAG, "makeGetPetition "+context );
+        endPoint= ApiUtils.getSendMessageFCM();
+        String Token="ca02f42f504313228eee92da64dcd10e7f05cd77b85b0c467571aa41183de46c3f4cec0e6d5b79045018b90a32f402fbb2754d1e0b409cb4073c98b7d343859f";
+        endPoint.getDeviceParameter(Token).enqueue(new Callback<MessangiDevice>() {
+            @Override
+            public void onResponse(Call<MessangiDevice> call, Response<MessangiDevice> response) {
+                Log.e(CLASS_TAG, "response Device: "+new Gson().toJson(response.body()));
+                context.handleData(new Gson().toJson(response.body()));
+                context.handleIndividualData(response.body().getContent());
+            }
+
+            @Override
+            public void onFailure(Call<MessangiDevice> call, Throwable t) {
+                Log.e(CLASS_TAG, "onFailure: "+t.getMessage());
+            }
+        });
 
 
 
+    }
 
+
+    @Override
+    public void handleData(Object result) {
+        Log.e(CLASS_TAG, "resp: " + result);
+    }
+
+    @Override
+    public void handleIndividualData(Object result) {
+        //Log.e(CLASS_TAG, "resp individual: " + result);
+        List<Content> contentList= (List<Content>) result;
+        for(int i=0;i<contentList.size();i++){
+            Log.e(CLASS_TAG,"Id"+ contentList.get(i).getId());
+            Log.e(CLASS_TAG,"PLataform id "+ contentList.get(i).getPlatformId());
+            Log.e(CLASS_TAG,"pushtoken "+ contentList.get(i).getPushToken());
+            Log.e(CLASS_TAG,"externalID "+ contentList.get(i).getExtermalID());
+            Log.e(CLASS_TAG,"Type "+ contentList.get(i).getType());
+            Log.e(CLASS_TAG,"email "+ contentList.get(i).getEmail());
+            Log.e(CLASS_TAG,"Lenguaje "+ contentList.get(i).getLanguage());
+            Log.e(CLASS_TAG,"model "+ contentList.get(i).getModel());
+            Log.e(CLASS_TAG,"Os "+ contentList.get(i).getModel());
+            Log.e(CLASS_TAG,"SDK version "+ contentList.get(i).getSdkVersion());
+            Log.e(CLASS_TAG,"creat at "+ contentList.get(i).getCreatedAt());
+            Log.e(CLASS_TAG,"Update at "+ contentList.get(i).getUpdatedAt());
+
+        }
+
+    }
 }

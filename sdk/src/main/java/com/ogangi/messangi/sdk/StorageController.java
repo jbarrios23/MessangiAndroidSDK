@@ -31,7 +31,7 @@ public class StorageController {
         mInstance = null;
     }
 
-    public void saveToken(String token,String key){
+    public void saveToken(String key,String token){
 
         SharedPreferences.Editor datosuser=mSharedPreferences.edit();
         datosuser.putString(key,token);
@@ -43,7 +43,7 @@ public class StorageController {
     public boolean hasToken(String key){
         boolean hasToken = false;
         String token=mSharedPreferences.getString(key,"");
-        if(token.length()>0&&!token.equals("")){
+        if(token.length()>0){
             hasToken=true;
 
         }
