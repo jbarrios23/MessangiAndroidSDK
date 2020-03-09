@@ -26,6 +26,7 @@ import com.ogangi.messangi.sdk.network.ApiUtils;
 import com.ogangi.messangi.sdk.network.Content;
 import com.ogangi.messangi.sdk.network.EndPoint;
 import com.ogangi.messangi.sdk.network.MessangiDevice;
+import com.ogangi.messangi.sdk.network.RetrofitClient;
 import com.ogangi.messangi.sdk.network.ServiceCallback;
 
 import java.util.HashMap;
@@ -56,11 +57,12 @@ public class Messangi implements ServiceCallback{
     public Activity activity;
     public Timer timer;
     public int icon;
-    //private static final int MY_PERMISSIONS_REQUEST_READ_PHONE_STATE = 1;
+    private static final int PERMISSION_REQUEST_CODE = 1;
     public static EndPoint endPoint;
     public StorageController storageController;
     public String wantPermission = Manifest.permission.READ_PHONE_STATE;
     public String pushToken;
+    public boolean wascreatedDevice;
 
     public Messangi(Context context){
         contexto=context;
@@ -68,6 +70,7 @@ public class Messangi implements ServiceCallback{
         this.lenguaje="0";
         this.icon=-1;
         this.storageController=StorageController.getInstance(contexto);
+        this.wascreatedDevice=false;
 
 
     }
@@ -175,7 +178,7 @@ public class Messangi implements ServiceCallback{
                 phone="0414-9896198";
             }
         }catch (NullPointerException e){
-            phone="0414-9896198";
+            phone="0414-9896198";//for previus version
             Log.e(CLASS_TAG,"NO TIENE NUMERO REGISTRADO "+ phone);
 
         }catch (SecurityException e){
@@ -190,7 +193,13 @@ public class Messangi implements ServiceCallback{
     public void requestPermission(String permission, int PERMISSION_REQUEST_CODE,Activity activity1){
         activity=activity1;
         if (ActivityCompat.shouldShowRequestPermissionRationale(activity, permission)){
-            Toast.makeText(activity, "Phone state permission allows us to get phone number. Please allow it for additional functionality.", Toast.LENGTH_LONG).show();
+            activity.runOnUiThread(new Runnable() {
+                @Override
+                public void run() {
+                    Toast.makeText(activity, "Phone state permission allows us to get phone number. Please allow it for additional functionality.", Toast.LENGTH_LONG).show();
+                }
+            });
+
         }
         ActivityCompat.requestPermissions(activity, new String[]{permission},PERMISSION_REQUEST_CODE);
     }
@@ -268,8 +277,18 @@ public class Messangi implements ServiceCallback{
             Log.e(CLASS_TAG, "no se actulizo el Lenguaje " );
         }
 
-        //createParameters();
+       if(isWascreatedDevice()){
+           if(!checkPermission(wantPermission,activity)){
+               requestPermission(wantPermission,PERMISSION_REQUEST_CODE,activity);
+           }else{
+               //updateDevice(mInstance);
+               createParameters();
+           }
+
+       }
     }
+
+
 
     public void createParameters() {
 
@@ -300,12 +319,12 @@ public class Messangi implements ServiceCallback{
             getActivity().runOnUiThread(new Runnable() {
                 @Override
                 public void run() {
+                    setWascreatedDevice(true);
                     Toast.makeText(contexto,"Device Not Created",Toast.LENGTH_LONG).show();
                 }
             });
 
         }
-
 
     }
 
@@ -381,6 +400,17 @@ public class Messangi implements ServiceCallback{
         ProcessLifecycleOwner.get().getLifecycle().addObserver(context);
     }
 
+    public boolean isWascreatedDevice() {
+        Log.e(CLASS_TAG,"WascreatedDevice "+wascreatedDevice);
+        return wascreatedDevice;
+    }
+
+    public void setWascreatedDevice(boolean wascreatedDevice) {
+
+        this.wascreatedDevice = wascreatedDevice;
+        Log.e(CLASS_TAG,"setWascreatedDevice "+this.wascreatedDevice);
+    }
+
 
     public  void makeGetDevice(final ServiceCallback context){
         Log.e(CLASS_TAG, "makeGetPetition "+context );
@@ -430,7 +460,10 @@ public class Messangi implements ServiceCallback{
             public void onResponse(Call<MessangiDevice> call, Response<MessangiDevice> response) {
                 Log.e(CLASS_TAG, "response post Device: "+new Gson().toJson(response.body()));
                 if(response.body().getStatus().getCode()==200 && response.body().getStatus().getMessage().equals("Ok!")){
-                    Log.e(CLASS_TAG, "response post Device sucsses: ");
+                    String reference=response.body().getReference();
+                    Log.e(CLASS_TAG, "response post Device sucsses: "+reference);
+                    storageController.saveIdDevice("IdDevice",reference);
+                    setWascreatedDevice(false);
                 }
             }
 
@@ -439,6 +472,43 @@ public class Messangi implements ServiceCallback{
                 Log.e(CLASS_TAG, "onFailure post Device : "+t.getMessage());
             }
         });
+
+
+    }
+
+    private void updateDevice(final ServiceCallback context) {
+
+        Log.e(CLASS_TAG, "makeGetPetition "+context );
+        endPoint= ApiUtils.getSendMessageFCM();
+        String Token="ca02f42f504313228eee92da64dcd10e7f05cd77b85b0c467571aa41183de46c3f4cec0e6d5b79045018b90a32f402fbb2754d1e0b409cb4073c98b7d343859f";
+        if(storageController.hasIDDevice("IdDevice")){
+            String deviceId=storageController.getIdDevice("IdDevice");
+            String url= ApiUtils.BASE_URL+"/TempDevice/"+deviceId;
+            Map<String, String> requestBody = new HashMap<>();
+            requestBody.put("extermalID",externalId );
+            requestBody.put("phone",phone );
+            endPoint.putDeviceParameter(url,Token,requestBody).enqueue(new Callback<MessangiDevice>() {
+                @Override
+                public void onResponse(Call<MessangiDevice> call, Response<MessangiDevice> response) {
+                    Log.e(CLASS_TAG, "response update Device: "+new Gson().toJson(response.body()));
+                    if(response.body().getStatus().getCode()==200 && response.body().getStatus().getMessage().equals("Ok!")){
+                        Log.e(CLASS_TAG, "response update Device sucsses: ");
+                        setWascreatedDevice(false);
+                    }
+
+                }
+
+                @Override
+                public void onFailure(Call<MessangiDevice> call, Throwable t) {
+
+                    Log.e(CLASS_TAG, "onFailure put Device : "+t.getMessage());
+
+                }
+            });
+
+        }
+
+
 
 
     }

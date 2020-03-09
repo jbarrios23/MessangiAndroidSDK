@@ -16,6 +16,9 @@ public class MessangiDevice {
     @SerializedName("pagination")
     @Expose
     private Pagination pagination;
+    @SerializedName("reference")
+    @Expose
+    private String reference;
 
     public Status getStatus() {
         return status;
@@ -39,5 +42,13 @@ public class MessangiDevice {
 
     public void setPagination(Pagination pagination) {
         this.pagination = pagination;
+    }
+
+    public String getReference() {
+        return reference;
+    }
+
+    public void setReference(String reference) {
+        this.reference = reference;
     }
 }
