@@ -28,8 +28,10 @@ import com.ogangi.messangi.sdk.network.EndPoint;
 import com.ogangi.messangi.sdk.network.MessangiDevice;
 import com.ogangi.messangi.sdk.network.ServiceCallback;
 
+import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
+import java.util.Map;
 import java.util.Timer;
 import java.util.TimerTask;
 import java.util.regex.Pattern;
@@ -58,6 +60,7 @@ public class Messangi implements ServiceCallback{
     public static EndPoint endPoint;
     public StorageController storageController;
     public String wantPermission = Manifest.permission.READ_PHONE_STATE;
+    public String pushToken;
 
     public Messangi(Context context){
         contexto=context;
@@ -169,10 +172,10 @@ public class Messangi implements ServiceCallback{
         try{
             phone=phoneMgr.getLine1Number();
             if(phone.equals("")){
-                phone="No tiene numero registrado";
+                phone="0414-9896198";
             }
         }catch (NullPointerException e){
-            phone="";
+            phone="0414-9896198";
             Log.e(CLASS_TAG,"NO TIENE NUMERO REGISTRADO "+ phone);
 
         }catch (SecurityException e){
@@ -288,11 +291,25 @@ public class Messangi implements ServiceCallback{
         Log.e(CLASS_TAG,"SDK version "+ sdkVersion);
 
         if(storageController.hasToken("Token")) {
-            String pushToken = storageController.getToken("Token");
+            pushToken= storageController.getToken("Token");
             Log.e(CLASS_TAG,"create PushToken "+pushToken);
         }
+        if(!externalId.equals("") && !phone.equals("")){
+            postDataDevice(pushToken,externalId,type,email,phone,lenguaje,model,os,sdkVersion,mInstance);
+        }else{
+            getActivity().runOnUiThread(new Runnable() {
+                @Override
+                public void run() {
+                    Toast.makeText(contexto,"Device Not Created",Toast.LENGTH_LONG).show();
+                }
+            });
+
+        }
+
 
     }
+
+
 
     public void startTimerForSendData() {
         Log.e(CLASS_TAG,"timer activo ");
@@ -387,6 +404,45 @@ public class Messangi implements ServiceCallback{
 
     }
 
+    public void postDataDevice(String pushToken, String externalId,
+                                String type, String email, String phone,
+                                String lenguaje, String model, String os, String sdkVersion,
+                                final ServiceCallback context) {
+
+        Map<String, String> requestBody = new HashMap<>();
+        requestBody.put("pushToken",pushToken );
+        requestBody.put("extermalID",externalId );
+        requestBody.put("type",type );
+        requestBody.put("email",email );
+        requestBody.put("phone",phone );
+        requestBody.put("language",lenguaje );
+        requestBody.put("model",model );
+        requestBody.put("os",os );
+        requestBody.put("sdkVersion",sdkVersion );
+
+        Log.e(CLASS_TAG,"MAP "+requestBody.toString());
+
+        endPoint= ApiUtils.getSendMessageFCM();
+        String Token="ca02f42f504313228eee92da64dcd10e7f05cd77b85b0c467571aa41183de46c3f4cec0e6d5b79045018b90a32f402fbb2754d1e0b409cb4073c98b7d343859f";
+
+        endPoint.postDeviceParameter(Token,requestBody).enqueue(new Callback<MessangiDevice>() {
+            @Override
+            public void onResponse(Call<MessangiDevice> call, Response<MessangiDevice> response) {
+                Log.e(CLASS_TAG, "response post Device: "+new Gson().toJson(response.body()));
+                if(response.body().getStatus().getCode()==200 && response.body().getStatus().getMessage().equals("Ok!")){
+                    Log.e(CLASS_TAG, "response post Device sucsses: ");
+                }
+            }
+
+            @Override
+            public void onFailure(Call<MessangiDevice> call, Throwable t) {
+                Log.e(CLASS_TAG, "onFailure post Device : "+t.getMessage());
+            }
+        });
+
+
+    }
+
 
     @Override
     public void handleData(Object result) {
@@ -395,23 +451,10 @@ public class Messangi implements ServiceCallback{
 
     @Override
     public void handleIndividualData(Object result) {
-        //Log.e(CLASS_TAG, "resp individual: " + result);
-        List<Content> contentList= (List<Content>) result;
-        for(int i=0;i<contentList.size();i++){
-            Log.e(CLASS_TAG,"Id"+ contentList.get(i).getId());
-            Log.e(CLASS_TAG,"PLataform id "+ contentList.get(i).getPlatformId());
-            Log.e(CLASS_TAG,"pushtoken "+ contentList.get(i).getPushToken());
-            Log.e(CLASS_TAG,"externalID "+ contentList.get(i).getExtermalID());
-            Log.e(CLASS_TAG,"Type "+ contentList.get(i).getType());
-            Log.e(CLASS_TAG,"email "+ contentList.get(i).getEmail());
-            Log.e(CLASS_TAG,"Lenguaje "+ contentList.get(i).getLanguage());
-            Log.e(CLASS_TAG,"model "+ contentList.get(i).getModel());
-            Log.e(CLASS_TAG,"Os "+ contentList.get(i).getModel());
-            Log.e(CLASS_TAG,"SDK version "+ contentList.get(i).getSdkVersion());
-            Log.e(CLASS_TAG,"creat at "+ contentList.get(i).getCreatedAt());
-            Log.e(CLASS_TAG,"Update at "+ contentList.get(i).getUpdatedAt());
 
-        }
+        List<Content> contentList= (List<Content>) result;
+        Log.e(CLASS_TAG, "resp individual: " + contentList.size());
+
 
     }
 }

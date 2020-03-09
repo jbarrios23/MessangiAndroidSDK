@@ -93,10 +93,6 @@ public class MyFirebaseMessagingService extends FirebaseMessagingService  {
 
     }
 
-
-
-
-
     @SuppressLint("PrivateApi")
     @Override
     public void onMessageReceived(RemoteMessage remoteMessage) {

@@ -55,6 +55,7 @@ public class MainActivity extends AppCompatActivity implements ActivityCompat.On
                     Log.e(CLASS_TAG, "Email: " + email);
                 } else {
                     Toast.makeText(activity,"Permission Denied. ", Toast.LENGTH_LONG).show();
+                    Toast.makeText(activity,"Device Not Created",Toast.LENGTH_LONG).show();
                 }
                 break;
         }
