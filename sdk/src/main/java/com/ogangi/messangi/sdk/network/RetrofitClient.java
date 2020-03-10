@@ -34,7 +34,8 @@ public class RetrofitClient {
                     .build();
 
         }
-        Log.d("Retrofit", "Load Url "+ retrofit.baseUrl());
+        //Log.d("Retrofit", "Load Url "+ retrofit.baseUrl());
+        Log.d("Retrofit", "Load Url "+ Url);
         return retrofit;
     }
 

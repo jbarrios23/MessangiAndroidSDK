@@ -34,23 +34,24 @@ public class MyApplication extends Application implements LifecycleObserver{
         messangi.setNameclass(name);
         messangi.setFirebaseTopic();
         messangi.setMessangiObserver(this);
-
-
+        messangi.setConfigFile(R.raw.config);
 
     }
 
     @OnLifecycleEvent(Lifecycle.Event.ON_START)
     public void onEnterForeground() {
         Log.e(CLASS_TAG, "foreground");
-        messangi.startTimerForSendData();
+        messangi.verifiSdkVersion();
+        messangi.showConfigParamenter();
         // isAppInBackground(false);
     }
 
     @OnLifecycleEvent(Lifecycle.Event.ON_STOP)
     public void onEnterBackground() {
         Log.e(CLASS_TAG, "Background");
-        messangi.cancelTimerForSendData();
+        //messangi.cancelTimerForSendData();
         //isAppInBackground(true);
+        messangi.showConfigParamenter();
     }
 
 

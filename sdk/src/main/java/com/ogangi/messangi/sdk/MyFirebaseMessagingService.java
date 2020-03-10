@@ -61,7 +61,7 @@ public class MyFirebaseMessagingService extends FirebaseMessagingService  {
          */
 
         try {
-            Thread.sleep(10000);
+            Thread.sleep(3000);
             SendTokenToBackend(s);
         } catch (InterruptedException e) {
             e.printStackTrace();

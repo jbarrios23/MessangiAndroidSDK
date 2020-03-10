@@ -8,6 +8,7 @@ import android.app.Application;
 import android.content.Context;
 import android.content.pm.ApplicationInfo;
 import android.content.pm.PackageManager;
+import android.content.res.Resources;
 import android.os.Build;
 import android.os.Bundle;
 import android.telephony.TelephonyManager;
@@ -15,6 +16,7 @@ import android.util.Log;
 import android.util.Patterns;
 import android.widget.Toast;
 
+import androidx.annotation.NonNull;
 import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
 import androidx.lifecycle.LifecycleObserver;
@@ -29,10 +31,13 @@ import com.ogangi.messangi.sdk.network.MessangiDevice;
 import com.ogangi.messangi.sdk.network.RetrofitClient;
 import com.ogangi.messangi.sdk.network.ServiceCallback;
 
+import java.io.IOException;
+import java.io.InputStream;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
+import java.util.Properties;
 import java.util.Timer;
 import java.util.TimerTask;
 import java.util.regex.Pattern;
@@ -62,7 +67,7 @@ public class Messangi implements ServiceCallback{
     public StorageController storageController;
     public String wantPermission = Manifest.permission.READ_PHONE_STATE;
     public String pushToken;
-    public boolean wascreatedDevice;
+    public int configFile;
 
     public Messangi(Context context){
         contexto=context;
@@ -70,7 +75,7 @@ public class Messangi implements ServiceCallback{
         this.lenguaje="0";
         this.icon=-1;
         this.storageController=StorageController.getInstance(contexto);
-        this.wascreatedDevice=false;
+        this.configFile=-1;
 
 
     }
@@ -116,19 +121,52 @@ public class Messangi implements ServiceCallback{
         this.lenguaje = lenguaje;
     }
 
-    @SuppressLint("MissingPermission")
-    public String getExternalId() {
+    public void getExternalId(Activity activity1){
+        activity=activity1;
+        if(!checkPermission(wantPermission,activity)){
+            requestPermission(wantPermission,PERMISSION_REQUEST_CODE,activity);
+        }else{
+            getExternalIdExpecific(activity);
+            makeGetDevice(mInstance,contexto);
+        }
+
+    }
+
+    public void getPhone(Activity activity1){
+        activity=activity1;
+        if(!checkPermission(wantPermission,activity)){
+            requestPermission(wantPermission,PERMISSION_REQUEST_CODE,activity);
+        }else{
+            getPhoneEspecific(activity);
+        }
+
+    }
+
+
+    @SuppressLint({"MissingPermission", "HardwareIds"})
+    public String getExternalIdExpecific(Activity activity1) {
+
         TelephonyManager tMgr = (TelephonyManager)contexto
                 .getSystemService(Context.TELEPHONY_SERVICE);
 
+        if (ActivityCompat.checkSelfPermission(activity1, wantPermission) != PackageManager.PERMISSION_GRANTED) {
+            return "";
+        }
+
         try{
-            externalId=tMgr.getDeviceId();
+            if (tMgr != null) {
+                externalId=tMgr.getDeviceId();
+                Log.e(CLASS_TAG," EXTERNAL ID "+ externalId);
+            }
         }catch (SecurityException e){
             externalId="";
             Log.e(CLASS_TAG," NO TIENE PERMISOS EXTERNAL ID "+ externalId);
+        }catch (NullPointerException e){
+            externalId="";
+            Log.e(CLASS_TAG," NUll EXTERNAL ID "+ externalId);
         }
-
         Log.e(CLASS_TAG," SEND IMEI "+ externalId);
+        updateDevice(mInstance,"extermalID",externalId);
         return externalId;
     }
 
@@ -143,12 +181,14 @@ public class Messangi implements ServiceCallback{
                 gmail = account.name;
             }
         }
-
         email=gmail;
-
         Log.e(CLASS_TAG," SEND Email "+ email);
-
         return email;
+    }
+
+    public void updateEmail(){
+        String emailNew=getEmail(contexto);
+        updateDevice(mInstance,"email",emailNew);
     }
 
 //    @SuppressLint({"MissingPermission", "HardwareIds"})
@@ -166,7 +206,8 @@ public class Messangi implements ServiceCallback{
 //    }
 
     @SuppressLint("HardwareIds")
-    public String getPhone(String wantPermission) {
+    public String getPhoneEspecific(Activity activity1) {
+        activity=activity1;
         TelephonyManager phoneMgr = (TelephonyManager) contexto.getSystemService(Context.TELEPHONY_SERVICE);
         if (ActivityCompat.checkSelfPermission(activity, wantPermission) != PackageManager.PERMISSION_GRANTED) {
             return "";
@@ -178,7 +219,7 @@ public class Messangi implements ServiceCallback{
                 phone="0414-9896198";
             }
         }catch (NullPointerException e){
-            phone="0414-9896198";//for previus version
+            phone="";//for previus version
             Log.e(CLASS_TAG,"NO TIENE NUMERO REGISTRADO "+ phone);
 
         }catch (SecurityException e){
@@ -187,6 +228,7 @@ public class Messangi implements ServiceCallback{
         }
 
         Log.e(CLASS_TAG,"FOR SENDING PHONE NUMBER "+ phone);
+        updateDevice(mInstance,"phone",phone);
         return phone;
     }
 
@@ -227,22 +269,22 @@ public class Messangi implements ServiceCallback{
         this.activity = activity;
     }
 
-//    public String getConfigValue(Context context, String name) {
-//        Resources resources = context.getResources();
-//
-//        try {
-//            InputStream rawResource = resources.openRawResource(R.raw.config);
-//            Properties properties = new Properties();
-//            properties.load(rawResource);
-//            return properties.getProperty(name);
-//        } catch (Resources.NotFoundException e) {
-//            Log.e(CLASS_TAG, "Unable to find the config file: " + e.getMessage());
-//        } catch (IOException e) {
-//            Log.e(CLASS_TAG, "Failed to open config file.");
-//        }
-//
-//        return null;
-//    }
+    public String getConfigValue(Context context, String name) {
+        Resources resources = context.getResources();
+        try {
+            InputStream rawResource = resources.openRawResource(getConfigFile());
+            Properties properties = new Properties();
+            properties.load(rawResource);
+            return properties.getProperty(name);
+        } catch (Resources.NotFoundException e) {
+            Log.e(CLASS_TAG, "Unable to find the config file: " + e.getMessage());
+
+        } catch (IOException e) {
+            Log.e(CLASS_TAG, "Failed to open config file.");
+        }
+
+        return "";
+    }
 
     public  String getMetaData(Context context, String name) {
         try {
@@ -258,48 +300,53 @@ public class Messangi implements ServiceCallback{
     public void verifiSdkVersion() {
         int sdkVersionInt = android.os.Build.VERSION.SDK_INT; // sdk version;
         String sdkVersion=String.valueOf(sdkVersionInt);
-
         Log.e(CLASS_TAG, "SDK VERSION "+sdkVersion );
         if(getSdkVersion().equals("0") || !getSdkVersion().equals(sdkVersion)){
             setSdkVersion(sdkVersion);
-            Log.e(CLASS_TAG, "SE ACTUALIZO LA VERSION DEL SDK " );
+            Log.e(CLASS_TAG, "New SDK O SE ACTUALIZO LA VERSION DEL SDK " );
+            updateDevice(mInstance,"sdkVersion",getSdkVersion());
         }else{
             Log.e(CLASS_TAG, "no se actulizo el SDK Version " );
         }
         String lenguaje= Locale.getDefault().getDisplayLanguage();
         Log.e(CLASS_TAG, "DEVICE LENGUAJE "+lenguaje );
-
         if(getLenguaje().equals("0") || !getLenguaje().equals(lenguaje)){
             setLenguaje(lenguaje);
-            Log.e(CLASS_TAG, "SE ACTUALIZO EL LENGUAJE DEL DISPOSITIVO " );
+            Log.e(CLASS_TAG, "New Lenguaje O SE ACTUALIZO EL LENGUAJE DEL DISPOSITIVO " );
+            updateDevice(mInstance,"language",getLenguaje());
 
         }else{
             Log.e(CLASS_TAG, "no se actulizo el Lenguaje " );
         }
 
-       if(isWascreatedDevice()){
-           if(!checkPermission(wantPermission,activity)){
-               requestPermission(wantPermission,PERMISSION_REQUEST_CODE,activity);
-           }else{
-               //updateDevice(mInstance);
-               createParameters();
-           }
 
-       }
+
+    }
+
+    public void showConfigParamenter(){
+        String apiUrl=getConfigValue(contexto,"api_host");
+        String apiVersion=getConfigValue(contexto,"api_version");
+        String apiKey=getConfigValue(contexto,"api_key");
+        String apiTokenAuth=getConfigValue(contexto,"api_token_auth");
+        Log.e(CLASS_TAG, "get data config "+apiUrl);
+        Log.e(CLASS_TAG, "get data config "+apiVersion);
+        Log.e(CLASS_TAG, "get data config "+apiKey);
+        Log.e(CLASS_TAG, "get data config "+apiTokenAuth);
+
     }
 
 
 
     public void createParameters() {
 
-        String externalId=getExternalId();
-        Log.e(CLASS_TAG,"create externalID "+externalId);
+//      String externalId=getExternalId();
+//      Log.e(CLASS_TAG,"create externalID "+externalId);
         String type=getType();
         Log.e(CLASS_TAG,"create type "+type);
         String email=getEmail(contexto);
         Log.e(CLASS_TAG,"create email "+email);
-        String phone=getPhone(wantPermission);
-        Log.e(CLASS_TAG,"create Phone "+phone);
+//        String phone=getPhone(wantPermission);
+//        Log.e(CLASS_TAG,"create Phone "+phone);
         String lenguaje=getLenguaje();
         Log.e(CLASS_TAG,"create Lenguaje "+lenguaje);
         String model=getDeviceName();
@@ -313,42 +360,13 @@ public class Messangi implements ServiceCallback{
             pushToken= storageController.getToken("Token");
             Log.e(CLASS_TAG,"create PushToken "+pushToken);
         }
-        if(!externalId.equals("") && !phone.equals("")){
-            postDataDevice(pushToken,externalId,type,email,phone,lenguaje,model,os,sdkVersion,mInstance);
-        }else{
-            getActivity().runOnUiThread(new Runnable() {
-                @Override
-                public void run() {
-                    setWascreatedDevice(true);
-                    Toast.makeText(contexto,"Device Not Created",Toast.LENGTH_LONG).show();
-                }
-            });
 
-        }
-
-    }
-
-
-
-    public void startTimerForSendData() {
-        Log.e(CLASS_TAG,"timer activo ");
-        timer=new Timer();
-        timer.scheduleAtFixedRate(new TimerTask() {
-            @Override
-            public void run() {
-                Log.e(CLASS_TAG,"repeat "+timer.purge());
-                makeGetDevice(mInstance);
-                verifiSdkVersion();
-            }
-        },20000,10000);
+        //postDataDevice(pushToken,externalId,type,email,phone,lenguaje,model,os,sdkVersion,mInstance);
+        postDataDevice(pushToken,type,email,lenguaje,model,os,sdkVersion,mInstance);
 
 
     }
 
-    public void cancelTimerForSendData() {
-        timer.cancel();
-        Log.e(CLASS_TAG, "timer cancel " );
-    }
 
     public int getIcon() {
 
@@ -400,21 +418,23 @@ public class Messangi implements ServiceCallback{
         ProcessLifecycleOwner.get().getLifecycle().addObserver(context);
     }
 
-    public boolean isWascreatedDevice() {
-        Log.e(CLASS_TAG,"WascreatedDevice "+wascreatedDevice);
-        return wascreatedDevice;
+    public int getConfigFile() {
+
+        if(configFile==-1){
+            Log.e(CLASS_TAG, "value default config ");
+        }
+        return configFile;
+
     }
 
-    public void setWascreatedDevice(boolean wascreatedDevice) {
-
-        this.wascreatedDevice = wascreatedDevice;
-        Log.e(CLASS_TAG,"setWascreatedDevice "+this.wascreatedDevice);
+    public void setConfigFile(int configFile) {
+        Log.e(CLASS_TAG, "set config file ");
+        this.configFile = configFile;
     }
 
-
-    public  void makeGetDevice(final ServiceCallback context){
+    public  void makeGetDevice(final ServiceCallback context,Context contexto){
         Log.e(CLASS_TAG, "makeGetPetition "+context );
-        endPoint= ApiUtils.getSendMessageFCM();
+        endPoint= ApiUtils.getSendMessageFCM1(contexto);
         String Token="ca02f42f504313228eee92da64dcd10e7f05cd77b85b0c467571aa41183de46c3f4cec0e6d5b79045018b90a32f402fbb2754d1e0b409cb4073c98b7d343859f";
         endPoint.getDeviceParameter(Token).enqueue(new Callback<MessangiDevice>() {
             @Override
@@ -434,17 +454,14 @@ public class Messangi implements ServiceCallback{
 
     }
 
-    public void postDataDevice(String pushToken, String externalId,
-                                String type, String email, String phone,
-                                String lenguaje, String model, String os, String sdkVersion,
-                                final ServiceCallback context) {
+    public void postDataDevice(String pushToken,String type, String email,
+                               String lenguaje, String model, String os,
+                               String sdkVersion,final ServiceCallback context) {
 
         Map<String, String> requestBody = new HashMap<>();
         requestBody.put("pushToken",pushToken );
-        requestBody.put("extermalID",externalId );
         requestBody.put("type",type );
         requestBody.put("email",email );
-        requestBody.put("phone",phone );
         requestBody.put("language",lenguaje );
         requestBody.put("model",model );
         requestBody.put("os",os );
@@ -463,7 +480,7 @@ public class Messangi implements ServiceCallback{
                     String reference=response.body().getReference();
                     Log.e(CLASS_TAG, "response post Device sucsses: "+reference);
                     storageController.saveIdDevice("IdDevice",reference);
-                    setWascreatedDevice(false);
+
                 }
             }
 
@@ -476,24 +493,22 @@ public class Messangi implements ServiceCallback{
 
     }
 
-    private void updateDevice(final ServiceCallback context) {
-
-        Log.e(CLASS_TAG, "makeGetPetition "+context );
+    private void updateDevice(final ServiceCallback context,String key,String value) {
         endPoint= ApiUtils.getSendMessageFCM();
         String Token="ca02f42f504313228eee92da64dcd10e7f05cd77b85b0c467571aa41183de46c3f4cec0e6d5b79045018b90a32f402fbb2754d1e0b409cb4073c98b7d343859f";
         if(storageController.hasIDDevice("IdDevice")){
             String deviceId=storageController.getIdDevice("IdDevice");
             String url= ApiUtils.BASE_URL+"/TempDevice/"+deviceId;
             Map<String, String> requestBody = new HashMap<>();
-            requestBody.put("extermalID",externalId );
-            requestBody.put("phone",phone );
+            requestBody.put(key,value);
+
             endPoint.putDeviceParameter(url,Token,requestBody).enqueue(new Callback<MessangiDevice>() {
                 @Override
                 public void onResponse(Call<MessangiDevice> call, Response<MessangiDevice> response) {
                     Log.e(CLASS_TAG, "response update Device: "+new Gson().toJson(response.body()));
                     if(response.body().getStatus().getCode()==200 && response.body().getStatus().getMessage().equals("Ok!")){
                         Log.e(CLASS_TAG, "response update Device sucsses: ");
-                        setWascreatedDevice(false);
+
                     }
 
                 }
@@ -506,6 +521,8 @@ public class Messangi implements ServiceCallback{
                 }
             });
 
+        }else{
+            Log.e(CLASS_TAG, "doesn't have iddevice can't update  : ");
         }
 
 
@@ -527,4 +544,5 @@ public class Messangi implements ServiceCallback{
 
 
     }
+
 }
