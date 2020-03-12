@@ -34,7 +34,13 @@ public class MyApplication extends Application implements LifecycleObserver{
         messangi.setNameclass(name);
         messangi.setFirebaseTopic();
         messangi.setMessangiObserver(this);
-        messangi.setConfigFile(R.raw.config);
+        //messangi.setConfigFile(R.raw.config);
+        messangi.setMessangi_host(getString(R.string.messangi_host));
+        messangi.setMessangi_token(getString(R.string.messangi_app_token));
+        messangi.setAnalytics_allowed(getResources().getBoolean(R.bool.analytics_allowed));
+        messangi.setLocation_allowed(getResources().getBoolean(R.bool.location_allowed));
+        messangi.setLogging_allowed(getResources().getBoolean(R.bool.logging_allowed));
+
 
     }
 

@@ -69,6 +69,12 @@ public class Messangi implements ServiceCallback{
     public String pushToken;
     public int configFile;
 
+    public String messangi_host;
+    public String messangi_token;
+    public boolean analytics_allowed;
+    public boolean location_allowed;
+    public boolean logging_allowed;
+
     public Messangi(Context context){
         contexto=context;
         this.sdkVersion="0";
@@ -290,11 +296,20 @@ public class Messangi implements ServiceCallback{
         try {
             ApplicationInfo ai = context.getPackageManager().getApplicationInfo(context.getPackageName(), PackageManager.GET_META_DATA);
             Bundle bundle = ai.metaData;
-            return bundle.getString(name);
+            String data=bundle.getString(name);
+            if(!data.equals("null")){
+
+                return data;
+            }else{
+                return "";
+            }
+
         } catch (PackageManager.NameNotFoundException e) {
-            Log.e(TAG, "Unable to load meta-data: " + e.getMessage());
+            Log.e(CLASS_TAG, "Unable to load meta-data: " + e.getMessage());
+        }catch (NullPointerException e){
+            return "";
         }
-        return null;
+        return "";
     }
 
     public void verifiSdkVersion() {
@@ -324,14 +339,22 @@ public class Messangi implements ServiceCallback{
     }
 
     public void showConfigParamenter(){
-        String apiUrl=getConfigValue(contexto,"api_host");
-        String apiVersion=getConfigValue(contexto,"api_version");
-        String apiKey=getConfigValue(contexto,"api_key");
-        String apiTokenAuth=getConfigValue(contexto,"api_token_auth");
-        Log.e(CLASS_TAG, "get data config "+apiUrl);
-        Log.e(CLASS_TAG, "get data config "+apiVersion);
-        Log.e(CLASS_TAG, "get data config "+apiKey);
-        Log.e(CLASS_TAG, "get data config "+apiTokenAuth);
+        String messangi_host=getMessangi_host();
+        String messangi_token=getMessangi_token();
+        boolean analytics_allowed=isAnalytics_allowed();
+        boolean location_allowed=isLocation_allowed();
+        boolean logging_allowed=isLogging_allowed();
+
+
+        if(logging_allowed){
+            Log.e(CLASS_TAG, "messangi_host "+messangi_host);
+            Log.e(CLASS_TAG, "messangi_token "+messangi_token);
+            Log.e(CLASS_TAG, "messangi_token "+analytics_allowed);
+            Log.e(CLASS_TAG, "messangi_token "+location_allowed);
+
+        }else{
+            Log.e(CLASS_TAG, "NO TIENES ARCHIVO DE CONFIGURACION ");
+        }
 
     }
 
@@ -430,6 +453,47 @@ public class Messangi implements ServiceCallback{
     public void setConfigFile(int configFile) {
         Log.e(CLASS_TAG, "set config file ");
         this.configFile = configFile;
+    }
+
+    public String getMessangi_host() {
+        return messangi_host;
+    }
+
+    public void setMessangi_host(String messangi_host) {
+        this.messangi_host = messangi_host;
+
+    }
+
+    public String getMessangi_token() {
+        return messangi_token;
+    }
+
+    public void setMessangi_token(String messangi_token) {
+        this.messangi_token = messangi_token;
+    }
+
+    public boolean isAnalytics_allowed() {
+        return analytics_allowed;
+    }
+
+    public void setAnalytics_allowed(boolean analytics_allowed) {
+        this.analytics_allowed = analytics_allowed;
+    }
+
+    public boolean isLocation_allowed() {
+        return location_allowed;
+    }
+
+    public void setLocation_allowed(boolean location_allowed) {
+        this.location_allowed = location_allowed;
+    }
+
+    public boolean isLogging_allowed() {
+        return logging_allowed;
+    }
+
+    public void setLogging_allowed(boolean logging_allowed) {
+        this.logging_allowed = logging_allowed;
     }
 
     public  void makeGetDevice(final ServiceCallback context,Context contexto){

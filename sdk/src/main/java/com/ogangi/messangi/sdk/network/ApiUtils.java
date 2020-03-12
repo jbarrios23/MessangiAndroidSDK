@@ -17,7 +17,7 @@ public class ApiUtils {
 
     public static EndPoint getSendMessageFCM1(Context context){
         messangi=Messangi.getInstance(context);
-        String url=messangi.getConfigValue(context,"api_host");
+        String url=messangi.getMetaData(context,"api_host");
         return RetrofitClient.getClient(url).create(EndPoint.class);
     }
 
