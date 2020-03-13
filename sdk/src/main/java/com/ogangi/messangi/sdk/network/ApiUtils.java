@@ -15,11 +15,11 @@ public class ApiUtils {
         return RetrofitClient.getClient(BASE_URL).create(EndPoint.class);
     }
 
-    public static EndPoint getSendMessageFCM1(Context context){
-        messangi=Messangi.getInstance(context);
-        String url=messangi.getMetaData(context,"api_host");
-        return RetrofitClient.getClient(url).create(EndPoint.class);
-    }
+//    public static EndPoint getSendMessageFCM1(Context context){
+//        messangi=Messangi.getInstance(context);
+//        //String url=messangi.getMetaData(context,"api_host");
+//        return RetrofitClient.getClient(url).create(EndPoint.class);
+//    }
 
     public static EndPoint getSendMessageFCMQA(){
 

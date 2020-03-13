@@ -82,16 +82,7 @@ public class MyFirebaseMessagingService extends FirebaseMessagingService  {
 
     }
 
-    private void createParameters() {
-        messangi = Messangi.getInstance(this);
-        String type=messangi.getType();
-        Log.e(CLASS_TAG,"create type "+type);
-        String model=messangi.getDeviceName();
-        Log.e(CLASS_TAG,"create model "+model);
-        String os = messangi.getOS(); // os
-        Log.e(CLASS_TAG,"OS "+ os);
 
-    }
 
     @SuppressLint("PrivateApi")
     @Override
