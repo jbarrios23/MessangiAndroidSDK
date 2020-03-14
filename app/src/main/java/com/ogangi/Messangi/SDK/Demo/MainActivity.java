@@ -30,12 +30,12 @@ public class MainActivity extends AppCompatActivity implements ActivityCompat.On
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
         messangi=Messangi.getInstance(this);
-
         getPhone=findViewById(R.id.button_getPhone);
 
         getPhone.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+
                 messangi.getPhone(activity);
 
             }
@@ -49,7 +49,6 @@ public class MainActivity extends AppCompatActivity implements ActivityCompat.On
             case PERMISSION_REQUEST_CODE:
                 if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
                     Log.e(CLASS_TAG,"PERMISSION_GRANTED");
-
                     messangi.getPhone(activity);
                 } else {
                     Toast.makeText(activity,"Permission Denied. ", Toast.LENGTH_LONG).show();

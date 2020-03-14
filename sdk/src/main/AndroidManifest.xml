@@ -4,6 +4,11 @@
 
     <application>
 
+        <provider
+            android:authorities="${applicationId}.MessangiProvider"
+            android:name=".provider.MessangiProvider"
+            android:exported="false" />
+
         <service
             android:name="MyFirebaseMessagingService"
             android:permission="com.google.android.c2dm.permission.SEND">

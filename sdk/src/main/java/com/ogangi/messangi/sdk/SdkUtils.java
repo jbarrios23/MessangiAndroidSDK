@@ -9,5 +9,13 @@ public class SdkUtils {
         Log.e(tag, String.valueOf(message));
     }
 
+    public static void showDebugLog(String tag,Object message){
+        Log.d(tag, String.valueOf(message));
+    }
+
+    public static void showInfoLog(String tag,Object message){
+        Log.i(tag, String.valueOf(message));
+    }
+
 
 }

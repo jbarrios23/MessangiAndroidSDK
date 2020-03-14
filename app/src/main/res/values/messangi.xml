@@ -1,6 +1,6 @@
 <resources>
-  <string name="messangi_host" translatable="false" templateMergeStrategy="preserve">https://mobile-sdk-stg.messangi.me</string>
-  <string name="messangi_app_token" translatable="false">5e5fff7d52d81873cfb8b1d4</string>
+  <string name="messangi_host" translatable="false" templateMergeStrategy="preserve">https://service.messangi.me/aemon/v1</string>
+  <string name="messangi_app_token" translatable="false">5e6c269c842bce28abcb926f</string>
   <bool name="analytics_allowed">false</bool>
   <bool name="location_allowed">false</bool>
   <bool name="logging_allowed">true</bool>

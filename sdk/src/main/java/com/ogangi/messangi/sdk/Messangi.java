@@ -16,6 +16,7 @@ import android.util.Log;
 import android.util.Patterns;
 import android.widget.Toast;
 
+import androidx.annotation.NonNull;
 import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
 import androidx.lifecycle.Lifecycle;
@@ -167,10 +168,10 @@ public class Messangi implements ServiceCallback,LifecycleObserver{
         SdkUtils.showErrorLog(CLASS_TAG,androidId);
     }
 
-    public void getPhone(Activity activity1){
-        activity=activity1;
+    public void getPhone(Activity activity){
+        this.activity=activity;
         if(!checkPermission(wantPermission,context)){
-            requestPermission(wantPermission,PERMISSION_REQUEST_CODE,activity);
+            requestPermission(wantPermission,PERMISSION_REQUEST_CODE,this.activity);
         }else{
             getPhoneEspecific(activity);
         }
@@ -193,32 +194,38 @@ public class Messangi implements ServiceCallback,LifecycleObserver{
     public void setOs(String os) {
         this.os = os;
     }
+
+
     private void initResource(){
         setMessangiObserver();
         setFirebaseTopic();
         icon=context.getResources().getIdentifier("ic_launcher","mipmap",context.getPackageName());
         Nameclass= context.getPackageName()+"."+ context.getClass().getSimpleName();
         SdkUtils.showErrorLog(CLASS_TAG,Nameclass);
-        int key_messagi_host= context.getResources()
-                .getIdentifier("messangi_host","string", context.getPackageName());
-        String messangi_host= context.getString(key_messagi_host);
-        SdkUtils.showErrorLog(CLASS_TAG,messangi_host);
-        int key_messangi_app_token= context.getResources()
-                .getIdentifier("messangi_app_token","string", context.getPackageName());
-        String messangi_app_token= context.getString(key_messangi_app_token);
-        SdkUtils.showErrorLog(CLASS_TAG,messangi_app_token);
-        int key_analytics_allowed= context.getResources()
-                .getIdentifier("analytics_allowed","bool", context.getPackageName());
-        boolean analytics_allowed= context.getResources().getBoolean(key_analytics_allowed);
-        SdkUtils.showErrorLog(CLASS_TAG,analytics_allowed);
-        int key_location_allowed= context.getResources()
-                .getIdentifier("location_allowed","bool", context.getPackageName());
-        boolean location_allowed= context.getResources().getBoolean(key_location_allowed);
-        SdkUtils.showErrorLog(CLASS_TAG,location_allowed);
-        int key_logging_allowed= context.getResources()
-                .getIdentifier("logging_allowed","bool", context.getPackageName());
-        boolean logging_allowed= context.getResources().getBoolean(key_logging_allowed);
-        SdkUtils.showErrorLog(CLASS_TAG,logging_allowed);
+        try {
+            int key_messagi_host = context.getResources()
+                    .getIdentifier("messangi_host", "string", context.getPackageName());
+            String messangi_host = context.getString(key_messagi_host);
+            SdkUtils.showErrorLog(CLASS_TAG, messangi_host);
+            int key_messangi_app_token = context.getResources()
+                    .getIdentifier("messangi_app_token", "string", context.getPackageName());
+            String messangi_app_token = context.getString(key_messangi_app_token);
+            SdkUtils.showErrorLog(CLASS_TAG, messangi_app_token);
+            int key_analytics_allowed = context.getResources()
+                    .getIdentifier("analytics_allowed", "bool", context.getPackageName());
+            boolean analytics_allowed = context.getResources().getBoolean(key_analytics_allowed);
+            SdkUtils.showErrorLog(CLASS_TAG, analytics_allowed);
+            int key_location_allowed = context.getResources()
+                    .getIdentifier("location_allowed", "bool", context.getPackageName());
+            boolean location_allowed = context.getResources().getBoolean(key_location_allowed);
+            SdkUtils.showErrorLog(CLASS_TAG, location_allowed);
+            int key_logging_allowed = context.getResources()
+                    .getIdentifier("logging_allowed", "bool", context.getPackageName());
+            boolean logging_allowed = context.getResources().getBoolean(key_logging_allowed);
+            SdkUtils.showErrorLog(CLASS_TAG, logging_allowed);
+        }catch (Resources.NotFoundException e){
+            SdkUtils.showErrorLog(CLASS_TAG,"Hasn't congifg file");
+        }
 
     }
 
@@ -264,7 +271,7 @@ public class Messangi implements ServiceCallback,LifecycleObserver{
         return phone;
     }
 
-    public void requestPermission(String permission, int PERMISSION_REQUEST_CODE,Activity activity1){
+    public void requestPermission(@NonNull String permission, int PERMISSION_REQUEST_CODE, Activity activity1){
         activity=activity1;
         if (ActivityCompat.shouldShowRequestPermissionRationale(activity, permission)){
             activity.runOnUiThread(new Runnable() {
@@ -273,7 +280,6 @@ public class Messangi implements ServiceCallback,LifecycleObserver{
                     Toast.makeText(activity, "Phone state permission allows us to get phone number. Please allow it for additional functionality.", Toast.LENGTH_LONG).show();
                 }
             });
-
         }
         ActivityCompat.requestPermissions(activity, new String[]{permission},PERMISSION_REQUEST_CODE);
     }
