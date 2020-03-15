@@ -9,6 +9,9 @@ public class MessangiDev {
     @SerializedName("id")
     @Expose
     private String id;
+    @SerializedName("pushToken")
+    @Expose
+    private String pushToken;
     @SerializedName("userId")
     @Expose
     private String userId;
@@ -42,19 +45,6 @@ public class MessangiDev {
     @SerializedName("transaction")
     @Expose
     private String transaction;
-    @SerializedName("pushToken")
-    @Expose
-    private String pushToken;
-    @SerializedName("externalID")
-    @Expose
-    private String externalID;
-    @SerializedName("email")
-    @Expose
-    private String email;
-    @SerializedName("phone")
-    @Expose
-    private String phone;
-
 
     public String getId() {
         return id;
@@ -62,6 +52,14 @@ public class MessangiDev {
 
     public void setId(String id) {
         this.id = id;
+    }
+
+    public String getPushToken() {
+        return pushToken;
+    }
+
+    public void setPushToken(String pushToken) {
+        this.pushToken = pushToken;
     }
 
     public String getUserId() {
@@ -151,38 +149,5 @@ public class MessangiDev {
     public void setTransaction(String transaction) {
         this.transaction = transaction;
     }
-
-    public String getPushToken() {
-        return pushToken;
-    }
-
-    public void setPushToken(String pushToken) {
-        this.pushToken = pushToken;
-    }
-
-    public String getExternalID() {
-        return externalID;
-    }
-
-    public void setExternalID(String externalID) {
-        this.externalID = externalID;
-    }
-
-    public String getEmail() {
-        return email;
-    }
-
-    public void setEmail(String email) {
-        this.email = email;
-    }
-
-    public String getPhone() {
-        return phone;
-    }
-
-    public void setPhone(String phone) {
-        this.phone = phone;
-    }
-
 
 }

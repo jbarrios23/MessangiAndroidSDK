@@ -38,8 +38,6 @@ public class MainActivity extends AppCompatActivity implements ActivityCompat.On
             public void onClick(View v) {
 
                 messangi.getPhone(activity);
-                messangi.makeGetDevice(MainActivity.this,getApplicationContext());
-
 
             }
         });

@@ -4,6 +4,13 @@ import android.content.Context;
 import android.content.SharedPreferences;
 import android.util.Log;
 
+import com.google.gson.Gson;
+import com.ogangi.messangi.sdk.network.model.MessangiDev;
+
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
+
 public class StorageController {
 
     private static final String CLASS_TAG = StorageController.class.getName();
@@ -40,7 +47,7 @@ public class StorageController {
 
     }
 
-    public boolean hasToken(String key){
+    public boolean hasTokenRegiter(String key){
         boolean hasToken = false;
         String token=mSharedPreferences.getString(key,"");
         if(token.length()>0){
@@ -74,7 +81,7 @@ public class StorageController {
 
     }
 
-    public boolean hasIDParameter(String key){
+    public boolean isRegisterIdParamenter(String key){
         boolean hasToken = false;
         String token=mSharedPreferences.getString(key,"");
         if(token.length()>0){
@@ -94,6 +101,45 @@ public class StorageController {
     }
 
     public void deleteIdParameter(){
+        mSharedPreferences=contexto.getSharedPreferences("StorageCallback", 0);
+        SharedPreferences.Editor editorlogin = mSharedPreferences.edit();
+        editorlogin.clear();
+        editorlogin.commit();
+    }
+
+
+
+    public void saveDevice(String key, MessangiDev value){
+        SharedPreferences.Editor datosuser=mSharedPreferences.edit();
+        Gson gson = new Gson();
+        String jsonTags = gson.toJson(value);
+        datosuser.putString(key,jsonTags);
+        datosuser.apply();
+        SdkUtils.showErrorLog(CLASS_TAG,"Device Saved "+key+" "+value.getId());
+
+    }
+
+    public boolean isRegisterDevice(String key){
+        boolean hasToken = false;
+        String token=mSharedPreferences.getString(key,"");
+        if(token.length()>0){
+            hasToken=true;
+
+        }
+        SdkUtils.showDebugLog(CLASS_TAG,"HAS Device PARAMETER "+hasToken);
+        return hasToken;
+    }
+
+    public MessangiDev getDevice(String key){
+
+        Gson gson = new Gson();
+        String values=mSharedPreferences.getString(key,"");
+        MessangiDev messangiDev=gson.fromJson(values,MessangiDev.class);
+        SdkUtils.showDebugLog(CLASS_TAG,messangiDev.getId());
+        return messangiDev;
+    }
+
+    public void deleteDeviceTags(){
         mSharedPreferences=contexto.getSharedPreferences("StorageCallback", 0);
         SharedPreferences.Editor editorlogin = mSharedPreferences.edit();
         editorlogin.clear();

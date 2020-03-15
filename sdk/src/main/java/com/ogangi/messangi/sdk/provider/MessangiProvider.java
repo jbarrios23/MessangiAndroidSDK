@@ -16,8 +16,8 @@ public class MessangiProvider extends ContentProvider {
     public Messangi messangi;
     @Override
     public boolean onCreate() {
-        SdkUtils.showErrorLog(CLASS_TAG,"onCreate");
         messangi=Messangi.getInstance(getContext());
+        SdkUtils.showErrorLog(CLASS_TAG,"onCreate");
         return false;
     }
 

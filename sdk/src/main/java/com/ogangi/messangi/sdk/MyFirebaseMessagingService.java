@@ -68,7 +68,7 @@ public class MyFirebaseMessagingService extends FirebaseMessagingService  {
         storageController=StorageController.getInstance(this);
         storageController.saveToken("Token",s);
         //createParameters();
-        messangi.createParameters();
+        messangi.createDeviceParameters();
 
     }
 
