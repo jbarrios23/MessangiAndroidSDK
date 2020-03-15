@@ -65,34 +65,35 @@ public class StorageController {
         editorlogin.commit();
     }
 
-    public void saveIdDevice(String key,String idDevice){
+    public void saveIdParameter(String key,String idDevice){
 
         SharedPreferences.Editor datosuser=mSharedPreferences.edit();
         datosuser.putString(key,idDevice);
         datosuser.apply();
-        Log.e(CLASS_TAG,"ID DEVICE SAVED");
+        SdkUtils.showErrorLog(CLASS_TAG,"ID Parameter SAVED "+key+" "+idDevice);
 
     }
 
-    public boolean hasIDDevice(String key){
+    public boolean hasIDParameter(String key){
         boolean hasToken = false;
         String token=mSharedPreferences.getString(key,"");
         if(token.length()>0){
             hasToken=true;
 
         }
-        Log.e(CLASS_TAG,"has iddevice "+hasToken);
+        SdkUtils.showDebugLog(CLASS_TAG,"HAS ID PARAMETER "+hasToken);
         return hasToken;
     }
 
-    public String getIdDevice(String key){
+    public String getIdParameter(String key){
 
         String token=mSharedPreferences.getString(key,"");
-        Log.e(CLASS_TAG,""+token);
+        SdkUtils.showDebugLog(CLASS_TAG,token);
+
         return token;
     }
 
-    public void deleteIddevice(){
+    public void deleteIdParameter(){
         mSharedPreferences=contexto.getSharedPreferences("StorageCallback", 0);
         SharedPreferences.Editor editorlogin = mSharedPreferences.edit();
         editorlogin.clear();

@@ -16,8 +16,9 @@ import android.widget.Toast;
 
 import com.ogangi.messangi.sdk.Messangi;
 import com.ogangi.messangi.sdk.SdkUtils;
+import com.ogangi.messangi.sdk.network.ServiceCallback;
 
-public class MainActivity extends AppCompatActivity implements ActivityCompat.OnRequestPermissionsResultCallback {
+public class MainActivity extends AppCompatActivity implements ActivityCompat.OnRequestPermissionsResultCallback, ServiceCallback {
 
     Activity activity = MainActivity.this;
     private static final int PERMISSION_REQUEST_CODE = 1;
@@ -37,6 +38,8 @@ public class MainActivity extends AppCompatActivity implements ActivityCompat.On
             public void onClick(View v) {
 
                 messangi.getPhone(activity);
+                messangi.makeGetDevice(MainActivity.this,getApplicationContext());
+
 
             }
         });
@@ -56,5 +59,15 @@ public class MainActivity extends AppCompatActivity implements ActivityCompat.On
                 }
                 break;
         }
+    }
+
+    @Override
+    public void handleData(Object result) {
+
+    }
+
+    @Override
+    public void handleIndividualData(Object result) {
+
     }
 }

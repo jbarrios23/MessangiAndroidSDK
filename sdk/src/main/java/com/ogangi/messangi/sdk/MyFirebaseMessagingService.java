@@ -40,10 +40,7 @@ public class MyFirebaseMessagingService extends FirebaseMessagingService  {
     public StorageController storageController;
     public Messangi messangi;
     public Activity activity;
-    private static final int MY_PERMISSIONS_REQUEST_READ_PHONE_STATE = 1;
-    private static final int MY_PERMISSIONS_REQUEST_READ_PHONE_NUMBER = 2;
-    private static final int MY_PERMISSIONS_REQUEST_READ_PHONE_SMS =3 ;
-    public Timer timer;
+
 
     @Override
     public void onNewToken(String s) {
@@ -53,16 +50,11 @@ public class MyFirebaseMessagingService extends FirebaseMessagingService  {
         */
         super.onNewToken(s);
         Log.e("NEW_TOKEN FOR SEND",s);
-        /*
-            A partir de aquí podemos hacer lo que queramos con el token como
-            enviarlo al servidor para guardarlo en una B.DD.
-            Nosotros no haremos nada con el token porque no nos vamos a comunicar con un sólo
-            dispositivo.
-         */
+
 
         try {
             Thread.sleep(3000);
-            SendTokenToBackend(s);
+            sendTokenToBackend(s);
         } catch (InterruptedException e) {
             e.printStackTrace();
         }
@@ -70,15 +62,13 @@ public class MyFirebaseMessagingService extends FirebaseMessagingService  {
 
 
     }
-    private void SendTokenToBackend(String s) {
+    private void sendTokenToBackend(String s) {
         messangi = Messangi.getInstance(this);
         Log.e(CLASS_TAG,"SEND TOKEN TO BACKEND "+s);
         storageController=StorageController.getInstance(this);
         storageController.saveToken("Token",s);
         //createParameters();
         messangi.createParameters();
-
-
 
     }
 

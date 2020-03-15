@@ -6,32 +6,20 @@ import com.ogangi.messangi.sdk.Messangi;
 
 public class ApiUtils {
 
-    public static final String BASE_URL = "http://api-seca.exiresoft.com.ve";
-    public static final String BASE_URL_QA = "http://api-seca.exiresoft.com.ve";
-    public static Messangi messangi;
+   public static Messangi messangi;
 
-    public static EndPoint getSendMessageFCM(){
+   public static EndPoint getSendMessageFCM(Context context){
+        messangi=Messangi.getInstance(context);
+        String url=messangi.getMessangi_host();
+        String token=messangi.getMessangi_token();
+        return RetrofitClient.getClient(url,token).create(EndPoint.class);
+   }
 
-        return RetrofitClient.getClient(BASE_URL).create(EndPoint.class);
+    public static EndPoint getSendMessageFCMAlt(Context context){
+        messangi=Messangi.getInstance(context);
+        String url=messangi.getMessangi_host();
+        return RetrofitClient.getClientAlt(url).create(EndPoint.class);
     }
-
-//    public static EndPoint getSendMessageFCM1(Context context){
-//        messangi=Messangi.getInstance(context);
-//        //String url=messangi.getMetaData(context,"api_host");
-//        return RetrofitClient.getClient(url).create(EndPoint.class);
-//    }
-
-    public static EndPoint getSendMessageFCMQA(){
-
-        RetrofitClient.putNull();
-
-        return RetrofitClient.getClient(BASE_URL_QA).create(EndPoint.class);
-    }
-
-
-
-
-
 
 
 }
