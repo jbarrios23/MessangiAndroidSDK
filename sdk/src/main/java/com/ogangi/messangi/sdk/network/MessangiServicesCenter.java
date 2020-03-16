@@ -8,9 +8,12 @@ import com.ogangi.messangi.sdk.Messangi;
 import com.ogangi.messangi.sdk.SdkUtils;
 import com.ogangi.messangi.sdk.StorageController;
 import com.ogangi.messangi.sdk.network.model.MessangiDev;
+import com.ogangi.messangi.sdk.network.model.MessangiUserDevice;
 
 import org.json.JSONException;
 import org.json.JSONObject;
+
+import java.util.Map;
 
 import retrofit2.Call;
 import retrofit2.Callback;
@@ -30,7 +33,7 @@ public class MessangiServicesCenter {
      @param context
      */
     public static void makeGetDevice(final ServiceCallback serviceCallback, Context context){
-        Log.e(CLASS_TAG, "makeGetPetition "+context );
+
         endPoint= ApiUtils.getSendMessageFCM(context);
 
 
@@ -122,6 +125,7 @@ public class MessangiServicesCenter {
 
     public static void makeUpdateDevice(final ServiceCallback serviceCallback, Context context,String pushToken) {
         messangi=Messangi.getInstance(context);
+        storageController=StorageController.getInstance(context);
         endPoint= ApiUtils.getSendMessageFCM(context);
         if(storageController.isRegisterIdParamenter("id")){
             String deviceId=storageController.getIdParameter("id");
@@ -141,6 +145,75 @@ public class MessangiServicesCenter {
 
         }else{
             Log.e(CLASS_TAG, "doesn't have iddevice can't update  : ");
+        }
+
+    }
+
+    /**
+     * Method that get Device registered
+     @param serviceCallback interface for do somethink with service result
+     @param context
+     */
+    public static void makeGetUserByDevice(final ServiceCallback serviceCallback, Context context){
+        storageController=StorageController.getInstance(context);
+        endPoint= ApiUtils.getSendMessageFCM(context);
+
+
+        if(storageController.isRegisterDevice("id")){
+            String provId=storageController.getIdParameter("id");
+            endPoint.getUserByDevice(provId).enqueue(new Callback<Map<String, Object>>() {
+                @Override
+                public void onResponse(Call<Map<String, Object>> call, Response<Map<String, Object>> response) {
+                    if(response.isSuccessful()){
+                        MessangiUserDevice messangiUserDevice=new MessangiUserDevice();
+                        Map<String, Object> responseBody = response.body();
+                        for (Map.Entry<String, Object> entry : responseBody.entrySet()) {
+                            SdkUtils.showErrorLog(CLASS_TAG,"Key = " + entry.getKey() +
+                                    ", Value = " + entry.getValue());
+
+                            if(entry.getKey().equals("devices")) {
+                                messangiUserDevice.setDevices((String) responseBody.get("devices"));
+                            } else if (entry.getKey().contains("member since")) {
+                                messangiUserDevice.setMemberSince((String) responseBody.get("member since"));
+                            } else if (entry.getKey().contains("last updated")){
+                                messangiUserDevice.setLastUpdated((String)responseBody.get("last updated"));
+                            } else if (entry.getKey().contains("mobile")){
+                                messangiUserDevice.setMobile((String)responseBody.get("mobile"));
+                            } else if (entry.getKey().contains("timestamp")){
+                                messangiUserDevice.setTimestamp((String)responseBody.get("timestamp"));
+                            } else if (entry.getKey().contains("transaction")){
+                                messangiUserDevice.setTransaction((String)responseBody.get("transaction"));
+                            } else {
+                                messangiUserDevice.addUserIdDevice(entry.getKey(),entry.getValue());
+
+                            }
+
+                        }
+
+                        SdkUtils.showErrorLog(CLASS_TAG,"Individual "
+                                +responseBody.get("devices"));
+                        SdkUtils.showErrorLog(CLASS_TAG,"Individual "
+                                +responseBody.get("mobile"));
+                        SdkUtils.showErrorLog(CLASS_TAG,"Json add "
+                                +new Gson().toJson(messangiUserDevice));
+                        storageController.saveUserByDevice("MessangiUserDevice",messangiUserDevice);
+                        SdkUtils.showErrorLog(CLASS_TAG,"other individual user "
+                                +new Gson().toJson(messangiUserDevice.getUserIdDevice().get("email")));
+
+                        }else{
+                        int code=response.code();
+                        SdkUtils.showErrorLog(CLASS_TAG,"code getUser by device "+code);
+                    }
+                }
+
+                @Override
+                public void onFailure(Call<Map<String, Object>> call, Throwable t) {
+
+                }
+            });
+        }else{
+
+            SdkUtils.showInfoLog(CLASS_TAG,"doesn't have id device can't get ");
         }
 
     }

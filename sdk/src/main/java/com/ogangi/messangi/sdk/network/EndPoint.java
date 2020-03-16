@@ -6,6 +6,8 @@ import com.ogangi.messangi.sdk.network.model.MessangiDev;
 
 import org.json.JSONObject;
 
+import java.util.Map;
+
 import retrofit2.Call;
 import retrofit2.http.Body;
 import retrofit2.http.GET;
@@ -33,6 +35,11 @@ public interface EndPoint {
     @PUT("/v1/devices/{deviceId}")
     Call<MessangiDev> putDeviceParameter(@Path("deviceId") String deviceId
                                         ,@Body JSONObject body);
+
+    // for device user
+
+    @GET("/v1/users?")
+    Call<Map<String, Object>> getUserByDevice(@Query("device") String deviceId);
 
 
 }

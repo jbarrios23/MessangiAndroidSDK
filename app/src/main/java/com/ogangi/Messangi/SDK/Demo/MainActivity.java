@@ -16,7 +16,9 @@ import android.widget.Toast;
 
 import com.ogangi.messangi.sdk.Messangi;
 import com.ogangi.messangi.sdk.SdkUtils;
+import com.ogangi.messangi.sdk.network.MessangiServicesCenter;
 import com.ogangi.messangi.sdk.network.ServiceCallback;
+import com.ogangi.messangi.sdk.network.model.MessangiUserDevice;
 
 public class MainActivity extends AppCompatActivity implements ActivityCompat.OnRequestPermissionsResultCallback, ServiceCallback {
 
@@ -38,6 +40,7 @@ public class MainActivity extends AppCompatActivity implements ActivityCompat.On
             public void onClick(View v) {
 
                 messangi.getPhone(activity);
+                messangi.getUserByDevice();
 
             }
         });

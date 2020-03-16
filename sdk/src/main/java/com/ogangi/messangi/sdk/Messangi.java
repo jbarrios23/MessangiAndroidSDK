@@ -33,6 +33,7 @@ import com.ogangi.messangi.sdk.network.MessangiDevice;
 import com.ogangi.messangi.sdk.network.MessangiServicesCenter;
 import com.ogangi.messangi.sdk.network.ServiceCallback;
 import com.ogangi.messangi.sdk.network.model.MessangiDev;
+import com.ogangi.messangi.sdk.network.model.MessangiUserDevice;
 
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -126,6 +127,15 @@ public class Messangi implements LifecycleObserver,ServiceCallback{
     @OnLifecycleEvent(Lifecycle.Event.ON_STOP)
     public void onEnterBackground() {
         Log.e(CLASS_TAG, "Background");
+        if(storageController.isRegisterUserByDevice("MessangiUserDevice")){
+            MessangiUserDevice messangiUserDevice=storageController.getUserByDevice("MessangiUserDevice");
+            SdkUtils.showErrorLog(CLASS_TAG,new Gson().toJson(messangiUserDevice));
+            for (Map.Entry<String, Object> entry : messangiUserDevice.getUserIdDevice().entrySet()) {
+                SdkUtils.showErrorLog(CLASS_TAG,"Key = " + entry.getKey() +
+                        ", Value = " + entry.getValue());
+            }
+            SdkUtils.showErrorLog(CLASS_TAG,"From storeController "+messangiUserDevice.getUserIdDevice().get("email"));
+        }
 
     }
 
@@ -421,6 +431,26 @@ public class Messangi implements LifecycleObserver,ServiceCallback{
         }
         SdkUtils.showInfoLog(CLASS_TAG,"Json for update "+requestBody.toString());
         return requestBody;
+    }
+
+    public void getUserByDevice(){
+
+        if(storageController.isRegisterUserByDevice("MessangiUserDevice")){
+            MessangiUserDevice messangiUserDevice=storageController.getUserByDevice("MessangiUserDevice");
+            SdkUtils.showErrorLog(CLASS_TAG,new Gson().toJson(messangiUserDevice));
+            if(!messangiUserDevice.getUserIdDevice().isEmpty()) {
+                for (Map.Entry<String, Object> entry : messangiUserDevice.getUserIdDevice().entrySet()) {
+                    SdkUtils.showErrorLog(CLASS_TAG, "Key = " + entry.getKey() +
+                            ", Value = " + entry.getValue());
+                }
+            }else {
+                MessangiServicesCenter.makeGetUserByDevice(mInstance,context);
+            }
+            SdkUtils.showErrorLog(CLASS_TAG,"From storeController "+messangiUserDevice.getUserIdDevice().get("email"));
+        }else{
+            MessangiServicesCenter.makeGetUserByDevice(mInstance,context);
+        }
+
     }
 
     @Override

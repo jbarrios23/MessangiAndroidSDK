@@ -6,6 +6,7 @@ import android.util.Log;
 
 import com.google.gson.Gson;
 import com.ogangi.messangi.sdk.network.model.MessangiDev;
+import com.ogangi.messangi.sdk.network.model.MessangiUserDevice;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -140,6 +141,44 @@ public class StorageController {
     }
 
     public void deleteDeviceTags(){
+        mSharedPreferences=contexto.getSharedPreferences("StorageCallback", 0);
+        SharedPreferences.Editor editorlogin = mSharedPreferences.edit();
+        editorlogin.clear();
+        editorlogin.commit();
+    }
+
+
+    public void saveUserByDevice(String key, MessangiUserDevice value){
+        SharedPreferences.Editor datosuser=mSharedPreferences.edit();
+        Gson gson = new Gson();
+        String jsonTags = gson.toJson(value);
+        datosuser.putString(key,jsonTags);
+        datosuser.apply();
+        SdkUtils.showErrorLog(CLASS_TAG,"UserByDevice Saved "+key+" "+value.getMobile());
+
+    }
+
+    public boolean isRegisterUserByDevice(String key){
+        boolean hasToken = false;
+        String token=mSharedPreferences.getString(key,"");
+        if(token.length()>0){
+            hasToken=true;
+
+        }
+        SdkUtils.showDebugLog(CLASS_TAG,"HAS UserByDevice PARAMETER "+hasToken);
+        return hasToken;
+    }
+
+    public MessangiUserDevice getUserByDevice(String key){
+
+        Gson gson = new Gson();
+        String values=mSharedPreferences.getString(key,"");
+        MessangiUserDevice messangiUserDevice=gson.fromJson(values,MessangiUserDevice.class);
+        SdkUtils.showDebugLog(CLASS_TAG,messangiUserDevice.getMobile());
+        return messangiUserDevice;
+    }
+
+    public void deleteUserByDevice(){
         mSharedPreferences=contexto.getSharedPreferences("StorageCallback", 0);
         SharedPreferences.Editor editorlogin = mSharedPreferences.edit();
         editorlogin.clear();
