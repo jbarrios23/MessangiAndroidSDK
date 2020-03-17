@@ -34,13 +34,18 @@ public class MainActivity extends AppCompatActivity implements ActivityCompat.On
         setContentView(R.layout.activity_main);
         messangi=Messangi.getInstance(this);
         getPhone=findViewById(R.id.button_getPhone);
+        messangi.addTagsToDevice("tag 1");
+        messangi.addTagsToDevice("tag 2");
+        messangi.addTagsToDevice("tag 3");
 
         getPhone.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
 
-                messangi.getPhone(activity);
+                //messangi.getPhone(activity);
                 messangi.getUserByDevice();
+                messangi.setUserParameterToUpdate();
+                SdkUtils.showInfoLog(CLASS_TAG,messangi.getTags());
 
             }
         });

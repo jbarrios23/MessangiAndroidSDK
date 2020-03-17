@@ -34,12 +34,16 @@ import com.ogangi.messangi.sdk.network.MessangiServicesCenter;
 import com.ogangi.messangi.sdk.network.ServiceCallback;
 import com.ogangi.messangi.sdk.network.model.MessangiDev;
 import com.ogangi.messangi.sdk.network.model.MessangiUserDevice;
+import com.ogangi.messangi.sdk.network.model.MessangiUserDeviceAlt;
 
+import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.io.IOException;
 import java.io.InputStream;
+import java.sql.Array;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
@@ -76,6 +80,7 @@ public class Messangi implements LifecycleObserver,ServiceCallback{
     private String type;
     private String model;
     private String os;
+    private ArrayList<String> tags;
 
 
     public Messangi(Context context){
@@ -84,13 +89,11 @@ public class Messangi implements LifecycleObserver,ServiceCallback{
         this.lenguaje="0";
         this.icon=-1;
         this.storageController=StorageController.getInstance(Messangi.context);
-        this.type="ANDROID";
+        this.type="android";
         this.model=getDeviceName();
         this.os=Build.VERSION.RELEASE;
         this.initResource();
-
-
-
+        this.tags=new ArrayList<String>();
 
     }
 
@@ -137,6 +140,14 @@ public class Messangi implements LifecycleObserver,ServiceCallback{
             SdkUtils.showErrorLog(CLASS_TAG,"From storeController "+messangiUserDevice.getUserIdDevice().get("email"));
         }
 
+    }
+
+    public ArrayList<String> getTags() {
+        return tags;
+    }
+
+    public void setTags(ArrayList<String> tags) {
+        this.tags = tags;
     }
 
     public String getPushToken() {
@@ -366,6 +377,8 @@ public class Messangi implements LifecycleObserver,ServiceCallback{
             MessangiServicesCenter.makePostDataDevice(pushToken,type,lenguaje,model,os,sdkVersion,mInstance,context);
         }else{
             SdkUtils.showErrorLog(CLASS_TAG,"hasn't Token");
+            pushToken="";
+            MessangiServicesCenter.makePostDataDevice(pushToken,type,lenguaje,model,os,sdkVersion,mInstance,context);
         }
 
     }
@@ -408,17 +421,17 @@ public class Messangi implements LifecycleObserver,ServiceCallback{
     ProcessLifecycleOwner.get().getLifecycle().addObserver(this);
     }
 
-
-
     public JSONObject requestJsonBodyForUpdate(String pushToken){
-
         externalId=getExternalId();
         email=getEmail();
         JSONObject requestBody=new JSONObject();
+        JSONArray jsonArray=new JSONArray(tags);
+        SdkUtils.showErrorLog(CLASS_TAG,"JsonArray "+jsonArray.toString());
         try {
             if(!pushToken.equals("")) {
                 requestBody.put("pushToken", pushToken);
                 requestBody.put("type", type);
+                requestBody.put("tags", jsonArray);
                 requestBody.put("language", lenguaje);
                 requestBody.put("model", model);
                 requestBody.put("os", os);
@@ -431,6 +444,14 @@ public class Messangi implements LifecycleObserver,ServiceCallback{
         }
         SdkUtils.showInfoLog(CLASS_TAG,"Json for update "+requestBody.toString());
         return requestBody;
+    }
+
+    public void setUserParameterToUpdate(){
+        MessangiUserDeviceAlt messangiUserDevice=new MessangiUserDeviceAlt();
+        messangiUserDevice.setMobile("0414652585");
+        messangiUserDevice.addUserIdDevice("age","74");
+        messangiUserDevice.addUserIdDevice("email","Jb@jb.com");
+        SdkUtils.showErrorLog(CLASS_TAG,new Gson().toJson(messangiUserDevice));
     }
 
     public void getUserByDevice(){
@@ -452,6 +473,18 @@ public class Messangi implements LifecycleObserver,ServiceCallback{
         }
 
     }
+
+    public void addTagsToDevice(String newTags){
+
+        if(tags!=null){
+            tags.add(newTags);
+        }else{
+            tags=new ArrayList<>();
+            tags.add(newTags);
+        }
+        SdkUtils.showInfoLog(CLASS_TAG, tags.toString());
+    }
+
 
     @Override
     public void handleData(Object result) {

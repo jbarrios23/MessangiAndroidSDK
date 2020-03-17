@@ -6,7 +6,6 @@
     <application
         android:name=".MyApplication"
         android:allowBackup="true"
-        android:usesCleartextTraffic="true"
         android:icon="@mipmap/ic_launcher"
         android:label="@string/app_name"
         android:roundIcon="@mipmap/ic_launcher_round"
@@ -20,10 +19,7 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
-        <meta-data android:name="api_host" android:value="http://api-seca.exiresoft.com.ve"/>
-        <meta-data android:name="api_version" android:value="/TempDevice"/>
-        <meta-data android:name="api_key" android:value="QWRTPPKKDDDS12345"/>
-        <meta-data android:name="api_token_auth" android:value="QREWASD1223258855QWEWERRR_!!@33$DFDsf"/>
+
 
     </application>
 

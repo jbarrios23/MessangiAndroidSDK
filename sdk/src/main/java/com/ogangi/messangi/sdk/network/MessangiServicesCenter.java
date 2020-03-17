@@ -1,20 +1,32 @@
 package com.ogangi.messangi.sdk.network;
 
 import android.content.Context;
+import android.os.Build;
+import android.util.ArrayMap;
 import android.util.Log;
 
+import androidx.annotation.RequiresApi;
+
 import com.google.gson.Gson;
+import com.google.gson.JsonObject;
+import com.google.gson.JsonParser;
 import com.ogangi.messangi.sdk.Messangi;
 import com.ogangi.messangi.sdk.SdkUtils;
 import com.ogangi.messangi.sdk.StorageController;
 import com.ogangi.messangi.sdk.network.model.MessangiDev;
+import com.ogangi.messangi.sdk.network.model.MessangiDeviceData;
 import com.ogangi.messangi.sdk.network.model.MessangiUserDevice;
 
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import java.io.IOException;
+import java.util.HashMap;
 import java.util.Map;
 
+import okhttp3.MediaType;
+import okhttp3.RequestBody;
+import okhttp3.ResponseBody;
 import retrofit2.Call;
 import retrofit2.Callback;
 import retrofit2.Response;
@@ -73,12 +85,13 @@ public class MessangiServicesCenter {
      @param type
      */
 
-    public static void makePostDataDevice(String pushToken,String type, String lenguaje,
-                                String model, String os, String sdkVersion,
-                                final ServiceCallback serviceCallback, Context context) {
+
+    public static void makePostDataDevice(String pushToken, String type, String lenguaje,
+                                          String model, String os, String sdkVersion,
+                                          final ServiceCallback serviceCallback, Context context) {
 
         storageController=StorageController.getInstance(context);
-
+        JsonObject gsonObject = new JsonObject();
         final JSONObject requestBody=new JSONObject();
         try {
             requestBody.put("pushToken",pushToken);
@@ -90,29 +103,33 @@ public class MessangiServicesCenter {
         } catch (JSONException e) {
             e.printStackTrace();
         }
-        Log.e(CLASS_TAG,"Json "+requestBody.toString());
+
+        JsonParser jsonParser=new JsonParser();
+        gsonObject=(JsonObject) jsonParser.parse(requestBody.toString());
+
+        if (gsonObject instanceof JsonObject){
+            SdkUtils.showErrorLog(CLASS_TAG,"Json "+gsonObject);
+        }
 
         endPoint= ApiUtils.getSendMessageFCM(context);
-
-        endPoint.postDeviceParameter(requestBody).enqueue(new Callback<MessangiDev>() {
+        endPoint.postDeviceParameter(gsonObject).enqueue(new Callback<MessangiDev>() {
             @Override
             public void onResponse(Call<MessangiDev> call, Response<MessangiDev> response) {
-                SdkUtils.showErrorLog(CLASS_TAG,"response post Device: "+new Gson().toJson(response.body()));
-                String provId=response.body().getId();
-                String provUserId=response.body().getUserId();
-                String pusT=response.body().getPushToken();
-                storageController.saveIdParameter("id",provId);
-                storageController.saveIdParameter("userId",provUserId);
-                storageController.saveDevice("MessangiDev",response.body());
-                SdkUtils.showInfoLog(CLASS_TAG,pusT);
+                if(response.isSuccessful()) {
+                    SdkUtils.showErrorLog(CLASS_TAG, "response post Device: " + new Gson().toJson(response.body()));
+                    storageController.saveDevice("MessangiDev", response.body());
+
+                }else{
+                    int code=response.code();
+                    SdkUtils.showErrorLog(CLASS_TAG,"Error code post "+code);
+                }
             }
 
             @Override
             public void onFailure(Call<MessangiDev> call, Throwable t) {
-                SdkUtils.showErrorLog(CLASS_TAG,t.getMessage());
+                SdkUtils.showErrorLog(CLASS_TAG,"Failure code post "+t.getMessage());
             }
         });
-
 
     }
 
@@ -127,14 +144,25 @@ public class MessangiServicesCenter {
         messangi=Messangi.getInstance(context);
         storageController=StorageController.getInstance(context);
         endPoint= ApiUtils.getSendMessageFCM(context);
-        if(storageController.isRegisterIdParamenter("id")){
-            String deviceId=storageController.getIdParameter("id");
+        if(storageController.isRegisterDevice("MessangiDev")){
+            MessangiDev messangiDev=storageController.getDevice("MessangiDev");
+            String deviceId=messangiDev.getId();
             SdkUtils.showErrorLog(CLASS_TAG,deviceId);
+            JsonObject gsonObject = new JsonObject();
             JSONObject requestUpdatebody=messangi.requestJsonBodyForUpdate(pushToken);
-            endPoint.putDeviceParameter(deviceId,requestUpdatebody).enqueue(new Callback<MessangiDev>() {
+
+            JsonParser jsonParser=new JsonParser();
+            gsonObject=(JsonObject) jsonParser.parse(requestUpdatebody.toString());
+            endPoint.putDeviceParameter(deviceId,gsonObject).enqueue(new Callback<MessangiDev>() {
                 @Override
                 public void onResponse(Call<MessangiDev> call, Response<MessangiDev> response) {
-                    SdkUtils.showInfoLog(CLASS_TAG,"put Device sussecfull "+new Gson().toJson(response.body()));
+                    SdkUtils.showInfoLog(CLASS_TAG,"put Device good "+new Gson().toJson(response.body()));
+                    if(response.isSuccessful()){
+                       storageController.saveDevice("MessangiDev",response.body());
+                    }else{
+                        int code=response.code();
+                        SdkUtils.showErrorLog(CLASS_TAG,"Code update error "+code);
+                    }
                 }
 
                 @Override

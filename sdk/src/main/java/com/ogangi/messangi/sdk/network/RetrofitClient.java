@@ -19,6 +19,7 @@ import okhttp3.Route;
 import okhttp3.logging.HttpLoggingInterceptor;
 import retrofit2.Retrofit;
 import retrofit2.converter.gson.GsonConverterFactory;
+import retrofit2.converter.scalars.ScalarsConverterFactory;
 
 public class RetrofitClient {
 
@@ -42,12 +43,14 @@ public class RetrofitClient {
             retrofit=new Retrofit.Builder()
                     .baseUrl(Url)
                     .client(getHeader(token))
+                    .addConverterFactory(ScalarsConverterFactory.create())
                     .addConverterFactory(GsonConverterFactory.create())
                     .build();
 
         }
-        //Log.d("Retrofit", "Load Url "+ retrofit.baseUrl());
-        Log.d(CLASS_TAG, "Load Url "+ Url);
+
+        SdkUtils.showDebugLog(CLASS_TAG,"Load Url "+ Url);
+
         return retrofit;
     }
 

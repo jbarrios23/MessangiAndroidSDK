@@ -14,7 +14,7 @@ import java.util.List;
 
 public class StorageController {
 
-    private static final String CLASS_TAG = StorageController.class.getName();
+    private static final String CLASS_TAG = StorageController.class.getSimpleName();
 
     private static StorageController mInstance;
     private static Context contexto;
@@ -137,6 +137,7 @@ public class StorageController {
         String values=mSharedPreferences.getString(key,"");
         MessangiDev messangiDev=gson.fromJson(values,MessangiDev.class);
         SdkUtils.showDebugLog(CLASS_TAG,messangiDev.getId());
+        SdkUtils.showDebugLog(CLASS_TAG,messangiDev.getUserId());
         return messangiDev;
     }
 

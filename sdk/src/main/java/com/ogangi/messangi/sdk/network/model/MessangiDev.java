@@ -32,7 +32,7 @@ public class MessangiDev {
     private String sdkVersion;
     @SerializedName("tags")
     @Expose
-    private List<Object> tags = null;
+    private List<String> tags = null;
     @SerializedName("createdAt")
     @Expose
     private String createdAt;
@@ -110,11 +110,11 @@ public class MessangiDev {
         this.sdkVersion = sdkVersion;
     }
 
-    public List<Object> getTags() {
+    public List<String> getTags() {
         return tags;
     }
 
-    public void setTags(List<Object> tags) {
+    public void setTags(List<String> tags) {
         this.tags = tags;
     }
 
