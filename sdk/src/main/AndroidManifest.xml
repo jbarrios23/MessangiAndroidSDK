@@ -6,7 +6,7 @@
 
         <provider
             android:authorities="${applicationId}.MessangiProvider"
-            android:name=".provider.MessangiProvider"
+            android:name=".MessangiProvider"
             android:exported="false" />
 
         <service

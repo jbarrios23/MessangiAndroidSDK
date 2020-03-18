@@ -1,21 +1,15 @@
-package com.ogangi.messangi.sdk.network;
+package com.ogangi.messangi.sdk;
 
+import android.content.Context;
 import android.util.Log;
-
-import com.google.gson.Gson;
-import com.google.gson.GsonBuilder;
-import com.ogangi.messangi.sdk.Messangi;
-import com.ogangi.messangi.sdk.SdkUtils;
 
 import java.io.IOException;
 import java.util.concurrent.TimeUnit;
 
-import okhttp3.Authenticator;
 import okhttp3.Interceptor;
 import okhttp3.OkHttpClient;
 import okhttp3.Request;
 import okhttp3.Response;
-import okhttp3.Route;
 import okhttp3.logging.HttpLoggingInterceptor;
 import retrofit2.Retrofit;
 import retrofit2.converter.gson.GsonConverterFactory;
@@ -36,9 +30,10 @@ public class RetrofitClient {
             .build();
 
 
-    public static Retrofit getClient(String Url,String token1){
+    public static Retrofit getClient(String Url, String token1, Context context){
+        Messangi messangi=Messangi.getInst(context);
         token=token1;
-        SdkUtils.showErrorLog(CLASS_TAG,token);
+        messangi.utils.showErrorLog(CLASS_TAG,token);
         if(retrofit==null){
             retrofit=new Retrofit.Builder()
                     .baseUrl(Url)
@@ -49,7 +44,7 @@ public class RetrofitClient {
 
         }
 
-        SdkUtils.showDebugLog(CLASS_TAG,"Load Url "+ Url);
+        messangi.utils.showDebugLog(CLASS_TAG,"Load Url "+ Url);
 
         return retrofit;
     }

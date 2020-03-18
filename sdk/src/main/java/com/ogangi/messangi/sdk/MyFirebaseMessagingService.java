@@ -1,6 +1,5 @@
 package com.ogangi.messangi.sdk;
 
-import android.Manifest;
 import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.app.NotificationChannel;
@@ -8,7 +7,6 @@ import android.app.NotificationManager;
 import android.app.PendingIntent;
 import android.content.Context;
 import android.content.Intent;
-import android.content.pm.PackageManager;
 import android.graphics.Color;
 import android.media.RingtoneManager;
 import android.net.Uri;
@@ -17,15 +15,11 @@ import android.util.Log;
 
 import androidx.annotation.RequiresApi;
 import androidx.core.app.NotificationCompat;
-import androidx.core.content.ContextCompat;
 
 import com.google.firebase.messaging.FirebaseMessagingService;
 import com.google.firebase.messaging.RemoteMessage;
 
-import java.util.Locale;
 import java.util.Random;
-import java.util.Timer;
-import java.util.TimerTask;
 
 public class MyFirebaseMessagingService extends FirebaseMessagingService  {
 
@@ -50,25 +44,29 @@ public class MyFirebaseMessagingService extends FirebaseMessagingService  {
         */
         super.onNewToken(s);
         Log.e("NEW_TOKEN FOR SEND",s);
-
-
-        try {
-            Thread.sleep(3000);
-            sendTokenToBackend(s);
-        } catch (InterruptedException e) {
-            e.printStackTrace();
-        }
+        sendTokenToBackend(s);
+//        try {
+//            Thread.sleep(3000);
+//
+//        } catch (InterruptedException e) {
+//            e.printStackTrace();
+//        }
 
 
 
     }
     private void sendTokenToBackend(String s) {
-        messangi = Messangi.getInstance(this);
+        messangi = Messangi.getInst(this);
         Log.e(CLASS_TAG,"SEND TOKEN TO BACKEND "+s);
-        storageController=StorageController.getInstance(this);
-        storageController.saveToken("Token",s);
-        //createParameters();
-        messangi.createDeviceParameters();
+        storageController=messangi.storageController;
+        storageController.saveToken(s);
+
+        if(!storageController.isNotificationManually()&& messangi.messangiDev!=null){
+
+            messangi.messangiDev.setPushToken(s);
+            messangi.messangiDev.save(this);
+        }
+
 
     }
 
@@ -79,7 +77,7 @@ public class MyFirebaseMessagingService extends FirebaseMessagingService  {
     public void onMessageReceived(RemoteMessage remoteMessage) {
         // En este método recibimos el mensaje
         //verifiPermission();
-        messangi = Messangi.getInstance(this);
+        messangi = Messangi.getInst(this);
         nameClass= messangi.getNameclass();
         Log.e(CLASS_TAG, "NOMBRE DE LA CLASE " + nameClass );
 

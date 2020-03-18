@@ -1,4 +1,4 @@
-package com.ogangi.messangi.sdk.provider;
+package com.ogangi.messangi.sdk;
 
 import android.content.ContentProvider;
 import android.content.ContentValues;
@@ -8,16 +8,17 @@ import android.net.Uri;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 
-import com.ogangi.messangi.sdk.Messangi;
-import com.ogangi.messangi.sdk.SdkUtils;
-
 public class MessangiProvider extends ContentProvider {
     public static String CLASS_TAG=MessangiProvider.class.getSimpleName();
     public Messangi messangi;
     @Override
     public boolean onCreate() {
-        messangi=Messangi.getInstance(getContext());
-        SdkUtils.showErrorLog(CLASS_TAG,"onCreate");
+        messangi=Messangi.getInst(getContext());
+        messangi.utils.showErrorLog(this,"onCreate");
+        if(!messangi.storageController.isRegisterDevice()){
+            messangi.createDeviceParameters();
+        }
+
         return false;
     }
 

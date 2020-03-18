@@ -5,11 +5,8 @@ import android.accounts.AccountManager;
 import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.content.Context;
-import android.content.pm.ApplicationInfo;
 import android.content.pm.PackageManager;
-import android.content.res.Resources;
 import android.os.Build;
-import android.os.Bundle;
 import android.provider.Settings;
 import android.telephony.TelephonyManager;
 import android.util.Log;
@@ -26,30 +23,15 @@ import androidx.lifecycle.ProcessLifecycleOwner;
 
 import com.google.firebase.messaging.FirebaseMessaging;
 import com.google.gson.Gson;
-import com.ogangi.messangi.sdk.network.ApiUtils;
-import com.ogangi.messangi.sdk.network.Content;
-import com.ogangi.messangi.sdk.network.EndPoint;
-import com.ogangi.messangi.sdk.network.MessangiDevice;
-import com.ogangi.messangi.sdk.network.MessangiServicesCenter;
-import com.ogangi.messangi.sdk.network.ServiceCallback;
-import com.ogangi.messangi.sdk.network.model.MessangiDev;
-import com.ogangi.messangi.sdk.network.model.MessangiUserDevice;
-import com.ogangi.messangi.sdk.network.model.MessangiUserDeviceAlt;
+import com.google.gson.JsonObject;
+import com.google.gson.JsonParser;
 
-import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
-import java.io.IOException;
-import java.io.InputStream;
-import java.sql.Array;
 import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
 import java.util.Locale;
 import java.util.Map;
-import java.util.Properties;
-import java.util.Timer;
 import java.util.regex.Pattern;
 
 import retrofit2.Call;
@@ -58,15 +40,15 @@ import retrofit2.Response;
 
 public class Messangi implements LifecycleObserver,ServiceCallback{
 
-    private static final String CLASS_TAG = Messangi.class.getSimpleName();
+
     private static Messangi mInstance;
     private static Context context;
     public String Nameclass;
     public Activity activity;
     public int icon;
     private static final int PERMISSION_REQUEST_CODE = 1;
-    public static EndPoint endPoint;
-    public StorageController storageController;
+    static EndPoint endPoint;
+
     public String wantPermission = Manifest.permission.READ_PHONE_STATE;
 
 
@@ -82,26 +64,39 @@ public class Messangi implements LifecycleObserver,ServiceCallback{
     private String os;
     private ArrayList<String> tags;
 
+    MessangiUserDevice messangiUserDevice;
+    MessangiDev messangiDev;
+    SdkUtils utils;
+    StorageController storageController;
+
 
     public Messangi(Context context){
         this.context =context;
+        this.utils=new SdkUtils();
+        this.storageController=new StorageController(context,this);
         this.sdkVersion="0";
         this.lenguaje="0";
         this.icon=-1;
-        this.storageController=StorageController.getInstance(Messangi.context);
         this.type="android";
         this.model=getDeviceName();
         this.os=Build.VERSION.RELEASE;
         this.initResource();
         this.tags=new ArrayList<String>();
+        this.messangiUserDevice=null;
+        this.messangiDev=null;
 
     }
 
-    public static synchronized Messangi getInstance(Context context) {
+    public static synchronized Messangi getInst(Context context) {
         if (mInstance == null) {
             mInstance = new Messangi(context);
         }
         //context = context;
+        return mInstance;
+    }
+
+    public static synchronized Messangi getInst() {
+
         return mInstance;
     }
 
@@ -110,14 +105,15 @@ public class Messangi implements LifecycleObserver,ServiceCallback{
      */
     @OnLifecycleEvent(Lifecycle.Event.ON_START)
     public void onEnterForeground() {
-        Log.e(CLASS_TAG, "foreground");
-        if(storageController.isRegisterDevice("MessangiDev")){
-            MessangiDev messangiDev=storageController.getDevice("MessangiDev");
-            verifiSdkVersion();
-            MessangiServicesCenter.makeGetDevice(mInstance,context);
+
+        utils.showErrorLog(this,"foreground");
+        if(storageController.isRegisterDevice()){
+            MessangiDev messangiDev=storageController.getDevice();
+            messangiDev.verifiSdkVersion(context);
+
         }else{
-            SdkUtils.showInfoLog(CLASS_TAG,"New Create Device");
-            createDeviceParameters();
+            utils.showInfoLog(this,"New Create Device");
+            //createDeviceParameters();
         }
 
     }
@@ -129,17 +125,7 @@ public class Messangi implements LifecycleObserver,ServiceCallback{
 
     @OnLifecycleEvent(Lifecycle.Event.ON_STOP)
     public void onEnterBackground() {
-        Log.e(CLASS_TAG, "Background");
-        if(storageController.isRegisterUserByDevice("MessangiUserDevice")){
-            MessangiUserDevice messangiUserDevice=storageController.getUserByDevice("MessangiUserDevice");
-            SdkUtils.showErrorLog(CLASS_TAG,new Gson().toJson(messangiUserDevice));
-            for (Map.Entry<String, Object> entry : messangiUserDevice.getUserIdDevice().entrySet()) {
-                SdkUtils.showErrorLog(CLASS_TAG,"Key = " + entry.getKey() +
-                        ", Value = " + entry.getValue());
-            }
-            SdkUtils.showErrorLog(CLASS_TAG,"From storeController "+messangiUserDevice.getUserIdDevice().get("email"));
-        }
-
+        utils.showErrorLog(this,"Background");
     }
 
     public ArrayList<String> getTags() {
@@ -171,7 +157,7 @@ public class Messangi implements LifecycleObserver,ServiceCallback{
     }
 
     public void setFirebaseTopic(){
-        Log.e(CLASS_TAG,"subscribeToTopic");
+        //Log.e(this,"subscribeToTopic");
         FirebaseMessaging.getInstance().subscribeToTopic("topic_general");
     }
     public String getSdkVersion() {
@@ -179,7 +165,7 @@ public class Messangi implements LifecycleObserver,ServiceCallback{
     }
 
     public void setSdkVersion(String sdkVersion) {
-        Log.e(CLASS_TAG,"SET SDK VERSION");
+        //Log.e(this,"SET SDK VERSION");
         this.sdkVersion = sdkVersion;
     }
 
@@ -196,7 +182,9 @@ public class Messangi implements LifecycleObserver,ServiceCallback{
         String androidId = Settings.Secure.getString(context.getContentResolver(),
                 Settings.Secure.ANDROID_ID);
 
-        SdkUtils.showErrorLog(CLASS_TAG,androidId);
+        utils.showErrorLog(this,androidId);
+
+
         return androidId;
     }
 
@@ -212,7 +200,7 @@ public class Messangi implements LifecycleObserver,ServiceCallback{
             }
         }
         email=gmail;
-        Log.e(CLASS_TAG," SEND Email "+ email);
+        utils.showInfoLog(this," SEND Email "+ email);
         return email;
     }
 
@@ -222,15 +210,16 @@ public class Messangi implements LifecycleObserver,ServiceCallback{
      * @param activity
      */
 
-    public void getPhone(Activity activity){
-        this.activity=activity;
-        if(!checkPermission(wantPermission,context)){
-            requestPermission(wantPermission,PERMISSION_REQUEST_CODE,this.activity);
-        }else{
-            getPhoneEspecific(activity);
-        }
-
-    }
+//    public String getPhone(Activity activity){
+//        this.activity=activity;
+//        if(!checkPermission(wantPermission,context)){
+//            requestPermission(wantPermission,PERMISSION_REQUEST_CODE,this.activity);
+//        }else{
+//            return getPhoneEspecific(activity);
+//        }
+//        return "";
+//
+//    }
 
     /**
      * Method get type of device
@@ -262,35 +251,36 @@ public class Messangi implements LifecycleObserver,ServiceCallback{
         setFirebaseTopic();
         icon=context.getResources().getIdentifier("ic_launcher", "mipmap", context.getPackageName());
         Nameclass=context.getPackageName()+"."+ context.getClass().getSimpleName();
-        SdkUtils.showErrorLog(CLASS_TAG,Nameclass);
-        SdkUtils.initResourcesConfigFile(context);
+        utils.showErrorLog(this,Nameclass);
+        
+        utils.initResourcesConfigFile(context);
 
     }
 
-    @SuppressLint("HardwareIds")
-    public String getPhoneEspecific(Activity activity1) {
-        activity=activity1;
-        TelephonyManager phoneMgr = (TelephonyManager) context.getSystemService(Context.TELEPHONY_SERVICE);
-        if (ActivityCompat.checkSelfPermission(activity, wantPermission) != PackageManager.PERMISSION_GRANTED) {
-            return "";
-        }
-
-        try{
-            phone=phoneMgr.getLine1Number();
-
-        }catch (NullPointerException e){
-            phone="";//for previus version
-            Log.e(CLASS_TAG,"NO TIENE NUMERO REGISTRADO "+ phone);
-
-        }catch (SecurityException e){
-            phone="";
-            Log.e(CLASS_TAG,"NOT PERMISES PHONE NUMBER "+ phone);
-        }
-
-        Log.e(CLASS_TAG,"FOR SENDING PHONE NUMBER "+ phone);
-
-        return phone;
-    }
+//    @SuppressLint("HardwareIds")
+//    public String getPhoneEspecific(Activity activity1) {
+//        activity=activity1;
+//        TelephonyManager phoneMgr = (TelephonyManager) context.getSystemService(Context.TELEPHONY_SERVICE);
+//        if (ActivityCompat.checkSelfPermission(activity, wantPermission) != PackageManager.PERMISSION_GRANTED) {
+//            return "";
+//        }
+//
+//        try{
+//            phone=phoneMgr.getLine1Number();
+//
+//        }catch (NullPointerException e){
+//            phone="";//for previus version
+//            Log.e(this,"NO TIENE NUMERO REGISTRADO "+ phone);
+//
+//        }catch (SecurityException e){
+//            phone="";
+//            Log.e(this,"NOT PERMISES PHONE NUMBER "+ phone);
+//        }
+//
+//        Log.e(this,"FOR SENDING PHONE NUMBER "+ phone);
+//
+//        return phone;
+//    }
 
     public void requestPermission(@NonNull String permission, int PERMISSION_REQUEST_CODE, Activity activity1){
         activity=activity1;
@@ -319,67 +309,32 @@ public class Messangi implements LifecycleObserver,ServiceCallback{
         }
     }
 
-    public void verifiSdkVersion() {
-        String sdkVersionInt = BuildConfig.VERSION_NAME; // sdk version;
-        SdkUtils.showDebugLog(CLASS_TAG,"SDK VERSION "+sdkVersionInt);
-        if(getSdkVersion().equals("0") || !getSdkVersion().equals(sdkVersionInt)){
-            setSdkVersion(sdkVersionInt);
-            SdkUtils.showDebugLog(CLASS_TAG,"New SDK O SE ACTUALIZO LA VERSION DEL SDK ");
-            subcribeDevice();
-        }else{
 
-            SdkUtils.showDebugLog(CLASS_TAG,"No se actulizo el SDK Version ");
-        }
-        String lenguaje= Locale.getDefault().getDisplayLanguage();
-        SdkUtils.showInfoLog(CLASS_TAG,"DEVICE LENGUAJE "+lenguaje);
-        if(getLenguaje().equals("0") || !getLenguaje().equals(lenguaje)){
-            setLenguaje(lenguaje);
-            SdkUtils.showDebugLog(CLASS_TAG,"New Lenguaje O SE ACTUALIZO EL LENGUAJE DEL DISPOSITIVO ");
-            try {
-                Thread.sleep(3000);
-                subcribeDevice();
-            } catch (InterruptedException e) {
-                e.printStackTrace();
-            }
-
-        }else{
-
-            SdkUtils.showDebugLog(CLASS_TAG,"No se actulizo el Lenguaje ");
-        }
-
-    }
 
     public void unsubcribeDevice(){
         setPushToken("");
-        MessangiServicesCenter.makeUpdateDevice(this,context,getPushToken());
+        //MessangiServicesCenter.makeUpdateDevice(this,context,getPushToken());
     }
 
     public void subcribeDevice(){
-        String token=storageController.getToken("Token");
-        MessangiServicesCenter.makeUpdateDevice(this,context,token);
+
     }
 
     public void createDeviceParameters() {
 
         String type=getType();
-        SdkUtils.showDebugLog(CLASS_TAG,"create type "+type);
+        utils.showDebugLog(this,"create type "+type);
         String lenguaje=getLenguaje();
-        SdkUtils.showDebugLog(CLASS_TAG,"create Lenguaje "+lenguaje);
+        utils.showDebugLog(this,"create Lenguaje "+lenguaje);
         String model=getDeviceName();
-        SdkUtils.showDebugLog(CLASS_TAG,"create model "+model);
+        utils.showDebugLog(this,"create model "+model);
         String os = getOs();
-        SdkUtils.showDebugLog(CLASS_TAG,"OS "+ os);
+        utils.showDebugLog(this,"OS "+ os);
         String sdkVersion=getSdkVersion();
-        SdkUtils.showDebugLog(CLASS_TAG,"SDK version "+ sdkVersion);
-        if(storageController.hasTokenRegiter("Token")) {
-            pushToken= storageController.getToken("Token");
-            setPushToken(pushToken);
-            MessangiServicesCenter.makePostDataDevice(pushToken,type,lenguaje,model,os,sdkVersion,mInstance,context);
-        }else{
-            SdkUtils.showErrorLog(CLASS_TAG,"hasn't Token");
-            pushToken="";
-            MessangiServicesCenter.makePostDataDevice(pushToken,type,lenguaje,model,os,sdkVersion,mInstance,context);
-        }
+        utils.showDebugLog(this,"SDK version "+ sdkVersion);
+        pushToken= storageController.getToken();
+        setPushToken(pushToken);
+        createDevice(pushToken,type,lenguaje,model,os,sdkVersion,mInstance,context);
 
     }
 
@@ -390,9 +345,6 @@ public class Messangi implements LifecycleObserver,ServiceCallback{
     public void setIcon(int icon) {
         this.icon = icon;
     }
-
-
-
 
     public String getDeviceName() {
         String manufacturer = Build.MANUFACTURER;
@@ -417,62 +369,34 @@ public class Messangi implements LifecycleObserver,ServiceCallback{
     }
 
     private void setMessangiObserver(){
-    Log.e(CLASS_TAG, "setMessangiObserver ");
+
+    utils.showErrorLog(this,"setMessangiObserver ");
     ProcessLifecycleOwner.get().getLifecycle().addObserver(this);
     }
 
-    public JSONObject requestJsonBodyForUpdate(String pushToken){
-        externalId=getExternalId();
-        email=getEmail();
-        JSONObject requestBody=new JSONObject();
-        JSONArray jsonArray=new JSONArray(tags);
-        SdkUtils.showErrorLog(CLASS_TAG,"JsonArray "+jsonArray.toString());
-        try {
-            if(!pushToken.equals("")) {
-                requestBody.put("pushToken", pushToken);
-                requestBody.put("type", type);
-                requestBody.put("tags", jsonArray);
-                requestBody.put("language", lenguaje);
-                requestBody.put("model", model);
-                requestBody.put("os", os);
-                requestBody.put("sdkVersion", sdkVersion);
-            }else{
-                requestBody.put("pushToken", pushToken);
-            }
-        } catch (JSONException e) {
-            e.printStackTrace();
-        }
-        SdkUtils.showInfoLog(CLASS_TAG,"Json for update "+requestBody.toString());
-        return requestBody;
+
+
+    public void setUserPhone(String phone){
+        messangiUserDevice.addProperties("phone",phone);
+        utils.showErrorLog(this,phone);
     }
 
-    public void setUserParameterToUpdate(){
-        MessangiUserDeviceAlt messangiUserDevice=new MessangiUserDeviceAlt();
-        messangiUserDevice.setMobile("0414652585");
-        messangiUserDevice.addUserIdDevice("age","74");
-        messangiUserDevice.addUserIdDevice("email","Jb@jb.com");
-        SdkUtils.showErrorLog(CLASS_TAG,new Gson().toJson(messangiUserDevice));
+    public void setUserExternalId(String externalID){
+        messangiUserDevice.addProperties("externalID",externalID);
+        utils.showErrorLog(this,externalID);
     }
 
-    public void getUserByDevice(){
-
-        if(storageController.isRegisterUserByDevice("MessangiUserDevice")){
-            MessangiUserDevice messangiUserDevice=storageController.getUserByDevice("MessangiUserDevice");
-            SdkUtils.showErrorLog(CLASS_TAG,new Gson().toJson(messangiUserDevice));
-            if(!messangiUserDevice.getUserIdDevice().isEmpty()) {
-                for (Map.Entry<String, Object> entry : messangiUserDevice.getUserIdDevice().entrySet()) {
-                    SdkUtils.showErrorLog(CLASS_TAG, "Key = " + entry.getKey() +
-                            ", Value = " + entry.getValue());
-                }
-            }else {
-                MessangiServicesCenter.makeGetUserByDevice(mInstance,context);
-            }
-            SdkUtils.showErrorLog(CLASS_TAG,"From storeController "+messangiUserDevice.getUserIdDevice().get("email"));
-        }else{
-            MessangiServicesCenter.makeGetUserByDevice(mInstance,context);
-        }
-
+    public void setUserEmail(String email){
+        messangiUserDevice.addProperties("email",email);
+        utils.showErrorLog(this,email);
     }
+
+    public void setUserProperties(String key,String value){
+        messangiUserDevice.addProperties(key,value);
+        utils.showErrorLog(this,new Gson().toJson(messangiUserDevice));
+    }
+
+
 
     public void addTagsToDevice(String newTags){
 
@@ -482,17 +406,132 @@ public class Messangi implements LifecycleObserver,ServiceCallback{
             tags=new ArrayList<>();
             tags.add(newTags);
         }
-        SdkUtils.showInfoLog(CLASS_TAG, tags.toString());
+        utils.showInfoLog(this, tags.toString());
+    }
+
+    /**
+     * Method that get Device registered
+     @param serviceCallback interface for do somethink with service result
+     @param forsecallservice
+     */
+    public void requestDevice(boolean forsecallservice, final ServiceCallback serviceCallback){
+        if(!forsecallservice && this.messangiDev!=null){
+              serviceCallback.handlerGetMessangiDevice(messangiDev); //cambiar al boradcastreceiver
+        }else{
+            if(!forsecallservice && storageController.isRegisterDevice()){
+                messangiDev=storageController.getDevice();
+                serviceCallback.handlerGetMessangiDevice(messangiDev);
+            }else{
+                endPoint= ApiUtils.getSendMessageFCM(context);
+                if(storageController.isRegisterDevice()){
+                    messangiDev=storageController.getDevice();
+                    String provId=messangiDev.getId();
+                    endPoint.getDeviceParameter(provId).enqueue(new Callback<MessangiDev>() {
+                        @Override
+                        public void onResponse(Call<MessangiDev> call, Response<MessangiDev> response) {
+
+                            if(response.isSuccessful()){
+                                Log.e("respose","response Device: "+new Gson().toJson(response.body()));
+                                utils.showErrorLog(this,"response Device: "+new Gson().toJson(response.body()));
+                                utils.showErrorLog(this,"Device Id: "+response.body().getId());
+                                messangiDev=response.body();
+                                storageController.saveDevice(response.body());
+                                serviceCallback.handlerGetMessangiDevice(response.body());
+
+
+
+
+                            }else{
+                                int code=response.code();
+                                serviceCallback.handlerGetMessangiDevice(null);
+                                utils.showErrorLog(this,"code Get error "+code);
+                            }
+
+
+                        }
+
+                        @Override
+                        public void onFailure(Call<MessangiDev> call, Throwable t) {
+                            serviceCallback.handlerGetMessangiDevice(null);
+                            utils.showErrorLog(this,"onfailure get "+t.getCause());
+
+                        }
+                    });
+                }else{
+
+                    utils.showInfoLog(this,"doesn't have id device can't get ");
+                }
+
+            }
+        }
+
+    }
+
+    private void createDevice(String pushToken, String type, String lenguaje,
+                              String model, String os, String sdkVersion,
+                              final ServiceCallback serviceCallback, final Context context){
+
+        JsonObject gsonObject = new JsonObject();
+        final JSONObject requestBody=new JSONObject();
+        try {
+            requestBody.put("pushToken",pushToken);
+            requestBody.put("type",type);
+            requestBody.put("language",lenguaje);
+            requestBody.put("model",model);
+            requestBody.put("os",os);
+            requestBody.put("sdkVersion",sdkVersion);
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
+
+        JsonParser jsonParser=new JsonParser();
+        gsonObject=(JsonObject) jsonParser.parse(requestBody.toString());
+
+        endPoint= ApiUtils.getSendMessageFCM(context);
+        endPoint.postDeviceParameter(gsonObject).enqueue(new Callback<MessangiDev>() {
+            @Override
+            public void onResponse(Call<MessangiDev> call, Response<MessangiDev> response) {
+                if(response.isSuccessful()) {
+                    utils.showErrorLog(this, "response post Device: " + new Gson().toJson(response.body()));
+                    messangiDev=response.body();
+                    storageController.saveDevice(response.body());
+                    if(storageController.hasTokenRegiter()&&
+                            !storageController.isNotificationManually()){
+                        String token=storageController.getToken();
+                        messangiDev.setPushToken(token);
+                        messangiDev.save(context);
+                    }
+                    //llamar al BR
+
+                }else{
+                    int code=response.code();
+                    utils.showErrorLog(this,"Error code post "+code);
+                    //llamar al BR null
+                }
+            }
+
+            @Override
+            public void onFailure(Call<MessangiDev> call, Throwable t) {
+                //llamar al BR
+                utils.showErrorLog(this,"Failure code post "+t.getMessage());
+            }
+        });
     }
 
 
     @Override
-    public void handleData(Object result) {
+    public void handlerGetMessangiDevice(MessangiDev result) {
+     utils.showErrorLog(this,"result "+result.getId());
+    }
+
+    @Override
+    public void handlerGetMessangiUser(MessangiUserDevice result) {
 
     }
 
     @Override
-    public void handleIndividualData(Object result) {
+    public void handlerPostDevice() {
 
+    utils.showErrorLog(this,"result ");
     }
 }

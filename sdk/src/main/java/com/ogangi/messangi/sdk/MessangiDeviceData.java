@@ -1,4 +1,4 @@
-package com.ogangi.messangi.sdk.network.model;
+package com.ogangi.messangi.sdk;
 
 import com.google.gson.annotations.Expose;
 import com.google.gson.annotations.SerializedName;

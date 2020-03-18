@@ -5,64 +5,58 @@ import android.content.SharedPreferences;
 import android.util.Log;
 
 import com.google.gson.Gson;
-import com.ogangi.messangi.sdk.network.model.MessangiDev;
-import com.ogangi.messangi.sdk.network.model.MessangiUserDevice;
-
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
 
 public class StorageController {
 
-    private static final String CLASS_TAG = StorageController.class.getSimpleName();
-
-    private static StorageController mInstance;
+    //private static StorageController mInstance;
     private static Context contexto;
     private SharedPreferences mSharedPreferences;
+    private Messangi messangi;
 
-    public StorageController(Context context){
+    public StorageController(Context context,Messangi messangi){
 
         this.contexto=context;
+        this.messangi=messangi;
         this.mSharedPreferences = contexto.getApplicationContext().getSharedPreferences("StorageCallback", 0);
 
     }
 
-    public static synchronized StorageController getInstance(Context context) {
-        if (mInstance == null) {
-            mInstance = new StorageController(context);
-        }
-        contexto = context;
-        return mInstance;
-    }
+//    public static synchronized StorageController getInst(Context context) {
+//        if (mInstance == null) {
+//            mInstance = new StorageController(context);
+//        }
+//        contexto = context;
+//        return mInstance;
+//    }
 
-    public static void reset() {
-        mInstance = null;
-    }
+//    public static void reset() {
+//        mInstance = null;
+//    }
 
-    public void saveToken(String key,String token){
-
+    public void saveToken(String token){
         SharedPreferences.Editor datosuser=mSharedPreferences.edit();
-        datosuser.putString(key,token);
+        datosuser.putString("Token",token);
         datosuser.apply();
-        Log.e(CLASS_TAG,"TOKEN SAVED");
+        messangi.utils.showErrorLog(this,"TOKEN SAVED");
 
     }
 
-    public boolean hasTokenRegiter(String key){
+    public boolean hasTokenRegiter(){
         boolean hasToken = false;
-        String token=mSharedPreferences.getString(key,"");
+        String token=mSharedPreferences.getString("Token","");
         if(token.length()>0){
             hasToken=true;
 
         }
-        Log.e(CLASS_TAG,"has token "+hasToken);
+
         return hasToken;
     }
 
-    public String getToken(String key){
+    public String getToken(){
 
-        String token=mSharedPreferences.getString(key,"");
-        Log.e(CLASS_TAG,""+token);
+        String token=mSharedPreferences.getString("Token","");
+
+        messangi.utils.showErrorLog(this,token);
         return token;
     }
 
@@ -78,7 +72,7 @@ public class StorageController {
         SharedPreferences.Editor datosuser=mSharedPreferences.edit();
         datosuser.putString(key,idDevice);
         datosuser.apply();
-        SdkUtils.showErrorLog(CLASS_TAG,"ID Parameter SAVED "+key+" "+idDevice);
+        messangi.utils.showErrorLog(this,"ID Parameter SAVED "+key+" "+idDevice);
 
     }
 
@@ -89,14 +83,14 @@ public class StorageController {
             hasToken=true;
 
         }
-        SdkUtils.showDebugLog(CLASS_TAG,"HAS ID PARAMETER "+hasToken);
+        messangi.utils.showDebugLog(this,"HAS ID PARAMETER "+hasToken);
         return hasToken;
     }
 
     public String getIdParameter(String key){
 
         String token=mSharedPreferences.getString(key,"");
-        SdkUtils.showDebugLog(CLASS_TAG,token);
+        messangi.utils.showDebugLog(this,token);
 
         return token;
     }
@@ -110,34 +104,34 @@ public class StorageController {
 
 
 
-    public void saveDevice(String key, MessangiDev value){
+    public void saveDevice(MessangiDev value){
         SharedPreferences.Editor datosuser=mSharedPreferences.edit();
         Gson gson = new Gson();
         String jsonTags = gson.toJson(value);
-        datosuser.putString(key,jsonTags);
+        datosuser.putString("MessangiDev",jsonTags);
         datosuser.apply();
-        SdkUtils.showErrorLog(CLASS_TAG,"Device Saved "+key+" "+value.getId());
+        messangi.utils.showErrorLog(this,"Device Saved "+"MessangiDevice"+" "+value.getId());
 
     }
 
-    public boolean isRegisterDevice(String key){
+    public boolean isRegisterDevice(){
         boolean hasToken = false;
-        String token=mSharedPreferences.getString(key,"");
+        String token=mSharedPreferences.getString("MessangiDev","");
         if(token.length()>0){
             hasToken=true;
 
         }
-        SdkUtils.showDebugLog(CLASS_TAG,"HAS Device PARAMETER "+hasToken);
+        messangi.utils.showDebugLog(this,"HAS Device PARAMETER "+hasToken);
         return hasToken;
     }
 
-    public MessangiDev getDevice(String key){
+    public MessangiDev getDevice(){
 
         Gson gson = new Gson();
-        String values=mSharedPreferences.getString(key,"");
+        String values=mSharedPreferences.getString("MessangiDev","");
         MessangiDev messangiDev=gson.fromJson(values,MessangiDev.class);
-        SdkUtils.showDebugLog(CLASS_TAG,messangiDev.getId());
-        SdkUtils.showDebugLog(CLASS_TAG,messangiDev.getUserId());
+        messangi.utils.showDebugLog(this,messangiDev.getId());
+        messangi.utils.showDebugLog(this,messangiDev.getUserId());
         return messangiDev;
     }
 
@@ -149,33 +143,33 @@ public class StorageController {
     }
 
 
-    public void saveUserByDevice(String key, MessangiUserDevice value){
+    public void saveUserByDevice(MessangiUserDevice value){
         SharedPreferences.Editor datosuser=mSharedPreferences.edit();
         Gson gson = new Gson();
         String jsonTags = gson.toJson(value);
-        datosuser.putString(key,jsonTags);
+        datosuser.putString("MessangiUserDevice",jsonTags);
         datosuser.apply();
-        SdkUtils.showErrorLog(CLASS_TAG,"UserByDevice Saved "+key+" "+value.getMobile());
+        messangi.utils.showErrorLog(this,"UserByDevice Saved "+"MessangiUserDevice"+" "+value.getMobile());
 
     }
 
-    public boolean isRegisterUserByDevice(String key){
+    public boolean isRegisterUserByDevice(){
         boolean hasToken = false;
-        String token=mSharedPreferences.getString(key,"");
+        String token=mSharedPreferences.getString("MessangiUserDevice","");
         if(token.length()>0){
             hasToken=true;
 
         }
-        SdkUtils.showDebugLog(CLASS_TAG,"HAS UserByDevice PARAMETER "+hasToken);
+        messangi.utils.showDebugLog(this,"HAS UserByDevice PARAMETER "+hasToken);
         return hasToken;
     }
 
-    public MessangiUserDevice getUserByDevice(String key){
+    public MessangiUserDevice getUserByDevice(){
 
         Gson gson = new Gson();
-        String values=mSharedPreferences.getString(key,"");
+        String values=mSharedPreferences.getString("MessangiUserDevice","");
         MessangiUserDevice messangiUserDevice=gson.fromJson(values,MessangiUserDevice.class);
-        SdkUtils.showDebugLog(CLASS_TAG,messangiUserDevice.getMobile());
+        messangi.utils.showDebugLog(this,messangiUserDevice.getMobile());
         return messangiUserDevice;
     }
 
@@ -186,6 +180,18 @@ public class StorageController {
         editorlogin.commit();
     }
 
+    public void setNotificationManually(boolean enable){
+        SharedPreferences.Editor datosuser=mSharedPreferences.edit();
+        datosuser.putBoolean("DisableForUser",enable);
+        datosuser.apply();
+        messangi.utils.showErrorLog(this,"Set disable for user "+enable);
 
+    }
+
+
+    public boolean isNotificationManually(){
+
+     return mSharedPreferences.getBoolean("DisableForUser",false);
+    }
 
 }
