@@ -5,10 +5,10 @@ import android.accounts.AccountManager;
 import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.content.Context;
+import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.os.Build;
 import android.provider.Settings;
-import android.telephony.TelephonyManager;
 import android.util.Log;
 import android.util.Patterns;
 import android.widget.Toast;
@@ -20,6 +20,7 @@ import androidx.lifecycle.Lifecycle;
 import androidx.lifecycle.LifecycleObserver;
 import androidx.lifecycle.OnLifecycleEvent;
 import androidx.lifecycle.ProcessLifecycleOwner;
+import androidx.localbroadcastmanager.content.LocalBroadcastManager;
 
 import com.google.firebase.messaging.FirebaseMessaging;
 import com.google.gson.Gson;
@@ -30,15 +31,13 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.util.ArrayList;
-import java.util.Locale;
-import java.util.Map;
 import java.util.regex.Pattern;
 
 import retrofit2.Call;
 import retrofit2.Callback;
 import retrofit2.Response;
 
-public class Messangi implements LifecycleObserver,ServiceCallback{
+public class Messangi implements LifecycleObserver{
 
 
     private static Messangi mInstance;
@@ -67,7 +66,7 @@ public class Messangi implements LifecycleObserver,ServiceCallback{
     MessangiUserDevice messangiUserDevice;
     MessangiDev messangiDev;
     SdkUtils utils;
-    StorageController storageController;
+    public StorageController storageController;
 
 
     public Messangi(Context context){
@@ -108,8 +107,11 @@ public class Messangi implements LifecycleObserver,ServiceCallback{
 
         utils.showErrorLog(this,"foreground");
         if(storageController.isRegisterDevice()){
-            MessangiDev messangiDev=storageController.getDevice();
+
+            messangiDev=storageController.getDevice();
+            utils.showInfoLog(this,"Tag "+messangiDev.getTags());
             messangiDev.verifiSdkVersion(context);
+
 
         }else{
             utils.showInfoLog(this,"New Create Device");
@@ -334,7 +336,7 @@ public class Messangi implements LifecycleObserver,ServiceCallback{
         utils.showDebugLog(this,"SDK version "+ sdkVersion);
         pushToken= storageController.getToken();
         setPushToken(pushToken);
-        createDevice(pushToken,type,lenguaje,model,os,sdkVersion,mInstance,context);
+        createDevice(pushToken,type,lenguaje,model,os,sdkVersion,context);
 
     }
 
@@ -374,30 +376,6 @@ public class Messangi implements LifecycleObserver,ServiceCallback{
     ProcessLifecycleOwner.get().getLifecycle().addObserver(this);
     }
 
-
-
-    public void setUserPhone(String phone){
-        messangiUserDevice.addProperties("phone",phone);
-        utils.showErrorLog(this,phone);
-    }
-
-    public void setUserExternalId(String externalID){
-        messangiUserDevice.addProperties("externalID",externalID);
-        utils.showErrorLog(this,externalID);
-    }
-
-    public void setUserEmail(String email){
-        messangiUserDevice.addProperties("email",email);
-        utils.showErrorLog(this,email);
-    }
-
-    public void setUserProperties(String key,String value){
-        messangiUserDevice.addProperties(key,value);
-        utils.showErrorLog(this,new Gson().toJson(messangiUserDevice));
-    }
-
-
-
     public void addTagsToDevice(String newTags){
 
         if(tags!=null){
@@ -411,17 +389,20 @@ public class Messangi implements LifecycleObserver,ServiceCallback{
 
     /**
      * Method that get Device registered
-     @param serviceCallback interface for do somethink with service result
      @param forsecallservice
      */
-    public void requestDevice(boolean forsecallservice, final ServiceCallback serviceCallback){
+    public void requestDevice(boolean forsecallservice){
         if(!forsecallservice && this.messangiDev!=null){
-              serviceCallback.handlerGetMessangiDevice(messangiDev); //cambiar al boradcastreceiver
+            utils.showErrorLog(this,"From instance ");
+            sendEventToActivity(messangiDev,context);
+              //cambiar al boradcastreceiver
         }else{
             if(!forsecallservice && storageController.isRegisterDevice()){
                 messangiDev=storageController.getDevice();
-                serviceCallback.handlerGetMessangiDevice(messangiDev);
+                utils.showErrorLog(this,"From Local Storage ");
+                sendEventToActivity(messangiDev,context);
             }else{
+                utils.showErrorLog(this,"From Service ");
                 endPoint= ApiUtils.getSendMessageFCM(context);
                 if(storageController.isRegisterDevice()){
                     messangiDev=storageController.getDevice();
@@ -436,15 +417,14 @@ public class Messangi implements LifecycleObserver,ServiceCallback{
                                 utils.showErrorLog(this,"Device Id: "+response.body().getId());
                                 messangiDev=response.body();
                                 storageController.saveDevice(response.body());
-                                serviceCallback.handlerGetMessangiDevice(response.body());
-
-
-
+                                //serviceCallback.handlerGetMessangiDevice(response.body());
+                                sendEventToActivity(messangiDev,context);
 
                             }else{
                                 int code=response.code();
-                                serviceCallback.handlerGetMessangiDevice(null);
+                                sendEventToActivity(null,context);
                                 utils.showErrorLog(this,"code Get error "+code);
+
                             }
 
 
@@ -452,8 +432,9 @@ public class Messangi implements LifecycleObserver,ServiceCallback{
 
                         @Override
                         public void onFailure(Call<MessangiDev> call, Throwable t) {
-                            serviceCallback.handlerGetMessangiDevice(null);
+                            sendEventToActivity(null,context);
                             utils.showErrorLog(this,"onfailure get "+t.getCause());
+
 
                         }
                     });
@@ -467,9 +448,30 @@ public class Messangi implements LifecycleObserver,ServiceCallback{
 
     }
 
+    private void sendEventToActivity(Object something, Context context) {
+        Intent intent=new Intent("PassDataFromoSdk");
+        Gson gson = new Gson();
+        utils.showErrorLog(this,"Broadcasting message");
+        if ((something instanceof MessangiDev) && (something!=null)){
+        utils.showErrorLog(this,"was MesangiDev");
+        String jsonSome = gson.toJson((MessangiDev)something);
+        intent.putExtra("Message",jsonSome);
+        intent.putExtra("Identifier",1);
+        LocalBroadcastManager.getInstance(context).sendBroadcast(intent);
+        }else if((something instanceof MessangiUserDevice) && (something!=null)){
+            utils.showErrorLog(this,"was MessangioUserDev");
+            String jsonSome = gson.toJson((MessangiUserDevice)something);
+            intent.putExtra("Message",jsonSome);
+            intent.putExtra("Identifier",2);
+            LocalBroadcastManager.getInstance(context).sendBroadcast(intent);
+        }else {
+            utils.showErrorLog(this,"Dont Send Broadcast ");
+        }
+    }
+
     private void createDevice(String pushToken, String type, String lenguaje,
                               String model, String os, String sdkVersion,
-                              final ServiceCallback serviceCallback, final Context context){
+                               final Context context){
 
         JsonObject gsonObject = new JsonObject();
         final JSONObject requestBody=new JSONObject();
@@ -502,36 +504,23 @@ public class Messangi implements LifecycleObserver,ServiceCallback{
                         messangiDev.save(context);
                     }
                     //llamar al BR
+                    sendEventToActivity(messangiDev,context);
 
                 }else{
                     int code=response.code();
                     utils.showErrorLog(this,"Error code post "+code);
                     //llamar al BR null
+                    sendEventToActivity(null,context);
                 }
             }
 
             @Override
             public void onFailure(Call<MessangiDev> call, Throwable t) {
                 //llamar al BR
+                sendEventToActivity(null,context);
                 utils.showErrorLog(this,"Failure code post "+t.getMessage());
             }
         });
     }
 
-
-    @Override
-    public void handlerGetMessangiDevice(MessangiDev result) {
-     utils.showErrorLog(this,"result "+result.getId());
-    }
-
-    @Override
-    public void handlerGetMessangiUser(MessangiUserDevice result) {
-
-    }
-
-    @Override
-    public void handlerPostDevice() {
-
-    utils.showErrorLog(this,"result ");
-    }
 }

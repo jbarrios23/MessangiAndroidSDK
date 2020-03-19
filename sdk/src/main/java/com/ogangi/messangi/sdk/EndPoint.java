@@ -3,6 +3,8 @@ package com.ogangi.messangi.sdk;
 
 import com.google.gson.JsonObject;
 
+import org.json.JSONObject;
+
 import java.util.Map;
 
 import retrofit2.Call;
@@ -37,7 +39,7 @@ public interface EndPoint {
     Call<Map<String, Object>> getUserByDevice(@Query("device") String deviceId);
 
     @PUT("/v1/users?")
-    Call<MessangiUserDevice> putUserByDeviceParameter(@Query("device") String deviceId
+    Call<JsonObject> putUserByDeviceParameter(@Query("device") String deviceId
                                                , @Body JsonObject body);
 
 }

@@ -149,7 +149,7 @@ public class StorageController {
         String jsonTags = gson.toJson(value);
         datosuser.putString("MessangiUserDevice",jsonTags);
         datosuser.apply();
-        messangi.utils.showErrorLog(this,"UserByDevice Saved "+"MessangiUserDevice"+" "+value.getMobile());
+        messangi.utils.showErrorLog(this,"UserByDevice Saved ");
 
     }
 
@@ -160,7 +160,7 @@ public class StorageController {
             hasToken=true;
 
         }
-        messangi.utils.showDebugLog(this,"HAS UserByDevice PARAMETER "+hasToken);
+        messangi.utils.showDebugLog(this,"has UserByDevice "+hasToken);
         return hasToken;
     }
 
@@ -169,7 +169,7 @@ public class StorageController {
         Gson gson = new Gson();
         String values=mSharedPreferences.getString("MessangiUserDevice","");
         MessangiUserDevice messangiUserDevice=gson.fromJson(values,MessangiUserDevice.class);
-        messangi.utils.showDebugLog(this,messangiUserDevice.getMobile());
+        messangi.utils.showDebugLog(this,"get users by device");
         return messangiUserDevice;
     }
 

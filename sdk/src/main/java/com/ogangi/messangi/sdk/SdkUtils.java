@@ -4,6 +4,8 @@ import android.content.Context;
 import android.content.res.Resources;
 import android.util.Log;
 
+import com.google.gson.Gson;
+
 public class SdkUtils {
 
     public static String CLASS_TAG=SdkUtils.class.getSimpleName();
@@ -80,6 +82,18 @@ public class SdkUtils {
     public static void setMessangi_token(String messangi_token) {
         SdkUtils.messangi_token = messangi_token;
     }
+
+    public String getGsonJsonFormat(Object object){
+        Object obj;
+        if(object instanceof MessangiDev){
+            obj=(MessangiDev)object;
+        }else{
+            obj=(MessangiUserDevice)object;
+        }
+
+        return new Gson().toJson(obj);
+    }
+
 
 
 }
