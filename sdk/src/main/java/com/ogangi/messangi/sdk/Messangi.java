@@ -115,8 +115,8 @@ public class Messangi implements LifecycleObserver{
 
 
         }else{
-            utils.showInfoLog(this,"New Create Device");
-            //createDeviceParameters();
+            utils.showInfoLog(this,"Device not found!");
+
         }
 
     }

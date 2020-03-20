@@ -75,6 +75,7 @@ public class MessangiDev implements Serializable { // para hacer la prieba del B
      */
 
     public void save(final Context context){
+
         final Messangi messangi=Messangi.getInst(context);
         final StorageController storageController=Messangi.getInst().storageController;
         EndPoint endPoint= ApiUtils.getSendMessageFCM(context);
@@ -186,10 +187,10 @@ public class MessangiDev implements Serializable { // para hacer la prieba del B
         messangi.utils.showDebugLog(this,"sdk "+getSdkVersion());
         if(getSdkVersion().equals("0") || !getSdkVersion().equals(sdkVersionInt)){
             setSdkVersion(sdkVersionInt);
-            messangi.utils.showDebugLog(this,"New SDK O SE ACTUALIZO LA VERSION DEL SDK ");
+            messangi.utils.showDebugLog(this,"update sdk version ");
             //save(context);
             try {
-                messangi.utils.showDebugLog(this,"tagsddd "+getTags());
+
                 Thread.sleep(1000);
                 save(context);
             } catch (InterruptedException e) {
@@ -197,13 +198,13 @@ public class MessangiDev implements Serializable { // para hacer la prieba del B
             }
         }else{
 
-            messangi.utils.showDebugLog(this,"No se actulizo el SDK Version ");
+            messangi.utils.showDebugLog(this,"Not update sdk version ");
         }
         String lenguaje= Locale.getDefault().getDisplayLanguage();
-        messangi.utils.showInfoLog(this,"DEVICE LENGUAJE "+lenguaje);
+        //messangi.utils.showInfoLog(this,"DEVICE LENGUAJE "+lenguaje);
         if(getLanguage().equals("0") || !getLanguage().equals(lenguaje)){
             setLanguage(lenguaje);
-            messangi.utils.showDebugLog(this,"New Lenguaje O SE ACTUALIZO EL LENGUAJE DEL DISPOSITIVO ");
+            messangi.utils.showDebugLog(this,"update lenguaje ");
             try {
                 Thread.sleep(3000);
                 save(context);
@@ -213,7 +214,7 @@ public class MessangiDev implements Serializable { // para hacer la prieba del B
 
         }else{
 
-            messangi.utils.showDebugLog(this,"No se actulizo el Lenguaje ");
+            messangi.utils.showDebugLog(this,"not update lenguaje ");
         }
 
     }

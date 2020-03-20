@@ -8,17 +8,16 @@ import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.os.Bundle;
-import android.text.InputType;
 import android.util.Log;
 import android.view.View;
 import android.view.Window;
-import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ListView;
 import android.widget.ProgressBar;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.app.ActivityCompat;
@@ -101,8 +100,12 @@ public class MainActivity extends AppCompatActivity implements ActivityCompat.On
         save.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                    progressBar.setVisibility(View.VISIBLE);
-                    messangiDev.save(getApplicationContext());
+                    if(messangiDev.getTags().size()>0) {
+                        progressBar.setVisibility(View.VISIBLE);
+                        messangiDev.save(getApplicationContext());
+                    }else{
+                        Toast.makeText(getApplicationContext(),"Nothing to save",Toast.LENGTH_LONG).show();
+                    }
             }
         });
 
