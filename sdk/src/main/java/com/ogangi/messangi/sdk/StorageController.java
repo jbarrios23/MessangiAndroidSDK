@@ -121,7 +121,7 @@ public class StorageController {
             hasToken=true;
 
         }
-        messangi.utils.showDebugLog(this,"HAS Device PARAMETER "+hasToken);
+        messangi.utils.showDebugLog(this,"isRegiterDevice "+hasToken);
         return hasToken;
     }
 

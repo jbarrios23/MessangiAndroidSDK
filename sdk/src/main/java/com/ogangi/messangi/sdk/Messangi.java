@@ -30,6 +30,7 @@ import com.google.gson.JsonParser;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.regex.Pattern;
 
@@ -313,14 +314,7 @@ public class Messangi implements LifecycleObserver{
 
 
 
-    public void unsubcribeDevice(){
-        setPushToken("");
-        //MessangiServicesCenter.makeUpdateDevice(this,context,getPushToken());
-    }
 
-    public void subcribeDevice(){
-
-    }
 
     public void createDeviceParameters() {
 
@@ -376,35 +370,25 @@ public class Messangi implements LifecycleObserver{
     ProcessLifecycleOwner.get().getLifecycle().addObserver(this);
     }
 
-    public void addTagsToDevice(String newTags){
-
-        if(tags!=null){
-            tags.add(newTags);
-        }else{
-            tags=new ArrayList<>();
-            tags.add(newTags);
-        }
-        utils.showInfoLog(this, tags.toString());
-    }
-
     /**
      * Method that get Device registered
      @param forsecallservice
      */
     public void requestDevice(boolean forsecallservice){
         if(!forsecallservice && this.messangiDev!=null){
-            utils.showErrorLog(this,"From instance ");
+            utils.showErrorLog(this,"Device From RAM ");
             sendEventToActivity(messangiDev,context);
               //cambiar al boradcastreceiver
         }else{
             if(!forsecallservice && storageController.isRegisterDevice()){
                 messangiDev=storageController.getDevice();
-                utils.showErrorLog(this,"From Local Storage ");
+                utils.showErrorLog(this,"Device From Local Storage ");
                 sendEventToActivity(messangiDev,context);
             }else{
-                utils.showErrorLog(this,"From Service ");
+
                 endPoint= ApiUtils.getSendMessageFCM(context);
                 if(storageController.isRegisterDevice()){
+                    utils.showErrorLog(this,"Device From Service ");
                     messangiDev=storageController.getDevice();
                     String provId=messangiDev.getId();
                     endPoint.getDeviceParameter(provId).enqueue(new Callback<MessangiDev>() {
@@ -412,18 +396,16 @@ public class Messangi implements LifecycleObserver{
                         public void onResponse(Call<MessangiDev> call, Response<MessangiDev> response) {
 
                             if(response.isSuccessful()){
-                                Log.e("respose","response Device: "+new Gson().toJson(response.body()));
+
                                 utils.showErrorLog(this,"response Device: "+new Gson().toJson(response.body()));
-                                utils.showErrorLog(this,"Device Id: "+response.body().getId());
                                 messangiDev=response.body();
                                 storageController.saveDevice(response.body());
-                                //serviceCallback.handlerGetMessangiDevice(response.body());
                                 sendEventToActivity(messangiDev,context);
 
                             }else{
                                 int code=response.code();
                                 sendEventToActivity(null,context);
-                                utils.showErrorLog(this,"code Get error "+code);
+                                utils.showErrorLog(this,"code for get device error "+code);
 
                             }
 
@@ -440,7 +422,7 @@ public class Messangi implements LifecycleObserver{
                     });
                 }else{
 
-                    utils.showInfoLog(this,"doesn't have id device can't get ");
+                utils.showInfoLog(this,"Device not found! ");
                 }
 
             }
@@ -448,25 +430,16 @@ public class Messangi implements LifecycleObserver{
 
     }
 
-    private void sendEventToActivity(Object something, Context context) {
+    private void sendEventToActivity(Serializable something, Context context) {
         Intent intent=new Intent("PassDataFromoSdk");
-        Gson gson = new Gson();
         utils.showErrorLog(this,"Broadcasting message");
-        if ((something instanceof MessangiDev) && (something!=null)){
-        utils.showErrorLog(this,"was MesangiDev");
-        String jsonSome = gson.toJson((MessangiDev)something);
-        intent.putExtra("Message",jsonSome);
-        intent.putExtra("Identifier",1);
-        LocalBroadcastManager.getInstance(context).sendBroadcast(intent);
-        }else if((something instanceof MessangiUserDevice) && (something!=null)){
-            utils.showErrorLog(this,"was MessangioUserDev");
-            String jsonSome = gson.toJson((MessangiUserDevice)something);
-            intent.putExtra("Message",jsonSome);
-            intent.putExtra("Identifier",2);
+        intent.putExtra("message",something);
+        if(something!=null){
             LocalBroadcastManager.getInstance(context).sendBroadcast(intent);
-        }else {
+        }else{
             utils.showErrorLog(this,"Dont Send Broadcast ");
         }
+
     }
 
     private void createDevice(String pushToken, String type, String lenguaje,

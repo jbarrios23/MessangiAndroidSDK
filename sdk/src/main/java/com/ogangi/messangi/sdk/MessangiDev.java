@@ -16,6 +16,7 @@ import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
@@ -25,7 +26,7 @@ import retrofit2.Call;
 import retrofit2.Callback;
 import retrofit2.Response;
 
-public class MessangiDev { // para hacer la prieba del BR
+public class MessangiDev implements Serializable { // para hacer la prieba del BR
     @SerializedName("id")
     @Expose
     private String id;
@@ -34,7 +35,7 @@ public class MessangiDev { // para hacer la prieba del BR
     private String pushToken;
     @SerializedName("userId")
     @Expose
-    private String userId;
+    protected String userId;
     @SerializedName("type")
     @Expose
     private String type;
@@ -74,7 +75,6 @@ public class MessangiDev { // para hacer la prieba del BR
      */
 
     public void save(final Context context){
-
         final Messangi messangi=Messangi.getInst(context);
         final StorageController storageController=Messangi.getInst().storageController;
         EndPoint endPoint= ApiUtils.getSendMessageFCM(context);
@@ -86,7 +86,7 @@ public class MessangiDev { // para hacer la prieba del BR
         endPoint.putDeviceParameter(id,gsonObject).enqueue(new Callback<MessangiDev>() {
                 @Override
                 public void onResponse(Call<MessangiDev> call, Response<MessangiDev> response) {
-                    messangi.utils.showInfoLog(this,"put Device good "+new Gson().toJson(response.body()));
+                    messangi.utils.showInfoLog(this,"update Device good "+new Gson().toJson(response.body()));
                     if(response.isSuccessful()){
                         MessangiDev messangiDev=response.body();
                         storageController.saveDevice(response.body());
@@ -117,67 +117,46 @@ public class MessangiDev { // para hacer la prieba del BR
         final Messangi messangi=Messangi.getInst(context);
         final StorageController storageController=Messangi.getInst().storageController;
         if(!forsecallservice && messangi.messangiUserDevice!=null){
-
-            messangi.utils.showErrorLog(this,"From instance ");
-            //cambiar al boradcastreceiver
+            messangi.utils.showErrorLog(this,"User From RAM ");
             sendEventToActivity(messangi.messangiUserDevice,context);
         }else {
             if (!forsecallservice && storageController.isRegisterUserByDevice()) {
                 messangi.messangiUserDevice = storageController.getUserByDevice();
                 sendEventToActivity(messangi.messangiUserDevice,context);
-                messangi.utils.showErrorLog(this,"From Local storage ");
+                messangi.utils.showErrorLog(this,"User From Local storage ");
             } else {
-                messangi.utils.showErrorLog(this,"From Service ");
-                EndPoint endPoint = ApiUtils.getSendMessageFCM(context);
-                endPoint.getUserByDevice(id).enqueue(new Callback<Map<String, Object>>() {
-                    @Override
-                    public void onResponse(Call<Map<String, Object>> call, Response<Map<String, Object>> response) {
-                        if (response.isSuccessful()) {
-                            MessangiUserDevice messangiUserDevice = new MessangiUserDevice();
-                            Map<String, Object> responseBody = response.body();
-                            for (Map.Entry<String, Object> entry : responseBody.entrySet()) {
-                                messangi.utils.showErrorLog(this, "Key = " + entry.getKey() +
-                                        ", Value = " + entry.getValue());
 
-                                if (entry.getKey().equals("devices")) {
-                                    messangiUserDevice.setDevices((String) responseBody.get("devices"));
-                                } else if (entry.getKey().contains("member since")) {
-                                    messangiUserDevice.setMemberSince((String) responseBody.get("member since"));
-                                } else if (entry.getKey().contains("last updated")) {
-                                    messangiUserDevice.setLastUpdated((String) responseBody.get("last updated"));
-                                } else if (entry.getKey().contains("mobile")) {
-                                    messangiUserDevice.setMobile((String) responseBody.get("mobile"));
-                                } else if (entry.getKey().contains("timestamp")) {
-                                    messangiUserDevice.setTimestamp((String) responseBody.get("timestamp"));
-                                } else if (entry.getKey().contains("transaction")) {
-                                    messangiUserDevice.setTransaction((String) responseBody.get("transaction"));
-                                } else {
-                                    messangiUserDevice.addProperties(entry.getKey(), entry.getValue());
+                    messangi.utils.showErrorLog(this, "User From Service ");
+                    EndPoint endPoint = ApiUtils.getSendMessageFCM(context);
+                    endPoint.getUserByDevice(id).enqueue(new Callback<Map<String, Object>>() {
+                        @Override
+                        public void onResponse(Call<Map<String, Object>> call, Response<Map<String, Object>> response) {
+                            if (response.isSuccessful()) {
 
-                                }
+                                Map<String, Object> responseBody = response.body();
+                                MessangiUserDevice messangiUserDevice;
+                                messangiUserDevice = MessangiUserDevice.parseData(responseBody);
+                                messangiUserDevice.id = userId;
+                                storageController.saveUserByDevice(messangiUserDevice);
+                                //serviceCallback.handlerGetMessangiUser(messangiUserDevice);
+                                //llamado al BR
+                                sendEventToActivity(messangiUserDevice, context);
 
+                            } else {
+
+                                int code = response.code();
+                                messangi.utils.showErrorLog(this, "code getUser by device " + code);
+                                sendEventToActivity(null, context);
                             }
-
-                            storageController.saveUserByDevice(messangiUserDevice);
-                            //serviceCallback.handlerGetMessangiUser(messangiUserDevice);
-                            //llamado al BR
-                            sendEventToActivity(messangiUserDevice,context);
-
-
-                        } else {
-
-                            int code = response.code();
-                            messangi.utils.showErrorLog(this, "code getUser by device " + code);
-                            sendEventToActivity(null,context);
                         }
-                    }
 
-                    @Override
-                    public void onFailure(Call<Map<String, Object>> call, Throwable t) {
-                                messangi.utils.showErrorLog(this,"onFailure "+t.getMessage());
-                                sendEventToActivity(null,context);
-                    }
-                });
+                        @Override
+                        public void onFailure(Call<Map<String, Object>> call, Throwable t) {
+                            messangi.utils.showErrorLog(this, "onFailure " + t.getMessage());
+                            sendEventToActivity(null, context);
+                        }
+                    });
+
 
             }
         }
@@ -239,18 +218,23 @@ public class MessangiDev { // para hacer la prieba del BR
 
     }
 
-    public void addTagsToDevice(String newTags,Context context){
+    public void addTagsToDevice(String newTags){
         Log.e("addTagsToDevice ",""+newTags);
         if(tags!=null){
             tags.add(newTags);
-            Log.e(" add ",""+getTags());
+
         }else{
             tags=new ArrayList<>();
             tags.add(newTags);
-            Log.e("inicial add ",""+getTags());
+
         }
         //setTags(tags);
         Log.e("addTagsToDevice final ",""+getTags());
+    }
+
+    public void clearTags(){
+        tags.clear();
+        Log.e("clear tags ",""+getTags());
     }
 
 
@@ -385,25 +369,15 @@ public class MessangiDev { // para hacer la prieba del BR
         return requestBody;
     }
 
-    private void sendEventToActivity(Object something, Context context) {
+    private void sendEventToActivity(Serializable something, Context context) {
         Messangi messangi=Messangi.getInst(context);
         Intent intent=new Intent("PassDataFromoSdk");
-        Gson gson = new Gson();
         messangi.utils.showErrorLog(this,"Broadcasting message");
-        if ((something instanceof MessangiDev) && (something!=null)){
-            messangi.utils.showErrorLog(this,"was MesangiDev");
-            String jsonSome = gson.toJson((MessangiDev)something);
-            intent.putExtra("Message",jsonSome);
-            intent.putExtra("Identifier",1);
-            LocalBroadcastManager.getInstance(context).sendBroadcast(intent);
-        }else if((something instanceof MessangiUserDevice) && (something!=null)){
-            messangi.utils.showErrorLog(this,"was MessangioUserDev");
-            String jsonSome = gson.toJson((MessangiUserDevice)something);
-            intent.putExtra("Message",jsonSome);
-            intent.putExtra("Identifier",2);
-            LocalBroadcastManager.getInstance(context).sendBroadcast(intent);
-        }else {
-            messangi.utils.showErrorLog(this,"Dont Send Broadcast ");
+        intent.putExtra("message",something);
+        if(something!=null){
+         LocalBroadcastManager.getInstance(context).sendBroadcast(intent);
+        }else{
+            messangi.utils.showErrorLog(this,"Not Send Broadcast ");
         }
     }
 

@@ -1,11 +1,6 @@
 package com.ogangi.Messangi.SDK.Demo;
 
-import androidx.annotation.UiThread;
-import androidx.appcompat.app.AppCompatActivity;
-import androidx.core.app.ActivityCompat;
-import androidx.localbroadcastmanager.content.LocalBroadcastManager;
-
-import android.app.Activity;
+import android.annotation.SuppressLint;
 import android.app.AlertDialog;
 import android.content.BroadcastReceiver;
 import android.content.Context;
@@ -22,16 +17,19 @@ import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ListView;
+import android.widget.ProgressBar;
 import android.widget.TextView;
-import android.widget.Toast;
 
-import com.google.gson.Gson;
+import androidx.appcompat.app.AppCompatActivity;
+import androidx.core.app.ActivityCompat;
+import androidx.localbroadcastmanager.content.LocalBroadcastManager;
+
 import com.ogangi.messangi.sdk.Messangi;
-import com.ogangi.messangi.sdk.SdkUtils;
-import com.ogangi.messangi.sdk.ServiceCallback;
 import com.ogangi.messangi.sdk.MessangiDev;
 import com.ogangi.messangi.sdk.MessangiUserDevice;
+import com.ogangi.messangi.sdk.SdkUtils;
 
+import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Map;
 
@@ -52,6 +50,7 @@ public class MainActivity extends AppCompatActivity implements ActivityCompat.On
     public ArrayAdapter<String> messangiDevArrayAdapter;
     public ArrayList<String> messangiUserDeviceArrayList;
     public ArrayAdapter<String> messangiUserDeviceArrayAdapter;
+    public ProgressBar progressBar;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -66,6 +65,7 @@ public class MainActivity extends AppCompatActivity implements ActivityCompat.On
         user=findViewById(R.id.user);
         tags=findViewById(R.id.tag);
         save=findViewById(R.id.save);
+        progressBar=findViewById(R.id.progressBar);
 
         messangi=Messangi.getInst(this);
         messangiDevArrayList=new ArrayList<>();
@@ -77,20 +77,40 @@ public class MainActivity extends AppCompatActivity implements ActivityCompat.On
         device.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                messangi.requestDevice(false);
+                messangiDevArrayList.clear();
+                messangiUserDeviceArrayList.clear();
+                progressBar.setVisibility(View.VISIBLE);
+                messangi.requestDevice(true);
             }
         });
 
-        lista_device.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+        user.setOnClickListener(new View.OnClickListener() {
             @Override
-            public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-                Log.e(CLASS_TAG,"La seleccion fue: "+messangiDevArrayList.get(position));
+            public void onClick(View v) {
+                    createAlertUser();
+            }
+        });
+
+        tags.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                creatAlert();
+            }
+        });
+
+        save.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                    progressBar.setVisibility(View.VISIBLE);
+                    messangiDev.save(getApplicationContext());
             }
         });
 
 
 
     }
+
+
 
     @Override
     protected void onStart() {
@@ -103,95 +123,180 @@ public class MainActivity extends AppCompatActivity implements ActivityCompat.On
     @Override
     protected void onResume() {
         super.onResume();
+        Log.e(CLASS_TAG,"onResume");
+        messangiDevArrayList.clear();
+        messangiUserDeviceArrayList.clear();
+        progressBar.setVisibility(View.VISIBLE);
+        messangi.requestDevice(false);
+    }
+
+    private void createAlertUser() {
+        AlertDialog.Builder builder = new AlertDialog.Builder(this);
+        builder.setTitle(getResources().getString(R.string.app_name));
+        // set the custom layout
+        final View customLayout = getLayoutInflater().inflate(R.layout.custom_layout_user, null);
+        builder.setView(customLayout);
+
+
+        // add a button
+        builder.setPositiveButton("Add", new DialogInterface.OnClickListener() {
+            @SuppressLint("SetTextI18n")
+            @Override
+            public void onClick(DialogInterface dialog, int which) {
+                // send data from the AlertDialog to the Activity
+
+                EditText editText_key = customLayout.findViewById(R.id.editText_key);
+                String key=editText_key.getText().toString();
+                EditText editText_value = customLayout.findViewById(R.id.editText_value);
+                String value=editText_value.getText().toString();
+                messangiUserDevice.addProperties(key,value);
+                createAlertUser();
+
+
+            }
+        });
+
+        builder.setNegativeButton("Close And Save", new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialog, int which) {
+                dialog.cancel();
+                sendDialogDataToUser();
+
+            }
+        });
+        // create and show the alert dialog
+        AlertDialog dialog = builder.create();
+        dialog.show();
+
+
+
+    }
+
+    private void sendDialogDataToUser() {
+        Log.e(CLASS_TAG,"For update"+messangiUserDevice.getProperties());
+        progressBar.setVisibility(View.VISIBLE);
+        messangiUserDevice.save(getApplicationContext());
 
     }
 
     private void creatAlert() {
+        // create an alert builder
         AlertDialog.Builder builder = new AlertDialog.Builder(this);
-        builder.setTitle("Title");
+        builder.setTitle(getResources().getString(R.string.app_name));
+        // set the custom layout
+        final View customLayout = getLayoutInflater().inflate(R.layout.custom_layout, null);
+        builder.setView(customLayout);
+        TextView vista=customLayout.findViewById(R.id.tag_selection);
+        TextView clear=customLayout.findViewById(R.id.tag_clear);
+        vista.setText("Select: "+messangiDev.getTags());
+        clear.setText("Clear");
+        clear.setOnLongClickListener(new View.OnLongClickListener() {
+            @Override
+            public boolean onLongClick(View v) {
+                messangiDev.clearTags();
+                creatAlert();
+                return false;
+            }
 
-            // Set up the input
-        final EditText input = new EditText(this);
-        // Specify the type of input expected; this, for example, sets the input as a password, and will mask the text
-        input.setInputType(InputType.TYPE_CLASS_TEXT | InputType.TYPE_TEXT_VARIATION_PASSWORD);
-        builder.setView(input);
 
-        // Set up the buttons
-        builder.setPositiveButton("OK", new DialogInterface.OnClickListener() {
+        });
+        // add a button
+        builder.setPositiveButton("Add", new DialogInterface.OnClickListener() {
+            @SuppressLint("SetTextI18n")
             @Override
             public void onClick(DialogInterface dialog, int which) {
-                String m_Text = input.getText().toString();
-                Log.e(CLASS_TAG,m_Text);
-            }
-        });
-        builder.setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
-            @Override
-            public void onClick(DialogInterface dialog, int which) {
-                dialog.cancel();
+                // send data from the AlertDialog to the Activity
+
+                EditText editText = customLayout.findViewById(R.id.editText_tag);
+                String tags=editText.getText().toString();
+                messangiDev.addTagsToDevice(tags);
+                creatAlert();
+
+                //sendDialogDataToActivity(editText.getText().toString());
+
             }
         });
 
-        builder.show();
+        builder.setNegativeButton("Close", new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialog, int which) {
+                        dialog.cancel();
+                sendDialogDataToActivity();
+            }
+        });
+        // create and show the alert dialog
+        AlertDialog dialog = builder.create();
+        dialog.show();
 
     }
 
+    private void sendDialogDataToActivity() {
 
+        Log.e(CLASS_TAG,"Tags selection final was "+messangiDev.getTags());
+    }
 
     private BroadcastReceiver mReceiver=new BroadcastReceiver() {
         @Override
         public void onReceive(Context context, Intent intent) {
-            Gson gson = new Gson();
-            String message=intent.getStringExtra("Message");
-            int ident=intent.getIntExtra("Identifier",0);
-            Log.e(CLASS_TAG,"Message:  "+message);
-            Log.e(CLASS_TAG,"Ident:  "+ident);
-            SdkUtils sdkUtils=new SdkUtils();
-            if(ident==1){
-               messangiDev=gson.fromJson(message,MessangiDev.class);
-               messangiDev.requestUserByDevice(getApplicationContext(),false);
-               Log.e(CLASS_TAG,"Device:  "+sdkUtils.getGsonJsonFormat(messangiDev));
-               messangiDevArrayList.add("Id: "       +messangiDev.getId());
-               messangiDevArrayList.add("pushToken: "+messangiDev.getPushToken());
-               messangiDevArrayList.add("UserId: "   +messangiDev.getUserId());
-               messangiDevArrayList.add("Type: "     +messangiDev.getType());
-               messangiDevArrayList.add("Language: " +messangiDev.getLanguage());
-               messangiDevArrayList.add("Model: "    +messangiDev.getModel());
-               messangiDevArrayList.add("Os: "       +messangiDev.getOs());
-               messangiDevArrayList.add("SdkVersion: "   +messangiDev.getSdkVersion());
-               messangiDevArrayList.add("Tags: "+messangiDev.getTags());
-               messangiDevArrayList.add("CreateAt: "+messangiDev.getCreatedAt());
-               messangiDevArrayList.add("UpdatedAt: "+messangiDev.getUpdatedAt());
-               messangiDevArrayList.add("Timestamp: "+messangiDev.getTimestamp());
-               messangiDevArrayList.add("Transaction: "+messangiDev.getTransaction());
-               String provDevice=sdkUtils.getGsonJsonFormat(messangiDev);
-               messangiDevArrayList.add("Device: "+provDevice);
-               lista_device.setAdapter(messangiDevArrayAdapter);
-           }else{
 
-               messangiUserDevice=gson.fromJson(message,MessangiUserDevice.class);
-               Log.e(CLASS_TAG,"User:  "+sdkUtils.getGsonJsonFormat(messangiUserDevice));
-               messangiUserDeviceArrayList.add("Device: "       +messangiUserDevice.getDevices());
-               messangiUserDeviceArrayList.add("Member since: "       +messangiUserDevice.getMemberSince());
-               messangiUserDeviceArrayList.add("Last Upadate: "       +messangiUserDevice.getLastUpdated());
-               messangiUserDeviceArrayList.add("Mobile: "       +messangiUserDevice.getMobile());
-               messangiUserDeviceArrayList.add("timestamp: "       +messangiUserDevice.getTimestamp());
-               messangiUserDeviceArrayList.add("Transaction: "       +messangiUserDevice.getMobile());
-               if(messangiUserDevice.getProperties().size()>0){
-                   Map<String,Object> result=messangiUserDevice.getProperties();
-                   for (Map.Entry<String, Object> entry : result.entrySet()) {
-                       Log.e(CLASS_TAG, "Key = " + entry.getKey() +
-                               ", Value = " + entry.getValue());
-                       messangiUserDeviceArrayList.add(entry.getKey()+" "+entry.getValue());
+            Serializable message=intent.getSerializableExtra("message");
+
+            //Log.e(CLASS_TAG,"Message:  "+message);
+
+            SdkUtils sdkUtils=new SdkUtils();
+            if ((message instanceof MessangiDev) && (message!=null)){
+                messangiDevArrayList.clear();
+
+                messangiDev=(MessangiDev) message;
+
+                Log.e(CLASS_TAG,"Device:  "+sdkUtils.getGsonJsonFormat(messangiDev));
+                messangiDevArrayList.add("Id: "           +messangiDev.getId());
+                messangiDevArrayList.add("pushToken: "    +messangiDev.getPushToken());
+                messangiDevArrayList.add("UserId: "       +messangiDev.getUserId());
+                messangiDevArrayList.add("Type: "         +messangiDev.getType());
+                messangiDevArrayList.add("Language: "     +messangiDev.getLanguage());
+                messangiDevArrayList.add("Model: "        +messangiDev.getModel());
+                messangiDevArrayList.add("Os: "           +messangiDev.getOs());
+                messangiDevArrayList.add("SdkVersion: "   +messangiDev.getSdkVersion());
+                messangiDevArrayList.add("Tags: "         +messangiDev.getTags());
+                messangiDevArrayList.add("CreateAt: "     +messangiDev.getCreatedAt());
+                messangiDevArrayList.add("UpdatedAt: "    +messangiDev.getUpdatedAt());
+                messangiDevArrayList.add("Timestamp: "    +messangiDev.getTimestamp());
+                messangiDevArrayList.add("Transaction: "  +messangiDev.getTransaction());
+
+
+                lista_device.setAdapter(messangiDevArrayAdapter);
+                messangiDev.requestUserByDevice(getApplicationContext(),false);
+
+
+            }else if((message instanceof MessangiUserDevice) && (message!=null)){
+                messangiUserDeviceArrayList.clear();
+                messangiUserDevice=(MessangiUserDevice) message;
+                Log.e(CLASS_TAG,"User:  "+sdkUtils.getGsonJsonFormat(messangiUserDevice));
+
+                if(messangiUserDevice.getProperties().size()>0){
+                    Map<String,Object> result=messangiUserDevice.getProperties();
+                    for (Map.Entry<String, Object> entry : result.entrySet()) {
+
+                        messangiUserDeviceArrayList.add(entry.getKey()+" "+entry.getValue());
+                    }
+
+
                 }
 
-               }
-                String proUser=sdkUtils.getGsonJsonFormat(messangiUserDevice);
-                messangiUserDeviceArrayList.add("User: "       +proUser);
                 lista_user.setAdapter(messangiUserDeviceArrayAdapter);
-           }
+            }else{
 
+                Log.e(CLASS_TAG,"do nothing");
+
+            }
+            if(progressBar.isShown()){
+                progressBar.setVisibility(View.GONE);
+            }
 
         }
+
+
     };
 
     @Override
