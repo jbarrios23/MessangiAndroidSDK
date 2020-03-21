@@ -176,7 +176,6 @@ public class MainActivity extends AppCompatActivity implements ActivityCompat.On
                 EditText editText_value = customLayout.findViewById(R.id.editText_value);
                 String value=editText_value.getText().toString();
                 messangiUserDevice.addProperties(key,value);
-
                 createAlertUser();
 
 
