@@ -25,8 +25,11 @@ import java.util.Map;
 import retrofit2.Call;
 import retrofit2.Callback;
 import retrofit2.Response;
+/**
+ * class MessangiDev is used for handle Device paramenter in SDK and service
+ */
 
-public class MessangiDev implements Serializable { // para hacer la prieba del BR
+public class MessangiDev implements Serializable {
     @SerializedName("id")
     @Expose
     private String id;
@@ -67,11 +70,10 @@ public class MessangiDev implements Serializable { // para hacer la prieba del B
     @Expose
     private String transaction;
 
-
     /**
-     * Method that Update Device
+     * Method that make Update of Device using the service Put
      @param context
-
+     @serialData :MessangiDev
      */
 
     public void save(final Context context){
@@ -79,7 +81,7 @@ public class MessangiDev implements Serializable { // para hacer la prieba del B
         final Messangi messangi=Messangi.getInst(context);
         final StorageController storageController=Messangi.getInst().storageController;
         EndPoint endPoint= ApiUtils.getSendMessageFCM(context);
-        messangi.utils.showErrorLog(this," Id "+id+" pushToken "+pushToken+" "+tags.toString());
+        messangi.utils.showInfoLog(this," Id "+id+" pushToken "+pushToken+" "+tags.toString());
         JsonObject gsonObject = new JsonObject();
         JSONObject requestUpdatebody=requestJsonBodyForUpdate(pushToken,context);
         JsonParser jsonParser=new JsonParser();
@@ -87,11 +89,10 @@ public class MessangiDev implements Serializable { // para hacer la prieba del B
         endPoint.putDeviceParameter(id,gsonObject).enqueue(new Callback<MessangiDev>() {
                 @Override
                 public void onResponse(Call<MessangiDev> call, Response<MessangiDev> response) {
-                    messangi.utils.showInfoLog(this,"update Device good "+new Gson().toJson(response.body()));
+                    messangi.utils.showInfoLog(this,"Update Device good "+new Gson().toJson(response.body()));
                     if(response.isSuccessful()){
                         MessangiDev messangiDev=response.body();
                         storageController.saveDevice(response.body());
-                        //llamado al BR para actualizar
                         sendEventToActivity(messangiDev,context);
                     }else{
                         int code=response.code();
@@ -102,7 +103,7 @@ public class MessangiDev implements Serializable { // para hacer la prieba del B
 
                 @Override
                 public void onFailure(Call<MessangiDev> call, Throwable t) {
-                    messangi.utils.showErrorLog(this,"onfailure put "+t.getMessage());
+                    messangi.utils.showErrorLog(this,"onFailure put service "+t.getMessage());
                     sendEventToActivity(null,context);
                 }
             });
@@ -110,38 +111,37 @@ public class MessangiDev implements Serializable { // para hacer la prieba del B
     }
 
     /**
-     * Method that get Device registered
-     @param context
+     * Method for get Device registered from service
+     @param context: instance context
+     @param forsecallservice : allows effective device search in three ways: by instance, by shared variable or by service.
      */
-
     public void requestUserByDevice(final Context context, boolean forsecallservice){
         final Messangi messangi=Messangi.getInst(context);
         final StorageController storageController=Messangi.getInst().storageController;
         if(!forsecallservice && messangi.messangiUserDevice!=null){
-            messangi.utils.showErrorLog(this,"User From RAM ");
+            messangi.utils.showInfoLog(this,"User From RAM ");
             sendEventToActivity(messangi.messangiUserDevice,context);
         }else {
             if (!forsecallservice && storageController.isRegisterUserByDevice()) {
                 messangi.messangiUserDevice = storageController.getUserByDevice();
                 sendEventToActivity(messangi.messangiUserDevice,context);
-                messangi.utils.showErrorLog(this,"User From Local storage ");
+                messangi.utils.showInfoLog(this,"User From Local storage ");
             } else {
 
-                    messangi.utils.showErrorLog(this, "User From Service ");
+                    messangi.utils.showInfoLog(this, "User From Service ");
                     EndPoint endPoint = ApiUtils.getSendMessageFCM(context);
-                    endPoint.getUserByDevice(id).enqueue(new Callback<Map<String, Object>>() {
+                    endPoint.getUserByDevice(id).enqueue(new Callback<Map<String, String>>() {
                         @Override
-                        public void onResponse(Call<Map<String, Object>> call, Response<Map<String, Object>> response) {
+                        public void onResponse(Call<Map<String, String>> call, Response<Map<String, String>> response) {
                             if (response.isSuccessful()) {
 
-                                Map<String, Object> responseBody = response.body();
+                                Map<String, String> responseBody = response.body();
                                 MessangiUserDevice messangiUserDevice;
                                 messangiUserDevice = MessangiUserDevice.parseData(responseBody);
                                 messangiUserDevice.id = userId;
                                 storageController.saveUserByDevice(messangiUserDevice);
-                                //serviceCallback.handlerGetMessangiUser(messangiUserDevice);
-                                //llamado al BR
                                 sendEventToActivity(messangiUserDevice, context);
+                                messangi.utils.showInfoLog(this,"Request user device successful");
 
                             } else {
 
@@ -152,59 +152,68 @@ public class MessangiDev implements Serializable { // para hacer la prieba del B
                         }
 
                         @Override
-                        public void onFailure(Call<Map<String, Object>> call, Throwable t) {
+                        public void onFailure(Call<Map<String, String>> call, Throwable t) {
                             messangi.utils.showErrorLog(this, "onFailure " + t.getMessage());
                             sendEventToActivity(null, context);
                         }
                     });
-
-
             }
         }
 
     }
 
+    /**
+     * Method for get status of enable notification push
+     */
+
     public boolean isEnableNotificationPush(){
         return pushToken!=null && pushToken!="";
     }
 
-    public void setStatusNotificationPush(boolean enable){
+    /**
+     * Method for get Device registered from service
+     @param context: instance context
+     @param enable : boolean enable.
+     */
+    public void setStatusNotificationPush(boolean enable,Context context){
         final StorageController storageController=Messangi.getInst().storageController;
         storageController.setNotificationManually(true);
         if(storageController.hasTokenRegiter()&& enable){
             pushToken=storageController.getToken();
+
         }else{
             pushToken="";
-        }
 
+        }
+        save(context);
     }
 
-    public void verifiSdkVersion(Context context) {
+    /**
+     * Method for check Sdk Veriosn and Languaje, if one of these parameters changes
+     * immediately it is updated in the database.
+     @param context: instance context
+     */
+
+    public void checkSdkVersion(Context context) {
         final Messangi messangi=Messangi.getInst(context);
         String sdkVersionInt = BuildConfig.VERSION_NAME; // sdk version;
-        messangi.utils.showDebugLog(this,"SDK VERSION "+sdkVersionInt);
-        messangi.utils.showDebugLog(this,"Push token "+pushToken);
-        messangi.utils.showDebugLog(this,"sdk "+getSdkVersion());
         if(getSdkVersion().equals("0") || !getSdkVersion().equals(sdkVersionInt)){
             setSdkVersion(sdkVersionInt);
-            messangi.utils.showDebugLog(this,"update sdk version ");
-            //save(context);
+            messangi.utils.showDebugLog(this,"Update sdk version ");
             try {
-
                 Thread.sleep(1000);
                 save(context);
             } catch (InterruptedException e) {
                 e.printStackTrace();
             }
         }else{
-
             messangi.utils.showDebugLog(this,"Not update sdk version ");
         }
         String lenguaje= Locale.getDefault().getDisplayLanguage();
         //messangi.utils.showInfoLog(this,"DEVICE LENGUAJE "+lenguaje);
         if(getLanguage().equals("0") || !getLanguage().equals(lenguaje)){
             setLanguage(lenguaje);
-            messangi.utils.showDebugLog(this,"update lenguaje ");
+            messangi.utils.showDebugLog(this,"Update lenguaje ");
             try {
                 Thread.sleep(3000);
                 save(context);
@@ -213,14 +222,18 @@ public class MessangiDev implements Serializable { // para hacer la prieba del B
             }
 
         }else{
-
-            messangi.utils.showDebugLog(this,"not update lenguaje ");
+            messangi.utils.showDebugLog(this,"Not update lenguaje ");
         }
 
     }
+    /**
+     * Method for add nes Tags to Device, then you can do save and
+     * immediately it is updated in the database.
+     @param newTags: new Tags for add
+     */
 
     public void addTagsToDevice(String newTags){
-        Log.e("addTagsToDevice ",""+newTags);
+
         if(tags!=null){
             tags.add(newTags);
 
@@ -229,17 +242,22 @@ public class MessangiDev implements Serializable { // para hacer la prieba del B
             tags.add(newTags);
 
         }
-        //setTags(tags);
-        Log.e("addTagsToDevice final ",""+getTags());
-    }
 
+    }
+    /**
+     * Method for clear all Tags selected in local
+     *
+     */
     public void clearTags(){
         tags.clear();
-        Log.e("clear tags ",""+getTags());
+
     }
 
 
-
+    /**
+     * Method for get Id Device
+     *
+     */
     public String getId() {
         return id;
     }
@@ -248,6 +266,10 @@ public class MessangiDev implements Serializable { // para hacer la prieba del B
         this.id = id;
     }
 
+    /**
+     * Method for get Push Token
+     *
+     */
     public String getPushToken() {
         return pushToken;
     }
@@ -256,6 +278,10 @@ public class MessangiDev implements Serializable { // para hacer la prieba del B
         this.pushToken = pushToken;
     }
 
+    /**
+     * Method for get User Id
+     *
+     */
     public String getUserId() {
         return userId;
     }
@@ -264,6 +290,10 @@ public class MessangiDev implements Serializable { // para hacer la prieba del B
         this.userId = userId;
     }
 
+    /**
+     * Method for get Type of Device
+     *
+     */
     public String getType() {
         return type;
     }
@@ -271,7 +301,10 @@ public class MessangiDev implements Serializable { // para hacer la prieba del B
     public void setType(String type) {
         this.type = type;
     }
-
+    /**
+     * Method for get Leanguaje of Device
+     *
+     */
     public String getLanguage() {
         return language;
     }
@@ -279,7 +312,10 @@ public class MessangiDev implements Serializable { // para hacer la prieba del B
     public void setLanguage(String language) {
         this.language = language;
     }
-
+    /**
+     * Method for get Model od Device
+     *
+     */
     public String getModel() {
         return model;
     }
@@ -288,6 +324,10 @@ public class MessangiDev implements Serializable { // para hacer la prieba del B
         this.model = model;
     }
 
+    /**
+     * Method for get OS version of Device
+     *
+     */
     public String getOs() {
         return os;
     }
@@ -296,6 +336,10 @@ public class MessangiDev implements Serializable { // para hacer la prieba del B
         this.os = os;
     }
 
+    /**
+     * Method for get Sdk version of Device
+     *
+     */
     public String getSdkVersion() {
         return sdkVersion;
     }
@@ -303,7 +347,10 @@ public class MessangiDev implements Serializable { // para hacer la prieba del B
     public void setSdkVersion(String sdkVersion) {
         this.sdkVersion = sdkVersion;
     }
-
+    /**
+     * Method for get Tags of Device
+     *
+     */
     public List<String> getTags() {
         return tags;
     }
@@ -344,11 +391,15 @@ public class MessangiDev implements Serializable { // para hacer la prieba del B
         this.transaction = transaction;
     }
 
+    /**
+     * Method for get JSON body for make Update Device
+     * @param context : instance context
+     * @param pushToken : push token parameter
+     */
+
     private JSONObject requestJsonBodyForUpdate(String pushToken,Context context){
 
         JSONObject requestBody=new JSONObject();
-        Log.e("Tags",""+tags.toString());
-        Log.e("Tags",""+getTags());
         JSONArray jsonArray=new JSONArray(tags);
 
         try {
@@ -370,15 +421,20 @@ public class MessangiDev implements Serializable { // para hacer la prieba del B
         return requestBody;
     }
 
+    /**
+     * Method that send Parameter (Ej: messangiDev or MessangiUserDevice) registered to Activity
+     @param something: Object Serializable for send to activity (Ej MeesangiDev).
+     @param context : context instance
+     */
     private void sendEventToActivity(Serializable something, Context context) {
         Messangi messangi=Messangi.getInst(context);
         Intent intent=new Intent("PassDataFromoSdk");
-        messangi.utils.showErrorLog(this,"Broadcasting message");
+        messangi.utils.showInfoLog(this,"Broadcasting message");
         intent.putExtra("message",something);
         if(something!=null){
          LocalBroadcastManager.getInstance(context).sendBroadcast(intent);
         }else{
-            messangi.utils.showErrorLog(this,"Not Send Broadcast ");
+         messangi.utils.showErrorLog(this,"Not Send Broadcast ");
         }
     }
 

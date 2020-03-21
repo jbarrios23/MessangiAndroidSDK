@@ -16,12 +16,15 @@ import retrofit2.http.PUT;
 import retrofit2.http.Path;
 import retrofit2.http.Query;
 
+/**
+ * interface EndPoint is used define all End point of services
+ */
 public interface EndPoint {
 
     @Headers({"Content-type: application/json",
             "Accept: */*"})
 
-
+    // For device
     @GET("/v1/devices/{deviceId}")
     Call<MessangiDev> getDeviceParameter(@Path("deviceId") String deviceId);
 
@@ -33,10 +36,10 @@ public interface EndPoint {
     Call<MessangiDev> putDeviceParameter(@Path("deviceId") String deviceId
                                         ,@Body JsonObject body);
 
-    // for device user
+    // For device user
 
     @GET("/v1/users?")
-    Call<Map<String, Object>> getUserByDevice(@Query("device") String deviceId);
+    Call<Map<String, String>> getUserByDevice(@Query("device") String deviceId);
 
     @PUT("/v1/users?")
     Call<JsonObject> putUserByDeviceParameter(@Query("device") String deviceId

@@ -13,9 +13,11 @@ import android.view.View;
 import android.view.Window;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
+import android.widget.CompoundButton;
 import android.widget.EditText;
 import android.widget.ListView;
 import android.widget.ProgressBar;
+import android.widget.Switch;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -36,6 +38,8 @@ public class MainActivity extends AppCompatActivity implements ActivityCompat.On
 
 
     public static String CLASS_TAG=MainActivity.class.getSimpleName();
+    public static String TAG="MessangiSDK";
+
     public Messangi messangi;
     public Button device,user,tags,save;
     public TextView imprime;
@@ -65,6 +69,7 @@ public class MainActivity extends AppCompatActivity implements ActivityCompat.On
         tags=findViewById(R.id.tag);
         save=findViewById(R.id.save);
         progressBar=findViewById(R.id.progressBar);
+        Switch simpleSwitch = findViewById(R.id.simpleSwitch);
 
         messangi=Messangi.getInst(this);
         messangiDevArrayList=new ArrayList<>();
@@ -109,6 +114,23 @@ public class MainActivity extends AppCompatActivity implements ActivityCompat.On
             }
         });
 
+        simpleSwitch.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
+            @Override
+            public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
+                if(isChecked){
+
+                    Toast.makeText(getApplicationContext(),"Enable Notification Push",Toast.LENGTH_LONG).show();
+                    messangiDev.setStatusNotificationPush(isChecked,getApplicationContext());
+                    progressBar.setVisibility(View.VISIBLE);
+                }else{
+
+                    Toast.makeText(getApplicationContext(),"Disable Notification Push",Toast.LENGTH_LONG).show();
+                    messangiDev.setStatusNotificationPush(isChecked,getApplicationContext());
+                    progressBar.setVisibility(View.VISIBLE);
+                }
+            }
+        });
+
 
 
     }
@@ -118,7 +140,7 @@ public class MainActivity extends AppCompatActivity implements ActivityCompat.On
     @Override
     protected void onStart() {
         super.onStart();
-        Log.e(CLASS_TAG,"register BroadcastReceiver");
+        Log.i(TAG,CLASS_TAG+": register BroadcastReceiver");
         LocalBroadcastManager.getInstance(this).registerReceiver(mReceiver,
                 new IntentFilter("PassDataFromoSdk"));
     }
@@ -126,7 +148,8 @@ public class MainActivity extends AppCompatActivity implements ActivityCompat.On
     @Override
     protected void onResume() {
         super.onResume();
-        Log.e(CLASS_TAG,"onResume");
+
+        Log.i(TAG,CLASS_TAG+": onResume");
         messangiDevArrayList.clear();
         messangiUserDeviceArrayList.clear();
         progressBar.setVisibility(View.VISIBLE);
@@ -153,6 +176,7 @@ public class MainActivity extends AppCompatActivity implements ActivityCompat.On
                 EditText editText_value = customLayout.findViewById(R.id.editText_value);
                 String value=editText_value.getText().toString();
                 messangiUserDevice.addProperties(key,value);
+
                 createAlertUser();
 
 
@@ -176,7 +200,8 @@ public class MainActivity extends AppCompatActivity implements ActivityCompat.On
     }
 
     private void sendDialogDataToUser() {
-        Log.e(CLASS_TAG,"For update"+messangiUserDevice.getProperties());
+
+        Log.i(TAG,CLASS_TAG+": For update"+messangiUserDevice.getProperties());
         progressBar.setVisibility(View.VISIBLE);
         messangiUserDevice.save(getApplicationContext());
 
@@ -215,7 +240,7 @@ public class MainActivity extends AppCompatActivity implements ActivityCompat.On
                 messangiDev.addTagsToDevice(tags);
                 creatAlert();
 
-                //sendDialogDataToActivity(editText.getText().toString());
+
 
             }
         });
@@ -235,7 +260,7 @@ public class MainActivity extends AppCompatActivity implements ActivityCompat.On
 
     private void sendDialogDataToActivity() {
 
-        Log.e(CLASS_TAG,"Tags selection final was "+messangiDev.getTags());
+        Log.i(TAG,CLASS_TAG+": Tags selection final was "+messangiDev.getTags());
     }
 
     private BroadcastReceiver mReceiver=new BroadcastReceiver() {
@@ -243,16 +268,14 @@ public class MainActivity extends AppCompatActivity implements ActivityCompat.On
         public void onReceive(Context context, Intent intent) {
 
             Serializable message=intent.getSerializableExtra("message");
-
-            //Log.e(CLASS_TAG,"Message:  "+message);
-
             SdkUtils sdkUtils=new SdkUtils();
             if ((message instanceof MessangiDev) && (message!=null)){
                 messangiDevArrayList.clear();
 
                 messangiDev=(MessangiDev) message;
 
-                Log.e(CLASS_TAG,"Device:  "+sdkUtils.getGsonJsonFormat(messangiDev));
+
+                Log.i(TAG,CLASS_TAG+": Device:  "+sdkUtils.getGsonJsonFormat(messangiDev));
                 messangiDevArrayList.add("Id: "           +messangiDev.getId());
                 messangiDevArrayList.add("pushToken: "    +messangiDev.getPushToken());
                 messangiDevArrayList.add("UserId: "       +messangiDev.getUserId());
@@ -275,13 +298,14 @@ public class MainActivity extends AppCompatActivity implements ActivityCompat.On
             }else if((message instanceof MessangiUserDevice) && (message!=null)){
                 messangiUserDeviceArrayList.clear();
                 messangiUserDevice=(MessangiUserDevice) message;
-                Log.e(CLASS_TAG,"User:  "+sdkUtils.getGsonJsonFormat(messangiUserDevice));
+                Log.i(TAG,CLASS_TAG+" User:  "+sdkUtils.getGsonJsonFormat(messangiUserDevice));
+
 
                 if(messangiUserDevice.getProperties().size()>0){
-                    Map<String,Object> result=messangiUserDevice.getProperties();
-                    for (Map.Entry<String, Object> entry : result.entrySet()) {
+                    Map<String,String> result=messangiUserDevice.getProperties();
+                    for (Map.Entry<String, String> entry : result.entrySet()) {
 
-                        messangiUserDeviceArrayList.add(entry.getKey()+" "+entry.getValue());
+                        messangiUserDeviceArrayList.add(entry.getKey()+": "+entry.getValue());
                     }
 
 
@@ -289,8 +313,10 @@ public class MainActivity extends AppCompatActivity implements ActivityCompat.On
 
                 lista_user.setAdapter(messangiUserDeviceArrayAdapter);
             }else{
-
-                Log.e(CLASS_TAG,"do nothing");
+                Log.i(TAG,CLASS_TAG+": do nothing");
+                if(progressBar.isShown()){
+                    progressBar.setVisibility(View.GONE);
+                }
 
             }
             if(progressBar.isShown()){
@@ -304,7 +330,7 @@ public class MainActivity extends AppCompatActivity implements ActivityCompat.On
 
     @Override
     protected void onDestroy() {
-        Log.e(CLASS_TAG,"unregister BroadcastReceiver");
+        Log.i(TAG,CLASS_TAG+": unregister BroadcastReceiver");
         LocalBroadcastManager.getInstance(this).unregisterReceiver(mReceiver);
         super.onDestroy();
     }

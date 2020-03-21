@@ -5,7 +5,10 @@ import android.content.Context;
 public class ApiUtils {
 
    public static Messangi messangi;
-
+    /**
+     * Method for get client retrofit
+     * @param context :Instance context
+     */
    public static EndPoint getSendMessageFCM(Context context){
         messangi=Messangi.getInst(context);
         String url= SdkUtils.getMessangi_host();

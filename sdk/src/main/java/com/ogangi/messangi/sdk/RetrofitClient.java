@@ -29,7 +29,12 @@ public class RetrofitClient {
             .writeTimeout(15, TimeUnit.SECONDS)
             .build();
 
-
+    /**
+     * Method get client Retrofit
+     * @param context :Instance context
+     * @param Url : Url of services.
+     * @param token1: Token Auth from config file.
+     */
     public static Retrofit getClient(String Url, String token1, Context context){
         Messangi messangi=Messangi.getInst(context);
         token=token1;
@@ -71,7 +76,11 @@ public class RetrofitClient {
 
         return retrofit;
     }
-
+    /**
+     * Method get Header Retrofit
+     * @param authorizationValue :receive token auth of config file
+     * use: "--Authorization-- ","Bearer " + authorizationValue
+     */
     public static OkHttpClient getHeader(final String authorizationValue ) {
         HttpLoggingInterceptor interceptor = new HttpLoggingInterceptor();
         interceptor.setLevel(HttpLoggingInterceptor.Level.BODY);
@@ -83,6 +92,7 @@ public class RetrofitClient {
                             public Response intercept(Interceptor.Chain chain) throws IOException {
                                 Request request = null;
                                 if (authorizationValue != null) {
+
                                     Log.d("--Authorization-- ","Bearer " + authorizationValue);
 
                                     Request original = chain.request();

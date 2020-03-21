@@ -21,6 +21,10 @@ import com.google.firebase.messaging.RemoteMessage;
 
 import java.util.Random;
 
+/**
+ * class MyFirebaseMessagingService let handle notification push using FirebaseMessagingService </code>.
+ * @see #FirebaseMessagingService
+ */
 public class MyFirebaseMessagingService extends FirebaseMessagingService  {
 
 
@@ -30,40 +34,42 @@ public class MyFirebaseMessagingService extends FirebaseMessagingService  {
     public String title ;
     public String icon;
     public String nameClass;
-    public static String CLASS_TAG=MyFirebaseMessagingService.class.getSimpleName();
     public StorageController storageController;
     public Messangi messangi;
     public Activity activity;
 
+    /**
+     * In this method we receive the 'token' of the device.
+     * We need it if we are going to communicate with the device directly.
+     */
 
     @Override
     public void onNewToken(String s) {
-        /*
-            En este método recibimos el 'token' del dispositivo.
-            Lo necesitamos si vamos a comunicarnos con el dispositivo directamente.
-        */
+
         super.onNewToken(s);
-        Log.e("NEW_TOKEN FOR SEND",s);
+        messangi = Messangi.getInst(this);
+        messangi.utils.showDebugLog(this,"New Token "+s);
         sendTokenToBackend(s);
-//        try {
-//            Thread.sleep(3000);
-//
-//        } catch (InterruptedException e) {
-//            e.printStackTrace();
-//        }
+
 
 
 
     }
-    private void sendTokenToBackend(String s) {
-        messangi = Messangi.getInst(this);
-        Log.e(CLASS_TAG,"SEND TOKEN TO BACKEND "+s);
+
+    /**
+     * Method sendTokenToBackend  allows to take the push token when it is
+     * created and save it to update the created device
+     * @param tokenPush
+     */
+
+    private void sendTokenToBackend(String tokenPush) {
+
+
         storageController=messangi.storageController;
-        storageController.saveToken(s);
+        storageController.saveToken(tokenPush);
 
         if(!storageController.isNotificationManually()&& messangi.messangiDev!=null){
-
-            messangi.messangiDev.setPushToken(s);
+            messangi.messangiDev.setPushToken(tokenPush);
             messangi.messangiDev.save(this);
         }
 
@@ -71,7 +77,10 @@ public class MyFirebaseMessagingService extends FirebaseMessagingService  {
     }
 
 
-
+    /**
+     * Method onMessageReceived  liste the push notification and let handle message
+     * @param remoteMessage
+     */
     @SuppressLint("PrivateApi")
     @Override
     public void onMessageReceived(RemoteMessage remoteMessage) {
@@ -79,40 +88,40 @@ public class MyFirebaseMessagingService extends FirebaseMessagingService  {
         //verifiPermission();
         messangi = Messangi.getInst(this);
         nameClass= messangi.getNameclass();
-        Log.e(CLASS_TAG, "NOMBRE DE LA CLASE " + nameClass );
-
         try {
-            Log.e(CLASS_TAG, "EST MENS " + remoteMessage.getData() );
+
             body = remoteMessage.getNotification().getBody();
             title = remoteMessage.getNotification().getTitle();
             icon = remoteMessage.getNotification().getIcon();
 
-            Log.e(CLASS_TAG, "MENSAJE IN " + body);
-            Log.e(CLASS_TAG, "TITULO IN " + title);
-            Log.e(CLASS_TAG, "IMAGE IN " + title);
+            messangi.utils.showDebugLog(this,"MENSAJE IN " + body);
+            messangi.utils.showDebugLog(this,"TITULO IN " + title);
+            messangi.utils.showDebugLog(this,"IMAGE IN " + title);
+
 
         }catch (NullPointerException e){
-            Log.e(CLASS_TAG,"error "+e.getMessage());
+            messangi.utils.showErrorLog(this,"error "+e.getMessage());
+
             body = remoteMessage.getData().get("message");
             title = remoteMessage.getData().get("title");
             icon = remoteMessage.getData().get("image");
-            Log.e(CLASS_TAG, "MENSAJE " + body);
-            Log.e(CLASS_TAG, "TITULO " + title);
-            Log.e(CLASS_TAG, "IMAGE " + icon);
+            messangi.utils.showDebugLog(this,"MENSAJE  " + body);
+            messangi.utils.showDebugLog(this,"TITULO  " + title);
+            messangi.utils.showDebugLog(this,"IMAGE  " + icon);
 
         }
         Intent notificationIntent=null;
 
         try {
-            //accion por defecto
+            //action defect
             notificationIntent = new Intent(this,Class.forName(nameClass));
-            Log.e(CLASS_TAG, "PIRMERO " );
+
         } catch (ClassNotFoundException e) {
             e.printStackTrace();
-            Log.e(CLASS_TAG, "PIRMERO error " );
+
         }catch (NullPointerException e){
             e.printStackTrace();
-            Log.e(CLASS_TAG, "PIRMERO error null " );
+            messangi.utils.showErrorLog(this,"error notificationIntent "+e.getMessage());
             notificationIntent = new Intent("android.intent.action.MAIN");
         }
 
@@ -120,12 +129,12 @@ public class MyFirebaseMessagingService extends FirebaseMessagingService  {
         final PendingIntent pendingIntent = PendingIntent.getActivity(this, 0, notificationIntent,
                 PendingIntent.FLAG_ONE_SHOT);
         notificationManager = (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
-        // Configuramos la notificación para Android Oreo o superior
+
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
             setupChannels();
         }
         int notificationId = new Random().nextInt(60000);
-        // Creamos la notificación en si
+
         Uri defaultSoundUri = RingtoneManager.getDefaultUri(RingtoneManager.TYPE_NOTIFICATION);
         NotificationCompat.Builder notificationBuilder = new NotificationCompat.Builder(this, ADMIN_CHANNEL_ID)
                 .setSmallIcon(messangi.getIcon())  //a resource for your custom small icon

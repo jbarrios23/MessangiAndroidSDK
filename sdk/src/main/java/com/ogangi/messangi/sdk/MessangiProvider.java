@@ -8,14 +8,18 @@ import android.net.Uri;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 
+/**
+ * MessangiProvider allows to initialize it automatically from the SDK itself
+ */
 public class MessangiProvider extends ContentProvider {
     public static String CLASS_TAG=MessangiProvider.class.getSimpleName();
     public Messangi messangi;
     @Override
     public boolean onCreate() {
         messangi=Messangi.getInst(getContext());
-        messangi.utils.showErrorLog(this,"onCreate");
+        messangi.utils.showInfoLog(this,"onCreate");
         if(!messangi.storageController.isRegisterDevice()){
+            messangi.utils.showInfoLog(this,"Create Device ");
             messangi.createDeviceParameters();
         }
 

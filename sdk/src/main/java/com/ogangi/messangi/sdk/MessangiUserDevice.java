@@ -2,7 +2,6 @@ package com.ogangi.messangi.sdk;
 
 import android.content.Context;
 import android.content.Intent;
-import android.util.Log;
 
 import androidx.localbroadcastmanager.content.LocalBroadcastManager;
 
@@ -13,7 +12,6 @@ import com.google.gson.annotations.Expose;
 import com.google.gson.annotations.SerializedName;
 import com.google.gson.reflect.TypeToken;
 
-import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.io.Serializable;
@@ -25,32 +23,24 @@ import retrofit2.Call;
 import retrofit2.Callback;
 import retrofit2.Response;
 
+/**
+ * class MessangiDev is used for handle Device paramenter in SDK and service
+ */
 public class MessangiUserDevice implements Serializable {
 
 
     private  ArrayList<MessangiDev> devices;
-//    @SerializedName("member since")
-//    @Expose
-//    private String memberSince;
-//    @SerializedName("last updated")
-//    @Expose
-//    private String lastUpdated;
-//    @SerializedName("mobile")
-//    @Expose
-//    private String mobile;
-//    @SerializedName("timestamp")
-//    @Expose
-//    private String timestamp;
-//    @SerializedName("transaction")
-//    @Expose
-//    private String transaction;
 
     @SerializedName("properties")
     @Expose
-    private  final Map<String, Object> properties = new HashMap<>();
+    private  final Map<String, String> properties = new HashMap<>();
 
     protected String id;
-
+    /**
+     * Method that make Update of User using the service Put
+     @param context
+     @serialData :MessangiUserDevice
+     */
     public void save(final Context context){
 
         final Messangi messangi=Messangi.getInst(context);
@@ -58,10 +48,10 @@ public class MessangiUserDevice implements Serializable {
         EndPoint endPoint= ApiUtils.getSendMessageFCM(context);
         String deviceId=messangi.messangiDev.getId();
         messangi.utils.showErrorLog(this,deviceId);
-        JsonObject gsonObject = new JsonObject();
-        Map<String, Object> provPro=properties;
+        JsonObject gsonObject;
+        Map<String, String> provPro=properties;
         JSONObject requestUpdatebody=new JSONObject(provPro);
-        messangi.utils.showErrorLog(this,"requestUpdatebody "+requestUpdatebody.toString());
+        messangi.utils.showDebugLog(this,"requestUpdatebody "+requestUpdatebody.toString());
         JsonParser jsonParser=new JsonParser();
         gsonObject=(JsonObject) jsonParser.parse(requestUpdatebody.toString());
         endPoint.putUserByDeviceParameter(deviceId,gsonObject).enqueue(new Callback<JsonObject>() {
@@ -70,12 +60,13 @@ public class MessangiUserDevice implements Serializable {
                     if(response.isSuccessful()){
                         JsonObject jsonObject=response.body();
                         JsonObject data=jsonObject.getAsJsonObject("subscriber").getAsJsonObject("data");
-                        Log.e("Update User", "update user good "+jsonObject);
-                        Log.e("Update User", "data "+data);
+                        messangi.utils.showDebugLog(this,"User update successful "+jsonObject);
+                        messangi.utils.showDebugLog(this,"data "+data);
+
                         Gson gson = new Gson();
-                       //MessangiUserDevice messangiUserDevice = gson.fromJson(data, MessangiUserDevice.class);
-                        Map<String, Object> retMap = gson.fromJson(
-                                data, new TypeToken<HashMap<String, Object>>() {}.getType()
+                        //Mapping data for convert to MessangiUaserDevice
+                        Map<String, String> retMap = gson.fromJson(
+                                data, new TypeToken<HashMap<String, String>>() {}.getType()
                         );
                         MessangiUserDevice messangiUserDevice=parseData(retMap);
                         storageController.saveUserByDevice(messangiUserDevice);
@@ -103,16 +94,23 @@ public class MessangiUserDevice implements Serializable {
 
         return id;
     }
-
-    public void addProperties(String key, Object value) {
+    /**
+     * Method for add properties to user
+     */
+    public void addProperties(String key, String value) {
         properties.put(key, value);
     }
 
-
-    public Map<String, Object> getProperties() {
+    /**
+     * Method for get Properties of user
+     */
+    public Map<String, String> getProperties() {
         return properties;
     }
 
+    /**
+     * Method for get Device of user
+     */
     public ArrayList<MessangiDev> getDevices() {
         return devices;
     }
@@ -121,50 +119,15 @@ public class MessangiUserDevice implements Serializable {
         this.devices = devices;
     }
 
-//    public String getMemberSince() {
-//        return memberSince;
-//    }
-//
-//    public void setMemberSince(String memberSince) {
-//        this.memberSince = memberSince;
-//    }
-//
-//    public String getLastUpdated() {
-//        return lastUpdated;
-//    }
-//
-//    public void setLastUpdated(String lastUpdated) {
-//        this.lastUpdated = lastUpdated;
-//    }
-//
-//    public String getMobile() {
-//        return mobile;
-//    }
-//
-//    public void setMobile(String mobile) {
-//        this.mobile = mobile;
-//    }
-//
-//    public String getTimestamp() {
-//        return timestamp;
-//    }
-//
-//    public void setTimestamp(String timestamp) {
-//        this.timestamp = timestamp;
-//    }
-//
-//    public String getTransaction() {
-//        return transaction;
-//    }
-//
-//    public void setTransaction(String transaction) {
-//        this.transaction = transaction;
-//    }
-
+    /**
+     * Method that send Parameter (Ej: messangiDev or MessangiUserDevice) registered to Activity
+     @param something: Object Serializable for send to activity (Ej MeesangiDev).
+     @param context : context instance
+     */
     private void sendEventToActivity(Serializable something, Context context) {
         Messangi messangi=Messangi.getInst(context);
         Intent intent=new Intent("PassDataFromoSdk");
-        messangi.utils.showErrorLog(this,"Broadcasting message");
+        messangi.utils.showDebugLog(this,"Broadcasting message");
         intent.putExtra("message",something);
         if(something!=null){
             LocalBroadcastManager.getInstance(context).sendBroadcast(intent);
@@ -173,17 +136,24 @@ public class MessangiUserDevice implements Serializable {
         }
     }
 
-    public static MessangiUserDevice parseData(Map<String, Object> retMap){
-        Messangi messangi=Messangi.getInst();
+    /**
+     * Method for parse data and conver to MessangiUserDevice Object
+     @param retMap: HasMap Object to convert
+
+     */
+
+    public static MessangiUserDevice parseData(Map<String, String> retMap){
+
         MessangiUserDevice messangiUserDevice = new MessangiUserDevice();
 
-        for (Map.Entry<String, Object> entry : retMap.entrySet()) {
+        for (Map.Entry<String, String> entry : retMap.entrySet()) {
 
 
             if (entry.getKey().equals("devices")) {
                 Gson gson=new Gson();
+                //get Array list of devices from retMap
                 ArrayList<MessangiDev> devices = gson.fromJson(
-                        (String ) retMap.get("devices"), new TypeToken<ArrayList<MessangiDev>>() {}.getType()
+                        (String) retMap.get("devices"), new TypeToken<ArrayList<MessangiDev>>() {}.getType()
                 );
                 messangiUserDevice.setDevices(devices);
             } else {
@@ -195,6 +165,9 @@ public class MessangiUserDevice implements Serializable {
         return messangiUserDevice;
 
     }
+    /**
+     * Method for get Email user
+     */
 
     public String getEmail(){
 
@@ -206,6 +179,9 @@ public class MessangiUserDevice implements Serializable {
         return "";
     }
 
+    /**
+     * Method for get Phone user
+     */
     public String getPhone(){
 
         if(properties.containsKey("phone")){
@@ -215,6 +191,9 @@ public class MessangiUserDevice implements Serializable {
         return "";
     }
 
+    /**
+     * Method for get External ID user
+     */
     public String getExternalID(){
 
 
@@ -242,6 +221,9 @@ public class MessangiUserDevice implements Serializable {
 
     }
 
+    /**
+     * Method for get some property of user
+     */
     public String getProperty(String key){
 
         if(properties.containsKey(key)){
