@@ -21,7 +21,7 @@ public class SdkUtils {
     private static boolean logging_allowed;
 
     /**
-     * Method init Resourses system frmo config file
+     * Method init Resourses system from config file
      * @param context
      */
     public void initResourcesConfigFile(Context context){
@@ -50,13 +50,13 @@ public class SdkUtils {
             showInfoLog(this, location_allowed);
 
         }catch (Resources.NotFoundException e){
-            showErrorLog(SdkUtils.class,"Hasn't congifg file");
+            showErrorLog(SdkUtils.class,"Hasn't config file");
         }
     }
 
     /**
      * Method Show Error log
-     @param instance: intance for Tag.
+     @param instance: instance for Tag.
      @param message : message to show
      */
     public  void showErrorLog(Object instance,Object message){

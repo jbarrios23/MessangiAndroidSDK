@@ -41,7 +41,7 @@ import retrofit2.Response;
 
 
 /**
- * class instance handling class and LifecycleObserver
+ * class Messangi let stablish Instances, services get and create and LifecycleObserver
  */
 public class Messangi implements LifecycleObserver{
 

@@ -43,6 +43,7 @@ public class MainActivity extends AppCompatActivity implements ActivityCompat.On
     public Messangi messangi;
     public Button device,user,tags,save;
     public TextView imprime;
+    public TextView title;
 
     public MessangiDev messangiDev;
     public MessangiUserDevice messangiUserDevice;
@@ -64,6 +65,7 @@ public class MainActivity extends AppCompatActivity implements ActivityCompat.On
         lista_device=findViewById(R.id.lista_device);
         lista_user=findViewById(R.id.lista_user);
 
+        title=findViewById(R.id.textView_imprimir);
         device=findViewById(R.id.device);
         user=findViewById(R.id.user);
         tags=findViewById(R.id.tag);
@@ -77,6 +79,7 @@ public class MainActivity extends AppCompatActivity implements ActivityCompat.On
         messangiDevArrayAdapter=new ArrayAdapter<>(this,R.layout.item_device,R.id.Texview_value,messangiDevArrayList);
         messangiUserDeviceArrayAdapter=new ArrayAdapter<>(this,R.layout.item_device,R.id.Texview_value,messangiUserDeviceArrayList);
 
+        title.setText(getResources().getString(R.string.title)+"\n"+messangi.getExternalId());
 
         device.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -85,6 +88,7 @@ public class MainActivity extends AppCompatActivity implements ActivityCompat.On
                 messangiUserDeviceArrayList.clear();
                 progressBar.setVisibility(View.VISIBLE);
                 messangi.requestDevice(true);
+                Log.e(TAG,CLASS_TAG+": "+messangi.getExternalId());
             }
         });
 
@@ -260,6 +264,7 @@ public class MainActivity extends AppCompatActivity implements ActivityCompat.On
     private void sendDialogDataToActivity() {
 
         Log.i(TAG,CLASS_TAG+": Tags selection final was "+messangiDev.getTags());
+
     }
 
     private BroadcastReceiver mReceiver=new BroadcastReceiver() {
