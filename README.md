@@ -1,8 +1,8 @@
 # MessangiAndroidSDK
+
 ![Cirrus CI - Specific Branch Build Status](https://img.shields.io/cirrus/github/jbarrios23/MessangiAndroidSDK/master)
 ![Bintray](https://img.shields.io/bintray/v/jbarrios23/TestLibraryMessangiSDK/com.android.testdefsdknotificactionpush)
 [![Platform](https://img.shields.io/cocoapods/p/MessangiSDK.svg?style=flat)](https://cocoapods.org/pods/MessangiSDK)
-
 
 
 ## Description
@@ -30,7 +30,7 @@ Place the "MessangiSDK" dependency in app.gradle
 implementation 'com.android.testdefsdknotificactionpush:sdk:1.0'
 ```
 ### 2) Configure FCM in Android Project Project
-Select your project and go to the **Tools** tab, select a Firebase and open the assistan then:
+Select your project and go to the **Tools** tab, select a Firebase and open the assistant then:
 - Select Cloud Messangin and Set up Firebase Cloud Messanging.
 - Connet your app to Firebase and create or select Firebase project in console.
 - Add FCM to your project
