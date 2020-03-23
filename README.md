@@ -1,9 +1,8 @@
 # MessangiAndroidSDK
-
-[![CI Status](https://img.shields.io/travis/rasc.19@gmail.com/MessangiSDK.svg?style=flat)](https://travis-ci.org/rasc.19@gmail.com/MessangiSDK)
-[![Version](https://img.shields.io/cocoapods/v/MessangiSDK.svg?style=flat)](https://cocoapods.org/pods/MessangiSDK)
-[![License](https://img.shields.io/cocoapods/l/MessangiSDK.svg?style=flat)](https://cocoapods.org/pods/MessangiSDK)
+![Cirrus CI - Specific Branch Build Status](https://img.shields.io/cirrus/github/jbarrios23/MessangiAndroidSDK/master)
+![Bintray](https://img.shields.io/bintray/v/jbarrios23/TestLibraryMessangiSDK/com.android.testdefsdknotificactionpush)
 [![Platform](https://img.shields.io/cocoapods/p/MessangiSDK.svg?style=flat)](https://cocoapods.org/pods/MessangiSDK)
+
 
 
 ## Description
