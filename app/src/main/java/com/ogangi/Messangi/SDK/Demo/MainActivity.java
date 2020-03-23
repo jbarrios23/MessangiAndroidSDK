@@ -146,7 +146,7 @@ public class MainActivity extends AppCompatActivity implements ActivityCompat.On
         super.onStart();
         Log.i(TAG,CLASS_TAG+": register BroadcastReceiver");
         LocalBroadcastManager.getInstance(this).registerReceiver(mReceiver,
-                new IntentFilter("PassDataFromoSdk"));
+                new IntentFilter("PassDataFromSdk"));
     }
 
     @Override

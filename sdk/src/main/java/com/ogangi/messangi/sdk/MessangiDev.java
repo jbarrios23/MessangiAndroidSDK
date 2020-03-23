@@ -71,7 +71,7 @@ public class MessangiDev implements Serializable {
     private String transaction;
 
     /**
-     * Method that make Update of Device using the service Put
+     * Method that make Update of Device by service
      @param context
      @serialData :MessangiDev
      */
