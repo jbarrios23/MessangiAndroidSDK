@@ -146,7 +146,7 @@ By doing this you have access to
 ```java
 messangi.requestDevice(true);//get device
 messangiDev.addTagsToDevice(tags);// add tags to device
-messangiDev.save(getApplicationContext());
+messangiDev.save(getApplicationContext());// save or update device
 messangiDev.requestUserByDevice(getApplicationContext(),false);//get User By Device
 messangiDev=storageController.getDevice();//get device from local storage
 messangiUserDevice.save(getApplicationContext());//save or update User parameter
