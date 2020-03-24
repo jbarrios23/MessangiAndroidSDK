@@ -24,7 +24,8 @@ import retrofit2.Callback;
 import retrofit2.Response;
 
 /**
- * class MessangiDev is used for handle Device paramenter in SDK and service
+ * class MessangiUserDevice is used for handle User paramenter in SDK and service
+ * update user
  */
 public class MessangiUserDevice implements Serializable {
 
@@ -126,7 +127,7 @@ public class MessangiUserDevice implements Serializable {
      */
     private void sendEventToActivity(Serializable something, Context context) {
         Messangi messangi=Messangi.getInst(context);
-        Intent intent=new Intent("PassDataFromoSdk");
+        Intent intent=new Intent("PassDataFromSdk");
         messangi.utils.showDebugLog(this,"Broadcasting message");
         intent.putExtra("message",something);
         if(something!=null){
@@ -139,7 +140,6 @@ public class MessangiUserDevice implements Serializable {
     /**
      * Method for parse data and conver to MessangiUserDevice Object
      @param retMap: HasMap Object to convert
-
      */
 
     public static MessangiUserDevice parseData(Map<String, String> retMap){

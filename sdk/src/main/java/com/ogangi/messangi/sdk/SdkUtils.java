@@ -4,13 +4,11 @@ import android.content.Context;
 import android.content.res.Resources;
 import android.util.Log;
 
-import androidx.lifecycle.LifecycleObserver;
-
 import com.google.gson.Gson;
 
 public class SdkUtils {
 
-    public static String CLASS_TAG=SdkUtils.class.getSimpleName();
+
     public static String TAG="MessangiSDK";
     static int icon;
     public static String nameClass;

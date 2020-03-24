@@ -2,7 +2,6 @@ package com.ogangi.messangi.sdk;
 
 import android.content.Context;
 import android.content.Intent;
-import android.util.Log;
 
 import androidx.localbroadcastmanager.content.LocalBroadcastManager;
 
@@ -72,7 +71,7 @@ public class MessangiDev implements Serializable {
 
     /**
      * Method that make Update of Device by service
-     @param context
+     @param context: Instance context.
      @serialData :MessangiDev
      */
 
@@ -210,7 +209,7 @@ public class MessangiDev implements Serializable {
             messangi.utils.showDebugLog(this,"Not update sdk version ");
         }
         String lenguaje= Locale.getDefault().getDisplayLanguage();
-        //messangi.utils.showInfoLog(this,"DEVICE LENGUAJE "+lenguaje);
+
         if(getLanguage().equals("0") || !getLanguage().equals(lenguaje)){
             setLanguage(lenguaje);
             messangi.utils.showDebugLog(this,"Update lenguaje ");
@@ -428,7 +427,7 @@ public class MessangiDev implements Serializable {
      */
     private void sendEventToActivity(Serializable something, Context context) {
         Messangi messangi=Messangi.getInst(context);
-        Intent intent=new Intent("PassDataFromoSdk");
+        Intent intent=new Intent("PassDataFromSdk");
         messangi.utils.showInfoLog(this,"Broadcasting message");
         intent.putExtra("message",something);
         if(something!=null){

@@ -61,7 +61,6 @@ public class MyFirebaseMessagingService extends FirebaseMessagingService  {
      * created and save it to update the created device
      * @param tokenPush
      */
-
     private void sendTokenToBackend(String tokenPush) {
 
 
@@ -73,7 +72,6 @@ public class MyFirebaseMessagingService extends FirebaseMessagingService  {
             messangi.messangiDev.save(this);
         }
 
-
     }
 
 
@@ -84,8 +82,7 @@ public class MyFirebaseMessagingService extends FirebaseMessagingService  {
     @SuppressLint("PrivateApi")
     @Override
     public void onMessageReceived(RemoteMessage remoteMessage) {
-        // En este método recibimos el mensaje
-        //verifiPermission();
+
         messangi = Messangi.getInst(this);
         nameClass= messangi.getNameclass();
         try {
@@ -94,8 +91,8 @@ public class MyFirebaseMessagingService extends FirebaseMessagingService  {
             title = remoteMessage.getNotification().getTitle();
             icon = remoteMessage.getNotification().getIcon();
 
-            messangi.utils.showDebugLog(this,"MENSAJE IN " + body);
-            messangi.utils.showDebugLog(this,"TITULO IN " + title);
+            messangi.utils.showDebugLog(this,"MESSAGE IN " + body);
+            messangi.utils.showDebugLog(this,"TITLE IN " + title);
             messangi.utils.showDebugLog(this,"IMAGE IN " + title);
 
 
@@ -105,8 +102,8 @@ public class MyFirebaseMessagingService extends FirebaseMessagingService  {
             body = remoteMessage.getData().get("message");
             title = remoteMessage.getData().get("title");
             icon = remoteMessage.getData().get("image");
-            messangi.utils.showDebugLog(this,"MENSAJE  " + body);
-            messangi.utils.showDebugLog(this,"TITULO  " + title);
+            messangi.utils.showDebugLog(this,"MESSAGE  " + body);
+            messangi.utils.showDebugLog(this,"TITLE  " + title);
             messangi.utils.showDebugLog(this,"IMAGE  " + icon);
 
         }

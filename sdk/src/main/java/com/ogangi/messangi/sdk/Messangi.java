@@ -1,4 +1,5 @@
 package com.ogangi.messangi.sdk;
+
 import android.Manifest;
 import android.accounts.Account;
 import android.accounts.AccountManager;
@@ -9,7 +10,6 @@ import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.os.Build;
 import android.provider.Settings;
-import android.util.Log;
 import android.util.Patterns;
 import android.widget.Toast;
 
@@ -41,7 +41,8 @@ import retrofit2.Response;
 
 
 /**
- * class Messangi let stablish Instances, services get and create and LifecycleObserver
+ * class Messangi let stablish Instances, services "get" and "create device" and LifecycleObserver
+ * for handle event to foreground and background.
  */
 public class Messangi implements LifecycleObserver{
 
@@ -51,10 +52,8 @@ public class Messangi implements LifecycleObserver{
     public String Nameclass;
     public Activity activity;
     public int icon;
-    private static final int PERMISSION_REQUEST_CODE = 1;
-    static EndPoint endPoint;
-    public String wantPermission = Manifest.permission.READ_PHONE_STATE;
 
+    static EndPoint endPoint;
 
     private String pushToken;
     private String email;
@@ -223,22 +222,6 @@ public class Messangi implements LifecycleObserver{
         return email;
     }
 
-    /**
-     * Method that get Phone number of device
-     * EnterForeground
-     * @param activity
-     */
-
-//    public String getPhone(Activity activity){
-//        this.activity=activity;
-//        if(!checkPermission(wantPermission,context)){
-//            requestPermission(wantPermission,PERMISSION_REQUEST_CODE,this.activity);
-//        }else{
-//            return getPhoneEspecific(activity);
-//        }
-//        return "";
-//
-//    }
 
     /**
      * Method get type of device
@@ -278,65 +261,10 @@ public class Messangi implements LifecycleObserver{
 
     }
 
-//    @SuppressLint("HardwareIds")
-//    public String getPhoneEspecific(Activity activity1) {
-//        activity=activity1;
-//        TelephonyManager phoneMgr = (TelephonyManager) context.getSystemService(Context.TELEPHONY_SERVICE);
-//        if (ActivityCompat.checkSelfPermission(activity, wantPermission) != PackageManager.PERMISSION_GRANTED) {
-//            return "";
-//        }
-//
-//        try{
-//            phone=phoneMgr.getLine1Number();
-//
-//        }catch (NullPointerException e){
-//            phone="";//for previus version
-//            Log.e(this,"NO TIENE NUMERO REGISTRADO "+ phone);
-//
-//        }catch (SecurityException e){
-//            phone="";
-//            Log.e(this,"NOT PERMISES PHONE NUMBER "+ phone);
-//        }
-//
-//        Log.e(this,"FOR SENDING PHONE NUMBER "+ phone);
-//
-//        return phone;
-//    }
-
-    public void requestPermission(@NonNull String permission, int PERMISSION_REQUEST_CODE, Activity activity1){
-        activity=activity1;
-        if (ActivityCompat.shouldShowRequestPermissionRationale(activity, permission)){
-            activity.runOnUiThread(new Runnable() {
-                @Override
-                public void run() {
-                    Toast.makeText(activity, "Phone state permission allows us to get phone number. Please allow it for additional functionality.", Toast.LENGTH_LONG).show();
-                }
-            });
-        }
-        ActivityCompat.requestPermissions(activity, new String[]{permission},PERMISSION_REQUEST_CODE);
-    }
-
-    public boolean checkPermission(String permission,Context context){
-        //activity=activity1;
-        if (Build.VERSION.SDK_INT >= 23) {
-            int result = ContextCompat.checkSelfPermission(context, permission);
-            if (result == PackageManager.PERMISSION_GRANTED){
-                return true;
-            } else {
-                return false;
-            }
-        } else {
-            return true;
-        }
-    }
-
-
-
     /**
-     * Method for create device parameter and create device from FirebaseNotificationService
+     * Method for create device parameter and create device from FirebaseContenProvider
      * this method make update when pushTokem is getting by Services
-     *
-     */
+     **/
 
     public void createDeviceParameters() {
 

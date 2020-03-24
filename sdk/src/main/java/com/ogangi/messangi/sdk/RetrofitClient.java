@@ -15,9 +15,13 @@ import retrofit2.Retrofit;
 import retrofit2.converter.gson.GsonConverterFactory;
 import retrofit2.converter.scalars.ScalarsConverterFactory;
 
+/**
+ * Method get client Retrofit and will create a singleton of Retrofit
+
+ */
 public class RetrofitClient {
 
-    //This class will create a singleton of Retrofit
+    //
 
     private static Retrofit retrofit=null;
     private static String token;
@@ -32,7 +36,7 @@ public class RetrofitClient {
     /**
      * Method get client Retrofit
      * @param context :Instance context
-     * @param Url : Url of services.
+     * @param Url : Url of service.
      * @param token1: Token Auth from config file.
      */
     public static Retrofit getClient(String Url, String token1, Context context){
@@ -77,7 +81,7 @@ public class RetrofitClient {
         return retrofit;
     }
     /**
-     * Method get Header Retrofit
+     * Method get Header Retrofit and handle.
      * @param authorizationValue :receive token auth of config file
      * use: "--Authorization-- ","Bearer " + authorizationValue
      */
@@ -107,7 +111,6 @@ public class RetrofitClient {
                         })
                 .build();
         return okClient;
-
     }
 
 }

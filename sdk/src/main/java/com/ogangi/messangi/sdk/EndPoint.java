@@ -3,8 +3,6 @@ package com.ogangi.messangi.sdk;
 
 import com.google.gson.JsonObject;
 
-import org.json.JSONObject;
-
 import java.util.Map;
 
 import retrofit2.Call;
@@ -17,7 +15,7 @@ import retrofit2.http.Path;
 import retrofit2.http.Query;
 
 /**
- * interface EndPoint is used define all End point of services
+ * Interface EndPoint is used define all End point of services
  */
 public interface EndPoint {
 
