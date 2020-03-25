@@ -22,7 +22,7 @@ To use the Messangi SDK is required:
 
 ## Installation
 ----
-### Step 1: Create Android Studio Project
+### 1) Create Android Studio Project
 Open Android Studio IDE and start new project you are working on.
 #### Implicit Implementation
 Place the "MessangiSDK" dependency in app.gradle
