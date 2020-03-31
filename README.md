@@ -12,7 +12,7 @@ It is a tool that allows you to add the following functionalities to your soluti
 - Enable or disable notifications by the user.
 - Register device characteristics (UUID, Type, Language, OS Version, Model).
 - Associate labels to the device.
-- Save customizable user information.
+- Saves customizable user information.
 
 ## Requirements
 ---
