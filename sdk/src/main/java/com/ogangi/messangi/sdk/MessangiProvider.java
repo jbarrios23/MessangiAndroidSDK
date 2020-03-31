@@ -17,7 +17,7 @@ public class MessangiProvider extends ContentProvider {
     public boolean onCreate() {
         messangi=Messangi.getInst(getContext());
         messangi.utils.showInfoLog(this,"onCreate");
-        if(!messangi.storageController.isRegisterDevice()){
+        if(!messangi.messangiStorageController.isRegisterDevice()){
             messangi.utils.showInfoLog(this,"Create Device ");
             messangi.createDeviceParameters();
         }

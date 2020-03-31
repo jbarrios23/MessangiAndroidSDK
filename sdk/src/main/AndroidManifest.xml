@@ -10,7 +10,7 @@
             android:exported="false" />
 
         <service
-            android:name="MyFirebaseMessagingService"
+            android:name=".MessangiFirebaseMessagingService"
             android:permission="com.google.android.c2dm.permission.SEND">
             <intent-filter>
                 <action android:name="com.google.firebase.MESSAGING_EVENT" />
@@ -22,9 +22,5 @@
 
     <uses-permission android:name="android.permission.INTERNET" />
     <uses-permission android:name="com.google.android.c2dm.permission.RECEIVE"/>
-    <uses-permission android:name="android.permission.READ_PHONE_STATE"/>
-    <uses-permission android:name="android.permission.GET_ACCOUNTS" />
-
-
 
 </manifest>

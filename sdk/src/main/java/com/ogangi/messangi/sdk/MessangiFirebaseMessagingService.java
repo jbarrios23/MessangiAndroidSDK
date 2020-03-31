@@ -11,7 +11,6 @@ import android.graphics.Color;
 import android.media.RingtoneManager;
 import android.net.Uri;
 import android.os.Build;
-import android.util.Log;
 
 import androidx.annotation.RequiresApi;
 import androidx.core.app.NotificationCompat;
@@ -22,21 +21,18 @@ import com.google.firebase.messaging.RemoteMessage;
 import java.util.Random;
 
 /**
- * class MyFirebaseMessagingService let handle notification push using FirebaseMessagingService .
+ * class MessangiFirebaseMessagingService let handle notification push using FirebaseMessagingService .
  *
  */
-public class MyFirebaseMessagingService extends FirebaseMessagingService  {
+public class MessangiFirebaseMessagingService extends FirebaseMessagingService  {
 
 
     private NotificationManager notificationManager;
     private static final String ADMIN_CHANNEL_ID ="admin_channel";
-    public String body ;
-    public String title ;
-    public String icon;
     public String nameClass;
-    public StorageController storageController;
+    public MessangiStorageController messangiStorageController;
     public Messangi messangi;
-    public Activity activity;
+
 
     /**
      * In this method we receive the 'token' of the device.
@@ -64,10 +60,10 @@ public class MyFirebaseMessagingService extends FirebaseMessagingService  {
     private void sendTokenToBackend(String tokenPush) {
 
 
-        storageController=messangi.storageController;
-        storageController.saveToken(tokenPush);
+        messangiStorageController =messangi.messangiStorageController;
+        messangiStorageController.saveToken(tokenPush);
 
-        if(!storageController.isNotificationManually()&& messangi.messangiDev!=null){
+        if(!messangiStorageController.isNotificationManually()&& messangi.messangiDev!=null){
             messangi.messangiDev.setPushToken(tokenPush);
             messangi.messangiDev.save(this);
         }
@@ -85,28 +81,7 @@ public class MyFirebaseMessagingService extends FirebaseMessagingService  {
 
         messangi = Messangi.getInst(this);
         nameClass= messangi.getNameclass();
-        try {
-
-            body = remoteMessage.getNotification().getBody();
-            title = remoteMessage.getNotification().getTitle();
-            icon = remoteMessage.getNotification().getIcon();
-
-            messangi.utils.showDebugLog(this,"MESSAGE IN " + body);
-            messangi.utils.showDebugLog(this,"TITLE IN " + title);
-            messangi.utils.showDebugLog(this,"IMAGE IN " + title);
-
-
-        }catch (NullPointerException e){
-            messangi.utils.showErrorLog(this,"error "+e.getMessage());
-
-            body = remoteMessage.getData().get("message");
-            title = remoteMessage.getData().get("title");
-            icon = remoteMessage.getData().get("image");
-            messangi.utils.showDebugLog(this,"MESSAGE  " + body);
-            messangi.utils.showDebugLog(this,"TITLE  " + title);
-            messangi.utils.showDebugLog(this,"IMAGE  " + icon);
-
-        }
+        MessangiNotification messangiNotification =new MessangiNotification(remoteMessage,this);
         Intent notificationIntent=null;
 
         try {
@@ -135,8 +110,8 @@ public class MyFirebaseMessagingService extends FirebaseMessagingService  {
         Uri defaultSoundUri = RingtoneManager.getDefaultUri(RingtoneManager.TYPE_NOTIFICATION);
         NotificationCompat.Builder notificationBuilder = new NotificationCompat.Builder(this, ADMIN_CHANNEL_ID)
                 .setSmallIcon(messangi.getIcon())  //a resource for your custom small icon
-                .setContentTitle(title) //the "title" value you sent in your notification
-                .setContentText(body) //ditto
+                .setContentTitle(messangiNotification.getTitle()) //the "title" value you sent in your notification
+                .setContentText(messangiNotification.getBody()) //ditto
                 .setAutoCancel(true)  //dismisses the notification on click
                 .setContentIntent(pendingIntent)
                 .setSound(defaultSoundUri);

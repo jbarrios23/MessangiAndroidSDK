@@ -4,9 +4,14 @@ import android.content.Context;
 import android.content.res.Resources;
 import android.util.Log;
 
-import com.google.gson.Gson;
+import org.json.JSONArray;
+import org.json.JSONException;
+import org.json.JSONObject;
 
-public class SdkUtils {
+import java.util.ArrayList;
+import java.util.List;
+
+public class MessangiSdkUtils {
 
 
     public static String TAG="MessangiSDK";
@@ -48,7 +53,7 @@ public class SdkUtils {
             showInfoLog(this, location_allowed);
 
         }catch (Resources.NotFoundException e){
-            showErrorLog(SdkUtils.class,"Hasn't config file");
+            showErrorLog(MessangiSdkUtils.class,"Hasn't config file");
         }
     }
 
@@ -94,7 +99,7 @@ public class SdkUtils {
     }
 
     public static void setMessangi_host(String messangi_host) {
-        SdkUtils.messangi_host = messangi_host;
+        MessangiSdkUtils.messangi_host = messangi_host;
     }
 
     /**
@@ -105,21 +110,64 @@ public class SdkUtils {
     }
 
     public static void setMessangi_token(String messangi_token) {
-        SdkUtils.messangi_token = messangi_token;
+        MessangiSdkUtils.messangi_token = messangi_token;
     }
-    /**
-     * Method get Gson format
-     * @param object 
-     */
-    public String getGsonJsonFormat(Object object){
-        Object obj = null;
-        if(object instanceof MessangiDev){
-            obj= object;
-        }else if(object instanceof MessangiUserDevice){
-            obj= object;
+
+    public MessangiDev getMessangiDevFromJson(JSONObject resp){
+        MessangiDev messangiDev=new MessangiDev();
+        try {
+            if(resp.has("id")){
+
+                messangiDev.setId(resp.getString("id"));
+
+            }
+            if(resp.has("pushToken")){
+                messangiDev.setPushToken(resp.getString("pushToken"));
+            }
+            if(resp.has("userId")){
+                messangiDev.setUserId(resp.getString("userId"));
+            }
+            if(resp.has("type")){
+                messangiDev.setType(resp.getString("type"));
+            }
+            if(resp.has("language")){
+                messangiDev.setLanguage(resp.getString("language"));
+            }
+            if(resp.has("model")){
+                messangiDev.setModel(resp.getString("model"));
+            }
+            if(resp.has("os")){
+                messangiDev.setOs(resp.getString("os"));
+            }
+            if(resp.has("sdkVersion")){
+                messangiDev.setSdkVersion(resp.getString("sdkVersion"));
+            }
+            if(resp.has("tags")){
+                List<String> prvTag=new ArrayList<>();
+                JSONArray jsonArray=resp.getJSONArray("tags");
+                for (int i = 0; i < jsonArray.length(); i++) {
+                    prvTag.add(jsonArray.getString(i));
+                }
+                messangiDev.setTags(prvTag);
+                showInfoLog(this, "tags " + resp.getString("tags"));
+            }
+            if(resp.has("createdAt")){
+                messangiDev.setCreatedAt(resp.getString("createdAt"));
+            }
+            if(resp.has("updatedAt")){
+                messangiDev.setUpdatedAt(resp.getString("updatedAt"));
+            }
+            if(resp.has("timestamp")){
+                messangiDev.setTimestamp(resp.getString("timestamp"));
+            }
+            if(resp.has("transaction")){
+                messangiDev.setTransaction(resp.getString("transaction"));
+            }
+        } catch (JSONException e) {
+            e.printStackTrace();
         }
 
-        return new Gson().toJson(obj);
+        return messangiDev;
     }
 
 

@@ -22,7 +22,7 @@ To use the Messangi SDK is required:
 
 ## Installation
 ----
-### 1) Create Android Studio Project
+### Step 1: Create Android Studio Project
 Open Android Studio IDE and start new project you are working on.
 #### Implicit Implementation
 Place the "MessangiSDK" dependency in app.gradle
@@ -146,7 +146,7 @@ By doing this you have access to
 ```java
 messangi.requestDevice(true);//get device
 messangiDev.addTagsToDevice(tags);// add tags to device
-messangiDev.save(getApplicationContext());// save or update device
+messangiDev.save(getApplicationContext());
 messangiDev.requestUserByDevice(getApplicationContext(),false);//get User By Device
 messangiDev=storageController.getDevice();//get device from local storage
 messangiUserDevice.save(getApplicationContext());//save or update User parameter
@@ -200,11 +200,7 @@ public class MainActivity extends AppCompatActivity{
 ## Full implementation example
  in  MainActivity.java
 ```java
-package com.testimplemtationsdkmessangi;
-
-import androidx.appcompat.app.AppCompatActivity;
-import androidx.core.app.ActivityCompat;
-import androidx.localbroadcastmanager.content.LocalBroadcastManager;
+package com.ogangi.Messangi.SDK.Demo;
 
 import android.annotation.SuppressLint;
 import android.app.AlertDialog;
@@ -214,8 +210,10 @@ import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.os.Bundle;
+import android.util.DisplayMetrics;
 import android.util.Log;
 import android.view.View;
+import android.view.ViewGroup;
 import android.view.Window;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
@@ -227,17 +225,20 @@ import android.widget.Switch;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import androidx.appcompat.app.AppCompatActivity;
+import androidx.core.app.ActivityCompat;
+import androidx.localbroadcastmanager.content.LocalBroadcastManager;
+
 import com.ogangi.messangi.sdk.Messangi;
 import com.ogangi.messangi.sdk.MessangiDev;
+import com.ogangi.messangi.sdk.MessangiNotification;
 import com.ogangi.messangi.sdk.MessangiUserDevice;
-import com.ogangi.messangi.sdk.SdkUtils;
 
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Map;
 
-public class MainActivity extends AppCompatActivity{
-
+public class MainActivity extends AppCompatActivity implements ActivityCompat.OnRequestPermissionsResultCallback {
 
     public static String CLASS_TAG=MainActivity.class.getSimpleName();
     public static String TAG="MessangiSDK";
@@ -255,6 +256,9 @@ public class MainActivity extends AppCompatActivity{
     public ArrayAdapter<String> messangiUserDeviceArrayAdapter;
     public ProgressBar progressBar;
     public TextView title;
+    public Button pressButton;
+    MessangiNotification messangiNotification;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -262,23 +266,35 @@ public class MainActivity extends AppCompatActivity{
 
         getSupportActionBar().hide();
         setContentView(R.layout.activity_main);
-        lista_device=findViewById(R.id.lista_device);
-        lista_user=findViewById(R.id.lista_user);
-        title=findViewById(R.id.textView_imprimir);
+        messangi = Messangi.getInst(this);
 
-        device=findViewById(R.id.device);
-        user=findViewById(R.id.user);
-        tags=findViewById(R.id.tag);
-        save=findViewById(R.id.save);
-        progressBar=findViewById(R.id.progressBar);
+        lista_device = findViewById(R.id.lista_device);
+        lista_user = findViewById(R.id.lista_user);
+        title = findViewById(R.id.textView_imprimir);
+
+        DisplayMetrics displayMetrics=new DisplayMetrics();
+        getWindowManager().getDefaultDisplay().getMetrics(displayMetrics);
+        int newHheigth=(displayMetrics.heightPixels-400)/2;//alto de la pantalla
+        ViewGroup.LayoutParams temLayout = lista_device.getLayoutParams();
+        temLayout.height=newHheigth;
+        ViewGroup.LayoutParams temLayout1 = lista_user.getLayoutParams();
+        temLayout1.height=newHheigth;
+        lista_device.setLayoutParams(temLayout);
+        lista_user.setLayoutParams(temLayout1);
+        device = findViewById(R.id.device);
+        user = findViewById(R.id.user);
+        tags = findViewById(R.id.tag);
+        save = findViewById(R.id.save);
+        pressButton=findViewById(R.id.button_lista);
+        progressBar = findViewById(R.id.progressBar);
         Switch simpleSwitch = findViewById(R.id.simpleSwitch);
 
-        messangi=Messangi.getInst(this);
-        messangiDevArrayList=new ArrayList<>();
-        messangiUserDeviceArrayList=new ArrayList<>();
-        messangiDevArrayAdapter=new ArrayAdapter<>(this,R.layout.item_device,R.id.Texview_value,messangiDevArrayList);
-        messangiUserDeviceArrayAdapter=new ArrayAdapter<>(this,R.layout.item_device,R.id.Texview_value,messangiUserDeviceArrayList);
-        title.setText(getResources().getString(R.string.title)+"\n"+messangi.getExternalId());
+
+        messangiDevArrayList = new ArrayList<>();
+        messangiUserDeviceArrayList = new ArrayList<>();
+        messangiDevArrayAdapter = new ArrayAdapter<>(this, R.layout.item_device, R.id.Texview_value, messangiDevArrayList);
+        messangiUserDeviceArrayAdapter = new ArrayAdapter<>(this, R.layout.item_device, R.id.Texview_value, messangiUserDeviceArrayList);
+        title.setText(getResources().getString(R.string.title) + "\n" + messangi.getExternalId());
 
         device.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -287,7 +303,8 @@ public class MainActivity extends AppCompatActivity{
                 messangiUserDeviceArrayList.clear();
                 progressBar.setVisibility(View.VISIBLE);
                 messangi.requestDevice(true);
-                Log.e(TAG,CLASS_TAG+": "+messangi.getExternalId());
+                Log.e(TAG, CLASS_TAG + ": " + messangi.getExternalId());
+                messangiDev.requestUserByDevice(getApplicationContext(), true);
             }
         });
 
@@ -308,11 +325,11 @@ public class MainActivity extends AppCompatActivity{
         save.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                if(messangiDev.getTags().size()>0) {
+                if (messangiDev.getTags().size() > 0) {
                     progressBar.setVisibility(View.VISIBLE);
                     messangiDev.save(getApplicationContext());
-                }else{
-                    Toast.makeText(getApplicationContext(),"Nothing to save",Toast.LENGTH_LONG).show();
+                } else {
+                    Toast.makeText(getApplicationContext(), "Nothing to save", Toast.LENGTH_LONG).show();
                 }
             }
         });
@@ -320,28 +337,47 @@ public class MainActivity extends AppCompatActivity{
         simpleSwitch.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
             @Override
             public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
-                if(isChecked){
+                if (isChecked) {
 
-                    Toast.makeText(getApplicationContext(),"Enable Notification Push",Toast.LENGTH_LONG).show();
-                    messangiDev.setStatusNotificationPush(isChecked,getApplicationContext());
+                    Toast.makeText(getApplicationContext(), "Enable Notification Push", Toast.LENGTH_LONG).show();
+                    messangiDev.setStatusNotificationPush(isChecked, getApplicationContext());
                     progressBar.setVisibility(View.VISIBLE);
-                }else{
+                } else {
 
-                    Toast.makeText(getApplicationContext(),"Disable Notification Push",Toast.LENGTH_LONG).show();
-                    messangiDev.setStatusNotificationPush(isChecked,getApplicationContext());
+                    Toast.makeText(getApplicationContext(), "Disable Notification Push", Toast.LENGTH_LONG).show();
+                    messangiDev.setStatusNotificationPush(isChecked, getApplicationContext());
                     progressBar.setVisibility(View.VISIBLE);
                 }
             }
         });
+        //for handle notification from background
+        Bundle extras=getIntent().getExtras();
+        messangiNotification =new MessangiNotification(extras,getApplicationContext());
+
+        pressButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                gotoListaActivity();
+            }
+        });
+
     }
+
+    private void gotoListaActivity() {
+        Intent intent=new Intent(MainActivity.this,ListNotification.class);
+        startActivity(intent);
+    }
+
+
     @Override
     protected void onStart() {
         super.onStart();
         Log.i(TAG,CLASS_TAG+": register BroadcastReceiver");
         LocalBroadcastManager.getInstance(this).registerReceiver(mReceiver,
-                new IntentFilter("PassDataFromoSdk"));
+                new IntentFilter("PassDataFromSdk"));
     }
 
+    @SuppressLint("SetTextI18n")
     @Override
     protected void onResume() {
         super.onResume();
@@ -351,6 +387,52 @@ public class MainActivity extends AppCompatActivity{
         messangiUserDeviceArrayList.clear();
         progressBar.setVisibility(View.VISIBLE);
         messangi.requestDevice(false);
+
+    }
+
+    @SuppressLint("SetTextI18n")
+    private void showAlertNotificaction(MessangiNotification messangiNotification) {
+        // create an alert builder
+        AlertDialog.Builder builder = new AlertDialog.Builder(this);
+        builder.setTitle("Notification");
+        // set the custom layout
+        final View customLayout = getLayoutInflater().inflate(R.layout.custom_notification_layout, null);
+        builder.setView(customLayout);
+        TextView title=customLayout.findViewById(R.id.title_noti);
+        TextView body=customLayout.findViewById(R.id.body_noti);
+        TextView data=customLayout.findViewById(R.id.data_noti);
+        title.setText(""+ messangiNotification.getTitle());
+        body.setText(""+ messangiNotification.getBody());
+        if(messangiNotification.getData().size()>0){
+            data.setText("data: "+ messangiNotification.getData());
+        }else{
+            data.setText("Hasn't data");
+        }
+
+
+        // add a button
+        builder.setPositiveButton("Save Notification", new DialogInterface.OnClickListener() {
+            @SuppressLint("SetTextI18n")
+            @Override
+            public void onClick(DialogInterface dialog, int which) {
+                // send data from the AlertDialog to the Activity
+                gotoListaActivity();
+
+
+            }
+        });
+
+        builder.setNegativeButton("Close", new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialog, int which) {
+                dialog.cancel();
+
+            }
+        });
+        // create and show the alert dialog
+        AlertDialog dialog = builder.create();
+        dialog.show();
+
     }
 
     private void createAlertUser() {
@@ -464,12 +546,14 @@ public class MainActivity extends AppCompatActivity{
         public void onReceive(Context context, Intent intent) {
 
             Serializable message=intent.getSerializableExtra("message");
-            SdkUtils sdkUtils=new SdkUtils();
+
+
             if ((message instanceof MessangiDev) && (message!=null)){
                 messangiDevArrayList.clear();
 
                 messangiDev=(MessangiDev) message;
-                Log.i(TAG,CLASS_TAG+": Device:  "+sdkUtils.getGsonJsonFormat(messangiDev));
+
+                Log.i(TAG,CLASS_TAG+": Device:  "+ messangiDev.getId());
                 messangiDevArrayList.add("Id: "           +messangiDev.getId());
                 messangiDevArrayList.add("pushToken: "    +messangiDev.getPushToken());
                 messangiDevArrayList.add("UserId: "       +messangiDev.getUserId());
@@ -489,24 +573,25 @@ public class MainActivity extends AppCompatActivity{
                 messangiDev.requestUserByDevice(getApplicationContext(),false);
 
 
-
             }else if((message instanceof MessangiUserDevice) && (message!=null)){
                 messangiUserDeviceArrayList.clear();
                 messangiUserDevice=(MessangiUserDevice) message;
-                Log.i(TAG,CLASS_TAG+" User:  "+sdkUtils.getGsonJsonFormat(messangiUserDevice));
-
+                Log.i(TAG,CLASS_TAG+" User:  "+ messangiUserDevice.getDevices());
 
                 if(messangiUserDevice.getProperties().size()>0){
                     Map<String,String> result=messangiUserDevice.getProperties();
                     for (Map.Entry<String, String> entry : result.entrySet()) {
-
                         messangiUserDeviceArrayList.add(entry.getKey()+": "+entry.getValue());
                     }
-
+                    messangiUserDeviceArrayList.add("devices: "+messangiUserDevice.getDevices());
 
                 }
 
                 lista_user.setAdapter(messangiUserDeviceArrayAdapter);
+            }else if((message instanceof MessangiNotification) && (message!=null)){
+                messangiNotification =(MessangiNotification) message;
+                showAlertNotificaction(messangiNotification);
+
             }else{
                 Log.i(TAG,CLASS_TAG+": do nothing");
                 if(progressBar.isShown()){
@@ -517,6 +602,7 @@ public class MainActivity extends AppCompatActivity{
             if(progressBar.isShown()){
                 progressBar.setVisibility(View.GONE);
             }
+
 
         }
 
@@ -530,7 +616,10 @@ public class MainActivity extends AppCompatActivity{
         super.onDestroy();
     }
 
+
 }
+
+
 
 ```
 in  activity_main.xlm
@@ -566,12 +655,23 @@ in  activity_main.xlm
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_below="@+id/textView_imprimir"
-            android:layout_centerHorizontal="true"
             android:background="@color/greyColor"
             android:checked="true"
             android:drawableStart="@android:drawable/ic_menu_view"
             android:drawableLeft="@android:drawable/ic_menu_view"
-            android:gravity="center" />
+            />
+
+        <Button
+            android:layout_width="wrap_content"
+            android:layout_height="30dp"
+            android:text="List"
+            android:layout_alignParentEnd="true"
+            android:textColor="@color/whiteColor"
+            android:background="@color/greyColor"
+            android:id="@+id/button_lista"
+            android:layout_below="@id/textView_imprimir"
+            android:layout_alignParentRight="true" />
+
 
         <TextView
             android:id="@+id/textView"
@@ -687,26 +787,9 @@ in  activity_main.xlm
 
     </RelativeLayout>
 </LinearLayout>
-```
-in  item_device.xlm
-```xml
-<?xml version="1.0" encoding="utf-8"?>
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    android:layout_width="match_parent"
-    android:layout_height="wrap_content"
-    android:padding="10dp"
-    android:orientation="horizontal">
-    <TextView
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:id="@+id/Texview_value"
-        android:textStyle="bold"
-        android:textSize="12sp"
-        android:layout_marginStart="16dp"
-        android:text="Value"
-        android:layout_marginLeft="16dp" />
 
-</LinearLayout>
+
+
 ```
 
 in  custom_layout.xlm
@@ -769,6 +852,84 @@ in  custom_layout_user.xlm
         android:hint="@string/hint_value"
         android:layout_height="wrap_content"/>
 </LinearLayout>
+
+```
+## more detail in example app (see)
+## if you want use CustomMessangiService
+
+```java
+package com.ogangi.Messangi.SDK.Demo;
+
+import android.util.Log;
+
+import com.google.firebase.messaging.RemoteMessage;
+import com.ogangi.messangi.sdk.MessangiFirebaseMessagingService;
+import com.ogangi.messangi.sdk.MessangiNotification;
+
+public class CustomMessangiService extends MessangiFirebaseMessagingService {
+
+    public static String CLASS_TAG= CustomMessangiService.class.getSimpleName();
+    public static String TAG="MessangiSDK";
+ 
+
+    @Override
+    public void onNewToken(String s) {
+        super.onNewToken(s);
+        Log.e(TAG,CLASS_TAG+": new token or refresh token "+s);
+
+    }
+
+
+    @Override
+    public void onMessageReceived(RemoteMessage remoteMessage) {
+
+        Log.e(TAG, CLASS_TAG + ": remote message ");
+        //example
+        MessangiNotification messangiNotification = new MessangiNotification(remoteMessage, this);
+    }
+}
+
+```
+
+## remember in Manifest.xml of app:
+```xml
+<?xml version="1.0" encoding="utf-8"?>
+<manifest xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    package="com.ogangi.Messangi.SDK.Demo">
+
+    <application
+        android:name=".MyApplication"
+        android:allowBackup="true"
+        android:icon="@mipmap/ic_launcher"
+        android:label="@string/app_name"
+        android:windowActionBar="false"
+        android:roundIcon="@mipmap/ic_launcher_round"
+        android:supportsRtl="true"
+        android:theme="@style/AppTheme"
+        tools:ignore="GoogleAppIndexingWarning"
+        >
+        <activity android:name=".ListNotification"></activity>
+        <activity android:name=".MainActivity"
+            android:theme="@style/AppTheme">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+                <category android:name="android.intent.category.LAUNCHER" />
+            </intent-filter>
+        </activity>
+        <!--uncomment to enable
+                <service-->
+        <!--            android:name=".CustomMessangiService"-->
+        <!--            android:permission="com.google.android.c2dm.permission.SEND">-->
+        <!--            <intent-filter>-->
+        <!--                <action android:name="com.google.firebase.MESSAGING_EVENT" />-->
+        <!--                <action android:name="com.google.android.c2dm.intent.RECEIVE" />-->
+        <!--            </intent-filter>-->
+        <!--        </service>-->
+
+    </application>
+
+</manifest>
 
 ```
 
