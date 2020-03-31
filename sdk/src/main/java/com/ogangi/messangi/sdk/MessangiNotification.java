@@ -68,6 +68,7 @@ public class MessangiNotification implements Serializable {
 
     public MessangiNotification(Bundle extras, Context context) {
         this.context=context;
+        boolean send=true;
         this.currentDate= new SimpleDateFormat("dd-MM-yyyy", Locale.getDefault()).format(new Date());
         this.currentTime= new SimpleDateFormat("HH:mm:ss", Locale.getDefault()).format(new Date());
         if(extras!=null){
@@ -82,10 +83,14 @@ public class MessangiNotification implements Serializable {
                 body=extras.getString(key);
                 }else if(key.equals("id")){
                 id=extras.getString(key);
+                }else if(key.equals("profile")){
+                    send=false;
                 }
             }
-            messangi.setLastMessangiNotifiction(this);
-            messangi.getMessangiNotifications().add(0,this);
+            if(send) {
+                messangi.setLastMessangiNotifiction(this);
+                messangi.getMessangiNotifications().add(0, this);
+            }
             }
 
 

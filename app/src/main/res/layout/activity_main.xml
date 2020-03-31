@@ -60,50 +60,13 @@
             android:textSize="10sp"
             />
 
-        <ListView
-            android:id="@+id/lista_device"
-            android:layout_width="wrap_content"
-            android:layout_height="300dp"
-            android:layout_below="@+id/textView"
-            tools:listitem="@layout/item_device" />
-
-        <TextView
-            android:id="@+id/textView_two"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_below="@+id/lista_device"
-            android:background="@color/greyColor"
-            android:gravity="center"
-            android:lines="2"
-            android:text="@string/user_device_info"
-            android:textColor="@color/whiteColor"
-            android:textSize="10sp" />
-        <ProgressBar
-            android:id="@+id/progressBar"
-            style="?android:attr/progressBarStyle"
-            android:layout_width="100dp"
-            android:layout_height="100dp"
-            android:layout_centerInParent="true"
-            android:progress="25"
-            android:visibility="gone"
-            tools:visibility="visible"
-            android:indeterminate="true"
-            android:indeterminateTintMode="src_atop"
-            android:indeterminateTint="@color/greyColor"
-            />
-        <ListView
-            android:id="@+id/lista_user"
-            android:layout_width="wrap_content"
-            android:layout_height="200dp"
-            android:layout_below="@+id/textView_two"
-            tools:listitem="@layout/item_device" />
-
         <LinearLayout
             android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            android:layout_below="@+id/lista_user"
+            android:layout_height="wrap_content"
+            android:layout_below="@+id/textView"
             android:background="@color/greyColor"
             android:gravity="center_horizontal"
+            android:id="@+id/botones"
             android:orientation="horizontal">
 
             <Button
@@ -158,6 +121,46 @@
 
 
         </LinearLayout>
+
+        <ListView
+            android:id="@+id/lista_device"
+            android:layout_width="wrap_content"
+            android:layout_height="300dp"
+            android:layout_below="@+id/botones"
+            tools:listitem="@layout/item_device" />
+
+        <TextView
+            android:id="@+id/textView_two"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_below="@+id/lista_device"
+            android:background="@color/greyColor"
+            android:gravity="center"
+            android:lines="2"
+            android:text="@string/user_device_info"
+            android:textColor="@color/whiteColor"
+            android:textSize="10sp" />
+        <ProgressBar
+            android:id="@+id/progressBar"
+            style="?android:attr/progressBarStyle"
+            android:layout_width="100dp"
+            android:layout_height="100dp"
+            android:layout_centerInParent="true"
+            android:progress="25"
+            android:visibility="gone"
+            tools:visibility="visible"
+            android:indeterminate="true"
+            android:indeterminateTintMode="src_atop"
+            android:indeterminateTint="@color/greyColor"
+            />
+        <ListView
+            android:id="@+id/lista_user"
+            android:layout_width="wrap_content"
+            android:layout_height="200dp"
+            android:layout_below="@+id/textView_two"
+            tools:listitem="@layout/item_device" />
+
+
 
     </RelativeLayout>
 </LinearLayout>

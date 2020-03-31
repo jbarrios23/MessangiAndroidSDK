@@ -72,16 +72,6 @@ public class MainActivity extends AppCompatActivity implements ActivityCompat.On
         lista_device = findViewById(R.id.lista_device);
         lista_user = findViewById(R.id.lista_user);
         title = findViewById(R.id.textView_imprimir);
-
-        DisplayMetrics displayMetrics=new DisplayMetrics();
-        getWindowManager().getDefaultDisplay().getMetrics(displayMetrics);
-        int newHheigth=(displayMetrics.heightPixels-400)/2;//alto de la pantalla
-        ViewGroup.LayoutParams temLayout = lista_device.getLayoutParams();
-        temLayout.height=newHheigth;
-        ViewGroup.LayoutParams temLayout1 = lista_user.getLayoutParams();
-        temLayout1.height=newHheigth;
-        lista_device.setLayoutParams(temLayout);
-        lista_user.setLayoutParams(temLayout1);
         device = findViewById(R.id.device);
         user = findViewById(R.id.user);
         tags = findViewById(R.id.tag);
@@ -218,6 +208,7 @@ public class MainActivity extends AppCompatActivity implements ActivityCompat.On
             public void onClick(DialogInterface dialog, int which) {
                 // send data from the AlertDialog to the Activity
                 gotoListaActivity();
+                dialog.dismiss();
 
 
             }
