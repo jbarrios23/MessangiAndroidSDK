@@ -113,12 +113,12 @@ public class Messangi implements LifecycleObserver{
             identifier=1;
             if(!messangiStorageController.isNotificationManually() && messangiStorageController.hasTokenRegiter()
                     && messangiDev.getPushToken().equals("")){
-                utils.showErrorLog(this,"save device with token");
+                utils.showDebugLog(this,"save device with token");
                 messangiDev.setPushToken(messangiStorageController.getToken());
                 messangiDev.save(context);
             }
         }else{
-            utils.showInfoLog(this,"Device not found!");
+            utils.showErrorLog(this,"Device not found!");
 
         }
         if(getLastMessangiNotifiction()!=null){
@@ -213,7 +213,7 @@ public class Messangi implements LifecycleObserver{
         String androidId = Settings.Secure.getString(context.getContentResolver(),
                 Settings.Secure.ANDROID_ID);
 
-        utils.showInfoLog(this,androidId);
+        utils.showDebugLog(this,androidId);
 
 
         return androidId;
@@ -360,24 +360,24 @@ public class Messangi implements LifecycleObserver{
      */
     public void requestDevice(boolean forsecallservice){
         if(!forsecallservice && this.messangiDev!=null){
-            utils.showInfoLog(this,"Device From RAM ");
+            utils.showDebugLog(this,"Device From RAM ");
             sendEventToActivity(messangiDev,context);
 
         }else{
             if(!forsecallservice && messangiStorageController.isRegisterDevice()){
                 messangiDev= messangiStorageController.getDevice();
-                utils.showInfoLog(this,"Device From Local Storage ");
+                utils.showDebugLog(this,"Device From Local Storage ");
                 sendEventToActivity(messangiDev,context);
             }else{
 
                 if(messangiStorageController.isRegisterDevice()){
-                    utils.showInfoLog(this,"Device From Service ");
+                    utils.showDebugLog(this,"Device From Service ");
                     messangiDev= messangiStorageController.getDevice();
                     String provId=messangiDev.getId();
                     new HttpRequestTaskGet(provId).execute();
                 }else{
 
-                utils.showInfoLog(this,"Device not found! ");
+                utils.showErrorLog(this,"Device not found! ");
                 }
 
             }
@@ -395,7 +395,7 @@ public class Messangi implements LifecycleObserver{
         if(something!=null){
             LocalBroadcastManager.getInstance(context).sendBroadcast(intent);
         }else{
-            utils.showInfoLog(this,"Not Send Broadcast ");
+            utils.showErrorLog(this,"Not Send Broadcast ");
         }
 
     }
@@ -448,9 +448,9 @@ public class Messangi implements LifecycleObserver{
                 String authToken= MessangiSdkUtils.getMessangi_token();
 
                 String param ="Bearer "+authToken;
-                utils.showInfoLog(this,"Auth Token "+param);
+                utils.showDebugLog(this,"Auth Token "+param);
                 String provUrl= MessangiSdkUtils.getMessangi_host()+"/v1/devices/"+provIdDevice;
-                utils.showErrorLog(this,"Url "+provUrl);
+                utils.showDebugLog(this,"Url "+provUrl);
                 URL url = new URL(provUrl);
                 urlConnection = (HttpURLConnection) url.openConnection();
                 urlConnection.setRequestProperty("Authorization","Bearer "+authToken);
@@ -467,7 +467,7 @@ public class Messangi implements LifecycleObserver{
 
                 if(code == HttpURLConnection.HTTP_OK){
                     server_response = readStream(urlConnection.getInputStream());
-                    utils.showErrorLog(this,"response"+ server_response);
+                    utils.showDebugLog(this,"response"+ server_response);
                 }
 
             } catch (Exception e) {
@@ -487,7 +487,7 @@ public class Messangi implements LifecycleObserver{
             super.onPostExecute(response);
             try{
                 if(!response.equals("")) {
-                    utils.showInfoLog(this, "response on Get " + response);
+                    utils.showDebugLog(this, "response on Get " + response);
                     JSONObject resp=new JSONObject(response);
                     messangiDev=utils.getMessangiDevFromJson(resp);
                     //messangiStorageController.saveDevice(messangiDev);
@@ -544,9 +544,9 @@ public class Messangi implements LifecycleObserver{
             try {
                 String authToken= MessangiSdkUtils.getMessangi_token();
                 JSONObject postData = provRequestBody;
-                utils.showErrorLog(this,"JSON data Post "+postData.toString());
+                utils.showDebugLog(this,"JSON data Post "+postData.toString());
                 String provUrl= MessangiSdkUtils.getMessangi_host()+"/v1/devices/";
-                utils.showErrorLog(this,"Url "+provUrl);
+                utils.showDebugLog(this,"Url "+provUrl);
                 URL url = new URL(provUrl);
                 urlConnection = (HttpURLConnection) url.openConnection();
                 urlConnection.setRequestProperty("Authorization","Bearer "+authToken);
@@ -570,7 +570,7 @@ public class Messangi implements LifecycleObserver{
 
                 if(code == HttpURLConnection.HTTP_CREATED){
                     server_response = readStream(urlConnection.getInputStream());
-                    utils.showErrorLog(this,"response post in"+ server_response);
+
                 }
 
 
@@ -591,7 +591,7 @@ public class Messangi implements LifecycleObserver{
             try{
                 if(!response.equals("")) {
                     JSONObject resp=new JSONObject(response);
-                    utils.showInfoLog(this, "response on post create device " + resp.toString());
+                    utils.showDebugLog(this, "response on post create device " + resp.toString());
                     messangiDev=utils.getMessangiDevFromJson(resp);
                     messangiStorageController.saveDevice(resp);
                     if(messangiStorageController.hasTokenRegiter()&&

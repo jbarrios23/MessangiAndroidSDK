@@ -40,7 +40,7 @@ public class MessangiStorageController {
         SharedPreferences.Editor datosuser=mSharedPreferences.edit();
         datosuser.putString("Token",token);
         datosuser.apply();
-        messangi.utils.showInfoLog(this,"Token Push Saved");
+        messangi.utils.showDebugLog(this,"Token Push Saved");
 
     }
     /**
@@ -54,7 +54,7 @@ public class MessangiStorageController {
             hasToken=true;
 
         }
-        messangi.utils.showInfoLog(this,"Token Push from storage controller");
+        messangi.utils.showDebugLog(this,"Token Push from storage controller");
         return hasToken;
     }
     /**
@@ -65,7 +65,7 @@ public class MessangiStorageController {
 
         String token=mSharedPreferences.getString("Token","");
 
-        messangi.utils.showInfoLog(this,"get token push"+token);
+        messangi.utils.showDebugLog(this,"get token push"+token);
         return token;
     }
 
@@ -109,7 +109,7 @@ public class MessangiStorageController {
         }catch (JSONException e){
 
         }
-        messangi.utils.showInfoLog(this,"Device Saved in Storage Controller ");
+        messangi.utils.showDebugLog(this,"Device Saved in Storage Controller ");
 
     }
     /**
@@ -123,7 +123,7 @@ public class MessangiStorageController {
             hasToken=true;
 
         }
-        messangi.utils.showInfoLog(this,"From Local Storage isRegisterDevice "+hasToken);
+        messangi.utils.showDebugLog(this,"From Local Storage isRegisterDevice "+hasToken);
         return hasToken;
     }
     /**
@@ -162,7 +162,7 @@ public class MessangiStorageController {
         messangiDev.setTimestamp(timestamp);
         messangiDev.setTransaction(transaction);
 
-        messangi.utils.showInfoLog(this,"get Device from Local Storage ");
+        messangi.utils.showDebugLog(this,"get Device from Local Storage ");
         return messangiDev;
     }
 
@@ -183,7 +183,7 @@ public class MessangiStorageController {
         String jsonString = jsonObject.toString();
         datosuser.putString("MessangiUserDevice",jsonString);
         datosuser.apply();
-        messangi.utils.showInfoLog(this,"User Saved in Storage Controller ");
+        messangi.utils.showDebugLog(this,"User Saved in Storage Controller ");
 
     }
     /**
@@ -197,7 +197,7 @@ public class MessangiStorageController {
             hasToken=true;
 
         }
-        messangi.utils.showInfoLog(this,"From Local Storage isRegisterUser "+hasToken);
+        messangi.utils.showDebugLog(this,"From Local Storage isRegisterUser "+hasToken);
         return hasToken;
     }
 
@@ -218,11 +218,11 @@ public class MessangiStorageController {
                 String value = (String) jsonObject.get(key);
                 outputMap.put(key, value);
             }
-            messangi.utils.showInfoLog(this,"get User from Local Storage ");
+            messangi.utils.showDebugLog(this,"get User from Local Storage ");
         } catch (JSONException e) {
             e.printStackTrace();
         }
-        messangi.utils.showInfoLog(this,"get User from Local Storage ");
+        messangi.utils.showDebugLog(this,"get User from Local Storage ");
         return outputMap;
     }
 

@@ -60,7 +60,7 @@ public class MessangiNotification implements Serializable {
         }
      messangi.setLastMessangiNotifiction(this);
      messangi.getMessangiNotifications().add(0,this);
-     messangi.utils.showErrorLog(this,messangi.getMessangiNotifications().size());
+     messangi.utils.showDebugLog(this,messangi.getMessangiNotifications().size());
      sendEventToActivity(this,this.context);
 
 
@@ -142,7 +142,7 @@ public class MessangiNotification implements Serializable {
         if(something!=null){
             LocalBroadcastManager.getInstance(context).sendBroadcast(intent);
         }else{
-            messangi.utils.showInfoLog(this,"Not Send Broadcast ");
+            messangi.utils.showErrorLog(this,"Not Send Broadcast ");
         }
 
     }

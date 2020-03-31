@@ -34,23 +34,23 @@ public class MessangiSdkUtils {
             int key_logging_allowed = context.getResources()
                     .getIdentifier("logging_allowed", "bool", context.getPackageName());
             logging_allowed = context.getResources().getBoolean(key_logging_allowed);
-            showInfoLog(this, logging_allowed);
+            showDebugLog(this, logging_allowed);
             int key_messagi_host = context.getResources()
                     .getIdentifier("messangi_host", "string", context.getPackageName());
             messangi_host = context.getString(key_messagi_host);
-            showInfoLog(this, messangi_host);
+            showDebugLog(this, messangi_host);
             int key_messangi_app_token = context.getResources()
                     .getIdentifier("messangi_app_token", "string", context.getPackageName());
             messangi_token = context.getString(key_messangi_app_token);
-            showInfoLog(this, messangi_token);
+            showDebugLog(this, messangi_token);
             int key_analytics_allowed = context.getResources()
                     .getIdentifier("analytics_allowed", "bool", context.getPackageName());
             analytics_allowed = context.getResources().getBoolean(key_analytics_allowed);
-            showInfoLog(this, analytics_allowed);
+            showDebugLog(this, analytics_allowed);
             int key_location_allowed = context.getResources()
                     .getIdentifier("location_allowed", "bool", context.getPackageName());
              location_allowed = context.getResources().getBoolean(key_location_allowed);
-            showInfoLog(this, location_allowed);
+            showDebugLog(this, location_allowed);
 
         }catch (Resources.NotFoundException e){
             showErrorLog(MessangiSdkUtils.class,"Hasn't config file");
@@ -149,7 +149,7 @@ public class MessangiSdkUtils {
                     prvTag.add(jsonArray.getString(i));
                 }
                 messangiDev.setTags(prvTag);
-                showInfoLog(this, "tags " + resp.getString("tags"));
+                showDebugLog(this, "tags " + resp.getString("tags"));
             }
             if(resp.has("createdAt")){
                 messangiDev.setCreatedAt(resp.getString("createdAt"));

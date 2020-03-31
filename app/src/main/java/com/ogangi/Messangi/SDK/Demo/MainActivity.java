@@ -8,10 +8,8 @@ import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.os.Bundle;
-import android.util.DisplayMetrics;
 import android.util.Log;
 import android.view.View;
-import android.view.ViewGroup;
 import android.view.Window;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
@@ -94,7 +92,7 @@ public class MainActivity extends AppCompatActivity implements ActivityCompat.On
                 messangiUserDeviceArrayList.clear();
                 progressBar.setVisibility(View.VISIBLE);
                 messangi.requestDevice(true);
-                Log.e(TAG, CLASS_TAG + ": " + messangi.getExternalId());
+                Log.i(TAG, CLASS_TAG + ": " + messangi.getExternalId());
                 messangiDev.requestUserByDevice(getApplicationContext(), true);
             }
         });
@@ -163,7 +161,7 @@ public class MainActivity extends AppCompatActivity implements ActivityCompat.On
     @Override
     protected void onStart() {
         super.onStart();
-        Log.i(TAG,CLASS_TAG+": register BroadcastReceiver");
+        Log.d(TAG,CLASS_TAG+": register BroadcastReceiver");
         LocalBroadcastManager.getInstance(this).registerReceiver(mReceiver,
                 new IntentFilter("PassDataFromSdk"));
     }
@@ -173,7 +171,7 @@ public class MainActivity extends AppCompatActivity implements ActivityCompat.On
     protected void onResume() {
         super.onResume();
 
-        Log.i(TAG,CLASS_TAG+": onResume");
+        Log.d(TAG,CLASS_TAG+": onResume");
         messangiDevArrayList.clear();
         messangiUserDeviceArrayList.clear();
         progressBar.setVisibility(View.VISIBLE);
@@ -271,7 +269,7 @@ public class MainActivity extends AppCompatActivity implements ActivityCompat.On
 
     private void sendDialogDataToUser() {
 
-        Log.i(TAG,CLASS_TAG+": For update"+messangiUserDevice.getProperties());
+        Log.d(TAG,CLASS_TAG+": For update"+messangiUserDevice.getProperties());
         progressBar.setVisibility(View.VISIBLE);
         messangiUserDevice.save(getApplicationContext());
 
@@ -330,7 +328,7 @@ public class MainActivity extends AppCompatActivity implements ActivityCompat.On
 
     private void sendDialogDataToActivity() {
 
-        Log.i(TAG,CLASS_TAG+": Tags selection final was "+messangiDev.getTags());
+        Log.d(TAG,CLASS_TAG+": Tags selection final was "+messangiDev.getTags());
     }
 
     private BroadcastReceiver mReceiver=new BroadcastReceiver() {
@@ -345,7 +343,7 @@ public class MainActivity extends AppCompatActivity implements ActivityCompat.On
 
                 messangiDev=(MessangiDev) message;
 
-                Log.i(TAG,CLASS_TAG+": Device:  "+ messangiDev.getId());
+                Log.d(TAG,CLASS_TAG+": Device:  "+ messangiDev.getId());
                 messangiDevArrayList.add("Id: "           +messangiDev.getId());
                 messangiDevArrayList.add("pushToken: "    +messangiDev.getPushToken());
                 messangiDevArrayList.add("UserId: "       +messangiDev.getUserId());
@@ -368,7 +366,7 @@ public class MainActivity extends AppCompatActivity implements ActivityCompat.On
             }else if((message instanceof MessangiUserDevice) && (message!=null)){
                 messangiUserDeviceArrayList.clear();
                 messangiUserDevice=(MessangiUserDevice) message;
-                Log.i(TAG,CLASS_TAG+" User:  "+ messangiUserDevice.getDevices());
+                Log.d(TAG,CLASS_TAG+" User:  "+ messangiUserDevice.getDevices());
 
                 if(messangiUserDevice.getProperties().size()>0){
                     Map<String,String> result=messangiUserDevice.getProperties();
@@ -385,7 +383,7 @@ public class MainActivity extends AppCompatActivity implements ActivityCompat.On
                 showAlertNotificaction(messangiNotification);
 
             }else{
-                Log.i(TAG,CLASS_TAG+": do nothing");
+                Log.d(TAG,CLASS_TAG+": do nothing");
                 if(progressBar.isShown()){
                     progressBar.setVisibility(View.GONE);
                 }
@@ -403,7 +401,7 @@ public class MainActivity extends AppCompatActivity implements ActivityCompat.On
 
     @Override
     protected void onDestroy() {
-        Log.i(TAG,CLASS_TAG+": unregister BroadcastReceiver");
+        Log.d(TAG,CLASS_TAG+": unregister BroadcastReceiver");
         LocalBroadcastManager.getInstance(this).unregisterReceiver(mReceiver);
         super.onDestroy();
     }

@@ -57,7 +57,7 @@ public class ListNotification extends AppCompatActivity {
         list_notification.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
             public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-                Log.i(TAG,CLASS_TAG+":Notification selected: "+messangiNotificationArrayList.get(position).getTitle());
+                Log.d(TAG,CLASS_TAG+":Notification selected: "+messangiNotificationArrayList.get(position).getTitle());
                 showAlertNotificaction(messangiNotificationArrayList.get(position));
             }
         });

@@ -17,7 +17,7 @@ public class CustomMessangiService extends MessangiFirebaseMessagingService {
     @Override
     public void onNewToken(String s) {
         super.onNewToken(s);
-        Log.e(TAG,CLASS_TAG+": new token or refresh token "+s);
+        Log.d(TAG,CLASS_TAG+": new token or refresh token "+s);
 
     }
 
@@ -25,7 +25,7 @@ public class CustomMessangiService extends MessangiFirebaseMessagingService {
     @Override
     public void onMessageReceived(RemoteMessage remoteMessage) {
 
-        Log.e(TAG, CLASS_TAG + ": remote message ");
+        Log.d(TAG, CLASS_TAG + ": remote message ");
         //example
         MessangiNotification messangiNotification = new MessangiNotification(remoteMessage, this);
     }

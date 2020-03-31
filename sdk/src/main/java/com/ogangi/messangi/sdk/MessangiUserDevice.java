@@ -52,7 +52,7 @@ public class MessangiUserDevice implements Serializable {
         final Messangi messangi=Messangi.getInst(context);
 
         String deviceId=messangi.messangiDev.getId();
-        messangi.utils.showErrorLog(this,deviceId);
+        messangi.utils.showDebugLog(this,deviceId);
         Map<String, String> provPro=properties;
         JSONObject requestUpdatebody=new JSONObject(provPro);
         messangi.utils.showDebugLog(this,"requestUpdatebody "+requestUpdatebody.toString());
@@ -103,7 +103,7 @@ public class MessangiUserDevice implements Serializable {
         if(something!=null){
             LocalBroadcastManager.getInstance(context).sendBroadcast(intent);
         }else{
-            messangi.utils.showErrorLog(this,"Dont Send Broadcast ");
+            messangi.utils.showErrorLog(this,"Don't Send Broadcast ");
         }
     }
 
@@ -234,9 +234,9 @@ public class MessangiUserDevice implements Serializable {
 
                 String authToken= MessangiSdkUtils.getMessangi_token();
                 JSONObject postData = jsonObject;
-                messangi.utils.showErrorLog(this,"JSON data for update "+postData.toString());
+                messangi.utils.showDebugLog(this,"JSON data for update "+postData.toString());
                 String provUrl= MessangiSdkUtils.getMessangi_host()+"/v1/users?device="+deviceId;
-                messangi.utils.showErrorLog(this,"Url "+provUrl);
+                messangi.utils.showDebugLog(this,"Url "+provUrl);
                 URL url = new URL(provUrl);
                 urlConnection = (HttpURLConnection) url.openConnection();
                 urlConnection.setRequestProperty("Authorization","Bearer "+authToken);
@@ -262,7 +262,7 @@ public class MessangiUserDevice implements Serializable {
 
                 if(code == HttpURLConnection.HTTP_OK){
                     server_response = messangi.readStream(urlConnection.getInputStream());
-                    messangi.utils.showErrorLog(this,"update data user good"+ server_response);
+
                 }
 
 
@@ -285,9 +285,9 @@ public class MessangiUserDevice implements Serializable {
                 if(!response.equals("")) {
 
                     JSONObject resp=new JSONObject(response);
-                    messangi.utils.showErrorLog(this,"Json update user "+resp.toString());
+                    messangi.utils.showDebugLog(this,"Json update user "+resp.toString());
                     JSONObject data=resp.getJSONObject("subscriber").getJSONObject("data");
-                    messangi.utils.showErrorLog(this,"Json update user "+data.toString());
+                    messangi.utils.showDebugLog(this,"Json update user "+data.toString());
                     Map<String, String> resultMap=toMap(data);
                     messangi.messangiStorageController.saveUserByDevice(resultMap);
                     MessangiUserDevice messangiUserDevice;
