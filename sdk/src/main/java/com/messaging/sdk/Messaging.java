@@ -1,4 +1,4 @@
-package com.ogangi.messangi.sdk;
+package com.messaging.sdk;
 
 import android.annotation.SuppressLint;
 import android.app.Activity;
@@ -15,6 +15,7 @@ import androidx.lifecycle.ProcessLifecycleOwner;
 import androidx.localbroadcastmanager.content.LocalBroadcastManager;
 
 import com.google.firebase.messaging.FirebaseMessaging;
+
 
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -35,13 +36,13 @@ import java.util.Locale;
 
 
 /**
- * class Messangi let stablish Instances, handle services "get" and "create device" and LifecycleObserver
+ * class Messaging let stablish Instances, handle services "get" and "create device" and LifecycleObserver
  * for handle event to foreground and background.
  */
-public class Messangi implements LifecycleObserver{
+public class Messaging implements LifecycleObserver{
 
 
-    private static Messangi mInstance;
+    private static Messaging mInstance;
     private static Context context;
     public String Nameclass;
     public Activity activity;
@@ -56,46 +57,50 @@ public class Messangi implements LifecycleObserver{
     private String os;
     private ArrayList<String> tags;
 
-    MessangiUserDevice messangiUserDevice;
-    MessangiDev messangiDev;
-    MessangiSdkUtils utils;
-    public MessangiStorageController messangiStorageController;
+    MessagingUserDevice messagingUserDevice;
+    MessagingDev messagingDev;
+    MessagingSdkUtils utils;
+    public MessagingStorageController messagingStorageController;
     private String sdkVersion;
     private String lenguaje;
     private int identifier;
-    private MessangiNotification messangiNotification;
-    private ArrayList<MessangiNotification> messangiNotifications;
+    private MessagingNotification messagingNotification;
+    private ArrayList<MessagingNotification> messagingNotifications;
+    private String nameMethod;
+    private String packageName;
 
 
-    public Messangi(Context context){
+
+    public Messaging(Context context){
         this.context =context;
-        this.utils=new MessangiSdkUtils();
-        this.messangiStorageController =new MessangiStorageController(context,this);
+        this.utils=new MessagingSdkUtils();
+        this.messagingStorageController =new MessagingStorageController(context,this);
         this.icon=-1;
-        this.sdkVersion=BuildConfig.VERSION_NAME;
+        this.sdkVersion= BuildConfig.VERSION_NAME;
         this.lenguaje= Locale.getDefault().getDisplayLanguage();
         this.type="android";
         this.model=getDeviceName();
         this.os=Build.VERSION.RELEASE;
         this.initResource();
         this.tags=new ArrayList<String>();
-        this.messangiUserDevice=null;
-        this.messangiDev=null;
+        this.messagingUserDevice =null;
+        this.messagingDev =null;
         this.identifier=0;
-        this.messangiNotifications =new ArrayList<>();
-        this.messangiNotification =null;
+        this.messagingNotifications =new ArrayList<>();
+        this.messagingNotification =null;
+        this.nameMethod="";
 
     }
 
-    public static synchronized Messangi getInst(Context context) {
+    public static synchronized Messaging getInst(Context context) {
         if (mInstance == null) {
-            mInstance = new Messangi(context);
+            mInstance = new Messaging(context);
         }
         //context = context;
         return mInstance;
     }
 
-    public static synchronized Messangi getInst() {
+    public static synchronized Messaging getInst() {
 
         return mInstance;
     }
@@ -105,28 +110,34 @@ public class Messangi implements LifecycleObserver{
      */
     @OnLifecycleEvent(Lifecycle.Event.ON_START)
     public void onEnterForeground() {
-
-        utils.showDebugLog(this,"Foreground");
-        if(messangiStorageController.isRegisterDevice()){
-            messangiDev= messangiStorageController.getDevice();
-            messangiDev.checkSdkVersion(context);
+        nameMethod=new Object(){}.getClass().getEnclosingMethod().getName();
+        utils.showDebugLog(this,nameMethod,"Foreground");
+        if(messagingStorageController.isRegisterDevice()){
+            messagingDev = messagingStorageController.getDevice();
+            messagingDev.checkSdkVersion(context);
             identifier=1;
-            if(!messangiStorageController.isNotificationManually() && messangiStorageController.hasTokenRegiter()
-                    && messangiDev.getPushToken().equals("")){
-                utils.showDebugLog(this,"save device with token");
-                messangiDev.setPushToken(messangiStorageController.getToken());
-                messangiDev.save(context);
+            if(!messagingStorageController.isNotificationManually() && messagingStorageController.hasTokenRegiter()
+                    && messagingDev.getPushToken().equals("")){
+                utils.showInfoLog(this,nameMethod,"Save device with token");
+                messagingDev.setPushToken(messagingStorageController.getToken());
+                messagingDev.save(context);
             }
         }else{
-            utils.showErrorLog(this,"Device not found!");
+            utils.showErrorLog(this,nameMethod,"Device not found!","");
 
         }
         if(getLastMessangiNotifiction()!=null){
-            sendEventToActivity(messangiNotification,context);
+            sendEventToActivity(messagingNotification,context);
             setLastMessangiNotifiction(null);
         }
 
     }
+
+    public String getPackageName() {
+        return packageName;
+    }
+
+
 
     /**
      * Method that initializes OnLifecycleEvent
@@ -134,30 +145,31 @@ public class Messangi implements LifecycleObserver{
      */
     @OnLifecycleEvent(Lifecycle.Event.ON_STOP)
     public void onEnterBackground() {
-        utils.showDebugLog(this,"Background");
+        nameMethod=new Object(){}.getClass().getEnclosingMethod().getName();
+        utils.showDebugLog(this,nameMethod,"Background");
     }
 
-    public ArrayList<MessangiNotification> getMessangiNotifications() {
+    public ArrayList<MessagingNotification> getMessagingNotifications() {
 
-        return messangiNotifications;
+        return messagingNotifications;
     }
     /**
      * Method that Get Last Notification
      *
      */
 
-    public MessangiNotification getLastMessangiNotifiction() {
-        return messangiNotification;
+    public MessagingNotification getLastMessangiNotifiction() {
+        return messagingNotification;
     }
 
 
     /**
      * Method that Set Las notification
-     * @param messangiNotification
+     * @param messagingNotification
      */
-    public void setLastMessangiNotifiction(MessangiNotification messangiNotification) {
-        utils.showDebugLog(this,"Set notification");
-        this.messangiNotification = messangiNotification;
+    public void setLastMessangiNotifiction(MessagingNotification messagingNotification) {
+
+        this.messagingNotification = messagingNotification;
     }
 
     public ArrayList<String> getTags() {
@@ -213,9 +225,6 @@ public class Messangi implements LifecycleObserver{
         String androidId = Settings.Secure.getString(context.getContentResolver(),
                 Settings.Secure.ANDROID_ID);
 
-        utils.showDebugLog(this,androidId);
-
-
         return androidId;
     }
 
@@ -267,10 +276,11 @@ public class Messangi implements LifecycleObserver{
      * setFirebaseTopic init topic firebase for notification push
      */
     private void initResource(){
+        nameMethod=new Object(){}.getClass().getEnclosingMethod().getName();
         setMessangiObserver();
         setFirebaseTopic();
         icon=context.getResources().getIdentifier("ic_launcher", "mipmap", context.getPackageName());
-        String packageName = context.getPackageName();
+        packageName= context.getPackageName();
         Intent launchIntent = context.getPackageManager().getLaunchIntentForPackage(packageName);
         if (launchIntent != null) {
             try {
@@ -289,20 +299,20 @@ public class Messangi implements LifecycleObserver{
      **/
 
     public void createDeviceParameters() {
-
+        nameMethod=new Object(){}.getClass().getEnclosingMethod().getName();
         String type=getType();
-        utils.showDebugLog(this,"Create device type "+type);
+        utils.showInfoLog(this,nameMethod,"Create device type "+type);
         String lenguaje=getLenguaje();
-        utils.showDebugLog(this,"Create device Lenguaje "+lenguaje);
+        utils.showDebugLog(this,nameMethod,"Create device Lenguaje "+lenguaje);
         String model=getDeviceName();
-        utils.showDebugLog(this,"Create Device model "+model);
+        utils.showDebugLog(this,nameMethod,"Create Device model "+model);
         String os = getOs();
-        utils.showDebugLog(this,"Create Device  OS "+ os);
+        utils.showDebugLog(this,nameMethod,"Create Device  OS "+ os);
         String sdkVersion=getSdkVersion();
-        utils.showDebugLog(this,"Create Device SDK version "+ sdkVersion);
-        pushToken= messangiStorageController.getToken();
+        utils.showDebugLog(this,nameMethod,"Create Device SDK version "+ sdkVersion);
+        pushToken= messagingStorageController.getToken();
         setPushToken(pushToken);
-        createDevice(pushToken,type,lenguaje,model,os,sdkVersion,context);
+        createDevice(pushToken,type,lenguaje,model,os,sdkVersion);
 
     }
 
@@ -348,10 +358,9 @@ public class Messangi implements LifecycleObserver{
      * Method for set Observer
      */
     private void setMessangiObserver(){
-
-
     ProcessLifecycleOwner.get().getLifecycle().addObserver(this);
-    utils.showDebugLog(this,"setMessangiObserver ");
+    nameMethod=new Object(){}.getClass().getEnclosingMethod().getName();
+    utils.showInfoLog(this,nameMethod,"setMessangiObserver ");
     }
 
     /**
@@ -359,25 +368,26 @@ public class Messangi implements LifecycleObserver{
      @param forsecallservice: It allows effective device search in three ways: by instance, by shared variable or by service.
      */
     public void requestDevice(boolean forsecallservice){
-        if(!forsecallservice && this.messangiDev!=null){
-            utils.showDebugLog(this,"Device From RAM ");
-            sendEventToActivity(messangiDev,context);
+        nameMethod=new Object(){}.getClass().getEnclosingMethod().getName();
+        if(!forsecallservice && this.messagingDev !=null){
+            utils.showDebugLog(this,nameMethod,"Device From RAM ");
+            sendEventToActivity(messagingDev,context);
 
         }else{
-            if(!forsecallservice && messangiStorageController.isRegisterDevice()){
-                messangiDev= messangiStorageController.getDevice();
-                utils.showDebugLog(this,"Device From Local Storage ");
-                sendEventToActivity(messangiDev,context);
+            if(!forsecallservice && messagingStorageController.isRegisterDevice()){
+                messagingDev = messagingStorageController.getDevice();
+                utils.showDebugLog(this,nameMethod,"Device From Local Storage ");
+                sendEventToActivity(messagingDev,context);
             }else{
 
-                if(messangiStorageController.isRegisterDevice()){
-                    utils.showDebugLog(this,"Device From Service ");
-                    messangiDev= messangiStorageController.getDevice();
-                    String provId=messangiDev.getId();
+                if(messagingStorageController.isRegisterDevice()){
+                    utils.showDebugLog(this,nameMethod,"Device From Service ");
+                    messagingDev = messagingStorageController.getDevice();
+                    String provId= messagingDev.getId();
                     new HttpRequestTaskGet(provId).execute();
                 }else{
 
-                utils.showErrorLog(this,"Device not found! ");
+                utils.showErrorLog(this,nameMethod,"Device not found! ",null);
                 }
 
             }
@@ -385,17 +395,18 @@ public class Messangi implements LifecycleObserver{
 
     }
     /**
-     * Method that send Parameter (Ej: messangiDev or MessangiUserDevice) registered to Activity
+     * Method that send Parameter (Ej: messagingDev or MessagingUserDevice) registered to Activity
      @param something: Object Serializable for send to activity (Ej MeesangiDev).
      @param context : context instance
      */
     private void sendEventToActivity(Serializable something, Context context) {
+        nameMethod=new Object(){}.getClass().getEnclosingMethod().getName();
         Intent intent=new Intent("PassDataFromSdk");
         intent.putExtra("message",something);
         if(something!=null){
             LocalBroadcastManager.getInstance(context).sendBroadcast(intent);
         }else{
-            utils.showErrorLog(this,"Not Send Broadcast ");
+            utils.showErrorLog(this,nameMethod,"Not Send Broadcast ",null);
         }
 
     }
@@ -407,13 +418,12 @@ public class Messangi implements LifecycleObserver{
      @param model : model of device
      @param os : operating system version
      @param sdkVersion: SDK version
-     @param context: context instance.
+
      */
     private void createDevice(String pushToken, String type, String lenguaje,
-                              String model, String os, String sdkVersion,
-                               final Context context){
+                              String model, String os, String sdkVersion){
 
-
+        nameMethod=new Object(){}.getClass().getEnclosingMethod().getName();
         final JSONObject requestBody=new JSONObject();
         try {
             requestBody.put("pushToken",pushToken);
@@ -433,6 +443,7 @@ public class Messangi implements LifecycleObserver{
 
         public String provIdDevice;
         private String server_response;
+        private String provUrl;
 
 
         public HttpRequestTaskGet(String provId) {
@@ -445,12 +456,11 @@ public class Messangi implements LifecycleObserver{
             HttpURLConnection urlConnection = null;
 
             try {
-                String authToken= MessangiSdkUtils.getMessangi_token();
+                String authToken= MessagingSdkUtils.getMessangi_token();
 
                 String param ="Bearer "+authToken;
-                utils.showDebugLog(this,"Auth Token "+param);
-                String provUrl= MessangiSdkUtils.getMessangi_host()+"/v1/devices/"+provIdDevice;
-                utils.showDebugLog(this,"Url "+provUrl);
+                provUrl= MessagingSdkUtils.getMessangi_host()+"/v1/devices/"+provIdDevice;
+                utils.showHttpRequestLog(provUrl,Messaging.this,nameMethod,"GET","");
                 URL url = new URL(provUrl);
                 urlConnection = (HttpURLConnection) url.openConnection();
                 urlConnection.setRequestProperty("Authorization","Bearer "+authToken);
@@ -458,6 +468,8 @@ public class Messangi implements LifecycleObserver{
                 urlConnection.setRequestMethod("GET");
                 int code = urlConnection.getResponseCode();
                 if (code !=  200) {
+                    sendEventToActivity(null,context);
+                    utils.showErrorLog(this,nameMethod,"Invalid response from server: " + code,null);
                     throw new IOException("Invalid response from server: " + code);
                 }
 
@@ -467,12 +479,12 @@ public class Messangi implements LifecycleObserver{
 
                 if(code == HttpURLConnection.HTTP_OK){
                     server_response = readStream(urlConnection.getInputStream());
-                    utils.showDebugLog(this,"response"+ server_response);
+
                 }
 
             } catch (Exception e) {
                 e.printStackTrace();
-                utils.showErrorLog(this,"Service error "+e.getMessage());
+                utils.showErrorLog(this,nameMethod,"Exception ",e.getStackTrace().toString());
             } finally {
                 if (urlConnection != null) {
                     urlConnection.disconnect();
@@ -487,19 +499,23 @@ public class Messangi implements LifecycleObserver{
             super.onPostExecute(response);
             try{
                 if(!response.equals("")) {
-                    utils.showDebugLog(this, "response on Get " + response);
+                    nameMethod=new Object(){}.getClass().getEnclosingMethod().getName();
+                    utils.showHttpResponsetLog(provUrl,Messaging.this,nameMethod,"Successful",response);
                     JSONObject resp=new JSONObject(response);
-                    messangiDev=utils.getMessangiDevFromJson(resp);
-                    //messangiStorageController.saveDevice(messangiDev);
-                    messangiStorageController.saveDevice(resp);
-                    sendEventToActivity(messangiDev,context);
+                    messagingDev =utils.getMessangiDevFromJson(resp);
+                    //messagingStorageController.saveDevice(messagingDev);
+                    messagingStorageController.saveDevice(resp);
+                    sendEventToActivity(messagingDev,context);
 
 
                 }
             }catch (NullPointerException e){
-                utils.showErrorLog(this,"not created!");
+                sendEventToActivity(null,context);
+                utils.showErrorLog(this,nameMethod,"Device not Get! NullPointerException ",e.getStackTrace().toString());
             } catch (JSONException e) {
                 e.printStackTrace();
+                sendEventToActivity(null,context);
+                utils.showErrorLog(this,nameMethod,"Device not Get! JSONException",e.getStackTrace().toString());
             }
         }
     }
@@ -532,6 +548,7 @@ public class Messangi implements LifecycleObserver{
 
         private String server_response;
         private JSONObject provRequestBody;
+        private String provUrl;
         public HTTPReqTaskPost(JSONObject requestBody) {
             this.provRequestBody=requestBody;
         }
@@ -542,11 +559,10 @@ public class Messangi implements LifecycleObserver{
             HttpURLConnection urlConnection = null;
 
             try {
-                String authToken= MessangiSdkUtils.getMessangi_token();
+                String authToken= MessagingSdkUtils.getMessangi_token();
                 JSONObject postData = provRequestBody;
-                utils.showDebugLog(this,"JSON data Post "+postData.toString());
-                String provUrl= MessangiSdkUtils.getMessangi_host()+"/v1/devices/";
-                utils.showDebugLog(this,"Url "+provUrl);
+                provUrl= MessagingSdkUtils.getMessangi_host()+"/v1/devices/";
+                utils.showHttpRequestLog(provUrl,Messaging.this,nameMethod,"POST",postData.toString());
                 URL url = new URL(provUrl);
                 urlConnection = (HttpURLConnection) url.openConnection();
                 urlConnection.setRequestProperty("Authorization","Bearer "+authToken);
@@ -564,6 +580,8 @@ public class Messangi implements LifecycleObserver{
 
                 int code = urlConnection.getResponseCode();
                 if (code !=  201) {
+                    sendEventToActivity(null,context);
+                    utils.showErrorLog(this,nameMethod,"Invalid response from server: " + code,"");
                     throw new IOException("Invalid response from server: " + code);
                 }
 
@@ -591,25 +609,28 @@ public class Messangi implements LifecycleObserver{
             try{
                 if(!response.equals("")) {
                     JSONObject resp=new JSONObject(response);
-                    utils.showDebugLog(this, "response on post create device " + resp.toString());
-                    messangiDev=utils.getMessangiDevFromJson(resp);
-                    messangiStorageController.saveDevice(resp);
-                    if(messangiStorageController.hasTokenRegiter()&&
-                            !messangiStorageController.isNotificationManually()){
-                        String token= messangiStorageController.getToken();
-                        messangiDev.setPushToken(token);
-                        messangiDev.save(context);
+                    nameMethod=new Object(){}.getClass().getEnclosingMethod().getName();
+                    utils.showHttpResponsetLog(provUrl,Messaging.this,nameMethod,"Successful",response);
+                    messagingDev =utils.getMessangiDevFromJson(resp);
+                    messagingStorageController.saveDevice(resp);
+                    if(messagingStorageController.hasTokenRegiter()&&
+                            !messagingStorageController.isNotificationManually()){
+                        String token= messagingStorageController.getToken();
+                        messagingDev.setPushToken(token);
+                        messagingDev.save(context);
                     }
-                    sendEventToActivity(messangiDev,context);
+                    sendEventToActivity(messagingDev,context);
 
                 }
             }catch (NullPointerException e){
-                utils.showErrorLog(this,"device not create!");
+                sendEventToActivity(null,context);
+                utils.showErrorLog(this,nameMethod,"Device not create! NullPointerException ",e.getStackTrace().toString());
             } catch (JSONException e) {
                 e.printStackTrace();
+                sendEventToActivity(null,context);
+                utils.showErrorLog(this,nameMethod,"Device not create! JSONException ",e.getStackTrace().toString());
             }
 
         }
     }
-
 }

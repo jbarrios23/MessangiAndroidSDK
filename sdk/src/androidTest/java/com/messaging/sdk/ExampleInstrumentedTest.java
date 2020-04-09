@@ -1,4 +1,4 @@
-package com.ogangi.messangi.sdk;
+package com.messaging.sdk;
 
 import android.content.Context;
 
@@ -22,6 +22,6 @@ public class ExampleInstrumentedTest {
         // Context of the app under test.
         Context appContext = InstrumentationRegistry.getInstrumentation().getTargetContext();
 
-        assertEquals("com.ogangi.messangi.sdk.test", appContext.getPackageName());
+        assertEquals("com.ogangi.messaging.sdk.test", appContext.getPackageName());
     }
 }

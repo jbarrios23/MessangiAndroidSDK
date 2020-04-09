@@ -8,7 +8,7 @@
 ## Description
 ---
 It is a tool that allows you to add the following functionalities to your solution
-- Send notifications through messangi services.
+- Send notifications through messaging services.
 - Enable or disable notifications by the user.
 - Register device characteristics (UUID, Type, Language, OS Version, Model).
 - Associate labels to the device.
@@ -93,11 +93,11 @@ Put BroadcastReceiver in Activity file project:
 
 ```java
 ...
-import com.ogangi.messangi.sdk.Messangi;
+import com.ogangi.messangi.sdk.Messagingi;
 
 public class MainActivity extends AppCompatActivity{
     ...
-    private Messangi messangi;
+    private Messangi messaging;
     
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -138,30 +138,30 @@ public class MainActivity extends AppCompatActivity{
 ## Usage
 To make use of the functionalities that Messangi SDK offers, the Messangi class is available, to obtain the instance of this class you can do 
 ```java
-Messangi messangi =Messangi.getInst(this);
-MessangiDev messangiDev;
-MessangiUserDevice messangiUserDevice;
+Messangi messaging =Messangi.getInst(this);
+MessangiDev messagingDev;
+MessangiUserDevice messagingUserDevice;
 ```
 By doing this you have access to
 ```java
-messangi.requestDevice(true);//get device
-messangiDev.addTagsToDevice(tags);// add tags to device
-messangiDev.save(getApplicationContext());
-messangiDev.requestUserByDevice(getApplicationContext(),false);//get User By Device
-messangiDev=storageController.getDevice();//get device from local storage
-messangiUserDevice.save(getApplicationContext());//save or update User parameter
-messangiUserDevice.addProperties(key,value);//add properties to User.
+messaging.requestDevice(true);//get device
+messagingDev.addTagsToDevice(tags);// add tags to device
+messagingDev.save(getApplicationContext());
+messagingDev.requestUserByDevice(getApplicationContext(),false);//get User By Device
+messagingDev=storageController.getDevice();//get device from local storage
+messagingUserDevice.save(getApplicationContext());//save or update User parameter
+messagingUserDevice.addProperties(key,value);//add properties to User.
 
 ```
 
 ## Example - Getting MessangiDevice
 ```java
 ...
-import com.ogangi.messangi.sdk.Messangi;
+import com.ogangi.messangi.sdk.Messagingi;
 
 public class MainActivity extends AppCompatActivity{
     ...
-    private Messangi messangi;
+    private Messangi messaging;
     
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -172,17 +172,17 @@ public class MainActivity extends AppCompatActivity{
       @Override
     protected void onResume() {
         super.onResume();
-        messangi.requestDevice(false);
+        messaging.requestDevice(false);
     }
 ```
 
 ## Example - Getting MessangiUser
 ```java
 ...
-import com.ogangi.messangi.sdk.MessangiUserDevice;
+import com.ogangi.messaging.sdk.MessangiUserDevice;
 
 public class MainActivity extends AppCompatActivity{
-    private MessangiUserDevice messangiUserDevice;
+    private MessangiUserDevice messagingUserDevice;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
     super.onCreate(savedInstanceState);
@@ -192,8 +192,8 @@ public class MainActivity extends AppCompatActivity{
       @Override
     protected void onResume() {
         super.onResume();
-        messangi.requestDevice(false);
-        messangiDev.requestUserByDevice(getApplicationContext(),false);
+        messaging.requestDevice(false);
+        messagingDev.requestUserByDevice(getApplicationContext(),false);
     }
    
 ```
@@ -229,10 +229,10 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.app.ActivityCompat;
 import androidx.localbroadcastmanager.content.LocalBroadcastManager;
 
-import com.ogangi.messangi.sdk.Messangi;
-import com.ogangi.messangi.sdk.MessangiDev;
-import com.ogangi.messangi.sdk.MessangiNotification;
-import com.ogangi.messangi.sdk.MessangiUserDevice;
+import com.ogangi.messangi.sdk.Messagingi;
+import com.ogangi.messaging.sdk.MessangiDev;
+import com.ogangi.messaging.sdk.MessangiNotification;
+import com.ogangi.messaging.sdk.MessangiUserDevice;
 
 import java.io.Serializable;
 import java.util.ArrayList;
@@ -243,11 +243,11 @@ public class MainActivity extends AppCompatActivity implements ActivityCompat.On
     public static String CLASS_TAG=MainActivity.class.getSimpleName();
     public static String TAG="MessangiSDK";
 
-    public Messangi messangi;
+    public Messangi messaging;
     public Button device,user,tags,save;
     public TextView imprime;
-    public MessangiDev messangiDev;
-    public MessangiUserDevice messangiUserDevice;
+    public MessangiDev messagingDev;
+    public MessangiUserDevice messagingUserDevice;
     public ListView lista_device,lista_user;
 
     public ArrayList<String> messangiDevArrayList;
@@ -257,7 +257,7 @@ public class MainActivity extends AppCompatActivity implements ActivityCompat.On
     public ProgressBar progressBar;
     public TextView title;
     public Button pressButton;
-    MessangiNotification messangiNotification;
+    MessangiNotification messagingNotification;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -266,7 +266,7 @@ public class MainActivity extends AppCompatActivity implements ActivityCompat.On
 
         getSupportActionBar().hide();
         setContentView(R.layout.activity_main);
-        messangi = Messangi.getInst(this);
+        messaging = Messangi.getInst(this);
 
         lista_device = findViewById(R.id.lista_device);
         lista_user = findViewById(R.id.lista_user);
@@ -294,7 +294,7 @@ public class MainActivity extends AppCompatActivity implements ActivityCompat.On
         messangiUserDeviceArrayList = new ArrayList<>();
         messangiDevArrayAdapter = new ArrayAdapter<>(this, R.layout.item_device, R.id.Texview_value, messangiDevArrayList);
         messangiUserDeviceArrayAdapter = new ArrayAdapter<>(this, R.layout.item_device, R.id.Texview_value, messangiUserDeviceArrayList);
-        title.setText(getResources().getString(R.string.title) + "\n" + messangi.getExternalId());
+        title.setText(getResources().getString(R.string.title) + "\n" + messaging.getExternalId());
 
         device.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -302,9 +302,9 @@ public class MainActivity extends AppCompatActivity implements ActivityCompat.On
                 messangiDevArrayList.clear();
                 messangiUserDeviceArrayList.clear();
                 progressBar.setVisibility(View.VISIBLE);
-                messangi.requestDevice(true);
-                Log.e(TAG, CLASS_TAG + ": " + messangi.getExternalId());
-                messangiDev.requestUserByDevice(getApplicationContext(), true);
+                messaging.requestDevice(true);
+                Log.e(TAG, CLASS_TAG + ": " + messaging.getExternalId());
+                messagingDev.requestUserByDevice(getApplicationContext(), true);
             }
         });
 
@@ -325,9 +325,9 @@ public class MainActivity extends AppCompatActivity implements ActivityCompat.On
         save.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                if (messangiDev.getTags().size() > 0) {
+                if (messagingDev.getTags().size() > 0) {
                     progressBar.setVisibility(View.VISIBLE);
-                    messangiDev.save(getApplicationContext());
+                    messagingDev.save(getApplicationContext());
                 } else {
                     Toast.makeText(getApplicationContext(), "Nothing to save", Toast.LENGTH_LONG).show();
                 }
@@ -340,19 +340,19 @@ public class MainActivity extends AppCompatActivity implements ActivityCompat.On
                 if (isChecked) {
 
                     Toast.makeText(getApplicationContext(), "Enable Notification Push", Toast.LENGTH_LONG).show();
-                    messangiDev.setStatusNotificationPush(isChecked, getApplicationContext());
+                    messagingDev.setStatusNotificationPush(isChecked, getApplicationContext());
                     progressBar.setVisibility(View.VISIBLE);
                 } else {
 
                     Toast.makeText(getApplicationContext(), "Disable Notification Push", Toast.LENGTH_LONG).show();
-                    messangiDev.setStatusNotificationPush(isChecked, getApplicationContext());
+                    messagingDev.setStatusNotificationPush(isChecked, getApplicationContext());
                     progressBar.setVisibility(View.VISIBLE);
                 }
             }
         });
         //for handle notification from background
         Bundle extras=getIntent().getExtras();
-        messangiNotification =new MessangiNotification(extras,getApplicationContext());
+        messagingNotification =new MessangiNotification(extras,getApplicationContext());
 
         pressButton.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -386,12 +386,12 @@ public class MainActivity extends AppCompatActivity implements ActivityCompat.On
         messangiDevArrayList.clear();
         messangiUserDeviceArrayList.clear();
         progressBar.setVisibility(View.VISIBLE);
-        messangi.requestDevice(false);
+        messaging.requestDevice(false);
 
     }
 
     @SuppressLint("SetTextI18n")
-    private void showAlertNotificaction(MessangiNotification messangiNotification) {
+    private void showAlertNotificaction(MessangiNotification messagingNotification) {
         // create an alert builder
         AlertDialog.Builder builder = new AlertDialog.Builder(this);
         builder.setTitle("Notification");
@@ -401,10 +401,10 @@ public class MainActivity extends AppCompatActivity implements ActivityCompat.On
         TextView title=customLayout.findViewById(R.id.title_noti);
         TextView body=customLayout.findViewById(R.id.body_noti);
         TextView data=customLayout.findViewById(R.id.data_noti);
-        title.setText(""+ messangiNotification.getTitle());
-        body.setText(""+ messangiNotification.getBody());
-        if(messangiNotification.getData().size()>0){
-            data.setText("data: "+ messangiNotification.getData());
+        title.setText(""+ messagingNotification.getTitle());
+        body.setText(""+ messagingNotification.getBody());
+        if(messagingNotification.getData().size()>0){
+            data.setText("data: "+ messagingNotification.getData());
         }else{
             data.setText("Hasn't data");
         }
@@ -454,7 +454,7 @@ public class MainActivity extends AppCompatActivity implements ActivityCompat.On
                 String key=editText_key.getText().toString();
                 EditText editText_value = customLayout.findViewById(R.id.editText_value);
                 String value=editText_value.getText().toString();
-                messangiUserDevice.addProperties(key,value);
+                messagingUserDevice.addProperties(key,value);
                 createAlertUser();
 
 
@@ -479,9 +479,9 @@ public class MainActivity extends AppCompatActivity implements ActivityCompat.On
 
     private void sendDialogDataToUser() {
 
-        Log.i(TAG,CLASS_TAG+": For update"+messangiUserDevice.getProperties());
+        Log.i(TAG,CLASS_TAG+": For update"+messagingUserDevice.getProperties());
         progressBar.setVisibility(View.VISIBLE);
-        messangiUserDevice.save(getApplicationContext());
+        messagingUserDevice.save(getApplicationContext());
 
     }
 
@@ -494,12 +494,12 @@ public class MainActivity extends AppCompatActivity implements ActivityCompat.On
         builder.setView(customLayout);
         TextView vista=customLayout.findViewById(R.id.tag_selection);
         TextView clear=customLayout.findViewById(R.id.tag_clear);
-        vista.setText("Select: "+messangiDev.getTags());
+        vista.setText("Select: "+messagingDev.getTags());
         clear.setText("Clear");
         clear.setOnLongClickListener(new View.OnLongClickListener() {
             @Override
             public boolean onLongClick(View v) {
-                messangiDev.clearTags();
+                messagingDev.clearTags();
                 creatAlert();
                 return false;
             }
@@ -515,7 +515,7 @@ public class MainActivity extends AppCompatActivity implements ActivityCompat.On
 
                 EditText editText = customLayout.findViewById(R.id.editText_tag);
                 String tags=editText.getText().toString();
-                messangiDev.addTagsToDevice(tags);
+                messagingDev.addTagsToDevice(tags);
                 creatAlert();
 
 
@@ -538,7 +538,7 @@ public class MainActivity extends AppCompatActivity implements ActivityCompat.On
 
     private void sendDialogDataToActivity() {
 
-        Log.i(TAG,CLASS_TAG+": Tags selection final was "+messangiDev.getTags());
+        Log.i(TAG,CLASS_TAG+": Tags selection final was "+messagingDev.getTags());
     }
 
     private BroadcastReceiver mReceiver=new BroadcastReceiver() {
@@ -551,46 +551,46 @@ public class MainActivity extends AppCompatActivity implements ActivityCompat.On
             if ((message instanceof MessangiDev) && (message!=null)){
                 messangiDevArrayList.clear();
 
-                messangiDev=(MessangiDev) message;
+                messagingDev=(MessangiDev) message;
 
-                Log.i(TAG,CLASS_TAG+": Device:  "+ messangiDev.getId());
-                messangiDevArrayList.add("Id: "           +messangiDev.getId());
-                messangiDevArrayList.add("pushToken: "    +messangiDev.getPushToken());
-                messangiDevArrayList.add("UserId: "       +messangiDev.getUserId());
-                messangiDevArrayList.add("Type: "         +messangiDev.getType());
-                messangiDevArrayList.add("Language: "     +messangiDev.getLanguage());
-                messangiDevArrayList.add("Model: "        +messangiDev.getModel());
-                messangiDevArrayList.add("Os: "           +messangiDev.getOs());
-                messangiDevArrayList.add("SdkVersion: "   +messangiDev.getSdkVersion());
-                messangiDevArrayList.add("Tags: "         +messangiDev.getTags());
-                messangiDevArrayList.add("CreateAt: "     +messangiDev.getCreatedAt());
-                messangiDevArrayList.add("UpdatedAt: "    +messangiDev.getUpdatedAt());
-                messangiDevArrayList.add("Timestamp: "    +messangiDev.getTimestamp());
-                messangiDevArrayList.add("Transaction: "  +messangiDev.getTransaction());
+                Log.i(TAG,CLASS_TAG+": Device:  "+ messagingDev.getId());
+                messangiDevArrayList.add("Id: "           +messagingDev.getId());
+                messangiDevArrayList.add("pushToken: "    +messagingDev.getPushToken());
+                messangiDevArrayList.add("UserId: "       +messagingDev.getUserId());
+                messangiDevArrayList.add("Type: "         +messagingDev.getType());
+                messangiDevArrayList.add("Language: "     +messagingDev.getLanguage());
+                messangiDevArrayList.add("Model: "        +messagingDev.getModel());
+                messangiDevArrayList.add("Os: "           +messagingDev.getOs());
+                messangiDevArrayList.add("SdkVersion: "   +messagingDev.getSdkVersion());
+                messangiDevArrayList.add("Tags: "         +messagingDev.getTags());
+                messangiDevArrayList.add("CreateAt: "     +messagingDev.getCreatedAt());
+                messangiDevArrayList.add("UpdatedAt: "    +messagingDev.getUpdatedAt());
+                messangiDevArrayList.add("Timestamp: "    +messagingDev.getTimestamp());
+                messangiDevArrayList.add("Transaction: "  +messagingDev.getTransaction());
 
 
                 lista_device.setAdapter(messangiDevArrayAdapter);
-                messangiDev.requestUserByDevice(getApplicationContext(),false);
+                messagingDev.requestUserByDevice(getApplicationContext(),false);
 
 
             }else if((message instanceof MessangiUserDevice) && (message!=null)){
                 messangiUserDeviceArrayList.clear();
-                messangiUserDevice=(MessangiUserDevice) message;
-                Log.i(TAG,CLASS_TAG+" User:  "+ messangiUserDevice.getDevices());
+                messagingUserDevice=(MessangiUserDevice) message;
+                Log.i(TAG,CLASS_TAG+" User:  "+ messagingUserDevice.getDevices());
 
-                if(messangiUserDevice.getProperties().size()>0){
-                    Map<String,String> result=messangiUserDevice.getProperties();
+                if(messagingUserDevice.getProperties().size()>0){
+                    Map<String,String> result=messagingUserDevice.getProperties();
                     for (Map.Entry<String, String> entry : result.entrySet()) {
                         messangiUserDeviceArrayList.add(entry.getKey()+": "+entry.getValue());
                     }
-                    messangiUserDeviceArrayList.add("devices: "+messangiUserDevice.getDevices());
+                    messangiUserDeviceArrayList.add("devices: "+messagingUserDevice.getDevices());
 
                 }
 
                 lista_user.setAdapter(messangiUserDeviceArrayAdapter);
             }else if((message instanceof MessangiNotification) && (message!=null)){
-                messangiNotification =(MessangiNotification) message;
-                showAlertNotificaction(messangiNotification);
+                messagingNotification =(MessangiNotification) message;
+                showAlertNotificaction(messagingNotification);
 
             }else{
                 Log.i(TAG,CLASS_TAG+": do nothing");
@@ -863,8 +863,8 @@ package com.ogangi.Messangi.SDK.Demo;
 import android.util.Log;
 
 import com.google.firebase.messaging.RemoteMessage;
-import com.ogangi.messangi.sdk.MessangiFirebaseMessagingService;
-import com.ogangi.messangi.sdk.MessangiNotification;
+import com.ogangi.messaging.sdk.MessangiFirebaseMessagingService;
+import com.ogangi.messaging.sdk.MessangiNotification;
 
 public class CustomMessangiService extends MessangiFirebaseMessagingService {
 
@@ -874,18 +874,15 @@ public class CustomMessangiService extends MessangiFirebaseMessagingService {
 
     @Override
     public void onNewToken(String s) {
-        super.onNewToken(s);
-        Log.e(TAG,CLASS_TAG+": new token or refresh token "+s);
-
+        super.onNewToken(s);//remember call super method
+        
     }
 
 
     @Override
     public void onMessageReceived(RemoteMessage remoteMessage) {
-
-        Log.e(TAG, CLASS_TAG + ": remote message ");
-        //example
-        MessangiNotification messangiNotification = new MessangiNotification(remoteMessage, this);
+        //example to custom
+        MessangiNotification messagingNotification = new MessangiNotification(remoteMessage, this);
     }
 }
 
@@ -899,34 +896,16 @@ public class CustomMessangiService extends MessangiFirebaseMessagingService {
     package="com.ogangi.Messangi.SDK.Demo">
 
     <application
-        android:name=".MyApplication"
-        android:allowBackup="true"
-        android:icon="@mipmap/ic_launcher"
-        android:label="@string/app_name"
-        android:windowActionBar="false"
-        android:roundIcon="@mipmap/ic_launcher_round"
-        android:supportsRtl="true"
-        android:theme="@style/AppTheme"
-        tools:ignore="GoogleAppIndexingWarning"
-        >
-        <activity android:name=".ListNotification"></activity>
-        <activity android:name=".MainActivity"
-            android:theme="@style/AppTheme">
-            <intent-filter>
-                <action android:name="android.intent.action.MAIN" />
-                <category android:name="android.intent.category.LAUNCHER" />
-            </intent-filter>
-        </activity>
-        <!--uncomment to enable
-                <service-->
-        <!--            android:name=".CustomMessangiService"-->
-        <!--            android:permission="com.google.android.c2dm.permission.SEND">-->
-        <!--            <intent-filter>-->
-        <!--                <action android:name="com.google.firebase.MESSAGING_EVENT" />-->
-        <!--                <action android:name="com.google.android.c2dm.intent.RECEIVE" />-->
-        <!--            </intent-filter>-->
-        <!--        </service>-->
-
+       ... //put this
+        <service
+                    android:name=".CustomMessangiService"
+                    android:permission="com.google.android.c2dm.permission.SEND">
+                    <intent-filter>
+                        <action android:name="com.google.firebase.MESSAGING_EVENT" />
+                        <action android:name="com.google.android.c2dm.intent.RECEIVE" />
+                    </intent-filter>
+        </service>
+			...
     </application>
 
 </manifest>

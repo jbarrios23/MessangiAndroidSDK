@@ -1,4 +1,4 @@
-package com.ogangi.messangi.sdk;
+package com.messaging.sdk;
 
 import android.content.Context;
 import android.content.SharedPreferences;
@@ -16,19 +16,21 @@ import java.util.Map;
 import java.util.Set;
 
 /**
- * class MessangiStorageController is a singletone to save in sharepreference data user and data device
+ * class MessagingStorageController is a singletone to save in sharepreference data user and data device
  */
-public class MessangiStorageController {
+public class MessagingStorageController {
 
-    //private static MessangiStorageController mInstance;
+    //private static MessagingStorageController mInstance;
     private static Context contexto;
     private SharedPreferences mSharedPreferences;
-    private Messangi messangi;
+    private Messaging messaging;
+    private String nameMethod;
 
-    public MessangiStorageController(Context context, Messangi messangi){
+    public MessagingStorageController(Context context, Messaging messaging){
 
         this.contexto=context;
-        this.messangi=messangi;
+        this.messaging = messaging;
+        this.nameMethod="";
         this.mSharedPreferences = contexto.getApplicationContext().getSharedPreferences("StorageCallback", 0);
 
     }
@@ -37,10 +39,11 @@ public class MessangiStorageController {
      * @param token: token push of Firebase
      */
     public void saveToken(String token){
+        nameMethod=new Object(){}.getClass().getEnclosingMethod().getName();
         SharedPreferences.Editor datosuser=mSharedPreferences.edit();
         datosuser.putString("Token",token);
         datosuser.apply();
-        messangi.utils.showDebugLog(this,"Token Push Saved");
+        messaging.utils.showDebugLog(this,nameMethod,"Token Push Saved");
 
     }
     /**
@@ -48,13 +51,14 @@ public class MessangiStorageController {
      *
      */
     public boolean hasTokenRegiter(){
+        nameMethod=new Object(){}.getClass().getEnclosingMethod().getName();
         boolean hasToken = false;
         String token=mSharedPreferences.getString("Token","");
         if(token.length()>0){
             hasToken=true;
 
         }
-        messangi.utils.showDebugLog(this,"Token Push from storage controller");
+        messaging.utils.showDebugLog(this,nameMethod,"Token Push from storage controller");
         return hasToken;
     }
     /**
@@ -62,10 +66,10 @@ public class MessangiStorageController {
      *
      */
     public String getToken(){
-
+        nameMethod=new Object(){}.getClass().getEnclosingMethod().getName();
         String token=mSharedPreferences.getString("Token","");
 
-        messangi.utils.showDebugLog(this,"get token push"+token);
+        messaging.utils.showDebugLog(this,nameMethod,"get token push"+token);
         return token;
     }
 
@@ -109,7 +113,8 @@ public class MessangiStorageController {
         }catch (JSONException e){
 
         }
-        messangi.utils.showDebugLog(this,"Device Saved in Storage Controller ");
+        nameMethod=new Object(){}.getClass().getEnclosingMethod().getName();
+        messaging.utils.showDebugLog(this,nameMethod,"Device Saved in Storage Controller ");
 
     }
     /**
@@ -117,20 +122,22 @@ public class MessangiStorageController {
      *
      */
     public boolean isRegisterDevice(){
+        nameMethod=new Object(){}.getClass().getEnclosingMethod().getName();
         boolean hasToken = false;
         String token=mSharedPreferences.getString("id","");
         if(token.length()>0){
             hasToken=true;
 
         }
-        messangi.utils.showDebugLog(this,"From Local Storage isRegisterDevice "+hasToken);
+        messaging.utils.showDebugLog(this,nameMethod,"From Local Storage isRegisterDevice "+hasToken);
         return hasToken;
     }
     /**
      * Method get Device registered in local storage
      *
      */
-    public MessangiDev getDevice(){
+    public MessagingDev getDevice(){
+        nameMethod=new Object(){}.getClass().getEnclosingMethod().getName();
 
         String id=mSharedPreferences.getString("id","");
         String pushToken=mSharedPreferences.getString("pushToken","");
@@ -146,24 +153,24 @@ public class MessangiStorageController {
         String timestamp=mSharedPreferences.getString("timestamp","");
         String transaction=mSharedPreferences.getString("transaction","");
         //create Objetc MeesangiDev
-        MessangiDev messangiDev=new MessangiDev();
-        messangiDev.setId(id);
-        messangiDev.setPushToken(pushToken);
-        messangiDev.setUserId(userId);
-        messangiDev.setType(type);
-        messangiDev.setLanguage(language);
-        messangiDev.setModel(model);
-        messangiDev.setOs(os);
-        messangiDev.setSdkVersion(sdkVersion);
+        MessagingDev messagingDev =new MessagingDev();
+        messagingDev.setId(id);
+        messagingDev.setPushToken(pushToken);
+        messagingDev.setUserId(userId);
+        messagingDev.setType(type);
+        messagingDev.setLanguage(language);
+        messagingDev.setModel(model);
+        messagingDev.setOs(os);
+        messagingDev.setSdkVersion(sdkVersion);
         List<String> provTags=new ArrayList<String>(set);
-        messangiDev.setTags(provTags);
-        messangiDev.setCreatedAt(createdAt);
-        messangiDev.setUpdatedAt(updatedAt);
-        messangiDev.setTimestamp(timestamp);
-        messangiDev.setTransaction(transaction);
+        messagingDev.setTags(provTags);
+        messagingDev.setCreatedAt(createdAt);
+        messagingDev.setUpdatedAt(updatedAt);
+        messagingDev.setTimestamp(timestamp);
+        messagingDev.setTransaction(transaction);
 
-        messangi.utils.showDebugLog(this,"get Device from Local Storage ");
-        return messangiDev;
+        messaging.utils.showDebugLog(this,nameMethod,"get Device from Local Storage ");
+        return messagingDev;
     }
 
     public void deleteDeviceTags(){
@@ -178,12 +185,13 @@ public class MessangiStorageController {
      *
      */
     public void saveUserByDevice(Map<String,String> inputMap){
+        nameMethod=new Object(){}.getClass().getEnclosingMethod().getName();
         SharedPreferences.Editor datosuser=mSharedPreferences.edit();
         JSONObject jsonObject = new JSONObject(inputMap);
         String jsonString = jsonObject.toString();
-        datosuser.putString("MessangiUserDevice",jsonString);
+        datosuser.putString("MessagingUserDevice",jsonString);
         datosuser.apply();
-        messangi.utils.showDebugLog(this,"User Saved in Storage Controller ");
+        messaging.utils.showDebugLog(this,nameMethod,"User Saved in Storage Controller ");
 
     }
     /**
@@ -191,13 +199,14 @@ public class MessangiStorageController {
      *
      */
     public boolean isRegisterUserByDevice(){
+        nameMethod=new Object(){}.getClass().getEnclosingMethod().getName();
         boolean hasToken = false;
-        String token=mSharedPreferences.getString("MessangiUserDevice","");
+        String token=mSharedPreferences.getString("MessagingUserDevice","");
         if(token.length()>0){
             hasToken=true;
 
         }
-        messangi.utils.showDebugLog(this,"From Local Storage isRegisterUser "+hasToken);
+        messaging.utils.showDebugLog(this,nameMethod,"From Local Storage isRegisterUser "+hasToken);
         return hasToken;
     }
 
@@ -207,9 +216,9 @@ public class MessangiStorageController {
      */
 
     public Map<String,String> getUserByDevice(){
-
+        nameMethod=new Object(){}.getClass().getEnclosingMethod().getName();
         Map<String,String> outputMap = new HashMap<String,String>();
-        String jsonString=mSharedPreferences.getString("MessangiUserDevice",(new JSONObject()).toString());
+        String jsonString=mSharedPreferences.getString("MessagingUserDevice",(new JSONObject()).toString());
         try {
             JSONObject jsonObject = new JSONObject(jsonString);
             Iterator<String> keysItr = jsonObject.keys();
@@ -218,11 +227,11 @@ public class MessangiStorageController {
                 String value = (String) jsonObject.get(key);
                 outputMap.put(key, value);
             }
-            messangi.utils.showDebugLog(this,"get User from Local Storage ");
+            messaging.utils.showDebugLog(this,nameMethod,"get User from Local Storage ");
         } catch (JSONException e) {
             e.printStackTrace();
         }
-        messangi.utils.showDebugLog(this,"get User from Local Storage ");
+        messaging.utils.showDebugLog(this,nameMethod,"get User from Local Storage ");
         return outputMap;
     }
 
@@ -237,16 +246,98 @@ public class MessangiStorageController {
      * @param enable : enable
      */
     public void setNotificationManually(boolean enable){
+        nameMethod=new Object(){}.getClass().getEnclosingMethod().getName();
         SharedPreferences.Editor datosuser=mSharedPreferences.edit();
         datosuser.putBoolean("DisableForUser",enable);
         datosuser.apply();
-        messangi.utils.showDebugLog(this,"Set disable for user "+enable);
+        messaging.utils.showDebugLog(this,nameMethod,"Set disable for user "+enable);
 
     }
 
     public boolean isNotificationManually(){
 
      return mSharedPreferences.getBoolean("DisableForUser",false);
+    }
+
+    /**
+     * Method setNotificationManually let enable Notification Manually
+     * @param enable : enable
+     */
+    public void setNotificationWasDismiss(boolean enable){
+        nameMethod=new Object(){}.getClass().getEnclosingMethod().getName();
+        SharedPreferences.Editor datosuser=mSharedPreferences.edit();
+        datosuser.putBoolean("DismissForUser",enable);
+        datosuser.apply();
+        messaging.utils.showDebugLog(this,nameMethod,"Save Dismiss for user "+enable);
+
+    }
+
+    public boolean isNotificationWasDismiss(){
+        boolean resp=mSharedPreferences.getBoolean("DismissForUser",false);
+        messaging.utils.showDebugLog(this,nameMethod,"Get Dismiss for user "+resp);
+        return resp ;
+    }
+
+    /**
+     * Method save User By Device registered in local storage
+     *
+     */
+    public void saveDataNotification(Map<String,String> inputMap){
+        nameMethod=new Object(){}.getClass().getEnclosingMethod().getName();
+        SharedPreferences.Editor datosuser=mSharedPreferences.edit();
+        JSONObject jsonObject = new JSONObject(inputMap);
+        String jsonString = jsonObject.toString();
+        datosuser.putString("MessagingDataNotification",jsonString);
+        datosuser.apply();
+        messaging.utils.showDebugLog(this,nameMethod,"User Data Notification in Storage Controller ");
+
+    }
+    /**
+     * Method isRegisterUserByDevice lets Know if Device is registered in local storage
+     *
+     */
+    public boolean isDataNotification(){
+        nameMethod=new Object(){}.getClass().getEnclosingMethod().getName();
+        boolean hasToken = false;
+        String token=mSharedPreferences.getString("MessagingDataNotification","");
+        if(token.length()>0){
+            hasToken=true;
+
+        }
+        messaging.utils.showDebugLog(this,nameMethod,"From Local Storage isDataNotification "+hasToken);
+        return hasToken;
+    }
+
+    /**
+     * Method get User registered in local storage
+     *
+     */
+
+    public Map<String,String> getDataNotification(){
+        nameMethod=new Object(){}.getClass().getEnclosingMethod().getName();
+        Map<String,String> outputMap = new HashMap<String,String>();
+        String jsonString=mSharedPreferences.getString("MessagingDataNotification",(new JSONObject()).toString());
+        try {
+            JSONObject jsonObject = new JSONObject(jsonString);
+            Iterator<String> keysItr = jsonObject.keys();
+            while(keysItr.hasNext()) {
+                String key = keysItr.next();
+                String value = (String) jsonObject.get(key);
+                outputMap.put(key, value);
+            }
+
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
+        messaging.utils.showDebugLog(this,nameMethod,"get Data Notification from Local Storage ");
+        return outputMap;
+    }
+
+    public void deleteDataNotification(){
+        mSharedPreferences=contexto.getSharedPreferences("StorageCallback", 0);
+        SharedPreferences.Editor editorlogin = mSharedPreferences.edit();
+        editorlogin.clear();
+        editorlogin.commit();
     }
 
 }

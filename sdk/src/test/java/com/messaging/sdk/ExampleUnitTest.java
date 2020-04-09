@@ -1,4 +1,4 @@
-package com.ogangi.messangi.sdk;
+package com.messaging.sdk;
 
 import org.junit.Test;
 

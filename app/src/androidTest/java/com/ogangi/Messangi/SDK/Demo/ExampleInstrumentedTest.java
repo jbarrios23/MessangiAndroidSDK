@@ -22,6 +22,6 @@ public class ExampleInstrumentedTest {
         // Context of the app under test.
         Context appContext = InstrumentationRegistry.getInstrumentation().getTargetContext();
 
-        assertEquals("com.ogangi.Messangi.SDK.Demo", appContext.getPackageName());
+        assertEquals("com.ogangi.Messaging.SDK.Demo", appContext.getPackageName());
     }
 }

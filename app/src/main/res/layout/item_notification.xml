@@ -3,7 +3,7 @@
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
     android:padding="10dp"
-    android:orientation="horizontal">
+    android:orientation="vertical">
 
 
     <TextView
@@ -20,8 +20,7 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:textStyle="bold"
-        android:layout_gravity="right"
-        android:gravity="right"
+        android:gravity="center_horizontal"
         android:id="@+id/texview_date"
         android:text="time and date"/>
 

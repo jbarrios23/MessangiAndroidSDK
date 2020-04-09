@@ -1,29 +1,42 @@
-package com.ogangi.messangi.sdk;
+package com.messaging.sdk;
 
+import android.app.Notification;
+import android.app.PendingIntent;
+import android.content.BroadcastReceiver;
 import android.content.ContentProvider;
 import android.content.ContentValues;
+import android.content.Context;
+import android.content.Intent;
+import android.content.IntentFilter;
 import android.database.Cursor;
 import android.net.Uri;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.localbroadcastmanager.content.LocalBroadcastManager;
 
 /**
- * MessangiProvider allows to initialize it automatically from the SDK itself
+ * MessagingProvider allows to initialize it automatically from the SDK itself
  */
-public class MessangiProvider extends ContentProvider {
-    public Messangi messangi;
+public class MessagingProvider extends ContentProvider {
+    public Messaging messaging;
+    private String nameMethod;
     @Override
     public boolean onCreate() {
-        messangi=Messangi.getInst(getContext());
-        messangi.utils.showDebugLog(this,"onCreate");
-        if(!messangi.messangiStorageController.isRegisterDevice()){
-            messangi.utils.showDebugLog(this,"Create Device ");
-            messangi.createDeviceParameters();
+        nameMethod=new Object(){}.getClass().getEnclosingMethod().getName();
+        messaging = Messaging.getInst(getContext());
+        messaging.utils.showDebugLog(this,nameMethod,"onCreate");
+        if(!messaging.messagingStorageController.isRegisterDevice()){
+            messaging.utils.showDebugLog(this,nameMethod,"Creating Device ");
+            messaging.createDeviceParameters();
         }
+
+
 
         return false;
     }
+
+
 
     @Nullable
     @Override
@@ -52,4 +65,6 @@ public class MessangiProvider extends ContentProvider {
     public int update(@NonNull Uri uri, @Nullable ContentValues values, @Nullable String selection, @Nullable String[] selectionArgs) {
         return 0;
     }
+
+
 }

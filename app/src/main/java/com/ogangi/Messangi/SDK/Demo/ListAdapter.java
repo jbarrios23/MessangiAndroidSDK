@@ -10,7 +10,7 @@ import android.view.ViewGroup;
 import android.widget.BaseAdapter;
 import android.widget.TextView;
 
-import com.ogangi.messangi.sdk.MessangiNotification;
+import com.messaging.sdk.MessagingNotification;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -21,12 +21,12 @@ public class ListAdapter extends BaseAdapter {
     public static String TAG="MessangiSDK";
 
     public Context context;
-    public List<MessangiNotification> messangiNotificationList;
+    public List<MessagingNotification> messagingNotificationList;
     public LayoutInflater inflater;
-    public ListAdapter(Context context, ArrayList<MessangiNotification> messangiNotificationArrayList) {
+    public ListAdapter(Context context, ArrayList<MessagingNotification> messagingNotificationArrayList) {
         this.context=context;
         inflater= LayoutInflater.from(this.context);
-        this.messangiNotificationList=messangiNotificationArrayList;
+        this.messagingNotificationList = messagingNotificationArrayList;
     }
 
     public class ViewHolder {
@@ -37,12 +37,12 @@ public class ListAdapter extends BaseAdapter {
 
     @Override
     public int getCount() {
-        return messangiNotificationList.size();
+        return messagingNotificationList.size();
     }
 
     @Override
     public Object getItem(int position) {
-        return messangiNotificationList.get(position);
+        return messagingNotificationList.get(position);
     }
 
     @Override
@@ -65,13 +65,30 @@ public class ListAdapter extends BaseAdapter {
             holder = (ViewHolder) convertView.getTag();
         }
 
-        holder.data.setText(""+messangiNotificationList.get(position).getTitle()+"\n"
-                +messangiNotificationList.get(position).getBody());
+        if(messagingNotificationList.get(position).getData()!=null&& messagingNotificationList.get(position).getData().size()>0) {
+            holder.data.setText("" + messagingNotificationList.get(position).getData());
 
-        holder.date.setText(""+messangiNotificationList.get(position).getCurrentDate()+"\n"
-                +messangiNotificationList.get(position).getCurrentTime());
+            holder.date.setText("" + convertSecondsToHMmSs(messagingNotificationList.get(position).getSentTime()));
+
+            if(messagingNotificationList.get(position).getNotification()!=null){
+                holder.data.append("Has Notification"+"\n");
+                holder.data.append(""+ messagingNotificationList.get(position).getNotification().getTitle()+"\n");
+                holder.data.append(""+ messagingNotificationList.get(position).getNotification().getBody());
+                holder.date.setText("" + convertSecondsToHMmSs(messagingNotificationList.get(position).getSentTime()));
+            }
+        }else{
+            holder.data.setText("Hasn't data"+"\n");
+
+        }
 
 
         return convertView;
+    }
+
+    public static String convertSecondsToHMmSs(long seconds) {
+        long s = seconds % 60;
+        long m = (seconds / 60) % 60;
+        long h = (seconds / (60 * 60)) % 24;
+        return String.format("%d:%02d:%02d", h,m,s);
     }
 }

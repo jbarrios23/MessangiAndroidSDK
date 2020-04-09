@@ -3,7 +3,6 @@ package com.ogangi.Messangi.SDK.Demo;
 import android.app.AlertDialog;
 import android.content.DialogInterface;
 import android.os.Bundle;
-import android.util.Log;
 import android.view.View;
 import android.view.Window;
 import android.widget.AdapterView;
@@ -14,8 +13,8 @@ import android.widget.TextView;
 
 import androidx.appcompat.app.AppCompatActivity;
 
-import com.ogangi.messangi.sdk.Messangi;
-import com.ogangi.messangi.sdk.MessangiNotification;
+import com.messaging.sdk.Messaging;
+import com.messaging.sdk.MessagingNotification;
 
 import java.util.ArrayList;
 
@@ -23,15 +22,15 @@ public class ListNotification extends AppCompatActivity {
     public static String CLASS_TAG=ListNotification.class.getSimpleName();
     public static String TAG="MessangiSDK";
 
-    public Messangi messangi;
+    public Messaging messaging;
     public Button back,clear;
     public ListView list_notification;
 
-    public ArrayList<MessangiNotification> messangiNotificationArrayList;
+    public ArrayList<MessagingNotification> messagingNotificationArrayList;
     public ListAdapter messangiNotificationAdapter;
     public ProgressBar progressBar;
 
-    MessangiNotification messangiNotification;
+    MessagingNotification messagingNotification;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -40,13 +39,13 @@ public class ListNotification extends AppCompatActivity {
         getSupportActionBar().hide();
         setContentView(R.layout.activity_list_notification);
 
-        messangi= Messangi.getInst();
+        messaging = Messaging.getInst();
         list_notification = findViewById(R.id.list_notification_push);
         back=findViewById(R.id.button_back);
         clear=findViewById(R.id.button_clear);
-        messangiNotificationArrayList = messangi.getMessangiNotifications();
-        if(messangiNotificationArrayList.size()>0) {
-            messangiNotificationAdapter = new ListAdapter(getApplicationContext(),messangiNotificationArrayList);
+        messagingNotificationArrayList = messaging.getMessagingNotifications();
+        if(messagingNotificationArrayList.size()>0) {
+            messangiNotificationAdapter = new ListAdapter(getApplicationContext(), messagingNotificationArrayList);
             list_notification.setAdapter(messangiNotificationAdapter);
         }else{
             list_notification.setVisibility(View.GONE);
@@ -57,8 +56,8 @@ public class ListNotification extends AppCompatActivity {
         list_notification.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
             public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-                Log.d(TAG,CLASS_TAG+":Notification selected: "+messangiNotificationArrayList.get(position).getTitle());
-                showAlertNotificaction(messangiNotificationArrayList.get(position));
+
+                showAlertNotificaction(messagingNotificationArrayList.get(position));
             }
         });
 
@@ -72,7 +71,7 @@ public class ListNotification extends AppCompatActivity {
         clear.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                messangiNotificationArrayList.clear();
+                messagingNotificationArrayList.clear();
                 finish();
                 startActivity(getIntent());
 
@@ -82,22 +81,25 @@ public class ListNotification extends AppCompatActivity {
 
     }
 
-    private void showAlertNotificaction(MessangiNotification messangiNotification) {
+    private void showAlertNotificaction(MessagingNotification messagingNotification) {
         // create an alert builder
         AlertDialog.Builder builder = new AlertDialog.Builder(this);
         builder.setTitle("Notification");
         // set the custom layout
         final View customLayout = getLayoutInflater().inflate(R.layout.custom_notification_layout, null);
         builder.setView(customLayout);
-        TextView title=customLayout.findViewById(R.id.title_noti);
-        TextView body=customLayout.findViewById(R.id.body_noti);
+
         TextView data=customLayout.findViewById(R.id.data_noti);
-        title.setText(""+ messangiNotification.getTitle());
-        body.setText(""+ messangiNotification.getBody());
-        if(messangiNotification.getData().size()>0){
-            data.setText("data: "+ messangiNotification.getData());
-        }else{
-            data.setText("Hasn't data");
+        if (messagingNotification.getData()!=null && messagingNotification.getData().size() > 0) {
+            data.setText("data: " + messagingNotification.getData());
+            if(messagingNotification.getNotification()!=null){
+                data.append("Has Notification"+"\n");
+                data.append(""+ messagingNotification.getNotification().getTitle()+"\n");
+                data.append(""+ messagingNotification.getNotification().getBody());
+            }
+        } else {
+            data.setText("Hasn't data"+"\n");
+
         }
 
 
