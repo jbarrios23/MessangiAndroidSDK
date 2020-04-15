@@ -1012,7 +1012,7 @@ public class CustomMessangiFirebaseService extends MessagingFirebaseService {
         startActivity(intent);
 ```
 
-<img src="accesonoti.jpg" width="324" height="324">
+<img src="accesonoti.jpg" >
 
 ## Author
 Messangi
