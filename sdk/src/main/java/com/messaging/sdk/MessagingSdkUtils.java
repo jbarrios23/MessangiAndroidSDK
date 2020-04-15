@@ -22,14 +22,20 @@ public class MessagingSdkUtils {
     private static boolean analytics_allowed;
     private static boolean location_allowed;
     private static boolean logging_allowed;
+    private MessagingStorageController messagingStorageController;
+    private MessagingDev messagingDev;
 
     /**
      * Method init Resourses system from config file
      * @param context
+     * @param messaging
+     *
      */
-    public void initResourcesConfigFile(Context context){
+    public void initResourcesConfigFile(Context context, Messaging messaging){
 
         String nameMethod=new Object(){}.getClass().getEnclosingMethod().getName();
+
+
 
         try {
 
@@ -57,6 +63,24 @@ public class MessagingSdkUtils {
         }catch (Resources.NotFoundException e){
             showErrorLog(this,nameMethod,"Hasn't config file",e.getStackTrace().toString());
         }
+
+        messagingStorageController=messaging.messagingStorageController;
+        if(messagingStorageController.isRegisterDevice()){
+            showDebugLog(this,nameMethod,"DeviceId "+messagingStorageController.getDevice().getId());
+            showDebugLog(this,nameMethod,"UserId "+messagingStorageController.getDevice().getUserId());
+
+        }else{
+            showDebugLog(this,nameMethod,"DeviceId "+"does not have deviceId yet");
+            showDebugLog(this,nameMethod,"UserId "+"does not have UserId yet");
+
+        }
+        if(messagingStorageController.hasTokenRegiter()){
+            showDebugLog(this,nameMethod,"PushToken "+messagingStorageController.getToken());
+        }else{
+            showDebugLog(this,nameMethod,"PushToken "+"does not have PushToken yet");
+        }
+
+
     }
 
     /**

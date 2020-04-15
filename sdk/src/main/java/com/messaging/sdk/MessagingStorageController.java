@@ -58,7 +58,7 @@ public class MessagingStorageController {
             hasToken=true;
 
         }
-        messaging.utils.showDebugLog(this,nameMethod,"Token Push from storage controller");
+        //messaging.utils.showDebugLog(this,nameMethod,"Token Push from storage controller");
         return hasToken;
     }
     /**
@@ -69,7 +69,7 @@ public class MessagingStorageController {
         nameMethod=new Object(){}.getClass().getEnclosingMethod().getName();
         String token=mSharedPreferences.getString("Token","");
 
-        messaging.utils.showDebugLog(this,nameMethod,"get token push"+token);
+        //messaging.utils.showDebugLog(this,nameMethod,"get token push"+token);
         return token;
     }
 
@@ -129,7 +129,7 @@ public class MessagingStorageController {
             hasToken=true;
 
         }
-        messaging.utils.showDebugLog(this,nameMethod,"From Local Storage isRegisterDevice "+hasToken);
+        //messaging.utils.showDebugLog(this,nameMethod,"From Local Storage isRegisterDevice "+hasToken);
         return hasToken;
     }
     /**
@@ -169,7 +169,7 @@ public class MessagingStorageController {
         messagingDev.setTimestamp(timestamp);
         messagingDev.setTransaction(transaction);
 
-        messaging.utils.showDebugLog(this,nameMethod,"get Device from Local Storage ");
+        //messaging.utils.showDebugLog(this,nameMethod,"get Device from Local Storage ");
         return messagingDev;
     }
 
@@ -206,7 +206,7 @@ public class MessagingStorageController {
             hasToken=true;
 
         }
-        messaging.utils.showDebugLog(this,nameMethod,"From Local Storage isRegisterUser "+hasToken);
+        //messaging.utils.showDebugLog(this,nameMethod,"From Local Storage isRegisterUser "+hasToken);
         return hasToken;
     }
 
@@ -227,11 +227,11 @@ public class MessagingStorageController {
                 String value = (String) jsonObject.get(key);
                 outputMap.put(key, value);
             }
-            messaging.utils.showDebugLog(this,nameMethod,"get User from Local Storage ");
+            //messaging.utils.showDebugLog(this,nameMethod,"get User from Local Storage ");
         } catch (JSONException e) {
             e.printStackTrace();
         }
-        messaging.utils.showDebugLog(this,nameMethod,"get User from Local Storage ");
+        //messaging.utils.showDebugLog(this,nameMethod,"get User from Local Storage ");
         return outputMap;
     }
 
@@ -273,8 +273,9 @@ public class MessagingStorageController {
     }
 
     public boolean isNotificationWasDismiss(){
+        nameMethod=new Object(){}.getClass().getEnclosingMethod().getName();
         boolean resp=mSharedPreferences.getBoolean("DismissForUser",false);
-        messaging.utils.showDebugLog(this,nameMethod,"Get Dismiss for user "+resp);
+        messaging.utils.showDebugLog(this,nameMethod,"Dismiss for user "+resp);
         return resp ;
     }
 
@@ -289,7 +290,7 @@ public class MessagingStorageController {
         String jsonString = jsonObject.toString();
         datosuser.putString("MessagingDataNotification",jsonString);
         datosuser.apply();
-        messaging.utils.showDebugLog(this,nameMethod,"User Data Notification in Storage Controller ");
+        messaging.utils.showDebugLog(this,nameMethod,"Save Data Notification in Storage Controller ");
 
     }
     /**
@@ -304,7 +305,7 @@ public class MessagingStorageController {
             hasToken=true;
 
         }
-        messaging.utils.showDebugLog(this,nameMethod,"From Local Storage isDataNotification "+hasToken);
+       // messaging.utils.showDebugLog(this,nameMethod,"From Local Storage isDataNotification "+hasToken);
         return hasToken;
     }
 
@@ -329,7 +330,7 @@ public class MessagingStorageController {
         } catch (JSONException e) {
             e.printStackTrace();
         }
-        messaging.utils.showDebugLog(this,nameMethod,"get Data Notification from Local Storage ");
+        //messaging.utils.showDebugLog(this,nameMethod,"get Data Notification from Local Storage ");
         return outputMap;
     }
 

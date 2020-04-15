@@ -76,12 +76,12 @@ public class Messaging implements LifecycleObserver{
         this.utils=new MessagingSdkUtils();
         this.messagingStorageController =new MessagingStorageController(context,this);
         this.icon=-1;
+        this.initResource();
         this.sdkVersion= BuildConfig.VERSION_NAME;
         this.lenguaje= Locale.getDefault().getDisplayLanguage();
         this.type="android";
         this.model=getDeviceName();
         this.os=Build.VERSION.RELEASE;
-        this.initResource();
         this.tags=new ArrayList<String>();
         this.messagingUserDevice =null;
         this.messagingDev =null;
@@ -89,6 +89,7 @@ public class Messaging implements LifecycleObserver{
         this.messagingNotifications =new ArrayList<>();
         this.messagingNotification =null;
         this.nameMethod="";
+
 
     }
 
@@ -289,7 +290,8 @@ public class Messaging implements LifecycleObserver{
                 e.getStackTrace();
             }
         }
-        utils.initResourcesConfigFile(context);
+
+        utils.initResourcesConfigFile(context,this);
 
     }
 
@@ -620,7 +622,6 @@ public class Messaging implements LifecycleObserver{
                         messagingDev.save(context);
                     }
                     sendEventToActivity(messagingDev,context);
-
                 }
             }catch (NullPointerException e){
                 sendEventToActivity(null,context);

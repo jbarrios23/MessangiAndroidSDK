@@ -55,10 +55,19 @@ public class MessagingNotification implements Serializable {
      this.sentTime=remoteMessage.getSentTime();
      this.to=remoteMessage.getTo();
      this.ttl=remoteMessage.getTtl();
-     messaging.utils.showDebugLog(this,nameMethod, data);
+
      messaging.setLastMessangiNotifiction(this);
      messaging.getMessagingNotifications().add(0,this);
      messaging.utils.showDebugLog(this,nameMethod, messaging.getMessagingNotifications().size());
+     if(this.notification!=null){
+         messaging.utils.showDebugLog(this,nameMethod, "Notification "
+                 +"Title "+notification.getTitle()+" "+"Body "+notification.getBody());
+     }
+
+     if(data.size()>0){
+         messaging.utils.showDebugLog(this,nameMethod, "Data "+data);
+     }
+
      sendEventToActivity(this,this.context);
 
     }
@@ -71,13 +80,13 @@ public class MessagingNotification implements Serializable {
         if(extras!=null){
             data=new HashMap<>();
             for(String key:extras.keySet()){
-                messaging.utils.showDebugLog(this,nameMethod,"Extras received:  Key: " + key + " Value: " + extras.getString(key));
+                //messaging.utils.showDebugLog(this,nameMethod,"Extras received:  Key: " + key + " Value: " + extras.getString(key));
                 data.put(key,extras.getString(key));
              if(key.equals("profile")){
                 send=false;
                 }
             }
-            messaging.utils.showDebugLog(this,nameMethod,"Map data generate: " +data);
+            messaging.utils.showDebugLog(this,nameMethod,"Data: " +data);
             if(send) {
                 messaging.setLastMessangiNotifiction(this);
                 messaging.getMessagingNotifications().add(0, this);
@@ -85,20 +94,33 @@ public class MessagingNotification implements Serializable {
             }else{
                 if(messaging.messagingStorageController.isNotificationWasDismiss()){
                     sendEventToActivity(null,context);
-                    messaging.utils.showDebugLog(this,nameMethod,"No data: ");
+                    //messaging.utils.showDebugLog(this,nameMethod,"No data: ");
                 }
             }
             }else{
              if(messaging.messagingStorageController.isNotificationWasDismiss()){
                     sendEventToActivity(null,context);
-              messaging.utils.showDebugLog(this,nameMethod,"no extras: " +data);
+              //messaging.utils.showDebugLog(this,nameMethod,"no extras: " +data);
 
              }
         }
 
     }
 
-   //method
+    public MessagingNotification() {
+
+    }
+
+    //method
+
+    public void setData(Map<String, String> data) {
+
+        this.data = data;
+        if(this.data.size()>0){
+            messaging.setLastMessangiNotifiction(this);
+            messaging.getMessagingNotifications().add(0,this);
+        }
+    }
    public String getCollapseKey() {
        return collapseKey;
    }

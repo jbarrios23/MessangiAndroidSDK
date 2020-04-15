@@ -50,8 +50,6 @@ public class NotificationListener extends NotificationListenerService {
         nameMethod=new Object(){}.getClass().getEnclosingMethod().getName();
         if(sbn.getPackageName().equals(myPackage)) {
 
-
-            messaging.utils.showInfoLog(this,nameMethod,sbn.getNotification().deleteIntent);
             Bundle extras=sbn.getNotification().extras;
             for(String key:extras.keySet()){
 //                messaging.utils.showDebugLog(this,nameMethod,"Extras received:  Key: "
@@ -61,8 +59,7 @@ public class NotificationListener extends NotificationListenerService {
                 }
 
             }
-            messaging.utils.showInfoLog(this,nameMethod,"Map data generate: " +data);
-            PendingIntent pendingIntent=sbn.getNotification().deleteIntent;
+            messaging.utils.showInfoLog(this,nameMethod,"Data: " +data);
             messaging.messagingStorageController.setNotificationWasDismiss(true);
             messaging.messagingStorageController.saveDataNotification(data);
 
@@ -89,8 +86,7 @@ public class NotificationListener extends NotificationListenerService {
                 }
 
             }
-            messaging.utils.showInfoLog(this,nameMethod,"Map data generate: " +data);
-            PendingIntent pendingIntent=sbn.getNotification().deleteIntent;
+            messaging.utils.showInfoLog(this,nameMethod,"Data: " +data);
             messaging.messagingStorageController.setNotificationWasDismiss(true);
             messaging.messagingStorageController.saveDataNotification(data);
 

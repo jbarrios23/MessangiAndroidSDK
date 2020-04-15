@@ -42,7 +42,7 @@ import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Map;
 
-public class MainActivity extends AppCompatActivity implements ActivityCompat.OnRequestPermissionsResultCallback {
+public class MainActivity extends AppCompatActivity {
 
 
 
@@ -284,8 +284,9 @@ public class MainActivity extends AppCompatActivity implements ActivityCompat.On
         if(messaging.messagingStorageController.isDataNotification()){
             Map<String,String> provMap=messaging.messagingStorageController.getDataNotification();
             data.append(""+provMap);
+            MessagingNotification messagingNotification=new MessagingNotification();
+            messagingNotification.setData(provMap);
         }
-
 
     }
 
