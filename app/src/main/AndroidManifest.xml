@@ -14,7 +14,6 @@
         android:theme="@style/AppTheme"
         tools:ignore="GoogleAppIndexingWarning"
         >
-        <activity android:name=".ListNotification"></activity>
         <activity android:name=".MainActivity"
             android:theme="@style/AppTheme">
             <intent-filter>

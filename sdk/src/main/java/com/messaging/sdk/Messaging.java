@@ -65,7 +65,6 @@ public class Messaging implements LifecycleObserver{
     private String lenguaje;
     private int identifier;
     private MessagingNotification messagingNotification;
-    private ArrayList<MessagingNotification> messagingNotifications;
     private String nameMethod;
     private String packageName;
 
@@ -86,7 +85,6 @@ public class Messaging implements LifecycleObserver{
         this.messagingUserDevice =null;
         this.messagingDev =null;
         this.identifier=0;
-        this.messagingNotifications =new ArrayList<>();
         this.messagingNotification =null;
         this.nameMethod="";
 
@@ -150,10 +148,7 @@ public class Messaging implements LifecycleObserver{
         utils.showDebugLog(this,nameMethod,"Background");
     }
 
-    public ArrayList<MessagingNotification> getMessagingNotifications() {
 
-        return messagingNotifications;
-    }
     /**
      * Method that Get Last Notification
      *

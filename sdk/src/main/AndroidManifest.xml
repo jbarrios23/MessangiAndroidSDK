@@ -9,14 +9,6 @@
             android:name="com.messaging.sdk.MessagingProvider"
             android:exported="false" />
 
-        <service android:name="com.messaging.sdk.NotificationListener"
-            android:label="@string/app_name"
-            android:permission="android.permission.BIND_NOTIFICATION_LISTENER_SERVICE">
-            <intent-filter>
-                <action android:name="android.service.notification.NotificationListenerService" />
-            </intent-filter>
-        </service>
-
         <service
             android:name="com.messaging.sdk.MessagingFirebaseService"
             android:permission="com.google.android.c2dm.permission.SEND">

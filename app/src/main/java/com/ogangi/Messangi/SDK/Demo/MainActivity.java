@@ -64,7 +64,7 @@ public class MainActivity extends AppCompatActivity {
     public ArrayAdapter<String> messangiUserDeviceArrayAdapter;
     public ProgressBar progressBar;
     public TextView title;
-    public Button pressButton;
+    //public Button pressButton;
     MessagingNotification messagingNotification;
     private String nameMethod;
 
@@ -77,9 +77,7 @@ public class MainActivity extends AppCompatActivity {
         getSupportActionBar().hide();
         setContentView(R.layout.activity_main);
         nameMethod=new Object(){}.getClass().getEnclosingMethod().getName();
-        Log.d(TAG,"DEBUG: "+CLASS_TAG+": "+nameMethod+": register BroadcastReceiver");
-        LocalBroadcastManager.getInstance(this).registerReceiver(mReceiver,
-                new IntentFilter("PassDataFromSdk"));
+
 
         messaging = Messaging.getInst(this);
 
@@ -90,7 +88,7 @@ public class MainActivity extends AppCompatActivity {
         user = findViewById(R.id.user);
         tags = findViewById(R.id.tag);
         save = findViewById(R.id.save);
-        pressButton=findViewById(R.id.button_lista);
+        //pressButton=findViewById(R.id.button_lista);
         progressBar = findViewById(R.id.progressBar);
         Switch simpleSwitch = findViewById(R.id.simpleSwitch);
 
@@ -159,29 +157,17 @@ public class MainActivity extends AppCompatActivity {
         //for handle notification from background
         Bundle extras=getIntent().getExtras();
         messagingNotification =new MessagingNotification(extras,getApplicationContext());
-        pressButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                gotoListaActivity();
-            }
-        });
-
-//        Intent intent=new Intent("android.settings.ACTION_NOTIFICATION_LISTENER_SETTINGS");
-//        startActivity(intent);
 
 
     }
-
-
-    private void gotoListaActivity() {
-        Intent intent=new Intent(MainActivity.this,ListNotification.class);
-        startActivity(intent);
-    }
-
 
     @Override
     protected void onStart() {
         super.onStart();
+        nameMethod=new Object(){}.getClass().getEnclosingMethod().getName();
+        Log.d(TAG,"DEBUG: "+CLASS_TAG+": "+nameMethod+": register BroadcastReceiver");
+        LocalBroadcastManager.getInstance(this).registerReceiver(mReceiver,
+                new IntentFilter("PassDataFromSdk"));
 
     }
 
@@ -194,10 +180,7 @@ public class MainActivity extends AppCompatActivity {
         progressBar.setVisibility(View.VISIBLE);
         messaging.requestDevice(false);
         Log.i(TAG,"INFO: "+CLASS_TAG+": "+nameMethod+"onResume: ");
-        if(messaging.messagingStorageController.isNotificationWasDismiss()){
-            Bundle extras=getIntent().getExtras();
-            messagingNotification =new MessagingNotification(extras,getApplicationContext());
-        }
+
 
 
     }
@@ -213,30 +196,24 @@ public class MainActivity extends AppCompatActivity {
 
         TextView data=customLayout.findViewById(R.id.data_noti);
 
-        if(messagingNotification.getNotification()!=null&&(messagingNotification.getData()!=null && messagingNotification.getData().size() > 0)){
+        if(messagingNotification.getNotification()!=null&&(messagingNotification.getAdditionalData()!=null && messagingNotification.getAdditionalData().size() > 0)){
             data.append("Has Notification"+"\n");
             data.append(""+ messagingNotification.getNotification().getTitle()+"\n");
             data.append(""+ messagingNotification.getNotification().getBody());
             data.append("Has data"+"\n");
-            for (Map.Entry entry : messagingNotification.getData().entrySet()) {
+            for (Map.Entry entry : messagingNotification.getAdditionalData().entrySet()) {
                 if(!entry.getKey().equals("profile")){
                     data.append(" "+entry.getKey() + " , " + entry.getValue()+"\n");
-                }else{
-                    showMessage(data);
-                    break;
                 }
 
             }
 
 
-        }else if(messagingNotification.getData()!=null && messagingNotification.getData().size() > 0) {
+        }else if(messagingNotification.getAdditionalData()!=null && messagingNotification.getAdditionalData().size() > 0) {
             data.append("Has only Data"+"\n");
-            for (Map.Entry entry : messagingNotification.getData().entrySet()) {
+            for (Map.Entry entry : messagingNotification.getAdditionalData().entrySet()) {
                 if(!entry.getKey().equals("profile")){
                     data.append(" "+entry.getKey() + " , " + entry.getValue()+"\n");
-                }else{
-                    showMessage(data);
-                    break;
                 }
 
             }
@@ -247,18 +224,16 @@ public class MainActivity extends AppCompatActivity {
             data.append(""+ messagingNotification.getNotification().getTitle()+"\n");
             data.append(""+ messagingNotification.getNotification().getBody());
 
-        }else{
-            showMessage(data);
         }
 
         // add a button
-        builder.setPositiveButton("Save Notification", new DialogInterface.OnClickListener() {
+        builder.setPositiveButton("Ok", new DialogInterface.OnClickListener() {
             @SuppressLint("SetTextI18n")
             @Override
             public void onClick(DialogInterface dialog, int which) {
                 // send data from the AlertDialog to the Activity
-                messaging.messagingStorageController.setNotificationWasDismiss(false);
-                gotoListaActivity();
+
+
                 dialog.dismiss();
 
 
@@ -269,7 +244,7 @@ public class MainActivity extends AppCompatActivity {
             @Override
             public void onClick(DialogInterface dialog, int which) {
                 dialog.cancel();
-                messaging.messagingStorageController.setNotificationWasDismiss(false);
+
 
             }
         });
@@ -279,16 +254,7 @@ public class MainActivity extends AppCompatActivity {
 
     }
 
-    private void showMessage(TextView data) {
-        data.setText("The Notification was Dismiss by User"+"\n");
-        if(messaging.messagingStorageController.isDataNotification()){
-            Map<String,String> provMap=messaging.messagingStorageController.getDataNotification();
-            data.append(""+provMap);
-            MessagingNotification messagingNotification=new MessagingNotification();
-            messagingNotification.setData(provMap);
-        }
 
-    }
 
     private void createAlertUser() {
         AlertDialog.Builder builder = new AlertDialog.Builder(this);
@@ -402,8 +368,8 @@ public class MainActivity extends AppCompatActivity {
         public void onReceive(Context context, Intent intent) {
             nameMethod=new Object(){}.getClass().getEnclosingMethod().getName();
             Serializable message=intent.getSerializableExtra("message");
-            boolean wasNotiDismiss=intent.getBooleanExtra("DismissNoti",false);
-            Log.d(TAG,"DEBUG: "+CLASS_TAG+": "+nameMethod+": wasNotiDismiss:  "+ wasNotiDismiss);
+
+
             if ((message instanceof MessagingDev) && (message!=null)){
                 messangiDevArrayList.clear();
 
@@ -452,9 +418,7 @@ public class MainActivity extends AppCompatActivity {
 
             }else{
 
-                if(wasNotiDismiss){
-                 showAlertNotificaction(messagingNotification);
-                }
+
                 if(progressBar.isShown()){
                     progressBar.setVisibility(View.GONE);
                 }

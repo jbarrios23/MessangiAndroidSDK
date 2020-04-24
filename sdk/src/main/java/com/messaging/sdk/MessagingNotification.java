@@ -2,6 +2,7 @@ package com.messaging.sdk;
 
 import android.content.Context;
 import android.content.Intent;
+import android.net.Uri;
 import android.os.Bundle;
 import android.os.Parcel;
 
@@ -18,25 +19,29 @@ public class MessagingNotification implements Serializable {
     private Messaging messaging = Messaging.getInst();
     private Context context;
 
+    //common
+
+    private String notificationId;
+    private boolean silent;
+    private String title;
+    private String body;
+    private String deepLink;
+    private Uri deepUriLink;
+    private Map<String,String> additionalData;
+    private int badge;
+    private RemoteMessage rawPayload;
+
+    //exclusive
+
+    private String icon;
+    private String imageUrl;
+    private boolean sticky;
+    private String channelId;
+    private String ticker;
+    private String sound;
 
     //For RemoteMessage
-
-    private String collapseKey;
-    private Map<String,String> data;
-    private String from;
-    private String messageId;
-    private String messageType;
     private RemoteMessage.Notification notification;
-    private int originalPriority;
-    private int priority;
-    private long sentTime;
-    private String to;
-    private int ttl;
-
-
-
-    private RemoteMessage system;
-
     public String nameMethod;
 
 
@@ -44,30 +49,74 @@ public class MessagingNotification implements Serializable {
     public MessagingNotification(RemoteMessage remoteMessage, Context context) {
      this.nameMethod="MessagingNotification";
      this.context=context;
-     this.collapseKey=remoteMessage.getCollapseKey();
-     this.data=remoteMessage.getData();
-     this.from=remoteMessage.getFrom();
-     this.messageId=remoteMessage.getMessageId();
-     this.messageType=remoteMessage.getMessageType();
      this.notification=remoteMessage.getNotification();
-     this.originalPriority=remoteMessage.getOriginalPriority();
-     this.priority=remoteMessage.getPriority();
-     this.sentTime=remoteMessage.getSentTime();
-     this.to=remoteMessage.getTo();
-     this.ttl=remoteMessage.getTtl();
-
-     messaging.setLastMessangiNotifiction(this);
-     messaging.getMessagingNotifications().add(0,this);
-     messaging.utils.showDebugLog(this,nameMethod, messaging.getMessagingNotifications().size());
+     //common
+     this.notificationId=remoteMessage.getMessageId();
+     this.silent=true;
      if(this.notification!=null){
+         this.silent=false;
+         this.title=remoteMessage.getNotification().getTitle();
+         this.body=remoteMessage.getNotification().getBody();
+         this.deepLink=remoteMessage.getNotification().getClickAction();
+         this.deepUriLink=remoteMessage.getNotification().getLink();
+         this.icon=remoteMessage.getNotification().getIcon();
+         this.sound=remoteMessage.getNotification().getSound();
+     }
+
+     if(remoteMessage.getData()!=null){
+         this.additionalData=remoteMessage.getData();
+         //this.badge=Integer.parseInt(remoteMessage.getNotification().getBody());
+         if(remoteMessage.getData().get("badge")!=null && !remoteMessage.getData().get("badge").isEmpty()){
+             this.badge=Integer.parseInt(remoteMessage.getData().get("badge"));
+         }else{
+             this.badge=0;
+         }
+         if(remoteMessage.getData().get("imageUrl")!=null && !remoteMessage.getData().get("imageUrl").isEmpty()){
+             this.imageUrl=remoteMessage.getData().get("imageUrl");
+         }else{
+             this.imageUrl="";
+         }
+
+         if(remoteMessage.getData().get("channelId")!=null && !remoteMessage.getData().get("channelId").isEmpty()){
+             this.channelId=remoteMessage.getData().get("channelId");
+         }else{
+             this.channelId="";
+         }
+
+         if(remoteMessage.getData().get("ticker")!=null && !remoteMessage.getData().get("ticker").isEmpty()){
+             this.ticker=remoteMessage.getData().get("ticker");
+         }else{
+             this.ticker="";
+         }
+     }
+
+     this.rawPayload=remoteMessage;
+
+     this.sticky=false;
+
+     if(remoteMessage.getCollapseKey()!=null && !remoteMessage.getCollapseKey().isEmpty()){
+         this.sticky=true;
+     }
+
+
+     messaging.utils.showDebugLog(this,nameMethod, "silent "+silent);
+     messaging.utils.showDebugLog(this,nameMethod, "sticky "+sticky);
+
+    if(this.notification!=null){
          messaging.utils.showDebugLog(this,nameMethod, "Notification "
                  +"Title "+notification.getTitle()+" "+"Body "+notification.getBody());
+
+    }
+
+     if(this.additionalData!=null && additionalData.size()>0){
+         messaging.utils.showDebugLog(this,nameMethod, "additionalData "+additionalData);
+         messaging.utils.showDebugLog(this,nameMethod, "ticker "+ticker);
+         messaging.utils.showDebugLog(this,nameMethod, "icon "+icon);
+         messaging.utils.showDebugLog(this,nameMethod, "badge "+badge);
+
      }
 
-     if(data.size()>0){
-         messaging.utils.showDebugLog(this,nameMethod, "Data "+data);
-     }
-
+     messaging.setLastMessangiNotifiction(this);
      sendEventToActivity(this,this.context);
 
     }
@@ -77,32 +126,22 @@ public class MessagingNotification implements Serializable {
         this.nameMethod="MessagingNotification";
         boolean send=true;
 
+
         if(extras!=null){
-            data=new HashMap<>();
+            additionalData=new HashMap<>();
             for(String key:extras.keySet()){
                 //messaging.utils.showDebugLog(this,nameMethod,"Extras received:  Key: " + key + " Value: " + extras.getString(key));
-                data.put(key,extras.getString(key));
+                additionalData.put(key,extras.getString(key));
              if(key.equals("profile")){
                 send=false;
                 }
             }
-            messaging.utils.showDebugLog(this,nameMethod,"Data: " +data);
+            messaging.utils.showDebugLog(this,nameMethod,"Data: " +additionalData);
             if(send) {
                 messaging.setLastMessangiNotifiction(this);
-                messaging.getMessagingNotifications().add(0, this);
-                messaging.messagingStorageController.setNotificationWasDismiss(false);
-            }else{
-                if(messaging.messagingStorageController.isNotificationWasDismiss()){
-                    sendEventToActivity(null,context);
-                    //messaging.utils.showDebugLog(this,nameMethod,"No data: ");
-                }
-            }
-            }else{
-             if(messaging.messagingStorageController.isNotificationWasDismiss()){
-                    sendEventToActivity(null,context);
-              //messaging.utils.showDebugLog(this,nameMethod,"no extras: " +data);
 
-             }
+            }
+
         }
 
     }
@@ -113,58 +152,66 @@ public class MessagingNotification implements Serializable {
 
     //method
 
-    public void setData(Map<String, String> data) {
-
-        this.data = data;
-        if(this.data.size()>0){
-            messaging.setLastMessangiNotifiction(this);
-            messaging.getMessagingNotifications().add(0,this);
-        }
-    }
-   public String getCollapseKey() {
-       return collapseKey;
-   }
-
-    public Map<String, String> getData() {
-        return data;
-    }
-
-    public String getFrom() {
-        return from;
-    }
-
-    public String getMessageId() {
-        return messageId;
-    }
-
-    public String getMessageType() {
-        return messageType;
-    }
-
     public RemoteMessage.Notification getNotification() {
         return notification;
     }
 
-    public int getOriginalPriority() {
-        return originalPriority;
+    public Uri getDeepUriLink() {
+        return deepUriLink;
     }
 
-    public int getPriority() {
-        return priority;
+    public String getIcon() {
+        return icon;
     }
 
-    public long getSentTime() {
-        return sentTime;
+    public String getImageUrl() {
+        return imageUrl;
     }
 
-    public String getTo() {
-        return to;
+    public boolean isSticky() {
+        return sticky;
     }
 
-    public int getTtl() {
-
-        return this.system.getTtl();
+    public String getChannelId() {
+        return channelId;
     }
+
+    public String getTicker() {
+        return ticker;
+    }
+
+    public String getNotificationId() {
+        return notificationId;
+    }
+
+    public boolean isSilent() {
+        return silent;
+    }
+
+    public String getTitle() {
+        return title;
+    }
+
+    public String getBody() {
+        return body;
+    }
+
+    public String getDeepLink() {
+        return deepLink;
+    }
+
+    public Map<String, String> getAdditionalData() {
+        return additionalData;
+    }
+
+    public int getBadge() {
+        return badge;
+    }
+
+    public RemoteMessage getRawPayload() {
+        return rawPayload;
+    }
+
 
     public void writeToParcel (Parcel out, int flags){
 
@@ -177,17 +224,12 @@ public class MessagingNotification implements Serializable {
      */
     private void sendEventToActivity(Serializable something, Context context) {
         this.nameMethod=new Object(){}.getClass().getEnclosingMethod().getName();
-
         Intent intent=new Intent("PassDataFromSdk");
-
-        if(something!=null){
         intent.putExtra("message",something);
+        if(something!=null){
         LocalBroadcastManager.getInstance(context).sendBroadcast(intent);
         }else{
-        Messaging messaging = Messaging.getInst();
-        intent.putExtra("message",something);
-        intent.putExtra("DismissNoti",messaging.messagingStorageController.isNotificationWasDismiss());
-        LocalBroadcastManager.getInstance(context).sendBroadcast(intent);
+         messaging.utils.showErrorLog(this,nameMethod,"Not Send Broadcast ",null);
 
         }
 

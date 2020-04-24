@@ -26,7 +26,7 @@ public class CustomMessangiFirebaseService extends MessagingFirebaseService {
         Log.d(TAG, CLASS_TAG + ":remote message ");
         //example to custom
         MessagingNotification messagingNotification = new MessagingNotification(remoteMessage, this);
-        Log.d(TAG, CLASS_TAG + ":remote data "+ messagingNotification.getData());
+        Log.d(TAG, CLASS_TAG + ":remote data "+ messagingNotification.getAdditionalData());
 
     }
 }
