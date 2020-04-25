@@ -93,7 +93,6 @@ public class MessagingNotification implements Serializable {
      this.rawPayload=remoteMessage;
 
      this.sticky=false;
-
      if(remoteMessage.getCollapseKey()!=null && !remoteMessage.getCollapseKey().isEmpty()){
          this.sticky=true;
      }
