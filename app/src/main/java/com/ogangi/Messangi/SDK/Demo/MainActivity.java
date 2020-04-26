@@ -43,10 +43,6 @@ import java.util.ArrayList;
 import java.util.Map;
 
 public class MainActivity extends AppCompatActivity {
-
-
-
-
     public static String CLASS_TAG=MainActivity.class.getSimpleName();
     public static String TAG="MESSANGING";
     public static final String DELETE_TAG = "DELETE_TAG";

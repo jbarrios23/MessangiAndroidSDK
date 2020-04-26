@@ -31,53 +31,22 @@ implementation 'com.android.testdefsdknotificactionpush:sdk:1.0'
 ```
 ### 2) Configure FCM in Android Project Project
 Select your project and go to the **Tools** tab, select a Firebase and open the assistant then:
-- Select Cloud Messangin and Set up Firebase Cloud Messanging.
-- Connet your app to Firebase and create or select Firebase project in console.
-- Add FCM to your project
+<img src="step0.jpg" />
 
-### 3) Create MyApplication file in your project.
+1.- Select Cloud Messangin and Set up Firebase Cloud Messanging.
+<img src="step1.jpg" />
+<img src="step1b.jpg" />
 
-Please create class MyApplication in project and extends to Application: 
-```java
-public class MyApplication extends Application {
-    @Override
-    public void onCreate() {
-        super.onCreate();
-        }
-}
+2.- Connect app to Firebase and create new or select Firebase project in console.
+<img src="step2a.jpg" />
+<img src="step2a1.jpg" />
+<img src="step2b.jpg" />
+<img src="step2b1.jpg" />
 
-```
-**Note:** don't forget to make the declaration of the class MyApplication in AndroidManifest.xml
+3.- Do not perform step 3 "Handle message", as the SDK will do it for you.
 
-```xml
-<?xml version="1.0" encoding="utf-8"?>
-<manifest xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:tools="http://schemas.android.com/tools"
-    package="com.testimplemtationsdkmessangi">
-
-    <application
-        android:name=".MyApplication"
-        android:allowBackup="true"
-        android:icon="@mipmap/ic_launcher"
-        android:label="@string/app_name"
-        android:roundIcon="@mipmap/ic_launcher_round"
-        android:supportsRtl="true"
-        android:theme="@style/AppTheme"
-        tools:ignore="GoogleAppIndexingWarning">
-        <activity android:name=".MainActivity">
-            <intent-filter>
-                <action android:name="android.intent.action.MAIN" />
-
-                <category android:name="android.intent.category.LAUNCHER" />
-            </intent-filter>
-        </activity>
-    </application>
-
-</manifest>
-```
-### 4) Put Messangi.xlm file in values project.
+### 3) Put Messangi.xlm file in values project.
 Put the configuration file in the values folder of the Android project
-
 
 ```xml
 <resources>
@@ -88,8 +57,8 @@ Put the configuration file in the values folder of the Android project
   <bool name="logging_allowed">boolean condition</bool>
 </resources>
 ```
-### 5) Put BroadcastReceiver in Activity project.
-Put BroadcastReceiver in Activity file project:
+### 4) Put BroadcastReceiver in Activity project.
+Put BroadcastReceiver in Activity file project, example:
 
 ```java
 ...
