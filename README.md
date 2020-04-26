@@ -40,8 +40,8 @@ Select your project and go to the **Tools** tab, select a Firebase and open the 
 2.- Connect app to Firebase and create new or select Firebase project in console.
 <img src="step2a.jpg" />
 <img src="step2a1.jpg" />
-<img src="step2b.jpg" />
 <img src="step2b1.jpg" />
+<img src="step2b.jpg" />
 
 3.- Do not perform step 3 "Handle message", as the SDK will do it for you.
 
