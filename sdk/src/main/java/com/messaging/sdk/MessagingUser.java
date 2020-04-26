@@ -22,16 +22,16 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
 
-import static com.messaging.sdk.MessagingDev.toMap;
+import static com.messaging.sdk.MessagingDevice.toMap;
 
 /**
- * class MessagingUserDevice is used for handle User paramenter in SDK and service
- * update user
+ * class MessagingUser is used for handle User paramenter in SDK and make service
+ * update user.
  */
-public class MessagingUserDevice implements Serializable {
+public class MessagingUser implements Serializable {
 
 
-    private  ArrayList<MessagingDev> devices;
+    private  ArrayList<MessagingDevice> devices;
 
 
     private  final Map<String, String> properties = new HashMap<>();
@@ -40,21 +40,34 @@ public class MessagingUserDevice implements Serializable {
 
     private String nameMethod;
 
-    public MessagingUserDevice() {
+    /**
+     * direct access to the singletone instance defined in Messagi
+
+     */
+    public static synchronized MessagingUser getInstance() {
+        if (Messaging.getInstance() == null) {
+            return null;
+        }
+        //direct access to the singletone instance defined in Messangi
+        return Messaging.getInstance().messagingUser;
+    }
+
+
+
+    public MessagingUser() {
         this.devices = new ArrayList<>();
         this.id="";
         this.nameMethod="";
     }
     /**
-     * Method that make Update of User using the service Put
-     @param context
-     @serialData :MessagingUserDevice
+     * Method that make Update of User parameter using service
+     @param context: Instance context
      */
     public void save(final Context context){
         nameMethod=new Object(){}.getClass().getEnclosingMethod().getName();
-        final Messaging messaging = Messaging.getInst(context);
+        final Messaging messaging = Messaging.getInstance(context);
 
-        String deviceId= messaging.messagingDev.getId();
+        String deviceId= messaging.messagingDevice.getId();
         Map<String, String> provPro=properties;
         JSONObject requestUpdatebody=new JSONObject(provPro);
         new HTTPReqTaskPutUserByDevice(deviceId,requestUpdatebody,context, messaging).execute();
@@ -67,10 +80,15 @@ public class MessagingUserDevice implements Serializable {
         return id;
     }
     /**
-     * Method for add properties to user
+     * Method for add Property to user
+     * example: name, lastname, email or phone
+     * @param key : example name
+     * @param value : example Jose
+     * @return : Instance MessagingUser;
      */
-    public void addProperties(String key, String value) {
+    public MessagingUser addProperty(String key, String value) {
         properties.put(key, value);
+        return this;
     }
 
     /**
@@ -83,50 +101,46 @@ public class MessagingUserDevice implements Serializable {
     /**
      * Method for get Device of user
      */
-    public ArrayList<MessagingDev> getDevices() {
+    public ArrayList<MessagingDevice> getDevices() {
         return devices;
     }
 
-    public void setDevices(ArrayList<MessagingDev> devices) {
-        this.devices = devices;
-    }
+    //public void setDevices(ArrayList<MessagingDevice> devices) {
+      //  this.devices = devices;
+    //}
 
     /**
-     * Method that send Parameter (Ej: messagingDev or MessagingUserDevice) registered to Activity
+     * Method that send Parameter (Ej: messagingDevice or MessagingUser) registered to Activity
      @param something: Object Serializable for send to activity (Ej MeesangiDev).
      @param context : context instance
      */
     private void sendEventToActivity(Serializable something, Context context) {
-        Messaging messaging = Messaging.getInst(context);
+
         Intent intent=new Intent("PassDataFromSdk");
-        messaging.utils.showDebugLog(this,nameMethod,"Broadcasting message");
         intent.putExtra("message",something);
-        if(something!=null){
-            LocalBroadcastManager.getInstance(context).sendBroadcast(intent);
-        }else{
-            messaging.utils.showErrorLog(this,nameMethod,"Don't Send Broadcast ","");
-        }
+        intent.putExtra("hasError",something==null);
+        LocalBroadcastManager.getInstance(context).sendBroadcast(intent);
     }
 
     /**
-     * Method for parse data and conver to MessagingUserDevice Object
+     * Method for parse data and convert to MessagingUser Object
      @param retMap: HasMap Object to convert
      */
 
-    public static MessagingUserDevice parseData(Map<String, String> retMap){
+    public static MessagingUser parseData(Map<String, String> retMap){
 
-        MessagingUserDevice messagingUserDevice = new MessagingUserDevice();
+        MessagingUser messagingUser = new MessagingUser();
 
         for (Map.Entry<String, String> entry : retMap.entrySet()) {
 
             if (entry.getKey().equals("devices")) {
                 try {
-                    Messaging messaging = Messaging.getInst();
+                    Messaging messaging = Messaging.getInstance();
                     JSONArray jsonArrayDevice=new JSONArray(retMap.get("devices"));
                     for(int i=0;i<jsonArrayDevice.length();i++){
                         JSONObject provDevice=jsonArrayDevice.getJSONObject(i);
-                        MessagingDev messagingDev = messaging.utils.getMessangiDevFromJson(provDevice);
-                        messagingUserDevice.devices.add(messagingDev);
+                        MessagingDevice messagingDevice = messaging.utils.getMessangiDevFromJson(provDevice);
+                        messagingUser.devices.add(messagingDevice);
                     }
                 } catch (JSONException e) {
                     e.printStackTrace();
@@ -134,12 +148,12 @@ public class MessagingUserDevice implements Serializable {
 
 
             } else {
-                messagingUserDevice.addProperties(entry.getKey(), entry.getValue());
+                messagingUser.addProperty(entry.getKey(), entry.getValue());
             }
 
         }
 
-        return messagingUserDevice;
+        return messagingUser;
 
     }
     /**
@@ -148,8 +162,7 @@ public class MessagingUserDevice implements Serializable {
 
     public String getEmail(){
 
-
-        if(properties.containsKey("email")){
+      if(properties.containsKey("email")){
             return (String) properties.get("email");
         }
 
@@ -181,20 +194,42 @@ public class MessagingUserDevice implements Serializable {
         return "";
     }
 
-    public void setEmail(String value){
+    /**
+     * Method for set email to user
+     * example: name, lastname, email or phone
+     * @param value : example JB@Jb.com
+     * @return : Instance MessagingUser;
+     */
+
+    public MessagingUser setEmail(String value){
 
         properties.put("email",value);
+        return this;
 
     }
-    public void setPhone(String value){
+    /**
+     * Method for set phone to user
+     * example: name, lastname, email or phone
+     * @param value : example 5555555
+     * @return : Instance MessagingUser;
+     */
+    public MessagingUser setPhone(String value){
 
         properties.put("phone",value);
+        return this;
 
     }
-
-    public void setExternalID(String value){
+    /**
+     * Method for set external Id to user
+     * example: name, lastname, email or phone
+     * @param value : example 555Jggf
+     * @return : Instance MessagingUser;
+     */
+    public MessagingUser setExternalID(String value){
 
     properties.put("externalID",value);
+
+    return this;
 
     }
 
@@ -237,7 +272,7 @@ public class MessagingUserDevice implements Serializable {
                 String authToken= MessagingSdkUtils.getMessangi_token();
                 JSONObject postData = jsonObject;
                 provUrl= MessagingSdkUtils.getMessangi_host()+"/v1/users?device="+deviceId;
-                messaging.utils.showHttpRequestLog(provUrl,MessagingUserDevice.this,nameMethod,"PUT",postData.toString());
+                messaging.utils.showHttpRequestLog(provUrl, MessagingUser.this,nameMethod,"PUT",postData.toString());
                 URL url = new URL(provUrl);
                 urlConnection = (HttpURLConnection) url.openConnection();
                 urlConnection.setRequestProperty("Authorization","Bearer "+authToken);
@@ -284,14 +319,14 @@ public class MessagingUserDevice implements Serializable {
             super.onPostExecute(response);
             try{
                 if(!response.equals("")) {
-                    messaging.utils.showHttpResponsetLog(provUrl,MessagingUserDevice.this,nameMethod,"Successful",response);
+                    messaging.utils.showHttpResponsetLog(provUrl, MessagingUser.this,nameMethod,"Successful",response);
                     JSONObject resp=new JSONObject(response);
                     JSONObject data=resp.getJSONObject("subscriber").getJSONObject("data");
                     Map<String, String> resultMap=toMap(data);
                     messaging.messagingStorageController.saveUserByDevice(resultMap);
-                    MessagingUserDevice messagingUserDevice;
-                    messagingUserDevice = MessagingUserDevice.parseData(resultMap);
-                    sendEventToActivity(messagingUserDevice, context);
+                    MessagingUser messagingUser;
+                    messagingUser = MessagingUser.parseData(resultMap);
+                    sendEventToActivity(messagingUser, context);
 
                 }
             }catch (NullPointerException e){
@@ -304,6 +339,5 @@ public class MessagingUserDevice implements Serializable {
             }
         }
     }
-
 
 }

@@ -24,7 +24,7 @@ public class MessagingProvider extends ContentProvider {
     @Override
     public boolean onCreate() {
         nameMethod=new Object(){}.getClass().getEnclosingMethod().getName();
-        messaging = Messaging.getInst(getContext());
+        messaging = Messaging.getInstance(getContext());
         messaging.utils.showDebugLog(this,nameMethod,"onCreate");
         if(!messaging.messagingStorageController.isRegisterDevice()){
             messaging.utils.showDebugLog(this,nameMethod,"Creating Device ");

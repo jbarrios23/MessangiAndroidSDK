@@ -18,7 +18,7 @@ import java.util.Set;
 /**
  * class MessagingStorageController is a singletone to save in sharepreference data user and data device
  */
-public class MessagingStorageController {
+class MessagingStorageController {
 
     //private static MessagingStorageController mInstance;
     private static Context contexto;
@@ -136,7 +136,7 @@ public class MessagingStorageController {
      * Method get Device registered in local storage
      *
      */
-    public MessagingDev getDevice(){
+    public MessagingDevice getDevice(){
         nameMethod=new Object(){}.getClass().getEnclosingMethod().getName();
 
         String id=mSharedPreferences.getString("id","");
@@ -153,24 +153,24 @@ public class MessagingStorageController {
         String timestamp=mSharedPreferences.getString("timestamp","");
         String transaction=mSharedPreferences.getString("transaction","");
         //create Objetc MeesangiDev
-        MessagingDev messagingDev =new MessagingDev();
-        messagingDev.setId(id);
-        messagingDev.setPushToken(pushToken);
-        messagingDev.setUserId(userId);
-        messagingDev.setType(type);
-        messagingDev.setLanguage(language);
-        messagingDev.setModel(model);
-        messagingDev.setOs(os);
-        messagingDev.setSdkVersion(sdkVersion);
+        MessagingDevice messagingDevice =new MessagingDevice();
+        messagingDevice.setId(id);
+        messagingDevice.setPushToken(pushToken);
+        messagingDevice.setUserId(userId);
+        messagingDevice.setType(type);
+        messagingDevice.setLanguage(language);
+        messagingDevice.setModel(model);
+        messagingDevice.setOs(os);
+        messagingDevice.setSdkVersion(sdkVersion);
         List<String> provTags=new ArrayList<String>(set);
-        messagingDev.setTags(provTags);
-        messagingDev.setCreatedAt(createdAt);
-        messagingDev.setUpdatedAt(updatedAt);
-        messagingDev.setTimestamp(timestamp);
-        messagingDev.setTransaction(transaction);
+        messagingDevice.setTags(provTags);
+        messagingDevice.setCreatedAt(createdAt);
+        messagingDevice.setUpdatedAt(updatedAt);
+        messagingDevice.setTimestamp(timestamp);
+        messagingDevice.setTransaction(transaction);
 
         //messaging.utils.showDebugLog(this,nameMethod,"get Device from Local Storage ");
-        return messagingDev;
+        return messagingDevice;
     }
 
     public void deleteDeviceTags(){
@@ -189,7 +189,7 @@ public class MessagingStorageController {
         SharedPreferences.Editor datosuser=mSharedPreferences.edit();
         JSONObject jsonObject = new JSONObject(inputMap);
         String jsonString = jsonObject.toString();
-        datosuser.putString("MessagingUserDevice",jsonString);
+        datosuser.putString("MessagingUser",jsonString);
         datosuser.apply();
         messaging.utils.showDebugLog(this,nameMethod,"User Saved in Storage Controller ");
 
@@ -201,7 +201,7 @@ public class MessagingStorageController {
     public boolean isRegisterUserByDevice(){
         nameMethod=new Object(){}.getClass().getEnclosingMethod().getName();
         boolean hasToken = false;
-        String token=mSharedPreferences.getString("MessagingUserDevice","");
+        String token=mSharedPreferences.getString("MessagingUser","");
         if(token.length()>0){
             hasToken=true;
 
@@ -218,7 +218,7 @@ public class MessagingStorageController {
     public Map<String,String> getUserByDevice(){
         nameMethod=new Object(){}.getClass().getEnclosingMethod().getName();
         Map<String,String> outputMap = new HashMap<String,String>();
-        String jsonString=mSharedPreferences.getString("MessagingUserDevice",(new JSONObject()).toString());
+        String jsonString=mSharedPreferences.getString("MessagingUser",(new JSONObject()).toString());
         try {
             JSONObject jsonObject = new JSONObject(jsonString);
             Iterator<String> keysItr = jsonObject.keys();

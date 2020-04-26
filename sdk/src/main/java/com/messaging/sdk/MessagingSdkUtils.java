@@ -11,19 +11,17 @@ import org.json.JSONObject;
 import java.util.ArrayList;
 import java.util.List;
 
-public class MessagingSdkUtils {
+ class MessagingSdkUtils {
 
 
     public static String TAG="MESSANGING";
-    static int icon;
-    public static String nameClass;
     private static String messangi_host;
     private static String messangi_token;
     private static boolean analytics_allowed;
     private static boolean location_allowed;
     private static boolean logging_allowed;
     private MessagingStorageController messagingStorageController;
-    private MessagingDev messagingDev;
+    private MessagingDevice messagingDevice;
 
     /**
      * Method init Resourses system from config file
@@ -153,34 +151,34 @@ public class MessagingSdkUtils {
         MessagingSdkUtils.messangi_token = messangi_token;
     }
 
-    public MessagingDev getMessangiDevFromJson(JSONObject resp){
-        MessagingDev messagingDev =new MessagingDev();
+    public MessagingDevice getMessangiDevFromJson(JSONObject resp){
+        MessagingDevice messagingDevice =new MessagingDevice();
         try {
             if(resp.has("id")){
 
-                messagingDev.setId(resp.getString("id"));
+                messagingDevice.setId(resp.getString("id"));
 
             }
             if(resp.has("pushToken")){
-                messagingDev.setPushToken(resp.getString("pushToken"));
+                messagingDevice.setPushToken(resp.getString("pushToken"));
             }
             if(resp.has("userId")){
-                messagingDev.setUserId(resp.getString("userId"));
+                messagingDevice.setUserId(resp.getString("userId"));
             }
             if(resp.has("type")){
-                messagingDev.setType(resp.getString("type"));
+                messagingDevice.setType(resp.getString("type"));
             }
             if(resp.has("language")){
-                messagingDev.setLanguage(resp.getString("language"));
+                messagingDevice.setLanguage(resp.getString("language"));
             }
             if(resp.has("model")){
-                messagingDev.setModel(resp.getString("model"));
+                messagingDevice.setModel(resp.getString("model"));
             }
             if(resp.has("os")){
-                messagingDev.setOs(resp.getString("os"));
+                messagingDevice.setOs(resp.getString("os"));
             }
             if(resp.has("sdkVersion")){
-                messagingDev.setSdkVersion(resp.getString("sdkVersion"));
+                messagingDevice.setSdkVersion(resp.getString("sdkVersion"));
             }
             if(resp.has("tags")){
                 List<String> prvTag=new ArrayList<>();
@@ -188,26 +186,26 @@ public class MessagingSdkUtils {
                 for (int i = 0; i < jsonArray.length(); i++) {
                     prvTag.add(jsonArray.getString(i));
                 }
-                messagingDev.setTags(prvTag);
+                messagingDevice.setTags(prvTag);
 
             }
             if(resp.has("createdAt")){
-                messagingDev.setCreatedAt(resp.getString("createdAt"));
+                messagingDevice.setCreatedAt(resp.getString("createdAt"));
             }
             if(resp.has("updatedAt")){
-                messagingDev.setUpdatedAt(resp.getString("updatedAt"));
+                messagingDevice.setUpdatedAt(resp.getString("updatedAt"));
             }
             if(resp.has("timestamp")){
-                messagingDev.setTimestamp(resp.getString("timestamp"));
+                messagingDevice.setTimestamp(resp.getString("timestamp"));
             }
             if(resp.has("transaction")){
-                messagingDev.setTransaction(resp.getString("transaction"));
+                messagingDevice.setTransaction(resp.getString("transaction"));
             }
         } catch (JSONException e) {
             e.printStackTrace();
         }
 
-        return messagingDev;
+        return messagingDevice;
     }
 
     /**

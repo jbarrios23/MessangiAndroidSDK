@@ -4,10 +4,10 @@ import com.google.firebase.messaging.FirebaseMessagingService;
 import com.google.firebase.messaging.RemoteMessage;
 
 /**
- * class MessagingFirebaseService let handle notification push using FirebaseMessagingService .
+ * class MessagingService let handle notification push using FirebaseMessagingService .
  *
  */
-public class MessagingFirebaseService extends FirebaseMessagingService  {
+public class MessagingService extends FirebaseMessagingService  {
 
     public MessagingStorageController messagingStorageController;
     public Messaging messaging;
@@ -22,7 +22,7 @@ public class MessagingFirebaseService extends FirebaseMessagingService  {
     public void onNewToken(String s) {
         super.onNewToken(s);
         nameMethod=new Object(){}.getClass().getEnclosingMethod().getName();
-        messaging = Messaging.getInst(this);
+        messaging = Messaging.getInstance(this);
         messaging.utils.showDebugLog(this,nameMethod,"New Token "+s);
         sendTokenToBackend(s);
     }
@@ -36,9 +36,9 @@ public class MessagingFirebaseService extends FirebaseMessagingService  {
         messagingStorageController = messaging.messagingStorageController;
         messagingStorageController.saveToken(tokenPush);
 
-        if(!messagingStorageController.isNotificationManually()&& messaging.messagingDev !=null){
-            messaging.messagingDev.setPushToken(tokenPush);
-            messaging.messagingDev.save(this);
+        if(!messagingStorageController.isNotificationManually()&& messaging.messagingDevice !=null){
+            messaging.messagingDevice.setPushToken(tokenPush);
+            messaging.messagingDevice.save(this);
         }
 
     }
@@ -53,7 +53,7 @@ public class MessagingFirebaseService extends FirebaseMessagingService  {
     public void onMessageReceived(RemoteMessage remoteMessage) {
         super.onMessageReceived(remoteMessage);
         nameMethod=new Object(){}.getClass().getEnclosingMethod().getName();
-        messaging = Messaging.getInst(this);
+        messaging = Messaging.getInstance(this);
         messaging.utils.showDebugLog(this,nameMethod, "");
         new MessagingNotification(remoteMessage,this);
     }

@@ -57,8 +57,8 @@ public class Messaging implements LifecycleObserver{
     private String os;
     private ArrayList<String> tags;
 
-    MessagingUserDevice messagingUserDevice;
-    MessagingDev messagingDev;
+    MessagingUser messagingUser;
+    MessagingDevice messagingDevice;
     MessagingSdkUtils utils;
     public MessagingStorageController messagingStorageController;
     private String sdkVersion;
@@ -82,8 +82,8 @@ public class Messaging implements LifecycleObserver{
         this.model=getDeviceName();
         this.os=Build.VERSION.RELEASE;
         this.tags=new ArrayList<String>();
-        this.messagingUserDevice =null;
-        this.messagingDev =null;
+        this.messagingUser =null;
+        this.messagingDevice =null;
         this.identifier=0;
         this.messagingNotification =null;
         this.nameMethod="";
@@ -91,7 +91,7 @@ public class Messaging implements LifecycleObserver{
 
     }
 
-    public static synchronized Messaging getInst(Context context) {
+    public static synchronized Messaging getInstance(Context context) {
         if (mInstance == null) {
             mInstance = new Messaging(context);
         }
@@ -99,7 +99,7 @@ public class Messaging implements LifecycleObserver{
         return mInstance;
     }
 
-    public static synchronized Messaging getInst() {
+    public static synchronized Messaging getInstance() {
 
         return mInstance;
     }
@@ -112,14 +112,14 @@ public class Messaging implements LifecycleObserver{
         nameMethod=new Object(){}.getClass().getEnclosingMethod().getName();
         utils.showDebugLog(this,nameMethod,"Foreground");
         if(messagingStorageController.isRegisterDevice()){
-            messagingDev = messagingStorageController.getDevice();
-            messagingDev.checkSdkVersion(context);
+            messagingDevice = messagingStorageController.getDevice();
+            messagingDevice.checkSdkVersion(context);
             identifier=1;
             if(!messagingStorageController.isNotificationManually() && messagingStorageController.hasTokenRegiter()
-                    && messagingDev.getPushToken().equals("")){
+                    && messagingDevice.getPushToken().equals("")){
                 utils.showInfoLog(this,nameMethod,"Save device with token");
-                messagingDev.setPushToken(messagingStorageController.getToken());
-                messagingDev.save(context);
+                messagingDevice.setPushToken(messagingStorageController.getToken());
+                messagingDevice.save(context);
             }
         }else{
             utils.showErrorLog(this,nameMethod,"Device not found!","");
@@ -366,21 +366,21 @@ public class Messaging implements LifecycleObserver{
      */
     public void requestDevice(boolean forsecallservice){
         nameMethod=new Object(){}.getClass().getEnclosingMethod().getName();
-        if(!forsecallservice && this.messagingDev !=null){
+        if(!forsecallservice && this.messagingDevice !=null){
             utils.showDebugLog(this,nameMethod,"Device From RAM ");
-            sendEventToActivity(messagingDev,context);
+            sendEventToActivity(messagingDevice,context);
 
         }else{
             if(!forsecallservice && messagingStorageController.isRegisterDevice()){
-                messagingDev = messagingStorageController.getDevice();
+                messagingDevice = messagingStorageController.getDevice();
                 utils.showDebugLog(this,nameMethod,"Device From Local Storage ");
-                sendEventToActivity(messagingDev,context);
+                sendEventToActivity(messagingDevice,context);
             }else{
 
                 if(messagingStorageController.isRegisterDevice()){
                     utils.showDebugLog(this,nameMethod,"Device From Service ");
-                    messagingDev = messagingStorageController.getDevice();
-                    String provId= messagingDev.getId();
+                    messagingDevice = messagingStorageController.getDevice();
+                    String provId= messagingDevice.getId();
                     new HttpRequestTaskGet(provId).execute();
                 }else{
 
@@ -392,19 +392,16 @@ public class Messaging implements LifecycleObserver{
 
     }
     /**
-     * Method that send Parameter (Ej: messagingDev or MessagingUserDevice) registered to Activity
+     * Method that send Parameter (Ej: messagingDevice or MessagingUser) registered to Activity
      @param something: Object Serializable for send to activity (Ej MeesangiDev).
      @param context : context instance
      */
     private void sendEventToActivity(Serializable something, Context context) {
-        nameMethod=new Object(){}.getClass().getEnclosingMethod().getName();
+
         Intent intent=new Intent("PassDataFromSdk");
         intent.putExtra("message",something);
-        if(something!=null){
-            LocalBroadcastManager.getInstance(context).sendBroadcast(intent);
-        }else{
-            utils.showErrorLog(this,nameMethod,"Not Send Broadcast ",null);
-        }
+        intent.putExtra("hasError",something==null);
+        LocalBroadcastManager.getInstance(context).sendBroadcast(intent);
 
     }
     /**
@@ -499,10 +496,10 @@ public class Messaging implements LifecycleObserver{
                     nameMethod=new Object(){}.getClass().getEnclosingMethod().getName();
                     utils.showHttpResponsetLog(provUrl,Messaging.this,nameMethod,"Successful",response);
                     JSONObject resp=new JSONObject(response);
-                    messagingDev =utils.getMessangiDevFromJson(resp);
-                    //messagingStorageController.saveDevice(messagingDev);
+                    messagingDevice =utils.getMessangiDevFromJson(resp);
+                    //messagingStorageController.saveDevice(messagingDevice);
                     messagingStorageController.saveDevice(resp);
-                    sendEventToActivity(messagingDev,context);
+                    sendEventToActivity(messagingDevice,context);
 
 
                 }
@@ -608,15 +605,15 @@ public class Messaging implements LifecycleObserver{
                     JSONObject resp=new JSONObject(response);
                     nameMethod=new Object(){}.getClass().getEnclosingMethod().getName();
                     utils.showHttpResponsetLog(provUrl,Messaging.this,nameMethod,"Successful",response);
-                    messagingDev =utils.getMessangiDevFromJson(resp);
+                    messagingDevice =utils.getMessangiDevFromJson(resp);
                     messagingStorageController.saveDevice(resp);
                     if(messagingStorageController.hasTokenRegiter()&&
                             !messagingStorageController.isNotificationManually()){
                         String token= messagingStorageController.getToken();
-                        messagingDev.setPushToken(token);
-                        messagingDev.save(context);
+                        messagingDevice.setPushToken(token);
+                        messagingDevice.save(context);
                     }
-                    sendEventToActivity(messagingDev,context);
+                    sendEventToActivity(messagingDevice,context);
                 }
             }catch (NullPointerException e){
                 sendEventToActivity(null,context);

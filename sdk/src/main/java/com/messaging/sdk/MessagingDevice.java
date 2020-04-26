@@ -30,10 +30,11 @@ import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 /**
- * class MessagingDev is used for handle Device paramenter in SDK and service
+ * class MessagingDevice is used for handle Device paramenter in SDK
+ * and service for update device and requestUserByDevice.
  */
 
-public class MessagingDev implements Serializable {
+public class MessagingDevice implements Serializable {
     private String id;
     private String pushToken;
     protected String userId;
@@ -50,9 +51,20 @@ public class MessagingDev implements Serializable {
     private String nameMethod;
 
     /**
-     * Method that make Update of Device by service
-     @param context: Instance context.
+     * direct access to the singletone instance defined in Messangi
 
+     */
+    public static synchronized MessagingDevice getInstance() {
+        if (Messaging.getInstance() == null) {
+            return null;
+        }
+        //direct access to the singletone instance defined in Messangi
+        return Messaging.getInstance().messagingDevice;
+    }
+
+    /**
+     * Method that make Update of paramenter Device using service
+     @param context: Instance context.
      */
 
     public void save(final Context context){
@@ -63,23 +75,23 @@ public class MessagingDev implements Serializable {
     }
 
     /**
-     * Method for get Device registered from service
+     * Method for get User by Device registered from service
      @param context: instance context
      @param forsecallservice : allows effective device search in three ways: by instance, by shared variable or by service.
      */
-    public void requestUserByDevice(final Context context, boolean forsecallservice){
+    public  void requestUserByDevice(final Context context, boolean forsecallservice){
         nameMethod=new Object(){}.getClass().getEnclosingMethod().getName();
-        final Messaging messaging = Messaging.getInst(context);
-        final MessagingStorageController messagingStorageController = Messaging.getInst().messagingStorageController;
-        if(!forsecallservice && messaging.messagingUserDevice !=null){
+        final Messaging messaging = Messaging.getInstance(context);
+        final MessagingStorageController messagingStorageController = Messaging.getInstance().messagingStorageController;
+        if(!forsecallservice && messaging.messagingUser !=null){
             messaging.utils.showDebugLog(this,nameMethod,"User From RAM ");
-            sendEventToActivity(messaging.messagingUserDevice,context);
+            sendEventToActivity(messaging.messagingUser,context);
         }else {
             if (!forsecallservice && messagingStorageController.isRegisterUserByDevice()) {
                 messaging.utils.showDebugLog(this,nameMethod,"User From Local storage ");
                 Map<String, String> resultMap= messagingStorageController.getUserByDevice();
-                messaging.messagingUserDevice = MessagingUserDevice.parseData(resultMap) ;
-                sendEventToActivity(messaging.messagingUserDevice,context);
+                messaging.messagingUser = MessagingUser.parseData(resultMap) ;
+                sendEventToActivity(messaging.messagingUser,context);
 
             } else {
                 messaging.utils.showDebugLog(this,nameMethod, "User From Service ");
@@ -104,7 +116,7 @@ public class MessagingDev implements Serializable {
      */
     public void setStatusNotificationPush(boolean enable,Context context){
         nameMethod=new Object(){}.getClass().getEnclosingMethod().getName();
-        final MessagingStorageController messagingStorageController = Messaging.getInst().messagingStorageController;
+        final MessagingStorageController messagingStorageController = Messaging.getInstance().messagingStorageController;
         messagingStorageController.setNotificationManually(true);
         if(messagingStorageController.hasTokenRegiter()&& enable){
             pushToken= messagingStorageController.getToken();
@@ -124,7 +136,7 @@ public class MessagingDev implements Serializable {
 
     public void checkSdkVersion(Context context) {
         nameMethod=new Object(){}.getClass().getEnclosingMethod().getName();
-        final Messaging messaging = Messaging.getInst(context);
+        final Messaging messaging = Messaging.getInstance(context);
         String sdkVersionInt = BuildConfig.VERSION_NAME; // sdk version;
         if(getSdkVersion().equals("0") || !getSdkVersion().equals(sdkVersionInt)){
             setSdkVersion(sdkVersionInt);
@@ -156,7 +168,7 @@ public class MessagingDev implements Serializable {
 
     }
     /**
-     * Method for add nes Tags to Device, then you can do save and
+     * Method for add new Tags to Device, then you can do save and
      * immediately it is updated in the database.
      @param newTags: new Tags for add
      */
@@ -350,21 +362,16 @@ public class MessagingDev implements Serializable {
     }
 
     /**
-     * Method that send Parameter (Ej: messagingDev or MessagingUserDevice) registered to Activity
+     * Method that send Parameter (Ej: messagingDevice or MessagingUser) registered to Activity
      @param something: Object Serializable for send to activity (Ej MeesangiDev).
      @param context : context instance
      */
     private void sendEventToActivity(Serializable something, Context context) {
-        nameMethod=new Object(){}.getClass().getEnclosingMethod().getName();
-        Messaging messaging = Messaging.getInst(context);
+
         Intent intent=new Intent("PassDataFromSdk");
-        messaging.utils.showDebugLog(this,nameMethod,"Broadcasting message");
         intent.putExtra("message",something);
-        if(something!=null){
-         LocalBroadcastManager.getInstance(context).sendBroadcast(intent);
-        }else{
-         messaging.utils.showErrorLog(this,nameMethod,"Not Send Broadcast ","");
-        }
+        intent.putExtra("hasError",something==null);
+        LocalBroadcastManager.getInstance(context).sendBroadcast(intent);
     }
 
     private class HTTPReqTaskPut extends AsyncTask<Void,Void,String> {
@@ -375,13 +382,13 @@ public class MessagingDev implements Serializable {
         private String server_response;
         private Context context;
         private String provUrl;
-        private MessagingDev messagingDev;
+        private MessagingDevice messagingDevice;
 
         public HTTPReqTaskPut(String id, JSONObject gsonObject, Context context) {
             this.jsonObject=gsonObject;
             this.Id=id;
             this.context=context;
-            this.messaging = Messaging.getInst(this.context);
+            this.messaging = Messaging.getInstance(this.context);
 
         }
 
@@ -393,7 +400,7 @@ public class MessagingDev implements Serializable {
                 String authToken= MessagingSdkUtils.getMessangi_token();
                 JSONObject postData = jsonObject;
                 provUrl=MessagingSdkUtils.getMessangi_host()+"/v1/devices/"+Id;
-                messaging.utils.showHttpRequestLog(provUrl,MessagingDev.this,nameMethod,"PUT",postData.toString());
+                messaging.utils.showHttpRequestLog(provUrl, MessagingDevice.this,nameMethod,"PUT",postData.toString());
                 URL url = new URL(provUrl);
                 urlConnection = (HttpURLConnection) url.openConnection();
                 urlConnection.setRequestProperty("Authorization","Bearer "+authToken);
@@ -441,11 +448,11 @@ public class MessagingDev implements Serializable {
             try{
                 if(!response.equals("")) {
                     nameMethod=new Object(){}.getClass().getEnclosingMethod().getName();
-                    messaging.utils.showHttpResponsetLog(provUrl,MessagingDev.this,nameMethod,"Successful",response);
+                    messaging.utils.showHttpResponsetLog(provUrl, MessagingDevice.this,nameMethod,"Successful",response);
                     JSONObject resp=new JSONObject(response);
-                    messagingDev = messaging.utils.getMessangiDevFromJson(resp);
+                    messagingDevice = messaging.utils.getMessangiDevFromJson(resp);
                     messaging.messagingStorageController.saveDevice(resp);
-                    sendEventToActivity(messagingDev,context);
+                    sendEventToActivity(messagingDevice,context);
 
                 }
             }catch (NullPointerException e){
@@ -481,7 +488,7 @@ public class MessagingDev implements Serializable {
                 String authToken= MessagingSdkUtils.getMessangi_token();
                 String param ="Bearer "+authToken;
                 provUrl= MessagingSdkUtils.getMessangi_host()+"/v1/users?device="+deviceId;
-                messaging.utils.showHttpRequestLog(provUrl,MessagingDev.this,nameMethod,"GET","");
+                messaging.utils.showHttpRequestLog(provUrl, MessagingDevice.this,nameMethod,"GET","");
                 URL url = new URL(provUrl);
                 urlConnection = (HttpURLConnection) url.openConnection();
                 urlConnection.setRequestProperty("Authorization","Bearer "+authToken);
@@ -526,10 +533,10 @@ public class MessagingDev implements Serializable {
                     JSONObject resp=new JSONObject(response);
                     Map<String, String> resultMap=toMap(resp);
                     messaging.messagingStorageController.saveUserByDevice(resultMap);
-                    MessagingUserDevice messagingUserDevice;
-                    messagingUserDevice = MessagingUserDevice.parseData(resultMap);
-                    messagingUserDevice.id = userId;
-                    sendEventToActivity(messagingUserDevice, context);
+                    MessagingUser messagingUser;
+                    messagingUser = MessagingUser.parseData(resultMap);
+                    messagingUser.id = userId;
+                    sendEventToActivity(messagingUser, context);
 
 
                 }

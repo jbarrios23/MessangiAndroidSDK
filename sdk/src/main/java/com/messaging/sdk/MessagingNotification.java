@@ -16,7 +16,7 @@ import java.util.Map;
 
 public class MessagingNotification implements Serializable {
 
-    private Messaging messaging = Messaging.getInst();
+    private Messaging messaging = Messaging.getInstance();
     private Context context;
 
     //common
@@ -217,7 +217,7 @@ public class MessagingNotification implements Serializable {
     }
 
     /**
-     * Method that send Parameter (Ej: messagingDev or MessagingUserDevice) registered to Activity
+     * Method that send Parameter (Ej: messagingDevice or MessagingUser) registered to Activity
      @param something: Object Serializable for send to activity (Ej MeesangiDev).
      @param context : context instance
      */
