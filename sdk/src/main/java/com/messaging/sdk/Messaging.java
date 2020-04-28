@@ -17,6 +17,7 @@ import androidx.localbroadcastmanager.content.LocalBroadcastManager;
 import com.google.firebase.messaging.FirebaseMessaging;
 
 
+import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
@@ -32,7 +33,11 @@ import java.io.Serializable;
 import java.net.HttpURLConnection;
 import java.net.URL;
 import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.Iterator;
+import java.util.List;
 import java.util.Locale;
+import java.util.Map;
 
 
 /**
@@ -163,7 +168,7 @@ public class Messaging implements LifecycleObserver{
      * Method that Set Las notification
      * @param messagingNotification
      */
-    public void setLastMessangiNotifiction(MessagingNotification messagingNotification) {
+    void setLastMessangiNotifiction(MessagingNotification messagingNotification) {
 
         this.messagingNotification = messagingNotification;
     }
@@ -172,7 +177,7 @@ public class Messaging implements LifecycleObserver{
         return tags;
     }
 
-    public void setTags(ArrayList<String> tags) {
+    private void setTags(ArrayList<String> tags) {
         this.tags = tags;
     }
 
@@ -183,7 +188,7 @@ public class Messaging implements LifecycleObserver{
      * Method that Set pushToken
      * @param pushToken
      */
-    public void setPushToken(String pushToken) {
+    private void setPushToken(String pushToken) {
         this.pushToken = pushToken;
     }
 
@@ -200,14 +205,14 @@ public class Messaging implements LifecycleObserver{
      * Method that Set name class
      * @param nameclass
      */
-    public void setNameclass(String nameclass) {
+    private void setNameclass(String nameclass) {
         Nameclass = nameclass;
     }
     /**
      * Method that Set Firebase topic for use to Backend
      *
      */
-    public void setFirebaseTopic(){
+    private void setFirebaseTopic(){
 
         FirebaseMessaging.getInstance().subscribeToTopic("topic_general");
     }
@@ -228,7 +233,7 @@ public class Messaging implements LifecycleObserver{
         return sdkVersion;
     }
 
-    public void setSdkVersion(String sdkVersion) {
+    private void setSdkVersion(String sdkVersion) {
 
         this.sdkVersion = sdkVersion;
     }
@@ -237,7 +242,7 @@ public class Messaging implements LifecycleObserver{
         return lenguaje;
     }
 
-    public void setLenguaje(String lenguaje) {
+    private void setLenguaje(String lenguaje) {
         this.lenguaje = lenguaje;
     }
 
@@ -250,7 +255,7 @@ public class Messaging implements LifecycleObserver{
         return type;
     }
 
-    public void setType(String type) {
+    private void setType(String type) {
         this.type = type;
     }
 
@@ -262,7 +267,7 @@ public class Messaging implements LifecycleObserver{
         return os;
     }
 
-    public void setOs(String os) {
+    private void setOs(String os) {
         this.os = os;
     }
 
@@ -321,7 +326,7 @@ public class Messaging implements LifecycleObserver{
     return icon;
     }
 
-    public void setIcon(int icon) {
+    private void setIcon(int icon) {
         this.icon = icon;
     }
 
@@ -364,27 +369,28 @@ public class Messaging implements LifecycleObserver{
      * Method that get Device registered
      @param forsecallservice: It allows effective device search in three ways: by instance, by shared variable or by service.
      */
-    public void requestDevice(boolean forsecallservice){
-        nameMethod=new Object(){}.getClass().getEnclosingMethod().getName();
-        if(!forsecallservice && this.messagingDevice !=null){
-            utils.showDebugLog(this,nameMethod,"Device From RAM ");
-            sendEventToActivity(messagingDevice,context);
+    public static void fetchDevice(boolean forsecallservice){
+        String nameMethod=new Object(){}.getClass().getEnclosingMethod().getName();
+        final Messaging messaging = Messaging.getInstance(context);
+        if(!forsecallservice && messaging.messagingDevice !=null){
+            messaging.utils.showDebugLog(messaging,nameMethod,"Device From RAM ");
+            messaging.sendEventToActivity(messaging.messagingDevice,context);
 
         }else{
-            if(!forsecallservice && messagingStorageController.isRegisterDevice()){
-                messagingDevice = messagingStorageController.getDevice();
-                utils.showDebugLog(this,nameMethod,"Device From Local Storage ");
-                sendEventToActivity(messagingDevice,context);
+            if(!forsecallservice && messaging.messagingStorageController.isRegisterDevice()){
+                messaging.messagingDevice = messaging.messagingStorageController.getDevice();
+                messaging.utils.showDebugLog(messaging,nameMethod,"Device From Local Storage ");
+                messaging.sendEventToActivity(messaging.messagingDevice,context);
             }else{
 
-                if(messagingStorageController.isRegisterDevice()){
-                    utils.showDebugLog(this,nameMethod,"Device From Service ");
-                    messagingDevice = messagingStorageController.getDevice();
-                    String provId= messagingDevice.getId();
+                if(messaging.messagingStorageController.isRegisterDevice()){
+                    messaging.utils.showDebugLog(messaging,nameMethod,"Device From Service ");
+                    messaging.messagingDevice = messaging.messagingStorageController.getDevice();
+                    String provId= messaging.messagingDevice.getId();
                     new HttpRequestTaskGet(provId).execute();
                 }else{
 
-                utils.showErrorLog(this,nameMethod,"Device not found! ",null);
+                messaging.utils.showErrorLog(messaging,nameMethod,"Device not found! ",null);
                 }
 
             }
@@ -433,15 +439,19 @@ public class Messaging implements LifecycleObserver{
         new HTTPReqTaskPost(requestBody).execute();
     }
 
-    private class HttpRequestTaskGet extends AsyncTask<Void,Void,String> {
+    private static class HttpRequestTaskGet extends AsyncTask<Void,Void,String> {
 
         public String provIdDevice;
         private String server_response;
         private String provUrl;
+        private Messaging messaging;
+        private String nameMethod;
 
 
         public HttpRequestTaskGet(String provId) {
             this.provIdDevice=provId;
+            this.messaging=Messaging.getInstance();
+
         }
 
 
@@ -451,10 +461,10 @@ public class Messaging implements LifecycleObserver{
 
             try {
                 String authToken= MessagingSdkUtils.getMessangi_token();
-
+                nameMethod=new Object(){}.getClass().getEnclosingMethod().getName();
                 String param ="Bearer "+authToken;
                 provUrl= MessagingSdkUtils.getMessangi_host()+"/v1/devices/"+provIdDevice;
-                utils.showHttpRequestLog(provUrl,Messaging.this,nameMethod,"GET","");
+                messaging.utils.showHttpRequestLog(provUrl,messaging,nameMethod,"GET","");
                 URL url = new URL(provUrl);
                 urlConnection = (HttpURLConnection) url.openConnection();
                 urlConnection.setRequestProperty("Authorization","Bearer "+authToken);
@@ -462,8 +472,8 @@ public class Messaging implements LifecycleObserver{
                 urlConnection.setRequestMethod("GET");
                 int code = urlConnection.getResponseCode();
                 if (code !=  200) {
-                    sendEventToActivity(null,context);
-                    utils.showErrorLog(this,nameMethod,"Invalid response from server: " + code,null);
+                    messaging.sendEventToActivity(null,context);
+                    messaging.utils.showErrorLog(this,nameMethod,"Invalid response from server: " + code,null);
                     throw new IOException("Invalid response from server: " + code);
                 }
 
@@ -472,13 +482,13 @@ public class Messaging implements LifecycleObserver{
 
 
                 if(code == HttpURLConnection.HTTP_OK){
-                    server_response = readStream(urlConnection.getInputStream());
+                    server_response = messaging.readStream(urlConnection.getInputStream());
 
                 }
 
             } catch (Exception e) {
                 e.printStackTrace();
-                utils.showErrorLog(this,nameMethod,"Exception ",e.getStackTrace().toString());
+                messaging.utils.showErrorLog(this,nameMethod,"Exception ",e.getStackTrace().toString());
             } finally {
                 if (urlConnection != null) {
                     urlConnection.disconnect();
@@ -494,22 +504,22 @@ public class Messaging implements LifecycleObserver{
             try{
                 if(!response.equals("")) {
                     nameMethod=new Object(){}.getClass().getEnclosingMethod().getName();
-                    utils.showHttpResponsetLog(provUrl,Messaging.this,nameMethod,"Successful",response);
+                    messaging.utils.showHttpResponsetLog(provUrl,messaging,nameMethod,"Successful",response);
                     JSONObject resp=new JSONObject(response);
-                    messagingDevice =utils.getMessangiDevFromJson(resp);
+                    messaging.messagingDevice =messaging.utils.getMessangiDevFromJson(resp);
                     //messagingStorageController.saveDevice(messagingDevice);
-                    messagingStorageController.saveDevice(resp);
-                    sendEventToActivity(messagingDevice,context);
+                    messaging.messagingStorageController.saveDevice(resp);
+                    messaging.sendEventToActivity(messaging.messagingDevice,context);
 
 
                 }
             }catch (NullPointerException e){
-                sendEventToActivity(null,context);
-                utils.showErrorLog(this,nameMethod,"Device not Get! NullPointerException ",e.getStackTrace().toString());
+                messaging.sendEventToActivity(null,context);
+                messaging.utils.showErrorLog(this,nameMethod,"Device not Get! NullPointerException ",e.getStackTrace().toString());
             } catch (JSONException e) {
                 e.printStackTrace();
-                sendEventToActivity(null,context);
-                utils.showErrorLog(this,nameMethod,"Device not Get! JSONException",e.getStackTrace().toString());
+                messaging.sendEventToActivity(null,context);
+                messaging.utils.showErrorLog(this,nameMethod,"Device not Get! JSONException",e.getStackTrace().toString());
             }
         }
     }
@@ -626,4 +636,161 @@ public class Messaging implements LifecycleObserver{
 
         }
     }
+
+    /**
+     * Method for get User by Device registered from service
+     @param context: instance context
+     @param forsecallservice : allows effective device search in three ways: by instance, by shared variable or by service.
+     */
+    public static void fetchUser(final Context context, boolean forsecallservice){
+        String nameMethod=new Object(){}.getClass().getEnclosingMethod().getName();
+        final Messaging messaging = Messaging.getInstance(context);
+        final MessagingStorageController messagingStorageController = Messaging.getInstance().messagingStorageController;
+        if(!forsecallservice && messaging.messagingUser !=null){
+            messaging.utils.showDebugLog(messaging,nameMethod,"User From RAM ");
+            messaging.sendEventToActivity(messaging.messagingUser,context);
+        }else {
+            if (!forsecallservice && messagingStorageController.isRegisterUserByDevice()) {
+                messaging.utils.showDebugLog(messaging,nameMethod,"User From Local storage ");
+                Map<String, String> resultMap= messagingStorageController.getUserByDevice();
+                messaging.messagingUser = MessagingUser.parseData(resultMap) ;
+                messaging.sendEventToActivity(messaging.messagingUser,context);
+
+            } else {
+                messaging.utils.showDebugLog(messaging,nameMethod, "User From Service ");
+                if(messaging.messagingDevice!=null){
+                    new HTTPReqTaskGetUser(messaging.messagingDevice.getId(), messaging,context).execute();
+                }
+
+            }
+        }
+
+    }
+    private static class HTTPReqTaskGetUser extends AsyncTask<Void,Void,String> {
+
+        public String deviceId;
+        private String server_response;
+        private Messaging messaging;
+        private Context context;
+        private String provUrl;
+        private String nameMethod;
+
+        public HTTPReqTaskGetUser(String deviceId, Messaging messaging, Context context) {
+            this.deviceId=deviceId;
+            this.messaging = messaging;
+            this.context=context;
+        }
+
+        @Override
+        protected String doInBackground(Void... voids) {
+            HttpURLConnection urlConnection = null;
+
+            try {
+                nameMethod=new Object(){}.getClass().getEnclosingMethod().getName();
+                String authToken= MessagingSdkUtils.getMessangi_token();
+                String param ="Bearer "+authToken;
+                provUrl= MessagingSdkUtils.getMessangi_host()+"/v1/users?device="+deviceId;
+                messaging.utils.showHttpRequestLog(provUrl, messaging,nameMethod,"GET","");
+                URL url = new URL(provUrl);
+                urlConnection = (HttpURLConnection) url.openConnection();
+                urlConnection.setRequestProperty("Authorization","Bearer "+authToken);
+                urlConnection.setRequestProperty("Content-Type","application/json");
+                urlConnection.setRequestMethod("GET");
+                int code = urlConnection.getResponseCode();
+                if (code !=  200) {
+                    messaging.sendEventToActivity(null,context);
+                    messaging.utils.showErrorLog(this,nameMethod,"Invalid response from server: " + code,"");
+                    throw new IOException("Invalid response from server: " + code);
+                }
+
+                BufferedReader rd = new BufferedReader(new InputStreamReader(
+                        urlConnection.getInputStream()));
+
+
+                if(code == HttpURLConnection.HTTP_OK){
+                    server_response = messaging.readStream(urlConnection.getInputStream());
+
+                }
+
+            } catch (Exception e) {
+                e.printStackTrace();
+                messaging.utils.showErrorLog(this,nameMethod,"Get User error Exception",e.getStackTrace().toString());
+            } finally {
+                if (urlConnection != null) {
+                    urlConnection.disconnect();
+                }
+            }
+
+            return server_response;
+        }
+
+        @Override
+        protected void onPostExecute(String response) {
+            super.onPostExecute(response);
+
+            try{
+                if(!response.equals("")) {
+                    nameMethod=new Object(){}.getClass().getEnclosingMethod().getName();
+                    messaging.utils.showHttpResponsetLog(provUrl,this,nameMethod,"Successful",response);
+                    JSONObject resp=new JSONObject(response);
+                    Map<String, String> resultMap=toMap(resp);
+                    messaging.messagingStorageController.saveUserByDevice(resultMap);
+                    MessagingUser messagingUser;
+                    messagingUser = MessagingUser.parseData(resultMap);
+                    //messagingUser.id = deviceId;
+                    messaging.sendEventToActivity(messagingUser, context);
+
+
+                }
+            }catch (NullPointerException e){
+                messaging.sendEventToActivity(null,context);
+                messaging.utils.showErrorLog(this,nameMethod,"Get error User! NullPointerException ",e.getStackTrace().toString());
+            } catch (JSONException e) {
+                e.printStackTrace();
+                messaging.sendEventToActivity(null,context);
+                messaging.utils.showErrorLog(this,nameMethod,"Get error User! JSONException ",e.getStackTrace().toString());
+
+            }
+
+        }
+    }
+
+    public static Map<String, String> toMap(JSONObject object) throws JSONException {
+        Map<String, String> map = new HashMap<String, String>();
+
+        Iterator<String> keysItr = object.keys();
+        while(keysItr.hasNext()) {
+            String key = keysItr.next();
+            Object value = object.get(key);
+
+            if(value instanceof JSONArray) {
+                value = toList((JSONArray) value);
+            }
+
+            else if(value instanceof JSONObject) {
+                value = toMap((JSONObject) value);
+            }
+
+            map.put(key, String.valueOf(value));
+        }
+        return map;
+    }
+
+    public static List<Object> toList(JSONArray array) throws JSONException {
+        List<Object> list = new ArrayList<Object>();
+        for(int i = 0; i < array.length(); i++) {
+            Object value = array.get(i);
+            if(value instanceof JSONArray) {
+                value = toList((JSONArray) value);
+            }
+
+            else if(value instanceof JSONObject) {
+                value = toMap((JSONObject) value);
+            }
+            list.add(value);
+        }
+        return list;
+    }
+
+
 }

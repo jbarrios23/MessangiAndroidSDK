@@ -1,8 +1,9 @@
 # MessangiAndroidSDK
 
-![Cirrus CI - Specific Branch Build Status](https://img.shields.io/cirrus/github/jbarrios23/MessangiAndroidSDK/master)
+[![CI Status](https://img.shields.io/badge/build-v1.0.0-blue)](https://git.messangi.com/messangi/messangi-ios-sdk)
 ![Bintray](https://img.shields.io/bintray/v/jbarrios23/TestLibraryMessangiSDK/com.android.testdefsdknotificactionpush)
-[![Platform](https://img.shields.io/cocoapods/p/MessangiSDK.svg?style=flat)](https://cocoapods.org/pods/MessangiSDK)
+[![CI Status](https://img.shields.io/badge/platform-Android-blue)](https://git.messangi.com/messangi/messangi-ios-sdk)
+
 
 
 ## Description
@@ -112,7 +113,7 @@ public class MainActivity extends AppCompatActivity{
 To make use of the functionalities that Messanging SDK offers, the Messanging class is available, to obtain the instance of this class you can do: 
 ```java
 Messaging messaging=Messaging.getInstance(this);//get Instance of Messanging for use method. 
-MessangingDevice messagingDevice; //class MessangingDevice is used for handle Device paramenter in SDK and service for update device and requestUserByDevice
+MessangingDevice messangingDevice; //class MessangingDevice is used for handle Device paramenter in SDK and service for update device and requestUserByDevice
 MessagingUser messagingUser; // class MessagingUser is used for handle User paramenter in SDK and make service update user.
 ```
 By doing this you have access to
@@ -123,29 +124,29 @@ By doing this you have access to
      by shared variable or by service.
      when forsecallservice=true, search device parameters through the service. 
      */
-messaging.requestDevice(true);
+Messaging.fetchDevice(true);
     /**
      * Method for add new Tags to Device, then you can do save and
      * immediately it is updated in the database.
      @param newTags: new Tags for add
      */
-messagingDev.addTagsToDevice(tags);
+messagingDev.addTagToDevice(tags);
     /**
      * Method that make Update of paramenter Device using service
      @param context: Instance context.
      */
-messagingDevice.save(getApplicationContext());
+messangingDevice.save(getApplicationContext());
     /**
      * Method for get User by Device registered from service
      @param context: instance context
      @param forsecallservice : allows effective device search in three ways: by instance, by shared variable or by service.
      when forsecallservice=true, search device parameters through the service.
      */
-messagingDevice.requestUserByDevice(getApplicationContext(), true);
+Messaging.fetchUser(getApplicationContext(), true);
     **
      * Method get Device registered in local storage
     */
-messagingDevice =messagingStorageController.getDevice();//get device saved from local storage
+messangingDevice =messagingStorageController.getDevice();//get device saved from local storage
     /**
      * Method that make Update of User parameter using service 
      @param context: Instance context
@@ -179,7 +180,7 @@ public class MainActivity extends AppCompatActivity{
       @Override
     protected void onResume() {
         super.onResume();
-       messaging.requestDevice(false);
+       Messaging.fetchDevice(false);
     }
 ```
 
@@ -199,8 +200,8 @@ public class MainActivity extends AppCompatActivity{
       @Override
     protected void onResume() {
         super.onResume();
-        messangig.requestDevice(false);
-        messagingDevice.requestUserByDevice(getApplicationContext(), true);
+       Messaging.fetchDevice(true);
+       Messaging.fetchUser(getApplicationContext(), true);
     }
    
 ```
@@ -214,7 +215,7 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.localbroadcastmanager.content.LocalBroadcastManager;
 
 import com.messaging.sdk.Messaging;
-import com.messaging.sdk.MessagingDevice;
+import com.messaging.sdk.MessangingDevice;
 import com.messaging.sdk.MessagingNotification;
 import com.messaging.sdk.MessagingUser;
 
@@ -226,7 +227,7 @@ public class MainActivity extends AppCompatActivity {
     public static final String DELETE_TAG = "DELETE_TAG";
 
     public Messaging messaging;
-    public MessangingDevice messagingDevice;
+    public MessangingDevice messangingDevice;
     public MessagingUser messagingUser;
     MessagingNotification messagingNotification;
     
@@ -249,8 +250,8 @@ public class MainActivity extends AppCompatActivity {
             @Override
             public void onClick(View v) {
                ...
-                messaging.requestDevice(true);//get device 
-                messagingDevice.requestUserByDevice(getApplicationContext(), true);//get user
+                Messaging.fetchDevice(true);
+                Messaging.fetchUser(getApplicationContext(), true);
                 
             }
         });
@@ -258,9 +259,9 @@ public class MainActivity extends AppCompatActivity {
        save.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                if (messagingDevice.getTags().size() > 0) {
+                if (messangingDevice.getTags().size() > 0) {
                     progressBar.setVisibility(View.VISIBLE);
-                    messagingDevice.save(getApplicationContext());//save parameter in backend using service.
+                    messangingDevice.save(getApplicationContext());//save parameter in backend using service.
                 } else {
                     Toast.makeText(getApplicationContext(), "Nothing to save", Toast.LENGTH_LONG).show();
                 }
@@ -285,7 +286,7 @@ public class MainActivity extends AppCompatActivity {
     @Override
     protected void onResume() {
        .....
-       messaging.requestDevice(false);//get device parameter
+       Messaging.fetchDevice(false);//get device parameter
        }
     
     
@@ -295,11 +296,12 @@ public class MainActivity extends AppCompatActivity {
         public void onReceive(Context context, Intent intent) {
            
             Serializable message=intent.getSerializableExtra("message");
+            boolean hasError=intent.getBooleanExtra("hasError",true);
+            if ( (!hasError) && (message instanceof MessagingDevice)){
+                messangiDevArrayList.clear();
 
-            if ((message instanceof MessangingDevice) && (message!=null)){
-               
-                messagingDevice =(MessangingDevice) message;
-                messagingDevice.getId());
+                messagingDevice =(MessagingDevice) message;
+
                 messangiDevArrayList.add("Id: "           + messagingDevice.getId());
                 messangiDevArrayList.add("pushToken: "    + messagingDevice.getPushToken());
                 messangiDevArrayList.add("UserId: "       + messagingDevice.getUserId());
@@ -313,31 +315,45 @@ public class MainActivity extends AppCompatActivity {
                 messangiDevArrayList.add("UpdatedAt: "    + messagingDevice.getUpdatedAt());
                 messangiDevArrayList.add("Timestamp: "    + messagingDevice.getTimestamp());
                 messangiDevArrayList.add("Transaction: "  + messagingDevice.getTransaction());
-                
-                messagingDevice.requestUserByDevice(getApplicationContext(),false);
 
 
-            }else if((message instanceof MessagingUser) && (message!=null)){
-               
+                lista_device.setAdapter(messangiDevArrayAdapter);
+                Messaging.fetchUser(getApplicationContext(),false);
+
+
+            }else if((!hasError) && (message instanceof MessagingUser) ){
+                messangiUserDeviceArrayList.clear();
                 messagingUser =(MessagingUser) message;
-                
-                
-            }else if((message instanceof MessagingNotification) && (message!=null)){
+
+                if(messagingUser.getProperties().size()>0){
+                    Map<String,String> result= messagingUser.getProperties();
+                    for (Map.Entry<String, String> entry : result.entrySet()) {
+                        messangiUserDeviceArrayList.add(entry.getKey()+": "+entry.getValue());
+                    }
+                    messangiUserDeviceArrayList.add("devices: "+ messagingUser.getDevices());
+
+                }
+
+                lista_user.setAdapter(messangiUserDeviceArrayAdapter);
+            }else if((!hasError) && (message instanceof MessagingNotification)){
                 messagingNotification =(MessagingNotification) message;
                 showAlertNotificaction(messagingNotification);
 
             }else{
-            ...
+
+                Toast.makeText(getApplicationContext(),"An error occurred while consulting the service",Toast.LENGTH_LONG).show();
+                
+                }
+
             }
-        }
+            .....
+            }
     };
 
     @Override
     protected void onDestroy() {
         LocalBroadcastManager.getInstance(this).unregisterReceiver(mReceiver);
         }
-
-
 }
 ```
 

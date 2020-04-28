@@ -72,6 +72,7 @@ public class MainActivity extends AppCompatActivity {
 
 
 
+
         lista_device = findViewById(R.id.lista_device);
         lista_user = findViewById(R.id.lista_user);
         title = findViewById(R.id.textView_imprimir);
@@ -96,10 +97,9 @@ public class MainActivity extends AppCompatActivity {
                 messangiDevArrayList.clear();
                 messangiUserDeviceArrayList.clear();
                 progressBar.setVisibility(View.VISIBLE);
-                messaging.requestDevice(true);
+                Messaging.fetchDevice(true);
                 Log.i(TAG,"INFO: "+CLASS_TAG+": "+nameMethod+": "+messaging.getExternalId());
-
-                messagingDevice.requestUserByDevice(getApplicationContext(), true);
+                Messaging.fetchUser(getApplicationContext(), true);
             }
         });
 
@@ -169,7 +169,7 @@ public class MainActivity extends AppCompatActivity {
         messangiDevArrayList.clear();
         messangiUserDeviceArrayList.clear();
         progressBar.setVisibility(View.VISIBLE);
-        messaging.requestDevice(false);
+        Messaging.fetchDevice(false);
         Log.i(TAG,"INFO: "+CLASS_TAG+": "+nameMethod+"onResume: ");
 
 
@@ -327,8 +327,8 @@ public class MainActivity extends AppCompatActivity {
                 // send data from the AlertDialog to the Activity
 
                 EditText editText = customLayout.findViewById(R.id.editText_tag);
-                String tags=editText.getText().toString();
-                messagingDevice.addTagsToDevice(tags);
+                String tag=editText.getText().toString();
+                messagingDevice.addTagToDevice(tag);
                 creatAlert();
 
 
@@ -362,7 +362,7 @@ public class MainActivity extends AppCompatActivity {
             Serializable message=intent.getSerializableExtra("message");
             boolean hasError=intent.getBooleanExtra("hasError",true);
             Log.d(TAG,"ERROR: "+CLASS_TAG+": "+nameMethod+": Has error:  "+ hasError);
-            if ((message instanceof MessagingDevice) && (!hasError)){
+            if ( (!hasError) && (message instanceof MessagingDevice)){
                 messangiDevArrayList.clear();
 
                 messagingDevice =(MessagingDevice) message;
@@ -385,10 +385,10 @@ public class MainActivity extends AppCompatActivity {
 
 
                 lista_device.setAdapter(messangiDevArrayAdapter);
-                messagingDevice.requestUserByDevice(getApplicationContext(),false);
+                Messaging.fetchUser(getApplicationContext(),false);
 
 
-            }else if((message instanceof MessagingUser) && (!hasError)){
+            }else if((!hasError) && (message instanceof MessagingUser) ){
                 messangiUserDeviceArrayList.clear();
                 messagingUser =(MessagingUser) message;
 
@@ -404,13 +404,13 @@ public class MainActivity extends AppCompatActivity {
                 }
 
                 lista_user.setAdapter(messangiUserDeviceArrayAdapter);
-            }else if((message instanceof MessagingNotification) && (!hasError)){
+            }else if((!hasError) && (message instanceof MessagingNotification)){
                 messagingNotification =(MessagingNotification) message;
                 showAlertNotificaction(messagingNotification);
 
             }else{
 
-
+                Toast.makeText(getApplicationContext(),"An error occurred while consulting the service",Toast.LENGTH_LONG).show();
                 if(progressBar.isShown()){
                     progressBar.setVisibility(View.GONE);
                 }
@@ -419,7 +419,6 @@ public class MainActivity extends AppCompatActivity {
             if(progressBar.isShown()){
                 progressBar.setVisibility(View.GONE);
             }
-
 
         }
 

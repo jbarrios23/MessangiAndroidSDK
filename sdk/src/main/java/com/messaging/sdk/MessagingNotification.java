@@ -98,8 +98,8 @@ public class MessagingNotification implements Serializable {
      }
 
 
-     messaging.utils.showDebugLog(this,nameMethod, "silent "+silent);
-     messaging.utils.showDebugLog(this,nameMethod, "sticky "+sticky);
+     messaging.utils.showDebugLog(this,nameMethod, "silent: "+silent);
+     messaging.utils.showDebugLog(this,nameMethod, "sticky: "+sticky);
 
     if(this.notification!=null){
          messaging.utils.showDebugLog(this,nameMethod, "Notification "
@@ -108,10 +108,10 @@ public class MessagingNotification implements Serializable {
     }
 
      if(this.additionalData!=null && additionalData.size()>0){
-         messaging.utils.showDebugLog(this,nameMethod, "additionalData "+additionalData);
-         messaging.utils.showDebugLog(this,nameMethod, "ticker "+ticker);
-         messaging.utils.showDebugLog(this,nameMethod, "icon "+icon);
-         messaging.utils.showDebugLog(this,nameMethod, "badge "+badge);
+         messaging.utils.showDebugLog(this,nameMethod, "additionalData: "+additionalData);
+         messaging.utils.showDebugLog(this,nameMethod, "ticker: "+ticker);
+         messaging.utils.showDebugLog(this,nameMethod, "icon: "+icon);
+         messaging.utils.showDebugLog(this,nameMethod, "badge: "+badge);
 
      }
 
@@ -225,12 +225,8 @@ public class MessagingNotification implements Serializable {
         this.nameMethod=new Object(){}.getClass().getEnclosingMethod().getName();
         Intent intent=new Intent("PassDataFromSdk");
         intent.putExtra("message",something);
-        if(something!=null){
+        intent.putExtra("hasError",something==null);
         LocalBroadcastManager.getInstance(context).sendBroadcast(intent);
-        }else{
-         messaging.utils.showErrorLog(this,nameMethod,"Not Send Broadcast ",null);
-
-        }
 
     }
 

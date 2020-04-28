@@ -74,32 +74,7 @@ public class MessagingDevice implements Serializable {
 
     }
 
-    /**
-     * Method for get User by Device registered from service
-     @param context: instance context
-     @param forsecallservice : allows effective device search in three ways: by instance, by shared variable or by service.
-     */
-    public  void requestUserByDevice(final Context context, boolean forsecallservice){
-        nameMethod=new Object(){}.getClass().getEnclosingMethod().getName();
-        final Messaging messaging = Messaging.getInstance(context);
-        final MessagingStorageController messagingStorageController = Messaging.getInstance().messagingStorageController;
-        if(!forsecallservice && messaging.messagingUser !=null){
-            messaging.utils.showDebugLog(this,nameMethod,"User From RAM ");
-            sendEventToActivity(messaging.messagingUser,context);
-        }else {
-            if (!forsecallservice && messagingStorageController.isRegisterUserByDevice()) {
-                messaging.utils.showDebugLog(this,nameMethod,"User From Local storage ");
-                Map<String, String> resultMap= messagingStorageController.getUserByDevice();
-                messaging.messagingUser = MessagingUser.parseData(resultMap) ;
-                sendEventToActivity(messaging.messagingUser,context);
 
-            } else {
-                messaging.utils.showDebugLog(this,nameMethod, "User From Service ");
-                new HTTPReqTaskGetUser(id, messaging,context).execute();
-            }
-        }
-
-    }
 
     /**
      * Method for get status of enable notification push
@@ -173,7 +148,7 @@ public class MessagingDevice implements Serializable {
      @param newTags: new Tags for add
      */
 
-    public void addTagsToDevice(String newTags){
+    public MessagingDevice addTagToDevice(String newTags){
 
         if(tags!=null){
             tags.add(newTags);
@@ -183,6 +158,25 @@ public class MessagingDevice implements Serializable {
             tags.add(newTags);
 
         }
+
+        return this;
+
+    }
+    /**
+     * Method for add new Tags to Device, then you can do save and
+     * immediately it is updated in the database.
+     @param newTags: new Tags for add
+     */
+
+    public MessagingDevice removeTagToDevice(String newTags){
+
+        if(tags!=null){
+            tags.remove(newTags);
+
+        }else {
+            tags = new ArrayList<>();
+        }
+        return this;
 
     }
     /**
@@ -203,7 +197,7 @@ public class MessagingDevice implements Serializable {
         return id;
     }
 
-    public void setId(String id) {
+    void setId(String id) {
         this.id = id;
     }
 
@@ -215,7 +209,7 @@ public class MessagingDevice implements Serializable {
         return pushToken;
     }
 
-    public void setPushToken(String pushToken) {
+    void setPushToken(String pushToken) {
         this.pushToken = pushToken;
     }
 
@@ -227,8 +221,10 @@ public class MessagingDevice implements Serializable {
         return userId;
     }
 
-    public void setUserId(String userId) {
+    MessagingDevice setUserId(String userId) {
         this.userId = userId;
+
+        return this;
     }
 
     /**
@@ -239,8 +235,9 @@ public class MessagingDevice implements Serializable {
         return type;
     }
 
-    public void setType(String type) {
+    MessagingDevice setType(String type) {
         this.type = type;
+        return this;
     }
     /**
      * Method for get Leanguaje of Device
@@ -250,8 +247,9 @@ public class MessagingDevice implements Serializable {
         return language;
     }
 
-    public void setLanguage(String language) {
+    MessagingDevice setLanguage(String language) {
         this.language = language;
+        return this;
     }
     /**
      * Method for get Model od Device
@@ -261,8 +259,10 @@ public class MessagingDevice implements Serializable {
         return model;
     }
 
-    public void setModel(String model) {
+    MessagingDevice setModel(String model)
+    {
         this.model = model;
+        return this;
     }
 
     /**
@@ -273,8 +273,10 @@ public class MessagingDevice implements Serializable {
         return os;
     }
 
-    public void setOs(String os) {
+    MessagingDevice setOs(String os)
+    {
         this.os = os;
+        return this;
     }
 
     /**
@@ -285,8 +287,9 @@ public class MessagingDevice implements Serializable {
         return sdkVersion;
     }
 
-    public void setSdkVersion(String sdkVersion) {
+    MessagingDevice setSdkVersion(String sdkVersion) {
         this.sdkVersion = sdkVersion;
+        return this;
     }
     /**
      * Method for get Tags of Device
@@ -296,40 +299,45 @@ public class MessagingDevice implements Serializable {
         return tags;
     }
 
-    public void setTags(List<String> tags) {
+    MessagingDevice setTags(List<String> tags) {
         this.tags = tags;
+        return this;
     }
 
     public String getCreatedAt() {
         return createdAt;
     }
 
-    public void setCreatedAt(String createdAt) {
+    MessagingDevice setCreatedAt(String createdAt) {
         this.createdAt = createdAt;
+        return this;
     }
 
     public String getUpdatedAt() {
         return updatedAt;
     }
 
-    public void setUpdatedAt(String updatedAt) {
+    MessagingDevice setUpdatedAt(String updatedAt) {
         this.updatedAt = updatedAt;
+        return this;
     }
 
     public String getTimestamp() {
         return timestamp;
     }
 
-    public void setTimestamp(String timestamp) {
+    MessagingDevice setTimestamp(String timestamp) {
         this.timestamp = timestamp;
+        return this;
     }
 
     public String getTransaction() {
         return transaction;
     }
 
-    public void setTransaction(String transaction) {
+    MessagingDevice setTransaction(String transaction) {
         this.transaction = transaction;
+        return this;
     }
 
     /**
@@ -466,92 +474,7 @@ public class MessagingDevice implements Serializable {
         }
     }
 
-    private class HTTPReqTaskGetUser extends AsyncTask<Void,Void,String> {
 
-        public String deviceId;
-        private String server_response;
-        private Messaging messaging;
-        private Context context;
-        private String provUrl;
-
-        public HTTPReqTaskGetUser(String deviceId, Messaging messaging, Context context) {
-            this.deviceId=deviceId;
-            this.messaging = messaging;
-            this.context=context;
-        }
-
-        @Override
-        protected String doInBackground(Void... voids) {
-            HttpURLConnection urlConnection = null;
-
-            try {
-                String authToken= MessagingSdkUtils.getMessangi_token();
-                String param ="Bearer "+authToken;
-                provUrl= MessagingSdkUtils.getMessangi_host()+"/v1/users?device="+deviceId;
-                messaging.utils.showHttpRequestLog(provUrl, MessagingDevice.this,nameMethod,"GET","");
-                URL url = new URL(provUrl);
-                urlConnection = (HttpURLConnection) url.openConnection();
-                urlConnection.setRequestProperty("Authorization","Bearer "+authToken);
-                urlConnection.setRequestProperty("Content-Type","application/json");
-                urlConnection.setRequestMethod("GET");
-                int code = urlConnection.getResponseCode();
-                if (code !=  200) {
-                    sendEventToActivity(null,context);
-                    messaging.utils.showErrorLog(this,nameMethod,"Invalid response from server: " + code,"");
-                    throw new IOException("Invalid response from server: " + code);
-                }
-
-                BufferedReader rd = new BufferedReader(new InputStreamReader(
-                        urlConnection.getInputStream()));
-
-
-                if(code == HttpURLConnection.HTTP_OK){
-                    server_response = messaging.readStream(urlConnection.getInputStream());
-
-                }
-
-            } catch (Exception e) {
-                e.printStackTrace();
-                messaging.utils.showErrorLog(this,nameMethod,"Get User error Exception",e.getStackTrace().toString());
-            } finally {
-                if (urlConnection != null) {
-                    urlConnection.disconnect();
-                }
-            }
-
-            return server_response;
-        }
-
-        @Override
-        protected void onPostExecute(String response) {
-            super.onPostExecute(response);
-
-            try{
-                if(!response.equals("")) {
-                    nameMethod=new Object(){}.getClass().getEnclosingMethod().getName();
-                    messaging.utils.showHttpResponsetLog(provUrl,this,nameMethod,"Successful",response);
-                    JSONObject resp=new JSONObject(response);
-                    Map<String, String> resultMap=toMap(resp);
-                    messaging.messagingStorageController.saveUserByDevice(resultMap);
-                    MessagingUser messagingUser;
-                    messagingUser = MessagingUser.parseData(resultMap);
-                    messagingUser.id = userId;
-                    sendEventToActivity(messagingUser, context);
-
-
-                }
-            }catch (NullPointerException e){
-                sendEventToActivity(null,context);
-                messaging.utils.showErrorLog(this,nameMethod,"Get error User! NullPointerException ",e.getStackTrace().toString());
-            } catch (JSONException e) {
-                e.printStackTrace();
-                sendEventToActivity(null,context);
-                messaging.utils.showErrorLog(this,nameMethod,"Get error User! JSONException ",e.getStackTrace().toString());
-
-            }
-
-        }
-    }
 
     public static Map<String, String> toMap(JSONObject object) throws JSONException {
         Map<String, String> map = new HashMap<String, String>();
