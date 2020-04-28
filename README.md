@@ -87,23 +87,24 @@ public class MainActivity extends AppCompatActivity{
         super.onDestroy();
     }
     
- private BroadcastReceiver mReceiver=new BroadcastReceiver() {
+private BroadcastReceiver mReceiver=new BroadcastReceiver() {
         @Override
         public void onReceive(Context context, Intent intent) {
-            nameMethod=new Object(){}.getClass().getEnclosingMethod().getName();
-            Serializable message=intent.getSerializableExtra("message");
             
-            if ((message instanceof MessagingDev) && (message!=null)){
+            Serializable message=intent.getSerializableExtra("message");
+            boolean hasError=intent.getBooleanExtra("hasError",true);
+           if ( (!hasError) && (message instanceof MessagingDevice)){
                 do something
-            }else if((message instanceof MessagingUserDevice) && (message!=null)){
-              
-	        	do something
-            }else if((message instanceof MessagingNotification) && (message!=null)){
-                do something
+            }else if((!hasError) && (message instanceof MessagingUser) ){
+                 do something
+            }else if((!hasError) && (message instanceof MessagingNotification)){
+                 do something
 
             }else{
-                do something
+                Toast.makeText(getApplicationContext(),"An error occurred while consulting the service",Toast.LENGTH_LONG).show();
+                 do something
             }
+            
         }
     };
    //please see all the implementation in example app
