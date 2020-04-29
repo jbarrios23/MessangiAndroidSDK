@@ -374,11 +374,11 @@ public class MessagingDevice implements Serializable {
      @param something: Object Serializable for send to activity (Ej MeesangiDev).
      @param context : context instance
      */
-    private void sendEventToActivity(Serializable something, Context context) {
+    private void sendEventToActivity(String action,Serializable something, Context context) {
 
-        Intent intent=new Intent("PassDataFromSdk");
-        intent.putExtra("message",something);
-        intent.putExtra("hasError",something==null);
+        Intent intent=new Intent(action);
+        intent.putExtra(Messaging.INTENT_EXTRA_DATA,something);
+        intent.putExtra(Messaging.INTENT_EXTRA_HAS_ERROR,something==null);
         LocalBroadcastManager.getInstance(context).sendBroadcast(intent);
     }
 
@@ -405,7 +405,7 @@ public class MessagingDevice implements Serializable {
             HttpURLConnection urlConnection = null;
 
             try {
-                String authToken= MessagingSdkUtils.getMessangi_token();
+                String authToken= MessagingSdkUtils.getMessaging_token();
                 JSONObject postData = jsonObject;
                 provUrl=MessagingSdkUtils.getMessangi_host()+"/v1/devices/"+Id;
                 messaging.utils.showHttpRequestLog(provUrl, MessagingDevice.this,nameMethod,"PUT",postData.toString());
@@ -426,7 +426,7 @@ public class MessagingDevice implements Serializable {
 
                 int code = urlConnection.getResponseCode();
                 if (code !=  200) {
-                    sendEventToActivity(null,context);
+                    sendEventToActivity(Messaging.ACTION_SAVE_DEVICE,null,context);
                     messaging.utils.showErrorLog(this,nameMethod,"Invalid response from server: " + code,null);
                     throw new IOException("Invalid response from server: " + code);
                 }
@@ -440,7 +440,7 @@ public class MessagingDevice implements Serializable {
 
             } catch (Exception e) {
                 e.printStackTrace();
-                sendEventToActivity(null,context);
+                sendEventToActivity(Messaging.ACTION_SAVE_DEVICE,null,context);
             } finally {
                 if (urlConnection != null) {
                     urlConnection.disconnect();
@@ -460,16 +460,16 @@ public class MessagingDevice implements Serializable {
                     JSONObject resp=new JSONObject(response);
                     messagingDevice = messaging.utils.getMessangiDevFromJson(resp);
                     messaging.messagingStorageController.saveDevice(resp);
-                    sendEventToActivity(messagingDevice,context);
+                    sendEventToActivity(Messaging.ACTION_SAVE_DEVICE,messagingDevice,context);
 
                 }
             }catch (NullPointerException e){
                 messaging.utils.showErrorLog(this,nameMethod,"device not update! NullPointerException",e.getStackTrace().toString());
-                sendEventToActivity(null,context);
+                sendEventToActivity(Messaging.ACTION_SAVE_DEVICE,null,context);
             } catch (JSONException e) {
                 e.printStackTrace();
                 messaging.utils.showErrorLog(this,nameMethod,"device not update! JSONException",e.getStackTrace().toString());
-                sendEventToActivity(null,context);
+                sendEventToActivity(Messaging.ACTION_SAVE_DEVICE,null,context);
             }
         }
     }

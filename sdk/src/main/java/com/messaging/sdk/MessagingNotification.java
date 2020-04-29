@@ -116,7 +116,7 @@ public class MessagingNotification implements Serializable {
      }
 
      messaging.setLastMessangiNotifiction(this);
-     sendEventToActivity(this,this.context);
+     sendEventToActivity(Messaging.ACTION_GET_NOTIFICATION,this,this.context);
 
     }
 
@@ -221,11 +221,11 @@ public class MessagingNotification implements Serializable {
      @param something: Object Serializable for send to activity (Ej MeesangiDev).
      @param context : context instance
      */
-    private void sendEventToActivity(Serializable something, Context context) {
+    private void sendEventToActivity(String action,Serializable something, Context context) {
         this.nameMethod=new Object(){}.getClass().getEnclosingMethod().getName();
-        Intent intent=new Intent("PassDataFromSdk");
-        intent.putExtra("message",something);
-        intent.putExtra("hasError",something==null);
+        Intent intent=new Intent(action);
+        intent.putExtra(Messaging.INTENT_EXTRA_DATA,something);
+        intent.putExtra(Messaging.INTENT_EXTRA_HAS_ERROR,something==null);
         LocalBroadcastManager.getInstance(context).sendBroadcast(intent);
 
     }

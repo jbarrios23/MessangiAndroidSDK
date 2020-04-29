@@ -1,4 +1,4 @@
-# MessangiAndroidSDK
+# MessagingAndroidSDK
 
 [![CI Status](https://img.shields.io/badge/build-v1.0.0-blue)](https://git.messangi.com/messangi/messangi-ios-sdk)
 ![Bintray](https://img.shields.io/bintray/v/jbarrios23/TestLibraryMessangiSDK/com.android.testdefsdknotificactionpush)
@@ -26,7 +26,7 @@ To use the Messangi SDK is required:
 ### Step 1: Create Android Studio Project
 Open Android Studio IDE and start new project you are working on.
 #### Implicit Implementation
-Place the "MessangiSDK" dependency in app.gradle
+Place the "MessagiSDK" dependency in app.gradle
 ```Gradle 
 implementation 'com.android.testdefsdknotificactionpush:sdk:1.0'
 ```
@@ -67,125 +67,176 @@ import com.ogangi.messangi.sdk.Messangi;
 
 public class MainActivity extends AppCompatActivity{
     ...
-    private Messangi messangi;
     
-    @Override
-    protected void onCreate(Bundle savedInstanceState) {
-    super.onCreate(savedInstanceState);
-        
-    }
-       ...
+           ...
         @Override
     protected void onStart() {
         super.onStart();
-        LocalBroadcastManager.getInstance(this).registerReceiver(mReceiver,new IntentFilter("PassDataFromSdk"));
+        LocalBroadcastManager.getInstance(this).registerReceiver(mReceiver,
+                new IntentFilter(Messaging.ACTION_FETCH_DEVICE));
+                .....
     }
     
+```
+The Receiver of the LocalBroadcastManager instances must be registered using the corresponding Intentfilte, example: Messaging.ACTION_FETCH_DEVICE 
+```
+    
+    public void dothisForRequestUser() {
+        Messaging.fetchDevice(false);
+    }
+    
+```
+Using fetchDevice device delivers the instance of a device, by internal memory, by local memory or a service.
+
+
      @Override
     protected void onDestroy() {
        LocalBroadcastManager.getInstance(this).unregisterReceiver(mReceiver);
         super.onDestroy();
     }
-    
+Unregister Receiver in actinvtiy main.
+
+If you want to get a response from the fetch device request you should implement a BroadcastReceiver in the main activity:
+ 
+```java
 private BroadcastReceiver mReceiver=new BroadcastReceiver() {
         @Override
         public void onReceive(Context context, Intent intent) {
+            boolean hasError=intent.getBooleanExtra(Messaging.INTENT_EXTRA_HAS_ERROR,true);
             
-            Serializable message=intent.getSerializableExtra("message");
-            boolean hasError=intent.getBooleanExtra("hasError",true);
-           if ( (!hasError) && (message instanceof MessagingDevice)){
-                do something
-            }else if((!hasError) && (message instanceof MessagingUser) ){
-                 do something
-            }else if((!hasError) && (message instanceof MessagingNotification)){
-                 do something
-
+            if (!hasError ) {
+                Serializable data=intent.getSerializableExtra(Messaging.INTENT_EXTRA_DATA);
+                if(intent.getAction().equals(Messaging.ACTION_FETCH_DEVICE)&& data!=null){
+                    messagingDevice = (MessagingDevice) data; //you can cast this for get information
+                    .....
+                }else if(intent.getAction().equals(Messaging.ACTION_FETCH_USER)&& data!=null){
+                    messagingUser =(MessagingUser) data;
+                    .......
+                }else if(intent.getAction().equals(Messaging.ACTION_GET_NOTIFICATION)&& data!=null){
+                    messagingNotification =(MessagingNotification) data;
+                }else if(intent.getAction().equals(Messaging.ACTION_SAVE_DEVICE)&& data!=null) {
+                    messagingDevice = (MessagingDevice) data; //you can cast this for get information
+                   ......
+                }else if(intent.getAction().equals(Messaging.ACTION_SAVE_USER)&& data!=null) {
+                    messagingUser =(MessagingUser) data; //you can cast this for get information
+                ......
+                } 
+                .....
             }else{
-                Toast.makeText(getApplicationContext(),"An error occurred while consulting the service",Toast.LENGTH_LONG).show();
-                 do something
+                Toast.makeText(getApplicationContext(),"An error occurred on action "
+                        +intent.getAction(),Toast.LENGTH_LONG).show();
             }
-            
+            ......
         }
     };
-   //please see all the implementation in example app
+   //you can see all the implementation in example app
 ```
 
 ## Usage
-To make use of the functionalities that Messanging SDK offers, the Messanging class is available, to obtain the instance of this class you can do: 
+To make use of the functionalities that Messanging SDK offers, the Messaging class is available, to obtain the instance of this class you can do: 
 ```java
-Messaging messaging=Messaging.getInstance(this);//get Instance of Messanging for use method. 
-MessangingDevice messangingDevice; //class MessangingDevice is used for handle Device paramenter in SDK and service for update device and requestUserByDevice
-MessagingUser messagingUser; // class MessagingUser is used for handle User paramenter in SDK and make service update user.
+Messaging messaging=Messaging.getInstance(this);//get Instance of Messaging.. 
 ```
+All the services offered by this library are provided by means of an instance of the Messaging class, and it can be obtained that it was indicated later.
+```java
+MessagingDevice messagingDevice; 
+```
+MessangingDevice is used for handle Device paramenter in SDK. To obtain this device instance, the SDK can provide it in three ways: by local memory, internal memory or by service. all forms use a BroadcastReceiver to get that instance. see point number 4
+```java
+MessagingUser messagingUser; 
+```
+
+MessagingUser is used for handle User paramenter in SDK.
+To obtain this User instance, the SDK can provide it in three ways: by local memory, internal memory or by service. all forms use a BroadcastReceiver to get that instance. see point number 4
+
 By doing this you have access to
-```java
-    /**
-     * Method that get Device registered
-     @param forsecallservice: It allows effective device search in three ways: by instance,
-     by shared variable or by service.
-     when forsecallservice=true, search device parameters through the service. 
-     */
-Messaging.fetchDevice(true);
-    /**
-     * Method for add new Tags to Device, then you can do save and
-     * immediately it is updated in the database.
-     @param newTags: new Tags for add
-     */
-messagingDev.addTagToDevice(tags);
-    /**
-     * Method that make Update of paramenter Device using service
-     @param context: Instance context.
-     */
-messangingDevice.save(getApplicationContext());
-    /**
-     * Method for get User by Device registered from service
-     @param context: instance context
-     @param forsecallservice : allows effective device search in three ways: by instance, by shared variable or by service.
-     when forsecallservice=true, search device parameters through the service.
-     */
-Messaging.fetchUser(getApplicationContext(), true);
-    **
-     * Method get Device registered in local storage
-    */
-messangingDevice =messagingStorageController.getDevice();//get device saved from local storage
-    /**
-     * Method that make Update of User parameter using service 
-     @param context: Instance context
-     */
-messagingUser.save(getApplicationContext());
-   /**
-     * Method for add Property to user
-     * example: name, lastname, email or phone
-     * @param key : example name
-     * @param value : example Jose
-     */
-messagingUser.addProperty(key,value);
+    Method that get Device registered
+    forsecallservice: It allows effective device search in three ways: by instance,
+     by shared variable or by service. when forsecallservice=true, search device parameters through the service. This method use BoradcastReceiver for send Instance from SDK to Activity.See point number 4
 
+```java
+    Messaging.fetchDevice(true);
+```
+Method for add new Tags to Device, then you can do save and immediately it is updated in the database.
+
+```java
+     messagingDev.addTagToDevice(tags);
+```
+Method that make Update of paramenter Device using service, this method use BoradcastReceiver for send Instance from SDK to Activity.See point number 4.
+```java
+     messagingDevice.save(getApplicationContext());
+```
+Method for get User by Device registered from service, allows effective device search in three ways: by instance, by shared variable or by service. this method use BoradcastReceiver for send Instance from SDK to Activity.See point number 4.
+When forsecallservice=true, search device parameters through the service.
+```java
+     Messaging.fetchUser(getApplicationContext(), true);
+```
+Method that make Update of User parameter using service, this method use BoradcastReceiver for send Instance from SDK to Activity.See point number 4.
+
+```java
+     messagingUser.save(getApplicationContext());;
+```
+Method for add Property to user, example: name, lastname, email or phone,  key : example name
+     value : example Jose, then you can use messagingUser.save(getApplicationContext());
+     for update User data.
+     
+```java
+     messagingUser.save(getApplicationContext());;
 ```
 
-## Example - Getting MessangiDevice
+## Example - Getting MessagingDevice
 ```java
 ...
 import com.ogangi.messangi.sdk.Messangi;
 
 public class MainActivity extends AppCompatActivity{
     ...
-    private Messaging messaging;
-    
     @Override
     protected void onCreate(Bundle savedInstanceState) {
     super.onCreate(savedInstanceState);
         
     }
+      @Override
+    protected void onStart() {
+        super.onStart();
+       LocalBroadcastManager.getInstance(this).registerReceiver(mReceiver,
+                new IntentFilter(Messaging.ACTION_FETCH_DEVICE));
+      }
        ...
       @Override
     protected void onResume() {
         super.onResume();
        Messaging.fetchDevice(false);
     }
-```
+    private BroadcastReceiver mReceiver=new BroadcastReceiver() {
+        @Override
+        public void onReceive(Context context, Intent intent) {
+            boolean hasError=intent.getBooleanExtra(Messaging.INTENT_EXTRA_HAS_ERROR,true);
+            
+            if (!hasError ) {
+                Serializable data=intent.getSerializableExtra(Messaging.INTENT_EXTRA_DATA);
+                if(intent.getAction().equals(Messaging.ACTION_FETCH_DEVICE)&& data!=null){
+                    messagingDevice = (MessagingDevice) data; //you can cast this for get information
+                    .....
+                }else if(intent.getAction().equals(Messaging.ACTION_FETCH_USER)&& data!=null){
+                    messagingUser =(MessagingUser) data;
+                    .......
+                
+            }else{
+                Toast.makeText(getApplicationContext(),"An error occurred on action "
+                        +intent.getAction(),Toast.LENGTH_LONG).show();
+            }
+            ......
+        }
+    };
+   //you can see all the implementation in example app
+     @Override
+    protected void onDestroy() {
+     LocalBroadcastManager.getInstance(this).unregisterReceiver(mReceiver);
+     }
+   ```
 
-## Example - Getting MessangiUser
+## Example - Getting MessagingUser
 ```java
 ...
 import com.ogangi.messangi.sdk.MessangiUserDevice;
@@ -195,15 +246,43 @@ public class MainActivity extends AppCompatActivity{
     @Override
     protected void onCreate(Bundle savedInstanceState) {
     super.onCreate(savedInstanceState);
-        
     }
+    
+       @Override
+    protected void onStart() {
+        super.onStart();
+        LocalBroadcastManager.getInstance(this).registerReceiver(mReceiver,
+                new IntentFilter(Messaging.ACTION_FETCH_USER));
+        }
     ...
-      @Override
-    protected void onResume() {
-        super.onResume();
-       Messaging.fetchDevice(true);
-       Messaging.fetchUser(getApplicationContext(), true);
+      
+    protected void onGetUser() {
+        Messaging.fetchUser(getApplicationContext(), true);
     }
+    private BroadcastReceiver mReceiver=new BroadcastReceiver() {
+        @Override
+        public void onReceive(Context context, Intent intent) {
+            boolean hasError=intent.getBooleanExtra(Messaging.INTENT_EXTRA_HAS_ERROR,true);
+            
+            if (!hasError ) {
+                Serializable data=intent.getSerializableExtra(Messaging.INTENT_EXTRA_DATA);
+                     .....
+                }else if(intent.getAction().equals(Messaging.ACTION_FETCH_USER)&& data!=null){
+                    messagingUser =(MessagingUser) data;
+                    .......
+                
+            }else{
+                Toast.makeText(getApplicationContext(),"An error occurred on action "
+                        +intent.getAction(),Toast.LENGTH_LONG).show();
+            }
+            ......
+        }
+    };
+   //you can see all the implementation in example app
+     @Override
+    protected void onDestroy() {
+     LocalBroadcastManager.getInstance(this).unregisterReceiver(mReceiver);
+     }
    
 ```
 ## Full implementation example:
@@ -228,7 +307,7 @@ public class MainActivity extends AppCompatActivity {
     public static final String DELETE_TAG = "DELETE_TAG";
 
     public Messaging messaging;
-    public MessangingDevice messangingDevice;
+    public MessagingDevice messangingDevice;
     public MessagingUser messagingUser;
     MessagingNotification messagingNotification;
     
@@ -241,9 +320,6 @@ public class MainActivity extends AppCompatActivity {
 
         getSupportActionBar().hide();
         setContentView(R.layout.activity_main);
-        nameMethod=new Object(){}.getClass().getEnclosingMethod().getName();
-
-
         messaging = Messaging.getInstance(this);
         messaging.getExternalId());// get external ID using Sdk.
 
@@ -262,7 +338,7 @@ public class MainActivity extends AppCompatActivity {
             public void onClick(View v) {
                 if (messangingDevice.getTags().size() > 0) {
                     progressBar.setVisibility(View.VISIBLE);
-                    messangingDevice.save(getApplicationContext());//save parameter in backend using service.
+                    messagingDevice.save(getApplicationContext());//save parameter in backend using service.
                 } else {
                     Toast.makeText(getApplicationContext(), "Nothing to save", Toast.LENGTH_LONG).show();
                 }
@@ -279,8 +355,17 @@ public class MainActivity extends AppCompatActivity {
     protected void onStart() {
         ....
         LocalBroadcastManager.getInstance(this).registerReceiver(mReceiver,
-                new IntentFilter("PassDataFromSdk"));
-
+                new IntentFilter(Messaging.ACTION_FETCH_DEVICE));
+        LocalBroadcastManager.getInstance(this).registerReceiver(mReceiver,
+                new IntentFilter(Messaging.ACTION_FETCH_USER));
+        LocalBroadcastManager.getInstance(this).registerReceiver(mReceiver,
+                new IntentFilter(Messaging.ACTION_GET_NOTIFICATION));
+        LocalBroadcastManager.getInstance(this).registerReceiver(mReceiver,
+                new IntentFilter(Messaging.ACTION_SAVE_DEVICE));
+        LocalBroadcastManager.getInstance(this).registerReceiver(mReceiver,
+                new IntentFilter(Messaging.ACTION_REGISTER_DEVICE));
+        LocalBroadcastManager.getInstance(this).registerReceiver(mReceiver,
+                new IntentFilter(Messaging.ACTION_SAVE_USER));
     }
 
     @SuppressLint("SetTextI18n")
@@ -290,65 +375,55 @@ public class MainActivity extends AppCompatActivity {
        Messaging.fetchDevice(false);//get device parameter
        }
     
-    
-
     private BroadcastReceiver mReceiver=new BroadcastReceiver() {
         @Override
         public void onReceive(Context context, Intent intent) {
-           
-            Serializable message=intent.getSerializableExtra("message");
-            boolean hasError=intent.getBooleanExtra("hasError",true);
-            if ( (!hasError) && (message instanceof MessagingDevice)){
-                messangiDevArrayList.clear();
+            nameMethod=new Object(){}.getClass().getEnclosingMethod().getName();
 
-                messagingDevice =(MessagingDevice) message;
+            boolean hasError=intent.getBooleanExtra(Messaging.INTENT_EXTRA_HAS_ERROR,true);
+            Log.d(TAG,"ERROR: "+CLASS_TAG+": "+nameMethod+": Has error:  "+ hasError);
+            if (!hasError ) {
+                Serializable data=intent.getSerializableExtra(Messaging.INTENT_EXTRA_DATA);
+                if(intent.getAction().equals(Messaging.ACTION_FETCH_DEVICE)&& data!=null){
+                    messagingDevice = (MessagingDevice) data; //you can cast this for get information
 
-                messangiDevArrayList.add("Id: "           + messagingDevice.getId());
-                messangiDevArrayList.add("pushToken: "    + messagingDevice.getPushToken());
-                messangiDevArrayList.add("UserId: "       + messagingDevice.getUserId());
-                messangiDevArrayList.add("Type: "         + messagingDevice.getType());
-                messangiDevArrayList.add("Language: "     + messagingDevice.getLanguage());
-                messangiDevArrayList.add("Model: "        + messagingDevice.getModel());
-                messangiDevArrayList.add("Os: "           + messagingDevice.getOs());
-                messangiDevArrayList.add("SdkVersion: "   + messagingDevice.getSdkVersion());
-                messangiDevArrayList.add("Tags: "         + messagingDevice.getTags());
-                messangiDevArrayList.add("CreateAt: "     + messagingDevice.getCreatedAt());
-                messangiDevArrayList.add("UpdatedAt: "    + messagingDevice.getUpdatedAt());
-                messangiDevArrayList.add("Timestamp: "    + messagingDevice.getTimestamp());
-                messangiDevArrayList.add("Transaction: "  + messagingDevice.getTransaction());
+                    showdevice(messagingDevice);
 
+                }else if(intent.getAction().equals(Messaging.ACTION_FETCH_USER)&& data!=null){
+                    messagingUser =(MessagingUser) data;
+                    shwUser(messagingUser);
 
-                lista_device.setAdapter(messangiDevArrayAdapter);
-                Messaging.fetchUser(getApplicationContext(),false);
+                }else if(intent.getAction().equals(Messaging.ACTION_GET_NOTIFICATION)&& data!=null){
+                    messagingNotification =(MessagingNotification) data;
+                    showAlertNotificaction(messagingNotification);
 
-
-            }else if((!hasError) && (message instanceof MessagingUser) ){
-                messangiUserDeviceArrayList.clear();
-                messagingUser =(MessagingUser) message;
-
-                if(messagingUser.getProperties().size()>0){
-                    Map<String,String> result= messagingUser.getProperties();
-                    for (Map.Entry<String, String> entry : result.entrySet()) {
-                        messangiUserDeviceArrayList.add(entry.getKey()+": "+entry.getValue());
-                    }
-                    messangiUserDeviceArrayList.add("devices: "+ messagingUser.getDevices());
-
+                }else if(intent.getAction().equals(Messaging.ACTION_SAVE_DEVICE)&& data!=null) {
+                    messagingDevice = (MessagingDevice) data; //you can cast this for get information
+                    //for condition of save (user or device);
+                    Toast.makeText(getApplicationContext(),intent.getAction(),Toast.LENGTH_LONG).show();
+                    showdevice(messagingDevice);
+                }else if(intent.getAction().equals(Messaging.ACTION_SAVE_USER)&& data!=null) {
+                    messagingUser =(MessagingUser) data; //you can cast this for get information
+                    //for condition of save (user or device);
+                    Toast.makeText(getApplicationContext(),intent.getAction(),Toast.LENGTH_LONG).show();
+                    shwUser(messagingUser);
+                } else {
+                    Toast.makeText(getApplicationContext(),intent.getAction(),Toast.LENGTH_LONG).show();
                 }
-
-                lista_user.setAdapter(messangiUserDeviceArrayAdapter);
-            }else if((!hasError) && (message instanceof MessagingNotification)){
-                messagingNotification =(MessagingNotification) message;
-                showAlertNotificaction(messagingNotification);
 
             }else{
 
-                Toast.makeText(getApplicationContext(),"An error occurred while consulting the service",Toast.LENGTH_LONG).show();
-                
+                Toast.makeText(getApplicationContext(),"An error occurred on action "
+                        +intent.getAction(),Toast.LENGTH_LONG).show();
+                if(progressBar.isShown()){
+                    progressBar.setVisibility(View.GONE);
                 }
 
             }
-            .....
+            if(progressBar.isShown()){
+                progressBar.setVisibility(View.GONE);
             }
+        }
     };
 
     @Override
@@ -357,7 +432,12 @@ public class MainActivity extends AppCompatActivity {
         }
 }
 ```
-
+For handle Notification in Background you must use this code in Activity:
+```java
+        //for handle notification from background
+        Bundle extras=getIntent().getExtras();
+        messagingNotification =new MessagingNotification(extras,getApplicationContext());
+```
 ## more detail see example app (demoApp)
 
  if you want handle from app the notification you can create class in app project named CustomMessangiService, example:
@@ -415,7 +495,7 @@ public class CustomMessangiService extends MessagingFirebaseService {
 ```
 
 ## Author
-Messanging
+Messaging
 
 ## License
-MessangiingSDK is available under the MIT license. See the LICENSE file for more info.
+MessagiingSDK is available under the MIT license. See the LICENSE file for more info.

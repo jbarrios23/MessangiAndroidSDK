@@ -14,9 +14,9 @@ import java.util.List;
  class MessagingSdkUtils {
 
 
-    public static String TAG="MESSANGING";
-    private static String messangi_host;
-    private static String messangi_token;
+    public static String TAG="MESSAGING";
+    private static String messaging_host;
+    private static String messaging_token;
     private static boolean analytics_allowed;
     private static boolean location_allowed;
     private static boolean logging_allowed;
@@ -43,12 +43,12 @@ import java.util.List;
             showDebugLog(this,nameMethod,location_allowed);
             int key_messagi_host = context.getResources()
                     .getIdentifier("messangi_host", "string", context.getPackageName());
-            messangi_host = context.getString(key_messagi_host);
-            showDebugLog(this,nameMethod,messangi_host);
+            messaging_host = context.getString(key_messagi_host);
+            showDebugLog(this,nameMethod,messaging_host);
             int key_messangi_app_token = context.getResources()
                     .getIdentifier("messangi_app_token", "string", context.getPackageName());
-            messangi_token = context.getString(key_messangi_app_token);
-            showDebugLog(this,nameMethod, messangi_token);
+            messaging_token = context.getString(key_messangi_app_token);
+            showDebugLog(this,nameMethod, messaging_token);
             int key_analytics_allowed = context.getResources()
                     .getIdentifier("analytics_allowed", "bool", context.getPackageName());
             analytics_allowed = context.getResources().getBoolean(key_analytics_allowed);
@@ -133,22 +133,22 @@ import java.util.List;
      */
 
     public static String getMessangi_host() {
-        return messangi_host;
+        return messaging_host;
     }
 
     public static void setMessangi_host(String messangi_host) {
-        MessagingSdkUtils.messangi_host = messangi_host;
+        MessagingSdkUtils.messaging_host = messangi_host;
     }
 
     /**
      * Method get messangi_token
      */
-    public static String getMessangi_token() {
-        return messangi_token;
+    public static String getMessaging_token() {
+        return messaging_token;
     }
 
     public static void setMessangi_token(String messangi_token) {
-        MessagingSdkUtils.messangi_token = messangi_token;
+        MessagingSdkUtils.messaging_token = messangi_token;
     }
 
     public MessagingDevice getMessangiDevFromJson(JSONObject resp){
@@ -241,7 +241,5 @@ import java.util.List;
         }
 
     }
-
-
 
 }

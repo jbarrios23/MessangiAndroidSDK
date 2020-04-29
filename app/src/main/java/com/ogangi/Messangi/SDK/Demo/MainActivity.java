@@ -97,7 +97,7 @@ public class MainActivity extends AppCompatActivity {
                 messangiDevArrayList.clear();
                 messangiUserDeviceArrayList.clear();
                 progressBar.setVisibility(View.VISIBLE);
-                Messaging.fetchDevice(true);
+                Messaging.fetchDevice(true,getApplicationContext());
                 Log.i(TAG,"INFO: "+CLASS_TAG+": "+nameMethod+": "+messaging.getExternalId());
                 Messaging.fetchUser(getApplicationContext(), true);
             }
@@ -158,7 +158,17 @@ public class MainActivity extends AppCompatActivity {
         nameMethod=new Object(){}.getClass().getEnclosingMethod().getName();
         Log.d(TAG,"DEBUG: "+CLASS_TAG+": "+nameMethod+": register BroadcastReceiver");
         LocalBroadcastManager.getInstance(this).registerReceiver(mReceiver,
-                new IntentFilter("PassDataFromSdk"));
+                new IntentFilter(Messaging.ACTION_FETCH_DEVICE));
+        LocalBroadcastManager.getInstance(this).registerReceiver(mReceiver,
+                new IntentFilter(Messaging.ACTION_FETCH_USER));
+        LocalBroadcastManager.getInstance(this).registerReceiver(mReceiver,
+                new IntentFilter(Messaging.ACTION_GET_NOTIFICATION));
+        LocalBroadcastManager.getInstance(this).registerReceiver(mReceiver,
+                new IntentFilter(Messaging.ACTION_SAVE_DEVICE));
+        LocalBroadcastManager.getInstance(this).registerReceiver(mReceiver,
+                new IntentFilter(Messaging.ACTION_REGISTER_DEVICE));
+        LocalBroadcastManager.getInstance(this).registerReceiver(mReceiver,
+                new IntentFilter(Messaging.ACTION_SAVE_USER));
 
     }
 
@@ -169,10 +179,8 @@ public class MainActivity extends AppCompatActivity {
         messangiDevArrayList.clear();
         messangiUserDeviceArrayList.clear();
         progressBar.setVisibility(View.VISIBLE);
-        Messaging.fetchDevice(false);
+        Messaging.fetchDevice(false,getApplicationContext());
         Log.i(TAG,"INFO: "+CLASS_TAG+": "+nameMethod+"onResume: ");
-
-
 
     }
 
@@ -198,7 +206,6 @@ public class MainActivity extends AppCompatActivity {
                 }
 
             }
-
 
         }else if(messagingNotification.getAdditionalData()!=null && messagingNotification.getAdditionalData().size() > 0) {
             data.append("Has only Data"+"\n");
@@ -359,58 +366,42 @@ public class MainActivity extends AppCompatActivity {
         @Override
         public void onReceive(Context context, Intent intent) {
             nameMethod=new Object(){}.getClass().getEnclosingMethod().getName();
-            Serializable message=intent.getSerializableExtra("message");
-            boolean hasError=intent.getBooleanExtra("hasError",true);
+
+            boolean hasError=intent.getBooleanExtra(Messaging.INTENT_EXTRA_HAS_ERROR,true);
             Log.d(TAG,"ERROR: "+CLASS_TAG+": "+nameMethod+": Has error:  "+ hasError);
-            if ( (!hasError) && (message instanceof MessagingDevice)){
-                messangiDevArrayList.clear();
+            if (!hasError ) {
+                Serializable data=intent.getSerializableExtra(Messaging.INTENT_EXTRA_DATA);
+                if(intent.getAction().equals(Messaging.ACTION_FETCH_DEVICE)&& data!=null){
+                    messagingDevice = (MessagingDevice) data; //you can cast this for get information
 
-                messagingDevice =(MessagingDevice) message;
+                    showdevice(messagingDevice);
 
+                }else if(intent.getAction().equals(Messaging.ACTION_FETCH_USER)&& data!=null){
+                    messagingUser =(MessagingUser) data;
+                    shwUser(messagingUser);
 
-                Log.d(TAG,"DEBUG: "+CLASS_TAG+": "+nameMethod+": Device:  "+ messagingDevice.getId());
-                messangiDevArrayList.add("Id: "           + messagingDevice.getId());
-                messangiDevArrayList.add("pushToken: "    + messagingDevice.getPushToken());
-                messangiDevArrayList.add("UserId: "       + messagingDevice.getUserId());
-                messangiDevArrayList.add("Type: "         + messagingDevice.getType());
-                messangiDevArrayList.add("Language: "     + messagingDevice.getLanguage());
-                messangiDevArrayList.add("Model: "        + messagingDevice.getModel());
-                messangiDevArrayList.add("Os: "           + messagingDevice.getOs());
-                messangiDevArrayList.add("SdkVersion: "   + messagingDevice.getSdkVersion());
-                messangiDevArrayList.add("Tags: "         + messagingDevice.getTags());
-                messangiDevArrayList.add("CreateAt: "     + messagingDevice.getCreatedAt());
-                messangiDevArrayList.add("UpdatedAt: "    + messagingDevice.getUpdatedAt());
-                messangiDevArrayList.add("Timestamp: "    + messagingDevice.getTimestamp());
-                messangiDevArrayList.add("Transaction: "  + messagingDevice.getTransaction());
+                }else if(intent.getAction().equals(Messaging.ACTION_GET_NOTIFICATION)&& data!=null){
+                    messagingNotification =(MessagingNotification) data;
+                    showAlertNotificaction(messagingNotification);
 
-
-                lista_device.setAdapter(messangiDevArrayAdapter);
-                Messaging.fetchUser(getApplicationContext(),false);
-
-
-            }else if((!hasError) && (message instanceof MessagingUser) ){
-                messangiUserDeviceArrayList.clear();
-                messagingUser =(MessagingUser) message;
-
-                Log.d(TAG,"DEBUG: "+CLASS_TAG+": "+nameMethod+" User:  "+ messagingUser.getDevices());
-
-                if(messagingUser.getProperties().size()>0){
-                    Map<String,String> result= messagingUser.getProperties();
-                    for (Map.Entry<String, String> entry : result.entrySet()) {
-                        messangiUserDeviceArrayList.add(entry.getKey()+": "+entry.getValue());
-                    }
-                    messangiUserDeviceArrayList.add("devices: "+ messagingUser.getDevices());
-
+                }else if(intent.getAction().equals(Messaging.ACTION_SAVE_DEVICE)&& data!=null) {
+                    messagingDevice = (MessagingDevice) data; //you can cast this for get information
+                    //for condition of save (user or device);
+                    Toast.makeText(getApplicationContext(),intent.getAction(),Toast.LENGTH_LONG).show();
+                    showdevice(messagingDevice);
+                }else if(intent.getAction().equals(Messaging.ACTION_SAVE_USER)&& data!=null) {
+                    messagingUser =(MessagingUser) data; //you can cast this for get information
+                    //for condition of save (user or device);
+                    Toast.makeText(getApplicationContext(),intent.getAction(),Toast.LENGTH_LONG).show();
+                    shwUser(messagingUser);
+                } else {
+                    Toast.makeText(getApplicationContext(),intent.getAction(),Toast.LENGTH_LONG).show();
                 }
-
-                lista_user.setAdapter(messangiUserDeviceArrayAdapter);
-            }else if((!hasError) && (message instanceof MessagingNotification)){
-                messagingNotification =(MessagingNotification) message;
-                showAlertNotificaction(messagingNotification);
 
             }else{
 
-                Toast.makeText(getApplicationContext(),"An error occurred while consulting the service",Toast.LENGTH_LONG).show();
+                Toast.makeText(getApplicationContext(),"An error occurred on action "
+                        +intent.getAction(),Toast.LENGTH_LONG).show();
                 if(progressBar.isShown()){
                     progressBar.setVisibility(View.GONE);
                 }
@@ -424,6 +415,46 @@ public class MainActivity extends AppCompatActivity {
 
 
     };
+
+    private void shwUser(MessagingUser messagingUser) {
+        messangiUserDeviceArrayList.clear();
+
+
+        Log.d(TAG,"DEBUG: "+CLASS_TAG+": "+nameMethod+" User:  "+ this.messagingUser.getDevices());
+
+        if(this.messagingUser.getProperties().size()>0){
+            Map<String,String> result= this.messagingUser.getProperties();
+            for (Map.Entry<String, String> entry : result.entrySet()) {
+                messangiUserDeviceArrayList.add(entry.getKey()+": "+entry.getValue());
+            }
+            messangiUserDeviceArrayList.add("devices: "+ this.messagingUser.getDevices());
+
+        }
+
+        lista_user.setAdapter(messangiUserDeviceArrayAdapter);
+    }
+
+    private void showdevice(MessagingDevice messagingDevice) {
+        messangiDevArrayList.clear();
+
+        Log.d(TAG,"DEBUG: "+CLASS_TAG+": "+nameMethod+": Device:  "+ messagingDevice.getId());
+        messangiDevArrayList.add("Id: "           + messagingDevice.getId());
+        messangiDevArrayList.add("pushToken: "    + messagingDevice.getPushToken());
+        messangiDevArrayList.add("UserId: "       + messagingDevice.getUserId());
+        messangiDevArrayList.add("Type: "         + messagingDevice.getType());
+        messangiDevArrayList.add("Language: "     + messagingDevice.getLanguage());
+        messangiDevArrayList.add("Model: "        + messagingDevice.getModel());
+        messangiDevArrayList.add("Os: "           + messagingDevice.getOs());
+        messangiDevArrayList.add("SdkVersion: "   + messagingDevice.getSdkVersion());
+        messangiDevArrayList.add("Tags: "         + messagingDevice.getTags());
+        messangiDevArrayList.add("CreateAt: "     + messagingDevice.getCreatedAt());
+        messangiDevArrayList.add("UpdatedAt: "    + messagingDevice.getUpdatedAt());
+        messangiDevArrayList.add("Timestamp: "    + messagingDevice.getTimestamp());
+        messangiDevArrayList.add("Transaction: "  + messagingDevice.getTransaction());
+        lista_device.setAdapter(messangiDevArrayAdapter);
+        Messaging.fetchUser(getApplicationContext(),false);
+
+    }
 
     @Override
     protected void onDestroy() {
