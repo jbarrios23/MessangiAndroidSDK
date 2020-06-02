@@ -69,6 +69,8 @@ public class MessagingUser implements Serializable {
 
         String deviceId= messaging.messagingDevice.getId();
         Map<String, String> provPro=properties;
+        provPro.remove("transaction");
+        provPro.remove("timestamp");
         JSONObject requestUpdatebody=new JSONObject(provPro);
         new HTTPReqTaskPutUserByDevice(deviceId,requestUpdatebody,context, messaging).execute();
 
