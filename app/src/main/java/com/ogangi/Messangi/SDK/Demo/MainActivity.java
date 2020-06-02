@@ -37,7 +37,7 @@ import java.util.Map;
 
 public class MainActivity extends AppCompatActivity {
     public static String CLASS_TAG=MainActivity.class.getSimpleName();
-    public static String TAG="MESSANGING";
+    public static String TAG="DEMO_APP";
     public static final String DELETE_TAG = "DELETE_TAG";
 
     public Messaging messaging;

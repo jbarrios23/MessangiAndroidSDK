@@ -407,7 +407,7 @@ public class MessagingDevice implements Serializable {
             try {
                 String authToken= MessagingSdkUtils.getMessaging_token();
                 JSONObject postData = jsonObject;
-                provUrl=MessagingSdkUtils.getMessangi_host()+"/v1/devices/"+Id;
+                provUrl=MessagingSdkUtils.getMessangi_host()+"/devices/"+Id;
                 messaging.utils.showHttpRequestLog(provUrl, MessagingDevice.this,nameMethod,"PUT",postData.toString());
                 URL url = new URL(provUrl);
                 urlConnection = (HttpURLConnection) url.openConnection();

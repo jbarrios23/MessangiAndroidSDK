@@ -475,7 +475,7 @@ public class Messaging implements LifecycleObserver{
                 String authToken= MessagingSdkUtils.getMessaging_token();
                 nameMethod=new Object(){}.getClass().getEnclosingMethod().getName();
                 String param ="Bearer "+authToken;
-                provUrl= MessagingSdkUtils.getMessangi_host()+"/v1/devices/"+provIdDevice;
+                provUrl= MessagingSdkUtils.getMessangi_host()+"/devices/"+provIdDevice;
                 messaging.utils.showHttpRequestLog(provUrl,messaging,nameMethod,"GET","");
                 URL url = new URL(provUrl);
                 urlConnection = (HttpURLConnection) url.openConnection();
@@ -581,7 +581,7 @@ public class Messaging implements LifecycleObserver{
                 String authToken= MessagingSdkUtils.getMessaging_token();
                 nameMethod=new Object(){}.getClass().getEnclosingMethod().getName();
                 JSONObject postData = provRequestBody;
-                provUrl= MessagingSdkUtils.getMessangi_host()+"/v1/devices/";
+                provUrl= MessagingSdkUtils.getMessangi_host()+"/devices/";
                 messaging.utils.showHttpRequestLog(provUrl,messaging,nameMethod,"POST",postData.toString());
                 URL url = new URL(provUrl);
                 urlConnection = (HttpURLConnection) url.openConnection();
@@ -705,7 +705,7 @@ public class Messaging implements LifecycleObserver{
                 nameMethod=new Object(){}.getClass().getEnclosingMethod().getName();
                 String authToken= MessagingSdkUtils.getMessaging_token();
                 String param ="Bearer "+authToken;
-                provUrl= MessagingSdkUtils.getMessangi_host()+"/v1/users?device="+deviceId;
+                provUrl= MessagingSdkUtils.getMessangi_host()+"/users?device="+deviceId;
                 messaging.utils.showHttpRequestLog(provUrl, messaging,nameMethod,"GET","");
                 URL url = new URL(provUrl);
                 urlConnection = (HttpURLConnection) url.openConnection();

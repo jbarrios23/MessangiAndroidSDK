@@ -9,7 +9,7 @@ import com.messaging.sdk.MessagingNotification;
 public class CustomMessangiService extends MessagingService {
 
     public static String CLASS_TAG= CustomMessangiService.class.getSimpleName();
-    public static String TAG="MessangiSDK";
+    public static String TAG="CustomMessangiService";
 
 
     @Override
