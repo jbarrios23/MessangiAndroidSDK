@@ -39,6 +39,7 @@ public class MessagingNotification implements Serializable {
     //private String deepLink;
     private String clickAction;
     private Uri deepUriLink;
+
     private Map<String,String> additionalData;
     private int badge;
     private RemoteMessage rawPayload;
@@ -76,9 +77,11 @@ public class MessagingNotification implements Serializable {
          this.deepUriLink=remoteMessage.getNotification().getLink();
          this.icon=remoteMessage.getNotification().getIcon();
          this.sound=remoteMessage.getNotification().getSound();
+
      }
 
      if(remoteMessage.getData()!=null){
+
          this.additionalData=remoteMessage.getData();
          //this.badge=Integer.parseInt(remoteMessage.getNotification().getBody());
          if(remoteMessage.getData().get("badge")!=null && !remoteMessage.getData().get("badge").isEmpty()){
@@ -124,8 +127,9 @@ public class MessagingNotification implements Serializable {
             if(clickAction!=null) {
             messaging.utils.showDebugLog(this, nameMethod, "Notification "
                      + "name class destiny " + messaging.getPackageName()+"."+clickAction);
-             String provNameClass=messaging.getPackageName()+"."+clickAction;
-             launchNotification(provNameClass,context,additionalData,1);
+             //String provNameClass=messaging.getPackageName()+"."+clickAction;
+
+             launchNotification(clickAction,context,additionalData);
 
          }
 
@@ -146,28 +150,17 @@ public class MessagingNotification implements Serializable {
 
     }
 
-    private void launchNotification(String clickAction, Context context, Map<String,
-            String> additionalData,int iden) {
+    private void launchNotification(String clickAction, Context context, Map<String,String> additionalData) {
         nameMethod="launchNotification";
         messaging.utils.showDebugLog(this, nameMethod, "Notification "
-                + "click_action " + clickAction );
+                + "click_action " + clickAction);
         Intent notificationIntent=null;
         try {
 
             notificationIntent = new Intent(context, Class.forName(clickAction));
-            if(iden==2){
-                for (Map.Entry<String, String> entry : additionalData.entrySet()) {
-                    notificationIntent.putExtra(entry.getKey(),  entry.getValue());
-                }
-                notificationIntent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
-                context.startActivity(notificationIntent);
-
-            }
-
             for (Map.Entry<String, String> entry : additionalData.entrySet()) {
                 notificationIntent.putExtra(entry.getKey(),  entry.getValue());
             }
-
 
         } catch (ClassNotFoundException e) {
             e.printStackTrace();
@@ -179,7 +172,7 @@ public class MessagingNotification implements Serializable {
         }
 
         notificationIntent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
-        if(iden==1) {
+
             final PendingIntent pendingIntent = PendingIntent.getActivity(context, 0, notificationIntent,
                     PendingIntent.FLAG_ONE_SHOT);
             notificationManager = (NotificationManager) context.getSystemService(Context.NOTIFICATION_SERVICE);
@@ -200,7 +193,7 @@ public class MessagingNotification implements Serializable {
             NotificationManager notificationManager =
                     (NotificationManager) context.getSystemService(Context.NOTIFICATION_SERVICE);
             notificationManager.notify(notificationId /* ID of notification */, notificationBuilder.build());
-        }
+
 
     }
 
@@ -233,10 +226,6 @@ public class MessagingNotification implements Serializable {
                 additionalData.put(key,extras.getString(key));
              if(key.equals("profile")){
                 send=false;
-                }
-                if(key.equals("deeplink") && extras.getString(key).equals("true") ){
-                    clickAction=extras.getString("collapse_key")+"."+extras.getString("extra");
-                    launchNotification(clickAction,context,additionalData,2);
                 }
             }
             this.nameMethod="MessagingNotification";
