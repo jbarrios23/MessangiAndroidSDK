@@ -26,6 +26,7 @@ import androidx.annotation.RequiresApi;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.localbroadcastmanager.content.LocalBroadcastManager;
 
+import com.google.firebase.messaging.FirebaseMessaging;
 import com.messaging.sdk.Messaging;
 import com.messaging.sdk.MessagingDevice;
 import com.messaging.sdk.MessagingNotification;
@@ -62,7 +63,6 @@ public class MainActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         getWindow().requestFeature(Window.FEATURE_ACTION_BAR);
-
         getSupportActionBar().hide();
         setContentView(R.layout.activity_main);
         nameMethod=new Object(){}.getClass().getEnclosingMethod().getName();
@@ -89,7 +89,7 @@ public class MainActivity extends AppCompatActivity {
         messangiUserDeviceArrayList = new ArrayList<>();
         messangiDevArrayAdapter = new ArrayAdapter<>(this, R.layout.item_device, R.id.Texview_value, messangiDevArrayList);
         messangiUserDeviceArrayAdapter = new ArrayAdapter<>(this, R.layout.item_device, R.id.Texview_value, messangiUserDeviceArrayList);
-        title.setText(getResources().getString(R.string.title) + "\n" + messaging.getExternalId());
+        title.setText(getResources().getString(R.string.title) );
 
         device.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -150,6 +150,7 @@ public class MainActivity extends AppCompatActivity {
         messagingNotification =new MessagingNotification(extras,getApplicationContext());
 
 
+
     }
 
     @Override
@@ -199,6 +200,7 @@ public class MainActivity extends AppCompatActivity {
             data.append("Has Notification"+"\n");
             data.append(""+ messagingNotification.getNotification().getTitle()+"\n");
             data.append(""+ messagingNotification.getNotification().getBody());
+            data.append(""+ messagingNotification.getClickAction());
             data.append("Has data"+"\n");
             for (Map.Entry entry : messagingNotification.getAdditionalData().entrySet()) {
                 if(!entry.getKey().equals("profile")){
@@ -220,7 +222,8 @@ public class MainActivity extends AppCompatActivity {
 
             data.append("Has only Notification"+"\n");
             data.append(""+ messagingNotification.getNotification().getTitle()+"\n");
-            data.append(""+ messagingNotification.getNotification().getBody());
+            data.append(""+ messagingNotification.getNotification().getBody()+"\n");
+            data.append(""+ messagingNotification.getClickAction());
 
         }
 
@@ -451,6 +454,7 @@ public class MainActivity extends AppCompatActivity {
         messangiDevArrayList.add("UpdatedAt: "    + messagingDevice.getUpdatedAt());
         messangiDevArrayList.add("Timestamp: "    + messagingDevice.getTimestamp());
         messangiDevArrayList.add("Transaction: "  + messagingDevice.getTransaction());
+        messangiDevArrayList.add("ExternalId: "  + messaging.getExternalId());
         lista_device.setAdapter(messangiDevArrayAdapter);
         Messaging.fetchUser(getApplicationContext(),false);
 

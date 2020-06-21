@@ -24,9 +24,10 @@
     <TextView
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:textSize="14sp"
+        android:padding="18dp"
+        android:textSize="16sp"
         android:id="@+id/data_noti"
-        android:text="data"/>
+        android:text="data notification"/>
 
 </LinearLayout>
 

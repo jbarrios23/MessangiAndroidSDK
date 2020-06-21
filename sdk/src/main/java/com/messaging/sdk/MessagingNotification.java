@@ -1,11 +1,21 @@
 package com.messaging.sdk;
 
+import android.app.NotificationChannel;
+import android.app.NotificationManager;
+import android.app.PendingIntent;
 import android.content.Context;
 import android.content.Intent;
+import android.graphics.Color;
+import android.media.RingtoneManager;
 import android.net.Uri;
+import android.os.Build;
 import android.os.Bundle;
 import android.os.Parcel;
+import android.os.Parcelable;
+import android.util.Log;
 
+import androidx.annotation.RequiresApi;
+import androidx.core.app.NotificationCompat;
 import androidx.localbroadcastmanager.content.LocalBroadcastManager;
 
 import com.google.firebase.messaging.RemoteMessage;
@@ -13,6 +23,7 @@ import com.google.firebase.messaging.RemoteMessage;
 import java.io.Serializable;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Random;
 
 public class MessagingNotification implements Serializable {
 
@@ -25,7 +36,8 @@ public class MessagingNotification implements Serializable {
     private boolean silent;
     private String title;
     private String body;
-    private String deepLink;
+    //private String deepLink;
+    private String clickAction;
     private Uri deepUriLink;
     private Map<String,String> additionalData;
     private int badge;
@@ -44,6 +56,9 @@ public class MessagingNotification implements Serializable {
     private RemoteMessage.Notification notification;
     public String nameMethod;
 
+    private NotificationManager notificationManager;
+    private static final String ADMIN_CHANNEL_ID ="admin_channel";
+
 
 
     public MessagingNotification(RemoteMessage remoteMessage, Context context) {
@@ -57,7 +72,7 @@ public class MessagingNotification implements Serializable {
          this.silent=false;
          this.title=remoteMessage.getNotification().getTitle();
          this.body=remoteMessage.getNotification().getBody();
-         this.deepLink=remoteMessage.getNotification().getClickAction();
+         this.clickAction=remoteMessage.getNotification().getClickAction();
          this.deepUriLink=remoteMessage.getNotification().getLink();
          this.icon=remoteMessage.getNotification().getIcon();
          this.sound=remoteMessage.getNotification().getSound();
@@ -103,11 +118,22 @@ public class MessagingNotification implements Serializable {
 
     if(this.notification!=null){
          messaging.utils.showDebugLog(this,nameMethod, "Notification "
-                 +"Title "+notification.getTitle()+" "+"Body "+notification.getBody());
+                 +"Title "+title+" "+"Body "+body);
+         messaging.utils.showDebugLog(this, nameMethod, "Notification "
+                + "click_action " + clickAction + " Uri Link " + deepUriLink+" other "+notification.getSound());
+            if(clickAction!=null) {
+            messaging.utils.showDebugLog(this, nameMethod, "Notification "
+                     + "name class destiny " + messaging.getPackageName()+"."+clickAction);
+             String provNameClass=messaging.getPackageName()+"."+clickAction;
+             launchNotification(provNameClass,context,additionalData,1);
+
+         }
 
     }
 
-     if(this.additionalData!=null && additionalData.size()>0){
+
+   if(this.additionalData!=null && additionalData.size()>0){
+         this.nameMethod="MessagingNotification";
          messaging.utils.showDebugLog(this,nameMethod, "additionalData: "+additionalData);
          messaging.utils.showDebugLog(this,nameMethod, "ticker: "+ticker);
          messaging.utils.showDebugLog(this,nameMethod, "icon: "+icon);
@@ -117,6 +143,80 @@ public class MessagingNotification implements Serializable {
 
      messaging.setLastMessangiNotifiction(this);
      sendEventToActivity(Messaging.ACTION_GET_NOTIFICATION,this,this.context);
+
+    }
+
+    private void launchNotification(String clickAction, Context context, Map<String,
+            String> additionalData,int iden) {
+        nameMethod="launchNotification";
+        messaging.utils.showDebugLog(this, nameMethod, "Notification "
+                + "click_action " + clickAction );
+        Intent notificationIntent=null;
+        try {
+
+            notificationIntent = new Intent(context, Class.forName(clickAction));
+            if(iden==2){
+                for (Map.Entry<String, String> entry : additionalData.entrySet()) {
+                    notificationIntent.putExtra(entry.getKey(),  entry.getValue());
+                }
+                notificationIntent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+                context.startActivity(notificationIntent);
+
+            }
+
+            for (Map.Entry<String, String> entry : additionalData.entrySet()) {
+                notificationIntent.putExtra(entry.getKey(),  entry.getValue());
+            }
+
+
+        } catch (ClassNotFoundException e) {
+            e.printStackTrace();
+
+        }catch (NullPointerException e){
+            e.printStackTrace();
+
+            notificationIntent = new Intent("android.intent.action.MAIN");
+        }
+
+        notificationIntent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
+        if(iden==1) {
+            final PendingIntent pendingIntent = PendingIntent.getActivity(context, 0, notificationIntent,
+                    PendingIntent.FLAG_ONE_SHOT);
+            notificationManager = (NotificationManager) context.getSystemService(Context.NOTIFICATION_SERVICE);
+            // Configuramos la notificación para Android Oreo o superior
+            if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.O) {
+                setupChannels();
+            }
+            int notificationId = new Random().nextInt(60000);
+            // Creamos la notificación en si
+            Uri defaultSoundUri = RingtoneManager.getDefaultUri(RingtoneManager.TYPE_NOTIFICATION);
+            NotificationCompat.Builder notificationBuilder = new NotificationCompat.Builder(context, ADMIN_CHANNEL_ID)
+                    .setSmallIcon(messaging.icon)  //a resource for your custom small icon
+                    .setContentTitle(title) //the "title" value you sent in your notification
+                    .setContentText(body) //ditto
+                    .setAutoCancel(true)  //dismisses the notification on click
+                    .setContentIntent(pendingIntent)
+                    .setSound(defaultSoundUri);
+            NotificationManager notificationManager =
+                    (NotificationManager) context.getSystemService(Context.NOTIFICATION_SERVICE);
+            notificationManager.notify(notificationId /* ID of notification */, notificationBuilder.build());
+        }
+
+    }
+
+    @RequiresApi(api = Build.VERSION_CODES.O)
+    private void setupChannels() {
+        CharSequence adminChannelName = context.getString(R.string.notifications_admin_channel_name);
+        String adminChannelDescription = context.getString(R.string.notifications_admin_channel_description);
+        NotificationChannel adminChannel;
+        adminChannel = new NotificationChannel(ADMIN_CHANNEL_ID, adminChannelName, NotificationManager.IMPORTANCE_LOW);
+        adminChannel.setDescription(adminChannelDescription);
+        adminChannel.enableLights(true);
+        adminChannel.setLightColor(Color.RED);
+        adminChannel.enableVibration(true);
+        if (notificationManager != null) {
+            notificationManager.createNotificationChannel(adminChannel);
+        }
 
     }
 
@@ -134,7 +234,12 @@ public class MessagingNotification implements Serializable {
              if(key.equals("profile")){
                 send=false;
                 }
+                if(key.equals("deeplink") && extras.getString(key).equals("true") ){
+                    clickAction=extras.getString("collapse_key")+"."+extras.getString("extra");
+                    launchNotification(clickAction,context,additionalData,2);
+                }
             }
+            this.nameMethod="MessagingNotification";
             messaging.utils.showDebugLog(this,nameMethod,"Data: " +additionalData);
             if(send) {
                 messaging.setLastMessangiNotifiction(this);
@@ -195,8 +300,12 @@ public class MessagingNotification implements Serializable {
         return body;
     }
 
-    public String getDeepLink() {
-        return deepLink;
+//    public String getDeepLink() {
+//        return deepLink;
+//    }
+
+    public String getClickAction() {
+        return clickAction;
     }
 
     public Map<String, String> getAdditionalData() {

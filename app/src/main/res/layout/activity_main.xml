@@ -10,6 +10,7 @@
     <RelativeLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
+        android:layout_gravity="center"
         android:gravity="center"
         >
         <TextView
@@ -29,11 +30,13 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_below="@+id/textView_imprimir"
+            android:layout_marginTop="2dp"
+            android:layout_centerHorizontal="true"
             android:background="@color/greyColor"
             android:checked="true"
             android:drawableStart="@android:drawable/ic_menu_view"
             android:drawableLeft="@android:drawable/ic_menu_view"
-            />
+            android:gravity="center" />
 
         <Button
             android:layout_width="wrap_content"
