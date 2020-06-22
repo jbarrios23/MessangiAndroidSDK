@@ -128,8 +128,7 @@ public class MessagingNotification implements Serializable {
             messaging.utils.showDebugLog(this, nameMethod, "Notification "
                      + "name class destiny " + messaging.getPackageName()+"."+clickAction);
              //String provNameClass=messaging.getPackageName()+"."+clickAction;
-
-             launchNotification(clickAction,context,additionalData);
+            launchNotification(clickAction,context,additionalData);
 
          }
 
