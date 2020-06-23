@@ -494,6 +494,74 @@ public class CustomMessangiService extends MessagingFirebaseService {
 </manifest>
 ```
 
+## To use DeepLink:
+1.	By Payload:
+For this, the property "click_action" sent through the push notification will be used, which has two cases:
+a.	Notification in foreground: this case the notification will be handled by the SDK taking the property "click_action" of the notification which should have a value as shown in the example: "click_action": "com.ogangi.Messangi.SDK. Demo.ExampleActivity ", which is processed by the SDK creating an icon in the notification tray that when clicked opens the activity selected or described in the action.
+b.	Background notification: in this case the notification will be handled by the operating system as native behavior, where the app programmer must declare the activity to open when pressing this notification, it is important to remember that the notification must bring the field " click_action ":" com.ogangi.Messangi.SDK.Demo.ExampleActivity ", for example, and the declaration of the activity by the programmer must be done in the AndroidManifest.xml file, for example:
+```xml
+<activity android: name = ". ExampleActivity">
+             <intent-filter>
+             <action android: name = "com.ogangi.Messangi.SDK.Demo.ExampleActivity" />
+             <category android: name = "android.intent.category.DEFAULT" />
+             </intent-filter>
+        </activity>
+
+```
+In MainActivity of the demo app.
+In foreground and notification is sent.
+
+<img src="step3.jpg" />
+
+Arrival of the NP to the app that shows the detail of the same and in the upper part shows the generation of the Notification thanks to the Click-Action parameter that comes in it.
+
+<img src="step3b.jpg" />
+
+The alert is ok and the notification palette opens:
+<img src="step3b.jpg" />
+
+Pressing the notification opens the preselected activity and displays the notification data using the following structure:
+
+```Java
+Bundle extras=getIntent().getExtras();
+        if(extras!=null) {
+            additionalData = new HashMap<>();
+            for (String key : extras.keySet()) {
+          Log.i(TAG, "INFO DATA: " + CLASS_TAG + ": " + nameMethod + " " + "Extras received:  Key: " + key + " Value: " + extras.getString(key));
+                additionalData.put(key, extras.getString(key));
+            }
+            JSONObject obj=new JSONObject(additionalData);
+            Log.i(TAG, "INFO DATA BUILD: " + CLASS_TAG + " data: " + obj.toString());
+        } 
+```
+
+<img src="step3c.jpg" />
+
+In the case of the notification that arrives with the app in the background:
+The notification palette opens and you press:
+
+<img src="step3b.jpg" />
+
+<img src="step4.jpg" />
+
+This action was performed using the native behavior of the SO. But it is important that the notification has the field: "click_action": "com.ogangi.Messangi.SDK.Demo.ExampleActivity" 
+Defined in this way.
+And the data can also be processed using:
+```Java
+Bundle extras=getIntent().getExtras();
+        if(extras!=null) {
+            additionalData = new HashMap<>();
+            for (String key : extras.keySet()) {
+          Log.i(TAG, "INFO DATA: " + CLASS_TAG + ": " + nameMethod + " " + "Extras received:  Key: " + key + " Value: " + extras.getString(key));
+                additionalData.put(key, extras.getString(key));
+            }
+            JSONObject obj=new JSONObject(additionalData);
+            Log.i(TAG, "INFO DATA BUILD: " + CLASS_TAG + " data: " + obj.toString());
+        } 
+```
+
+
+
 ## Author
 Messaging
 

@@ -126,8 +126,8 @@ public class MessagingNotification implements Serializable {
                 + "click_action " + clickAction + " Uri Link " + deepUriLink+" other "+notification.getSound());
             if(clickAction!=null) {
             messaging.utils.showDebugLog(this, nameMethod, "Notification "
-                     + "name class destiny " + messaging.getPackageName()+"."+clickAction);
-             //String provNameClass=messaging.getPackageName()+"."+clickAction;
+                     + "name class destiny "+clickAction);
+
             launchNotification(clickAction,context,additionalData);
 
          }
@@ -175,12 +175,14 @@ public class MessagingNotification implements Serializable {
             final PendingIntent pendingIntent = PendingIntent.getActivity(context, 0, notificationIntent,
                     PendingIntent.FLAG_ONE_SHOT);
             notificationManager = (NotificationManager) context.getSystemService(Context.NOTIFICATION_SERVICE);
-            // Configuramos la notificación para Android Oreo o superior
+
+            //Setting notification for Android Oreo or higer.
             if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.O) {
                 setupChannels();
             }
             int notificationId = new Random().nextInt(60000);
-            // Creamos la notificación en si
+
+            // Create the notification.
             Uri defaultSoundUri = RingtoneManager.getDefaultUri(RingtoneManager.TYPE_NOTIFICATION);
             NotificationCompat.Builder notificationBuilder = new NotificationCompat.Builder(context, ADMIN_CHANNEL_ID)
                     .setSmallIcon(messaging.icon)  //a resource for your custom small icon
@@ -221,7 +223,6 @@ public class MessagingNotification implements Serializable {
         if(extras!=null){
             additionalData=new HashMap<>();
             for(String key:extras.keySet()){
-                //messaging.utils.showDebugLog(this,nameMethod,"Extras received:  Key: " + key + " Value: " + extras.getString(key));
                 additionalData.put(key,extras.getString(key));
              if(key.equals("profile")){
                 send=false;

@@ -22,12 +22,8 @@ import java.util.Map;
 public class ExampleActivity extends AppCompatActivity {
     public static String CLASS_TAG=ExampleActivity.class.getSimpleName();
     public static String TAG="MESSAGING";
-    public static final String DELETE_TAG = "DELETE_TAG";
-    MessagingNotification messagingNotification;
     private String nameMethod;
     private ListView printData;
-
-    public Messaging messaging;
     public Map<String,String> additionalData;
     public ArrayList<Map.Entry<String, Object>> dataArrayList;
     public ArrayAdapter dataAdapter;
@@ -41,7 +37,6 @@ public class ExampleActivity extends AppCompatActivity {
         setContentView(R.layout.activity_example);
         printData=findViewById(R.id.lista_data);
         nameMethod=new Object(){}.getClass().getEnclosingMethod().getName();
-        //messaging = Messaging.getInstance(this);
         Log.i(TAG,"INFO: "+CLASS_TAG+": "+nameMethod);
         Bundle extras=getIntent().getExtras();
         if(extras!=null) {
