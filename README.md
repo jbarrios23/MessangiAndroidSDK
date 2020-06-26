@@ -502,13 +502,12 @@ a.	Notification in foreground: this case the notification will be handled by the
 
 b.	Background notification: in this case the notification will be handled by the operating system as native behavior, where the app programmer must declare the activity to open when pressing this notification, it is important to remember that the notification must bring the field " click_action ":" com.ogangi.Messangi.SDK.Demo.ExampleActivity ", for example, and the declaration of the activity by the programmer must be done in the AndroidManifest.xml file, for example:
 ```xml
-<activity android: name = ". ExampleActivity">
+        <activity android: name = ". ExampleActivity">
              <intent-filter>
              <action android: name = "com.ogangi.Messangi.SDK.Demo.ExampleActivity" />
              <category android: name = "android.intent.category.DEFAULT" />
              </intent-filter>
         </activity>
-
 ```
 In MainActivity of the demo app.
 In foreground and notification is sent.
@@ -525,13 +524,10 @@ Pressing the notification opens the preselected activity and displays the notifi
 ```Java
 Bundle extras=getIntent().getExtras();
         if(extras!=null) {
-            additionalData = new HashMap<>();
             for (String key : extras.keySet()) {
-          Log.i(TAG, "INFO DATA: " + CLASS_TAG + ": " + nameMethod + " " + "Extras received:  Key: " + key + " Value: " + extras.getString(key));
-                additionalData.put(key, extras.getString(key));
+            Key =  key  
+            Value=extras.getString(key)
             }
-            JSONObject obj=new JSONObject(additionalData);
-            Log.i(TAG, "INFO DATA BUILD: " + CLASS_TAG + " data: " + obj.toString());
         } 
 ```
 
@@ -550,13 +546,10 @@ And the data can also be processed using:
 ```Java
 Bundle extras=getIntent().getExtras();
         if(extras!=null) {
-            additionalData = new HashMap<>();
             for (String key : extras.keySet()) {
-          Log.i(TAG, "INFO DATA: " + CLASS_TAG + ": " + nameMethod + " " + "Extras received:  Key: " + key + " Value: " + extras.getString(key));
-                additionalData.put(key, extras.getString(key));
+            Key =  key  
+            Value=extras.getString(key)
             }
-            JSONObject obj=new JSONObject(additionalData);
-            Log.i(TAG, "INFO DATA BUILD: " + CLASS_TAG + " data: " + obj.toString());
         } 
 ```
 

@@ -13,11 +13,33 @@
         android:theme="@style/AppTheme"
         android:windowActionBar="false"
         tools:ignore="GoogleAppIndexingWarning">
+        <activity android:name=".ExampleURLSchemasActivity">
+            <intent-filter>
+                <action android:name="android.intent.action.VIEW" />
+                <category android:name="android.intent.category.DEFAULT" />
+                <category android:name="android.intent.category.BROWSABLE" />
+                <data
+                    android:host="example"
+                    android:pathPrefix="/example"
+                    android:scheme="exampleapp" />
+            </intent-filter>
+        </activity>
+        <activity android:name=".ExampleUrlActivity">
+            <intent-filter>
+                <action android:name="android.intent.action.VIEW" />
+                <category android:name="android.intent.category.DEFAULT" />
+                <category android:name="android.intent.category.BROWSABLE" />
+                <data
+                    android:host="www.plantplaces.com"
+                    android:pathPrefix="/colorcapture.shtml"
+                    android:scheme="http" />
+            </intent-filter>
+        </activity>
         <activity android:name=".ExampleActivity">
-             <intent-filter>
-             <action android:name="com.ogangi.Messangi.SDK.Demo.ExampleActivity" />
-             <category android:name="android.intent.category.DEFAULT" />
-             </intent-filter>
+            <intent-filter>
+                <action android:name="com.ogangi.Messangi.SDK.Demo.ExampleActivity" />
+                <category android:name="android.intent.category.DEFAULT" />
+            </intent-filter>
         </activity>
         <activity
             android:name=".MainActivity"
@@ -28,7 +50,6 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
-
     </application>
 
 </manifest>

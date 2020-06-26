@@ -123,14 +123,19 @@ public class MessagingNotification implements Serializable {
          messaging.utils.showDebugLog(this,nameMethod, "Notification "
                  +"Title "+title+" "+"Body "+body);
          messaging.utils.showDebugLog(this, nameMethod, "Notification "
-                + "click_action " + clickAction + " Uri Link " + deepUriLink+" other "+notification.getSound());
-            if(clickAction!=null) {
+                + "click_action " + clickAction + " Uri Link " + deepUriLink);
+         if(clickAction!=null) {
             messaging.utils.showDebugLog(this, nameMethod, "Notification "
                      + "name class destiny "+clickAction);
 
-            launchNotification(clickAction,context,additionalData);
+         launchNotification(clickAction,context,additionalData);
 
          }
+        if(deepUriLink!=null) {
+            messaging.utils.showDebugLog(this, nameMethod, "Notification "
+                    + "name Url schema or Link Universal "+deepUriLink);
+            launchBrowser(deepUriLink,context,additionalData);
+        }
 
     }
 
@@ -146,6 +151,24 @@ public class MessagingNotification implements Serializable {
 
      messaging.setLastMessangiNotifiction(this);
      sendEventToActivity(Messaging.ACTION_GET_NOTIFICATION,this,this.context);
+
+    }
+
+    private void launchBrowser(Uri deepUriLink, Context context, Map<String, String> additionalData) {
+        nameMethod="launchBrowser";
+        messaging.utils.showDebugLog(this, nameMethod, "Notification "
+                + "Link " + deepUriLink);
+        try {
+
+            Intent browserIntent = new Intent(Intent.ACTION_VIEW,
+                    Uri.parse(String.valueOf(deepUriLink)));
+            browserIntent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+            context.startActivity(browserIntent);
+        }catch (Exception e){
+            e.printStackTrace();
+            messaging.utils.showErrorLog(this,nameMethod,e.getMessage(),"");
+
+        }
 
     }
 

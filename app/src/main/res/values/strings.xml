@@ -10,4 +10,6 @@
     <string name="hint_key">Key</string>
     <string name="hint_value">Value</string>
     <string name="example_activity_name">DeepLink Activity</string>
+    <string name="example_activity_name_url">DeepLink Activity Universal Link</string>
+    <string name="example_activity_name_url_schemas">DeepLink Activity URL Schema</string>
 </resources>

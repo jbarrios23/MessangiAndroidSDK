@@ -197,11 +197,11 @@ public class MainActivity extends AppCompatActivity {
         TextView data=customLayout.findViewById(R.id.data_noti);
 
         if(messagingNotification.getNotification()!=null&&(messagingNotification.getAdditionalData()!=null && messagingNotification.getAdditionalData().size() > 0)){
-            data.append("Has Notification"+"\n");
-            data.append(""+ messagingNotification.getNotification().getTitle()+"\n");
-            data.append(""+ messagingNotification.getNotification().getBody());
-            data.append(""+ messagingNotification.getClickAction());
-            data.append("Has data"+"\n");
+            data.append("Has Notification "+"\n");
+            data.append(" "+ messagingNotification.getNotification().getTitle()+"\n");
+            data.append(" "+ messagingNotification.getNotification().getBody());
+            data.append(" "+ messagingNotification.getClickAction()+"\n");
+            data.append("Has data "+"\n");
             for (Map.Entry entry : messagingNotification.getAdditionalData().entrySet()) {
                 if(!entry.getKey().equals("profile")){
                     data.append(" "+entry.getKey() + " , " + entry.getValue()+"\n");
@@ -220,10 +220,10 @@ public class MainActivity extends AppCompatActivity {
 
         }else if(messagingNotification.getNotification()!=null) {
 
-            data.append("Has only Notification"+"\n");
-            data.append(""+ messagingNotification.getNotification().getTitle()+"\n");
-            data.append(""+ messagingNotification.getNotification().getBody()+"\n");
-            data.append(""+ messagingNotification.getClickAction());
+            data.append("Has only Notification "+"\n");
+            data.append(" "+ messagingNotification.getNotification().getTitle()+"\n");
+            data.append(" "+ messagingNotification.getNotification().getBody()+"\n");
+            data.append(" "+ messagingNotification.getClickAction());
 
         }
 
