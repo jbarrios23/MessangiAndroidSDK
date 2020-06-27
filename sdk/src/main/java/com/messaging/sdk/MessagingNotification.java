@@ -163,6 +163,9 @@ public class MessagingNotification implements Serializable {
             Intent browserIntent = new Intent(Intent.ACTION_VIEW,
                     Uri.parse(String.valueOf(deepUriLink)));
             browserIntent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+            for (Map.Entry<String, String> entry : additionalData.entrySet()) {
+                browserIntent .putExtra(entry.getKey(),  entry.getValue());
+            }
             context.startActivity(browserIntent);
         }catch (Exception e){
             e.printStackTrace();

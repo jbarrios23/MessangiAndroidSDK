@@ -36,11 +36,11 @@ public class ExampleUrlActivity extends AppCompatActivity {
         Log.i(TAG,"INFO: "+CLASS_TAG+": "+nameMethod);
         Intent intent=getIntent();
         if(intent!=null ){
-            Log.i(TAG,"INFO: "+CLASS_TAG+": "+intent.getAction());
-            Log.i(TAG,"INFO: "+CLASS_TAG+": "+intent.getScheme());
-            Log.i(TAG,"INFO: "+CLASS_TAG+": "+intent.getData());
-            Log.i(TAG,"INFO: "+CLASS_TAG+": "+intent.getData().getQueryParameter("param1"));
-            Log.i(TAG,"INFO: "+CLASS_TAG+": "+intent.getPackage());
+            Log.i(TAG,"INFO: "+CLASS_TAG+" action: "+intent.getAction());
+            Log.i(TAG,"INFO: "+CLASS_TAG+" scheme: "+intent.getScheme());
+            Log.i(TAG,"INFO: "+CLASS_TAG+" data: "+intent.getData());
+            Log.i(TAG,"INFO: "+CLASS_TAG+" param1: "+intent.getData().getQueryParameter("param1"));
+            Log.i(TAG,"INFO: "+CLASS_TAG+" Package: "+intent.getPackage());
             additionalData = new HashMap<>();
             additionalData.put("action",intent.getAction());
             additionalData.put("scheme",intent.getScheme());

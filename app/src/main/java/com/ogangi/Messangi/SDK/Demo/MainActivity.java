@@ -191,39 +191,50 @@ public class MainActivity extends AppCompatActivity {
         AlertDialog.Builder builder = new AlertDialog.Builder(this);
         builder.setTitle("Notification");
         // set the custom layout
-        final View customLayout = getLayoutInflater().inflate(R.layout.custom_notification_layout, null);
+        //final View customLayout = getLayoutInflater().inflate(R.layout.custom_notification_layout, null);
+        final View customLayout = getLayoutInflater().inflate(R.layout.notification_layout, null);
         builder.setView(customLayout);
 
-        TextView data=customLayout.findViewById(R.id.data_noti);
+        //TextView data=customLayout.findViewById(R.id.data_noti);
+         ArrayList<String> messangiData = new ArrayList<>();
+         ArrayAdapter<String> messangiDataArrayAdapter;
+        ListView listView=customLayout.findViewById(R.id.list_data_noti);
 
         if(messagingNotification.getNotification()!=null&&(messagingNotification.getAdditionalData()!=null && messagingNotification.getAdditionalData().size() > 0)){
-            data.append("Has Notification "+"\n");
-            data.append(" "+ messagingNotification.getNotification().getTitle()+"\n");
-            data.append(" "+ messagingNotification.getNotification().getBody());
-            data.append(" "+ messagingNotification.getClickAction()+"\n");
-            data.append("Has data "+"\n");
+
+            messangiData.add("Title: "           + messagingNotification.getNotification().getTitle());
+            messangiData.add("Body: "           + messagingNotification.getNotification().getBody());
+            messangiData.add("ClickAction: "           + messagingNotification.getClickAction());
             for (Map.Entry entry : messagingNotification.getAdditionalData().entrySet()) {
                 if(!entry.getKey().equals("profile")){
-                    data.append(" "+entry.getKey() + " , " + entry.getValue()+"\n");
+                    messangiData.add(entry.getKey() + " , " + entry.getValue());
+
                 }
 
             }
+            messangiDataArrayAdapter = new ArrayAdapter<>(this, R.layout.item_device, R.id.Texview_value, messangiData);
+            listView.setAdapter(messangiDataArrayAdapter);
 
         }else if(messagingNotification.getAdditionalData()!=null && messagingNotification.getAdditionalData().size() > 0) {
-            data.append("Has only Data"+"\n");
+            messangiData.add("Has only Data");
             for (Map.Entry entry : messagingNotification.getAdditionalData().entrySet()) {
                 if(!entry.getKey().equals("profile")){
-                    data.append(" "+entry.getKey() + " , " + entry.getValue()+"\n");
+                    messangiData.add(entry.getKey() + " , " + entry.getValue());
+
                 }
 
             }
+            messangiDataArrayAdapter = new ArrayAdapter<>(this, R.layout.item_device, R.id.Texview_value, messangiData);
+            listView.setAdapter(messangiDataArrayAdapter);
 
         }else if(messagingNotification.getNotification()!=null) {
+            messangiData.add("Has only Notification ");
+            messangiData.add("Title: "           + messagingNotification.getNotification().getTitle());
+            messangiData.add("Body: "           + messagingNotification.getNotification().getBody());
+            messangiData.add("ClickAction: "           + messagingNotification.getClickAction());
 
-            data.append("Has only Notification "+"\n");
-            data.append(" "+ messagingNotification.getNotification().getTitle()+"\n");
-            data.append(" "+ messagingNotification.getNotification().getBody()+"\n");
-            data.append(" "+ messagingNotification.getClickAction());
+            messangiDataArrayAdapter = new ArrayAdapter<>(this, R.layout.item_device, R.id.Texview_value, messangiData);
+            listView.setAdapter(messangiDataArrayAdapter);
 
         }
 
