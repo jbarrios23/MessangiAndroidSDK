@@ -194,7 +194,6 @@ public class MainActivity extends AppCompatActivity {
         //final View customLayout = getLayoutInflater().inflate(R.layout.custom_notification_layout, null);
         final View customLayout = getLayoutInflater().inflate(R.layout.notification_layout, null);
         builder.setView(customLayout);
-
         //TextView data=customLayout.findViewById(R.id.data_noti);
          ArrayList<String> messangiData = new ArrayList<>();
          ArrayAdapter<String> messangiDataArrayAdapter;
