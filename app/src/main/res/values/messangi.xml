@@ -1,7 +1,0 @@
-<resources>
-  <string name="messangi_host" translatable="false" templateMergeStrategy="preserve">https://elastic.messangi.me/aemon/v1</string>
-  <string name="messangi_app_token" translatable="false">5ed6c5fec7648900270f6a34</string>
-  <bool name="analytics_allowed">false</bool>
-  <bool name="location_allowed">false</bool>
-  <bool name="logging_allowed">true</bool>
-</resources>

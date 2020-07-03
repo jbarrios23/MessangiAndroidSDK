@@ -138,9 +138,9 @@ public class Messaging implements LifecycleObserver{
             utils.showErrorLog(this,nameMethod,"Device not found!","");
 
         }
-        if(getLastMessangiNotifiction()!=null){
+        if(getLastMessagingNotification()!=null){
             sendEventToActivity(ACTION_GET_NOTIFICATION,messagingNotification,context);
-            setLastMessangiNotifiction(null);
+            setLastMessagingNotification(null);
         }
 
     }
@@ -167,7 +167,7 @@ public class Messaging implements LifecycleObserver{
      *
      */
 
-    public MessagingNotification getLastMessangiNotifiction() {
+    public MessagingNotification getLastMessagingNotification() {
         return messagingNotification;
     }
 
@@ -176,7 +176,7 @@ public class Messaging implements LifecycleObserver{
      * Method that Set Las notification
      * @param messagingNotification
      */
-    void setLastMessangiNotifiction(MessagingNotification messagingNotification) {
+    void setLastMessagingNotification(MessagingNotification messagingNotification) {
 
         this.messagingNotification = messagingNotification;
     }
@@ -206,14 +206,14 @@ public class Messaging implements LifecycleObserver{
     /**
      * Method that Get name of class principal
      */
-    public String getNameclass() {
+    public String getNameClass() {
         return Nameclass;
     }
     /**
      * Method that Set name class
      * @param nameclass
      */
-    private void setNameclass(String nameclass) {
+    private void setNameClass(String nameclass) {
         Nameclass = nameclass;
     }
     /**
@@ -281,12 +281,12 @@ public class Messaging implements LifecycleObserver{
 
     /**
      * Method for init resources system from config file
-     * setMessangiObserver init Observer for foreground and Background event
+     * setMessagingObserver init Observer for foreground and Background event
      * setFirebaseTopic init topic firebase for notification push
      */
     private void initResource(){
         nameMethod=new Object(){}.getClass().getEnclosingMethod().getName();
-        setMessangiObserver();
+        setMessagingObserver();
         setFirebaseTopic();
         icon=context.getResources().getIdentifier("ic_launcher", "mipmap", context.getPackageName());
         packageName= context.getPackageName();
@@ -304,8 +304,8 @@ public class Messaging implements LifecycleObserver{
     }
 
     /**
-     * Method for create device parameter and create device from FirebaseContenProvider
-     * this method make update when pushTokem is getting by Services
+     * Method for create device parameter and create device from FirebaseContentProvider
+     * this method make update when pushToken is getting by Services
      **/
 
     public void createDeviceParameters() {
@@ -367,10 +367,10 @@ public class Messaging implements LifecycleObserver{
     /**
      * Method for set Observer
      */
-    private void setMessangiObserver(){
+    private void setMessagingObserver(){
     ProcessLifecycleOwner.get().getLifecycle().addObserver(this);
     nameMethod=new Object(){}.getClass().getEnclosingMethod().getName();
-    utils.showInfoLog(this,nameMethod,"setMessangiObserver ");
+    utils.showInfoLog(this,nameMethod,"setMessagingObserver ");
     }
 
     /**
@@ -472,10 +472,12 @@ public class Messaging implements LifecycleObserver{
             HttpURLConnection urlConnection = null;
 
             try {
-                String authToken= MessagingSdkUtils.getMessaging_token();
+                //String authToken= MessagingSdkUtils.getMessaging_token();
+                String authToken= MessagingSdkUtils.getMessagingToken();
                 nameMethod=new Object(){}.getClass().getEnclosingMethod().getName();
                 String param ="Bearer "+authToken;
-                provUrl= MessagingSdkUtils.getMessangi_host()+"/devices/"+provIdDevice;
+                //provUrl= MessagingSdkUtils.getMessangi_host()+"/devices/"+provIdDevice;
+                provUrl= MessagingSdkUtils.getMessagingHost()+"/devices/"+provIdDevice;
                 messaging.utils.showHttpRequestLog(provUrl,messaging,nameMethod,"GET","");
                 URL url = new URL(provUrl);
                 urlConnection = (HttpURLConnection) url.openConnection();
@@ -518,7 +520,7 @@ public class Messaging implements LifecycleObserver{
                     nameMethod=new Object(){}.getClass().getEnclosingMethod().getName();
                     messaging.utils.showHttpResponsetLog(provUrl,messaging,nameMethod,"Successful",response);
                     JSONObject resp=new JSONObject(response);
-                    messaging.messagingDevice =messaging.utils.getMessangiDevFromJson(resp);
+                    messaging.messagingDevice =messaging.utils.getMessagingDevFromJson(resp);
                     //messagingStorageController.saveDevice(messagingDevice);
                     messaging.messagingStorageController.saveDevice(resp);
                     messaging.sendEventToActivity(ACTION_FETCH_DEVICE,messaging.messagingDevice,context);
@@ -578,10 +580,12 @@ public class Messaging implements LifecycleObserver{
             HttpURLConnection urlConnection = null;
 
             try {
-                String authToken= MessagingSdkUtils.getMessaging_token();
+                //String authToken= MessagingSdkUtils.getMessaging_token();
+                String authToken= MessagingSdkUtils.getMessagingToken();
                 nameMethod=new Object(){}.getClass().getEnclosingMethod().getName();
                 JSONObject postData = provRequestBody;
-                provUrl= MessagingSdkUtils.getMessangi_host()+"/devices/";
+                //provUrl= MessagingSdkUtils.getMessangi_host()+"/devices/";
+                provUrl= MessagingSdkUtils.getMessagingHost()+"/devices/";
                 messaging.utils.showHttpRequestLog(provUrl,messaging,nameMethod,"POST",postData.toString());
                 URL url = new URL(provUrl);
                 urlConnection = (HttpURLConnection) url.openConnection();
@@ -631,7 +635,7 @@ public class Messaging implements LifecycleObserver{
                     JSONObject resp=new JSONObject(response);
                     nameMethod=new Object(){}.getClass().getEnclosingMethod().getName();
                     messaging.utils.showHttpResponsetLog(provUrl,messaging,nameMethod,"Successful",response);
-                    messaging.messagingDevice =messaging.utils.getMessangiDevFromJson(resp);
+                    messaging.messagingDevice =messaging.utils.getMessagingDevFromJson(resp);
                     messaging.messagingStorageController.saveDevice(resp);
                     if(messaging.messagingStorageController.hasTokenRegiter()&&
                             !messaging.messagingStorageController.isNotificationManually()){
@@ -703,9 +707,11 @@ public class Messaging implements LifecycleObserver{
 
             try {
                 nameMethod=new Object(){}.getClass().getEnclosingMethod().getName();
-                String authToken= MessagingSdkUtils.getMessaging_token();
+                //String authToken= MessagingSdkUtils.getMessaging_token();
+                String authToken= MessagingSdkUtils.getMessagingToken();
                 String param ="Bearer "+authToken;
-                provUrl= MessagingSdkUtils.getMessangi_host()+"/users?device="+deviceId;
+                //provUrl= MessagingSdkUtils.getMessangi_host()+"/users?device="+deviceId;
+                provUrl= MessagingSdkUtils.getMessagingHost()+"/users?device="+deviceId;
                 messaging.utils.showHttpRequestLog(provUrl, messaging,nameMethod,"GET","");
                 URL url = new URL(provUrl);
                 urlConnection = (HttpURLConnection) url.openConnection();

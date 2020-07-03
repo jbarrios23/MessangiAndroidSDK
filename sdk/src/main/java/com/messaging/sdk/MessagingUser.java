@@ -141,7 +141,7 @@ public class MessagingUser implements Serializable {
                     JSONArray jsonArrayDevice=new JSONArray(retMap.get("devices"));
                     for(int i=0;i<jsonArrayDevice.length();i++){
                         JSONObject provDevice=jsonArrayDevice.getJSONObject(i);
-                        MessagingDevice messagingDevice = messaging.utils.getMessangiDevFromJson(provDevice);
+                        MessagingDevice messagingDevice = messaging.utils.getMessagingDevFromJson(provDevice);
                         messagingUser.devices.add(messagingDevice);
                     }
                 } catch (JSONException e) {
@@ -271,9 +271,11 @@ public class MessagingUser implements Serializable {
 
             try {
 
-                String authToken= MessagingSdkUtils.getMessaging_token();
+                //String authToken= MessagingSdkUtils.getMessaging_token();
+                String authToken= MessagingSdkUtils.getMessagingToken();
                 JSONObject postData = jsonObject;
-                provUrl= MessagingSdkUtils.getMessangi_host()+"/users?device="+deviceId;
+                //provUrl= MessagingSdkUtils.getMessangi_host()+"/users?device="+deviceId;
+                provUrl= MessagingSdkUtils.getMessagingHost()+"/users?device="+deviceId;
                 messaging.utils.showHttpRequestLog(provUrl, MessagingUser.this,nameMethod,"PUT",postData.toString());
                 URL url = new URL(provUrl);
                 urlConnection = (HttpURLConnection) url.openConnection();

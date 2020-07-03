@@ -15,8 +15,10 @@ import java.util.List;
 
 
     public static String TAG="MESSAGING";
-    private static String messaging_host;
-    private static String messaging_token;
+//    private static String messaging_host;
+//    private static String messaging_token;
+    private static String messagingHost;
+    private static String messagingToken;
     private static boolean analytics_allowed;
     private static boolean location_allowed;
     private static boolean logging_allowed;
@@ -41,18 +43,25 @@ import java.util.List;
                     .getIdentifier("logging_allowed", "bool", context.getPackageName());
             logging_allowed = context.getResources().getBoolean(key_logging_allowed);
             showDebugLog(this,nameMethod,location_allowed);
+
             int key_messagi_host = context.getResources()
-                    .getIdentifier("messangi_host", "string", context.getPackageName());
-            messaging_host = context.getString(key_messagi_host);
-            showDebugLog(this,nameMethod,messaging_host);
-            int key_messangi_app_token = context.getResources()
-                    .getIdentifier("messangi_app_token", "string", context.getPackageName());
-            messaging_token = context.getString(key_messangi_app_token);
-            showDebugLog(this,nameMethod, messaging_token);
+                    .getIdentifier("messaging_host", "string", context.getPackageName());
+            //messaging_host = context.getString(key_messagi_host);
+            messagingHost = context.getString(key_messagi_host);
+            showDebugLog(this,nameMethod,messagingHost);
+
+
+            int key_messaging_app_token = context.getResources()
+                    .getIdentifier("messaging_app_token", "string", context.getPackageName());
+
+            messagingToken = context.getString(key_messaging_app_token);
+            showDebugLog(this,nameMethod, messagingToken);
+
             int key_analytics_allowed = context.getResources()
                     .getIdentifier("analytics_allowed", "bool", context.getPackageName());
             analytics_allowed = context.getResources().getBoolean(key_analytics_allowed);
             showDebugLog(this,nameMethod, analytics_allowed);
+
             int key_location_allowed = context.getResources()
                     .getIdentifier("location_allowed", "bool", context.getPackageName());
              location_allowed = context.getResources().getBoolean(key_location_allowed);
@@ -129,29 +138,33 @@ import java.util.List;
     }
 
     /**
-     * Method get messangi_host
+     * Method get MessangingHost
      */
 
-    public static String getMessangi_host() {
-        return messaging_host;
-    }
 
-    public static void setMessangi_host(String messangi_host) {
-        MessagingSdkUtils.messaging_host = messangi_host;
-    }
+
+     public static String getMessagingHost() {
+         return messagingHost;
+     }
+
+     public static void setMessagingHost(String messaging_host) {
+         MessagingSdkUtils.messagingHost = messaging_host;
+     }
 
     /**
-     * Method get messangi_token
+     * Method get MessagingToken
      */
-    public static String getMessaging_token() {
-        return messaging_token;
-    }
 
-    public static void setMessangi_token(String messangi_token) {
-        MessagingSdkUtils.messaging_token = messangi_token;
-    }
 
-    public MessagingDevice getMessangiDevFromJson(JSONObject resp){
+     public static String getMessagingToken() {
+         return messagingToken;
+     }
+
+     public static void setMessagingToken(String messaging_token) {
+         MessagingSdkUtils.messagingToken = messaging_token;
+     }
+
+    public MessagingDevice getMessagingDevFromJson(JSONObject resp){
         MessagingDevice messagingDevice =new MessagingDevice();
         try {
             if(resp.has("id")){

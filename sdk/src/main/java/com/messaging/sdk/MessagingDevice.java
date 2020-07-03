@@ -405,9 +405,11 @@ public class MessagingDevice implements Serializable {
             HttpURLConnection urlConnection = null;
 
             try {
-                String authToken= MessagingSdkUtils.getMessaging_token();
+                //String authToken= MessagingSdkUtils.getMessaging_token();
+                String authToken= MessagingSdkUtils.getMessagingToken();
                 JSONObject postData = jsonObject;
-                provUrl=MessagingSdkUtils.getMessangi_host()+"/devices/"+Id;
+                //provUrl=MessagingSdkUtils.getMessangi_host()+"/devices/"+Id;
+                provUrl=MessagingSdkUtils.getMessagingHost()+"/devices/"+Id;
                 messaging.utils.showHttpRequestLog(provUrl, MessagingDevice.this,nameMethod,"PUT",postData.toString());
                 URL url = new URL(provUrl);
                 urlConnection = (HttpURLConnection) url.openConnection();
@@ -458,7 +460,7 @@ public class MessagingDevice implements Serializable {
                     nameMethod=new Object(){}.getClass().getEnclosingMethod().getName();
                     messaging.utils.showHttpResponsetLog(provUrl, MessagingDevice.this,nameMethod,"Successful",response);
                     JSONObject resp=new JSONObject(response);
-                    messagingDevice = messaging.utils.getMessangiDevFromJson(resp);
+                    messagingDevice = messaging.utils.getMessagingDevFromJson(resp);
                     messaging.messagingStorageController.saveDevice(resp);
                     sendEventToActivity(Messaging.ACTION_SAVE_DEVICE,messagingDevice,context);
 

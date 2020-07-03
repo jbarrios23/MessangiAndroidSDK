@@ -149,7 +149,7 @@ public class MessagingNotification implements Serializable {
 
      }
 
-     messaging.setLastMessangiNotifiction(this);
+     messaging.setLastMessagingNotification(this);
      sendEventToActivity(Messaging.ACTION_GET_NOTIFICATION,this,this.context);
 
     }
@@ -257,7 +257,7 @@ public class MessagingNotification implements Serializable {
             this.nameMethod="MessagingNotification";
             messaging.utils.showDebugLog(this,nameMethod,"Data: " +additionalData);
             if(send) {
-                messaging.setLastMessangiNotifiction(this);
+                messaging.setLastMessagingNotification(this);
 
             }
 

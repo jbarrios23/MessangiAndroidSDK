@@ -5,7 +5,7 @@
     <application>
 
         <provider
-            android:authorities="${applicationId}.MessangiProvider"
+            android:authorities="${applicationId}.MessagingProvider"
             android:name="com.messaging.sdk.MessagingProvider"
             android:exported="false" />
 
