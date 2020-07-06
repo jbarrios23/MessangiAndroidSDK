@@ -20,7 +20,11 @@ import androidx.localbroadcastmanager.content.LocalBroadcastManager;
 
 import com.google.firebase.messaging.RemoteMessage;
 
+import org.json.JSONException;
+import org.json.JSONObject;
+
 import java.io.Serializable;
+import java.lang.reflect.Field;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Random;
@@ -117,6 +121,8 @@ public class MessagingNotification implements Serializable {
 
      messaging.utils.showDebugLog(this,nameMethod, "silent: "+silent);
      messaging.utils.showDebugLog(this,nameMethod, "sticky: "+sticky);
+     this.toString();
+
 
     if(this.notification!=null){
          messaging.utils.showDebugLog(this,nameMethod, "Notification "
@@ -141,6 +147,10 @@ public class MessagingNotification implements Serializable {
          messaging.utils.showDebugLog(this,nameMethod, "badge: "+badge);
 
      }
+
+     String responseTotal=toJSON(this);
+        messaging.utils.showDebugLog(this,nameMethod, "Notification "
+                +"responseTotal "+responseTotal);
 
      messaging.setLastMessagingNotification(this);
      sendEventToActivity(Messaging.ACTION_GET_NOTIFICATION,this,this.context);
@@ -276,9 +286,29 @@ public class MessagingNotification implements Serializable {
 
     }
 
+    public static String toJSON(Object object){
+        String str = "";
+        Class c = object.getClass();
+        JSONObject jsonObject = new JSONObject();
+        for (Field field : c.getDeclaredFields()) {
+            field.setAccessible(true);
+            String name = field.getName();
+
+            try {
+                String value = String.valueOf(field.get(object));
+                jsonObject.put(name, value);
+            } catch (JSONException | IllegalAccessException e) {
+                e.printStackTrace();
+            }
+        }
+        System.out.println(jsonObject.toString());
+        return jsonObject.toString();
+    }
+
+
     /**
      * Method that send Parameter (Ej: messagingDevice or MessagingUser) registered to Activity
-     @param something: Object Serializable for send to activity (Ej MeesangiDev).
+     @param something: Object Serializable for send to activity (Ej messagingDevice).
      @param context : context instance
      */
     private void sendEventToActivity(String action,Serializable something, Context context) {

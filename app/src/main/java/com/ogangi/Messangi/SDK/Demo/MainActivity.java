@@ -68,6 +68,7 @@ public class MainActivity extends AppCompatActivity {
 
     private NotificationManager notificationManager;
     private static final String ADMIN_CHANNEL_ID ="admin_channel";
+    public boolean onetimeFlag=true;
 
     @RequiresApi(api = Build.VERSION_CODES.JELLY_BEAN_MR2)
     @Override
@@ -196,9 +197,11 @@ public class MainActivity extends AppCompatActivity {
         if(messagingNotification.getClickAction()!=null) {
 
             Log.i(TAG,"INFO: "+CLASS_TAG+": "+nameMethod+ " name class to open "+messagingNotification.getClickAction());
-
-            launchNotification(messagingNotification.getClickAction(),getApplicationContext()
-                    ,messagingNotification.getAdditionalData());
+            if(onetimeFlag) {
+                onetimeFlag=false;
+                launchNotification(messagingNotification.getClickAction(), getApplicationContext()
+                        , messagingNotification.getAdditionalData());
+            }
 
         }
 
@@ -260,7 +263,7 @@ public class MainActivity extends AppCompatActivity {
             @Override
             public void onClick(DialogInterface dialog, int which) {
                 // send data from the AlertDialog to the Activity
-
+                onetimeFlag=true;
 
                 dialog.dismiss();
 
