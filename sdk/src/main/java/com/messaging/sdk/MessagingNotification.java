@@ -57,8 +57,7 @@ public class MessagingNotification implements Serializable {
     private RemoteMessage.Notification notification;
     public String nameMethod;
 
-    private NotificationManager notificationManager;
-    private static final String ADMIN_CHANNEL_ID ="admin_channel";
+
 
 
 
@@ -124,13 +123,7 @@ public class MessagingNotification implements Serializable {
                  +"Title "+title+" "+"Body "+body);
          messaging.utils.showDebugLog(this, nameMethod, "Notification "
                 + "click_action " + clickAction + " Uri Link " + deepUriLink);
-         if(clickAction!=null) {
-            messaging.utils.showDebugLog(this, nameMethod, "Notification "
-                     + "name class destiny "+clickAction);
 
-         launchNotification(clickAction,context,additionalData);
-
-         }
         if(deepUriLink!=null) {
             messaging.utils.showDebugLog(this, nameMethod, "Notification "
                     + "name Url schema or Link Universal "+deepUriLink);
@@ -175,76 +168,19 @@ public class MessagingNotification implements Serializable {
 
     }
 
-    private void launchNotification(String clickAction, Context context, Map<String,String> additionalData) {
-        nameMethod="launchNotification";
-        messaging.utils.showDebugLog(this, nameMethod, "Notification "
-                + "click_action " + clickAction);
-        Intent notificationIntent=null;
-        try {
-
-            notificationIntent = new Intent(context, Class.forName(clickAction));
-            for (Map.Entry<String, String> entry : additionalData.entrySet()) {
-                notificationIntent.putExtra(entry.getKey(),  entry.getValue());
-            }
-
-        } catch (ClassNotFoundException e) {
-            e.printStackTrace();
-
-        }catch (NullPointerException e){
-            e.printStackTrace();
-
-            notificationIntent = new Intent("android.intent.action.MAIN");
-        }
-
-        notificationIntent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
-
-            final PendingIntent pendingIntent = PendingIntent.getActivity(context, 0, notificationIntent,
-                    PendingIntent.FLAG_ONE_SHOT);
-            notificationManager = (NotificationManager) context.getSystemService(Context.NOTIFICATION_SERVICE);
-
-            //Setting notification for Android Oreo or higer.
-            if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.O) {
-                setupChannels();
-            }
-            int notificationId = new Random().nextInt(60000);
-
-            // Create the notification.
-            Uri defaultSoundUri = RingtoneManager.getDefaultUri(RingtoneManager.TYPE_NOTIFICATION);
-            NotificationCompat.Builder notificationBuilder = new NotificationCompat.Builder(context, ADMIN_CHANNEL_ID)
-                    .setSmallIcon(messaging.icon)  //a resource for your custom small icon
-                    .setContentTitle(title) //the "title" value you sent in your notification
-                    .setContentText(body) //ditto
-                    .setAutoCancel(true)  //dismisses the notification on click
-                    .setContentIntent(pendingIntent)
-                    .setSound(defaultSoundUri);
-            NotificationManager notificationManager =
-                    (NotificationManager) context.getSystemService(Context.NOTIFICATION_SERVICE);
-            notificationManager.notify(notificationId /* ID of notification */, notificationBuilder.build());
 
 
-    }
 
-    @RequiresApi(api = Build.VERSION_CODES.O)
-    private void setupChannels() {
-        CharSequence adminChannelName = context.getString(R.string.notifications_admin_channel_name);
-        String adminChannelDescription = context.getString(R.string.notifications_admin_channel_description);
-        NotificationChannel adminChannel;
-        adminChannel = new NotificationChannel(ADMIN_CHANNEL_ID, adminChannelName, NotificationManager.IMPORTANCE_LOW);
-        adminChannel.setDescription(adminChannelDescription);
-        adminChannel.enableLights(true);
-        adminChannel.setLightColor(Color.RED);
-        adminChannel.enableVibration(true);
-        if (notificationManager != null) {
-            notificationManager.createNotificationChannel(adminChannel);
-        }
-
-    }
 
     public MessagingNotification(Bundle extras, Context context) {
         this.context=context;
         this.nameMethod="MessagingNotification";
         boolean send=true;
 
+        this.silent=true;
+        if(this.notification!=null) {
+            this.silent = false;
+        }
 
         if(extras!=null){
             additionalData=new HashMap<>();

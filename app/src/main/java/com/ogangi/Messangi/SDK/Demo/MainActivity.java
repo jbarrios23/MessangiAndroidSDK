@@ -2,11 +2,17 @@ package com.ogangi.Messangi.SDK.Demo;
 
 import android.annotation.SuppressLint;
 import android.app.AlertDialog;
+import android.app.NotificationChannel;
+import android.app.NotificationManager;
+import android.app.PendingIntent;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.IntentFilter;
+import android.graphics.Color;
+import android.media.RingtoneManager;
+import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
 import android.util.Log;
@@ -24,6 +30,7 @@ import android.widget.Toast;
 
 import androidx.annotation.RequiresApi;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.core.app.NotificationCompat;
 import androidx.localbroadcastmanager.content.LocalBroadcastManager;
 
 import com.google.firebase.messaging.FirebaseMessaging;
@@ -35,10 +42,11 @@ import com.messaging.sdk.MessagingUser;
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Map;
+import java.util.Random;
 
 public class MainActivity extends AppCompatActivity {
     public static String CLASS_TAG=MainActivity.class.getSimpleName();
-    public static String TAG="DEMO_APP";
+    public static String TAG="MESSAGING";
     public static final String DELETE_TAG = "DELETE_TAG";
 
     public Messaging messaging;
@@ -48,15 +56,18 @@ public class MainActivity extends AppCompatActivity {
     public MessagingUser messagingUser;
     public ListView lista_device,lista_user;
 
-    public ArrayList<String> messangiDevArrayList;
-    public ArrayAdapter<String> messangiDevArrayAdapter;
-    public ArrayList<String> messangiUserDeviceArrayList;
-    public ArrayAdapter<String> messangiUserDeviceArrayAdapter;
+    public ArrayList<String> messagingDevArrayList;
+    public ArrayAdapter<String> messagingDevArrayAdapter;
+    public ArrayList<String> messagingUserDeviceArrayList;
+    public ArrayAdapter messagingUserDeviceArrayAdapter;
     public ProgressBar progressBar;
     public TextView title;
     //public Button pressButton;
     MessagingNotification messagingNotification;
     private String nameMethod;
+
+    private NotificationManager notificationManager;
+    private static final String ADMIN_CHANNEL_ID ="admin_channel";
 
     @RequiresApi(api = Build.VERSION_CODES.JELLY_BEAN_MR2)
     @Override
@@ -66,13 +77,7 @@ public class MainActivity extends AppCompatActivity {
         getSupportActionBar().hide();
         setContentView(R.layout.activity_main);
         nameMethod=new Object(){}.getClass().getEnclosingMethod().getName();
-
-
         messaging = Messaging.getInstance(this);
-
-
-
-
         lista_device = findViewById(R.id.lista_device);
         lista_user = findViewById(R.id.lista_user);
         title = findViewById(R.id.textView_imprimir);
@@ -85,17 +90,17 @@ public class MainActivity extends AppCompatActivity {
         Switch simpleSwitch = findViewById(R.id.simpleSwitch);
 
 
-        messangiDevArrayList = new ArrayList<>();
-        messangiUserDeviceArrayList = new ArrayList<>();
-        messangiDevArrayAdapter = new ArrayAdapter<>(this, R.layout.item_device, R.id.Texview_value, messangiDevArrayList);
-        messangiUserDeviceArrayAdapter = new ArrayAdapter<>(this, R.layout.item_device, R.id.Texview_value, messangiUserDeviceArrayList);
+        messagingDevArrayList = new ArrayList<>();
+        messagingUserDeviceArrayList = new ArrayList<>();
+        messagingDevArrayAdapter = new ArrayAdapter<>(this, R.layout.item_device, R.id.Texview_value, messagingDevArrayList);
+        messagingUserDeviceArrayAdapter = new ArrayAdapter<>(this, R.layout.item_device, R.id.Texview_value, messagingUserDeviceArrayList);
         title.setText(getResources().getString(R.string.title) );
 
         device.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                messangiDevArrayList.clear();
-                messangiUserDeviceArrayList.clear();
+                messagingDevArrayList.clear();
+                messagingUserDeviceArrayList.clear();
                 progressBar.setVisibility(View.VISIBLE);
                 Messaging.fetchDevice(true,getApplicationContext());
                 Log.i(TAG,"INFO: "+CLASS_TAG+": "+nameMethod+": "+messaging.getExternalId());
@@ -177,8 +182,8 @@ public class MainActivity extends AppCompatActivity {
     @Override
     protected void onResume() {
         super.onResume();
-        messangiDevArrayList.clear();
-        messangiUserDeviceArrayList.clear();
+        messagingDevArrayList.clear();
+        messagingUserDeviceArrayList.clear();
         progressBar.setVisibility(View.VISIBLE);
         Messaging.fetchDevice(false,getApplicationContext());
         Log.i(TAG,"INFO: "+CLASS_TAG+": "+nameMethod+"onResume: ");
@@ -186,7 +191,17 @@ public class MainActivity extends AppCompatActivity {
     }
 
     @SuppressLint("SetTextI18n")
-    private void showAlertNotificaction(MessagingNotification messagingNotification) {
+    private void showAlertNotification(MessagingNotification messagingNotification) {
+        nameMethod=new Object(){}.getClass().getEnclosingMethod().getName();
+        if(messagingNotification.getClickAction()!=null) {
+
+            Log.i(TAG,"INFO: "+CLASS_TAG+": "+nameMethod+ " name class to open "+messagingNotification.getClickAction());
+
+            launchNotification(messagingNotification.getClickAction(),getApplicationContext()
+                    ,messagingNotification.getAdditionalData());
+
+        }
+
         // create an alert builder
         AlertDialog.Builder builder = new AlertDialog.Builder(this);
         builder.setTitle("Notification");
@@ -204,6 +219,7 @@ public class MainActivity extends AppCompatActivity {
             messangiData.add("Title: "           + messagingNotification.getNotification().getTitle());
             messangiData.add("Body: "           + messagingNotification.getNotification().getBody());
             messangiData.add("ClickAction: "           + messagingNotification.getClickAction());
+            messangiData.add("Is Silent: "           + messagingNotification.isSilent());
             for (Map.Entry entry : messagingNotification.getAdditionalData().entrySet()) {
                 if(!entry.getKey().equals("profile")){
                     messangiData.add(entry.getKey() + " , " + entry.getValue());
@@ -215,7 +231,8 @@ public class MainActivity extends AppCompatActivity {
             listView.setAdapter(messangiDataArrayAdapter);
 
         }else if(messagingNotification.getAdditionalData()!=null && messagingNotification.getAdditionalData().size() > 0) {
-            messangiData.add("Has only Data");
+            messangiData.add("Has only Data ");
+            messangiData.add("Is Silent: "           + messagingNotification.isSilent());
             for (Map.Entry entry : messagingNotification.getAdditionalData().entrySet()) {
                 if(!entry.getKey().equals("profile")){
                     messangiData.add(entry.getKey() + " , " + entry.getValue());
@@ -231,7 +248,7 @@ public class MainActivity extends AppCompatActivity {
             messangiData.add("Title: "           + messagingNotification.getNotification().getTitle());
             messangiData.add("Body: "           + messagingNotification.getNotification().getBody());
             messangiData.add("ClickAction: "           + messagingNotification.getClickAction());
-
+            messangiData.add("Is Silent: "           + messagingNotification.isSilent());
             messangiDataArrayAdapter = new ArrayAdapter<>(this, R.layout.item_device, R.id.Texview_value, messangiData);
             listView.setAdapter(messangiDataArrayAdapter);
 
@@ -264,6 +281,71 @@ public class MainActivity extends AppCompatActivity {
         dialog.show();
 
     }
+
+    private void launchNotification(String clickAction, Context context, Map<String,String> additionalData) {
+        nameMethod=new Object(){}.getClass().getEnclosingMethod().getName();
+
+        Intent notificationIntent=null;
+        try {
+
+            notificationIntent = new Intent(context, Class.forName(clickAction));
+            for (Map.Entry<String, String> entry : additionalData.entrySet()) {
+                notificationIntent.putExtra(entry.getKey(),  entry.getValue());
+            }
+
+        } catch (ClassNotFoundException e) {
+            e.printStackTrace();
+
+        }catch (NullPointerException e){
+            e.printStackTrace();
+
+            notificationIntent = new Intent("android.intent.action.MAIN");
+        }
+
+        notificationIntent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
+
+        final PendingIntent pendingIntent = PendingIntent.getActivity(context, 0, notificationIntent,
+                PendingIntent.FLAG_ONE_SHOT);
+        notificationManager = (NotificationManager) context.getSystemService(Context.NOTIFICATION_SERVICE);
+
+        //Setting notification for Android Oreo or higer.
+        if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.O) {
+            setupChannels();
+        }
+        int notificationId = new Random().nextInt(60000);
+
+        // Create the notification.
+        Uri defaultSoundUri = RingtoneManager.getDefaultUri(RingtoneManager.TYPE_NOTIFICATION);
+        NotificationCompat.Builder notificationBuilder = new NotificationCompat.Builder(context, ADMIN_CHANNEL_ID)
+                .setSmallIcon(messaging.icon)  //a resource for your custom small icon
+                .setContentTitle(messagingNotification.getTitle()) //the "title" value you sent in your notification
+                .setContentText(messagingNotification.getBody()) //ditto
+                .setAutoCancel(true)  //dismisses the notification on click
+                .setContentIntent(pendingIntent)
+                .setSound(defaultSoundUri);
+        NotificationManager notificationManager =
+                (NotificationManager) context.getSystemService(Context.NOTIFICATION_SERVICE);
+        notificationManager.notify(notificationId /* ID of notification */, notificationBuilder.build());
+
+
+    }
+
+    @RequiresApi(api = Build.VERSION_CODES.O)
+    private void setupChannels() {
+        CharSequence adminChannelName = getApplicationContext().getString(com.messaging.sdk.R.string.notifications_admin_channel_name);
+        String adminChannelDescription = getApplicationContext().getString(com.messaging.sdk.R.string.notifications_admin_channel_description);
+        NotificationChannel adminChannel;
+        adminChannel = new NotificationChannel(ADMIN_CHANNEL_ID, adminChannelName, NotificationManager.IMPORTANCE_LOW);
+        adminChannel.setDescription(adminChannelDescription);
+        adminChannel.enableLights(true);
+        adminChannel.setLightColor(Color.RED);
+        adminChannel.enableVibration(true);
+        if (notificationManager != null) {
+            notificationManager.createNotificationChannel(adminChannel);
+        }
+
+    }
+
 
 
 
@@ -395,7 +477,7 @@ public class MainActivity extends AppCompatActivity {
 
                 }else if(intent.getAction().equals(Messaging.ACTION_GET_NOTIFICATION)&& data!=null){
                     messagingNotification =(MessagingNotification) data;
-                    showAlertNotificaction(messagingNotification);
+                    showAlertNotification(messagingNotification);
 
                 }else if(intent.getAction().equals(Messaging.ACTION_SAVE_DEVICE)&& data!=null) {
                     messagingDevice = (MessagingDevice) data; //you can cast this for get information
@@ -430,7 +512,7 @@ public class MainActivity extends AppCompatActivity {
     };
 
     private void shwUser(MessagingUser messagingUser) {
-        messangiUserDeviceArrayList.clear();
+        messagingUserDeviceArrayList.clear();
 
 
         Log.d(TAG,"DEBUG: "+CLASS_TAG+": "+nameMethod+" User:  "+ this.messagingUser.getDevices());
@@ -438,34 +520,34 @@ public class MainActivity extends AppCompatActivity {
         if(this.messagingUser.getProperties().size()>0){
             Map<String,String> result= this.messagingUser.getProperties();
             for (Map.Entry<String, String> entry : result.entrySet()) {
-                messangiUserDeviceArrayList.add(entry.getKey()+": "+entry.getValue());
+                messagingUserDeviceArrayList.add(entry.getKey()+": "+entry.getValue());
             }
-            messangiUserDeviceArrayList.add("devices: "+ this.messagingUser.getDevices());
+            messagingUserDeviceArrayList.add("devices: "+ this.messagingUser.getDevices());
 
         }
 
-        lista_user.setAdapter(messangiUserDeviceArrayAdapter);
+        lista_user.setAdapter(messagingUserDeviceArrayAdapter);
     }
 
     private void showdevice(MessagingDevice messagingDevice) {
-        messangiDevArrayList.clear();
+        messagingDevArrayList.clear();
 
         Log.d(TAG,"DEBUG: "+CLASS_TAG+": "+nameMethod+": Device:  "+ messagingDevice.getId());
-        messangiDevArrayList.add("Id: "           + messagingDevice.getId());
-        messangiDevArrayList.add("pushToken: "    + messagingDevice.getPushToken());
-        messangiDevArrayList.add("UserId: "       + messagingDevice.getUserId());
-        messangiDevArrayList.add("Type: "         + messagingDevice.getType());
-        messangiDevArrayList.add("Language: "     + messagingDevice.getLanguage());
-        messangiDevArrayList.add("Model: "        + messagingDevice.getModel());
-        messangiDevArrayList.add("Os: "           + messagingDevice.getOs());
-        messangiDevArrayList.add("SdkVersion: "   + messagingDevice.getSdkVersion());
-        messangiDevArrayList.add("Tags: "         + messagingDevice.getTags());
-        messangiDevArrayList.add("CreateAt: "     + messagingDevice.getCreatedAt());
-        messangiDevArrayList.add("UpdatedAt: "    + messagingDevice.getUpdatedAt());
-        messangiDevArrayList.add("Timestamp: "    + messagingDevice.getTimestamp());
-        messangiDevArrayList.add("Transaction: "  + messagingDevice.getTransaction());
-        messangiDevArrayList.add("ExternalId: "  + messaging.getExternalId());
-        lista_device.setAdapter(messangiDevArrayAdapter);
+        messagingDevArrayList.add("Id: "           + messagingDevice.getId());
+        messagingDevArrayList.add("pushToken: "    + messagingDevice.getPushToken());
+        messagingDevArrayList.add("UserId: "       + messagingDevice.getUserId());
+        messagingDevArrayList.add("Type: "         + messagingDevice.getType());
+        messagingDevArrayList.add("Language: "     + messagingDevice.getLanguage());
+        messagingDevArrayList.add("Model: "        + messagingDevice.getModel());
+        messagingDevArrayList.add("Os: "           + messagingDevice.getOs());
+        messagingDevArrayList.add("SdkVersion: "   + messagingDevice.getSdkVersion());
+        messagingDevArrayList.add("Tags: "         + messagingDevice.getTags());
+        messagingDevArrayList.add("CreateAt: "     + messagingDevice.getCreatedAt());
+        messagingDevArrayList.add("UpdatedAt: "    + messagingDevice.getUpdatedAt());
+        messagingDevArrayList.add("Timestamp: "    + messagingDevice.getTimestamp());
+        messagingDevArrayList.add("Transaction: "  + messagingDevice.getTransaction());
+        messagingDevArrayList.add("ExternalId: "  + messaging.getExternalId());
+        lista_device.setAdapter(messagingDevArrayAdapter);
         Messaging.fetchUser(getApplicationContext(),false);
 
     }

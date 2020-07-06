@@ -34,6 +34,7 @@ public class ExampleUrlActivity extends AppCompatActivity {
         printData=findViewById(R.id.lista_data);
         nameMethod=new Object(){}.getClass().getEnclosingMethod().getName();
         Log.i(TAG,"INFO: "+CLASS_TAG+": "+nameMethod);
+        additionalData = new HashMap<>();
         Intent intent=getIntent();
         if(intent!=null ){
             Log.i(TAG,"INFO: "+CLASS_TAG+" action: "+intent.getAction());
@@ -41,7 +42,7 @@ public class ExampleUrlActivity extends AppCompatActivity {
             Log.i(TAG,"INFO: "+CLASS_TAG+" data: "+intent.getData());
             Log.i(TAG,"INFO: "+CLASS_TAG+" param1: "+intent.getData().getQueryParameter("param1"));
             Log.i(TAG,"INFO: "+CLASS_TAG+" Package: "+intent.getPackage());
-            additionalData = new HashMap<>();
+
             additionalData.put("action",intent.getAction());
             additionalData.put("scheme",intent.getScheme());
             additionalData.put("data", String.valueOf(intent.getData()));
@@ -58,8 +59,10 @@ public class ExampleUrlActivity extends AppCompatActivity {
             Log.i(TAG, "INFO DATA BUILD: " + CLASS_TAG + " data: " + additionalData);
 
         }
-        dataArrayList = new ArrayList(additionalData.entrySet());
-        dataAdapter = new ArrayAdapter<>(this, R.layout.item_device, R.id.Texview_value, dataArrayList);
-        printData.setAdapter(dataAdapter);
+        if(additionalData!=null&& additionalData.size()>0) {
+            dataArrayList = new ArrayList(additionalData.entrySet());
+            dataAdapter = new ArrayAdapter<>(this, R.layout.item_device, R.id.Texview_value, dataArrayList);
+            printData.setAdapter(dataAdapter);
+        }
     }
 }

@@ -39,8 +39,11 @@ public class ExampleActivity extends AppCompatActivity {
         nameMethod=new Object(){}.getClass().getEnclosingMethod().getName();
         Log.i(TAG,"INFO: "+CLASS_TAG+": "+nameMethod);
         Bundle extras=getIntent().getExtras();
+        additionalData = new HashMap<>();
         if(extras!=null) {
-            additionalData = new HashMap<>();
+            Log.i(TAG,"INFO: "+CLASS_TAG+" title: "+extras.get("title"));
+            Log.i(TAG,"INFO: "+CLASS_TAG+" body: "+extras.get("body"));
+
             for (String key : extras.keySet()) {
                 Log.i(TAG, "INFO DATA: " + CLASS_TAG + ": " + nameMethod + " " + "Extras received:  Key: " + key + " Value: " + extras.getString(key));
                 additionalData.put(key, extras.getString(key));
@@ -48,9 +51,11 @@ public class ExampleActivity extends AppCompatActivity {
 
             Log.i(TAG, "INFO DATA BUILD: " + CLASS_TAG + " data: " + additionalData);
         }
-        dataArrayList = new ArrayList(additionalData.entrySet());
-        dataAdapter = new ArrayAdapter<>(this, R.layout.item_device, R.id.Texview_value, dataArrayList);
-        printData.setAdapter(dataAdapter);
+        if(additionalData!=null&& additionalData.size()>0) {
+            dataArrayList = new ArrayList(additionalData.entrySet());
+            dataAdapter = new ArrayAdapter<>(this, R.layout.item_device, R.id.Texview_value, dataArrayList);
+            printData.setAdapter(dataAdapter);
+        }
 
 
     }
