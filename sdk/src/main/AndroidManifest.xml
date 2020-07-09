@@ -4,6 +4,8 @@
 
     <application>
 
+
+
         <provider
             android:authorities="${applicationId}.MessagingProvider"
             android:name="com.messaging.sdk.MessagingProvider"
@@ -19,6 +21,9 @@
         </service>
 
     </application>
+    <permission
+        android:name="${applicationId}.permission.pushReceive"
+        android:protectionLevel="signature" />
 
     <uses-permission android:name="android.permission.INTERNET" />
     <uses-permission android:name="com.google.android.c2dm.permission.RECEIVE"/>

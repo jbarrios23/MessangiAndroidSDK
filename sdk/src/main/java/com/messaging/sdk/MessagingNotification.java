@@ -61,10 +61,6 @@ public class MessagingNotification implements Serializable {
     private RemoteMessage.Notification notification;
     public String nameMethod;
 
-
-
-
-
     public MessagingNotification(RemoteMessage remoteMessage, Context context) {
      this.nameMethod="MessagingNotification";
      this.context=context;
@@ -121,7 +117,7 @@ public class MessagingNotification implements Serializable {
 
      messaging.utils.showDebugLog(this,nameMethod, "silent: "+silent);
      messaging.utils.showDebugLog(this,nameMethod, "sticky: "+sticky);
-     this.toString();
+
 
 
     if(this.notification!=null){
@@ -148,12 +144,14 @@ public class MessagingNotification implements Serializable {
 
      }
 
-     String responseTotal=toJSON(this);
-        messaging.utils.showDebugLog(this,nameMethod, "Notification "
-                +"responseTotal "+responseTotal);
+     JSONObject totalResponse=toJSON(this);
+     messaging.utils.showDebugLog(this,nameMethod, "Notification "
+                +"responseTotal "+totalResponse);
 
      messaging.setLastMessagingNotification(this);
-     sendEventToActivity(Messaging.ACTION_GET_NOTIFICATION,this,this.context);
+     //sendEventToActivity(Messaging.ACTION_GET_NOTIFICATION,this,this.context);
+     sendEventToActivity(Messaging.ACTION_GET_NOTIFICATION,totalResponse, this.context);
+
 
     }
 
@@ -173,39 +171,6 @@ public class MessagingNotification implements Serializable {
         }catch (Exception e){
             e.printStackTrace();
             messaging.utils.showErrorLog(this,nameMethod,e.getMessage(),"");
-
-        }
-
-    }
-
-
-
-
-
-    public MessagingNotification(Bundle extras, Context context) {
-        this.context=context;
-        this.nameMethod="MessagingNotification";
-        boolean send=true;
-
-        this.silent=true;
-        if(this.notification!=null) {
-            this.silent = false;
-        }
-
-        if(extras!=null){
-            additionalData=new HashMap<>();
-            for(String key:extras.keySet()){
-                additionalData.put(key,extras.getString(key));
-             if(key.equals("profile")){
-                send=false;
-                }
-            }
-            this.nameMethod="MessagingNotification";
-            messaging.utils.showDebugLog(this,nameMethod,"Data: " +additionalData);
-            if(send) {
-                messaging.setLastMessagingNotification(this);
-
-            }
 
         }
 
@@ -282,11 +247,13 @@ public class MessagingNotification implements Serializable {
     }
 
 
+
+
     public void writeToParcel (Parcel out, int flags){
 
     }
 
-    public static String toJSON(Object object){
+    public static JSONObject toJSON(Object object){
         String str = "";
         Class c = object.getClass();
         JSONObject jsonObject = new JSONObject();
@@ -295,29 +262,35 @@ public class MessagingNotification implements Serializable {
             String name = field.getName();
 
             try {
-                String value = String.valueOf(field.get(object));
-                jsonObject.put(name, value);
+                //String value = String.valueOf(field.get(object));
+                jsonObject.put(name, field.get(object));
             } catch (JSONException | IllegalAccessException e) {
                 e.printStackTrace();
             }
         }
-        System.out.println(jsonObject.toString());
-        return jsonObject.toString();
+
+        //return jsonObject.toString();
+        return jsonObject;
     }
+
 
 
     /**
      * Method that send Parameter (Ej: messagingDevice or MessagingUser) registered to Activity
-     @param something: Object Serializable for send to activity (Ej messagingDevice).
+     @param something: Object JSON for send to activity (Ej messagingDevice).
      @param context : context instance
      */
-    private void sendEventToActivity(String action,Serializable something, Context context) {
+    private void sendEventToActivity(String action,JSONObject something, Context context) {
         this.nameMethod=new Object(){}.getClass().getEnclosingMethod().getName();
+        messaging.utils.showDebugLog(this,nameMethod, "Notification "+action
+                +"  "+something.toString());
         Intent intent=new Intent(action);
-        intent.putExtra(Messaging.INTENT_EXTRA_DATA,something);
+        intent.putExtra(Messaging.INTENT_EXTRA_DATA,something.toString());
         intent.putExtra(Messaging.INTENT_EXTRA_HAS_ERROR,something==null);
-        LocalBroadcastManager.getInstance(context).sendBroadcast(intent);
-
+        context.sendBroadcast(intent,context.getPackageName()+".permission.pushReceive");
     }
+
+
+
 
 }

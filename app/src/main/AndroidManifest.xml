@@ -13,11 +13,34 @@
         android:theme="@style/AppTheme"
         android:windowActionBar="false"
         tools:ignore="GoogleAppIndexingWarning">
+
+        <receiver
+            android:name=".MainActivity$MessagingNotificationReceiver"
+            android:enabled="true"
+            android:permission="com.ogangi.Messangi.SDK.Demo.permission.pushReceive"
+            android:exported="false"
+            tools:ignore="Instantiatable">
+
+            <intent-filter>
+                <action android:name="android.intent.action.BOOT_COMPLETED"/>
+                <action android:name="android.intent.action.INPUT_METHOD_CHANGED"/>
+                <action android:name="com.messaging.sdk.ACTION_REGISTER_DEVICE"/>
+                <action android:name="com.messaging.sdk.ACTION_FETCH_DEVICE"/>
+                <action android:name="com.messaging.sdk.ACTION_SAVE_DEVICE"/>
+                <action android:name="com.messaging.sdk.ACTION_FETCH_USER"/>
+                <action android:name="com.messaging.sdk.ACTION_SAVE_USER"/>
+                <action android:name="com.messaging.sdk.PUSH_NOTIFICATION"/>
+            </intent-filter>
+
+        </receiver>
+
         <activity android:name=".ExampleURLSchemasActivity">
-            <intent-filter >
+            <intent-filter>
                 <action android:name="android.intent.action.VIEW" />
+
                 <category android:name="android.intent.category.DEFAULT" />
                 <category android:name="android.intent.category.BROWSABLE" />
+
                 <data
                     android:host="example"
                     android:pathPrefix="/example"
@@ -27,8 +50,10 @@
         <activity android:name=".ExampleUrlActivity">
             <intent-filter>
                 <action android:name="android.intent.action.VIEW" />
+
                 <category android:name="android.intent.category.DEFAULT" />
                 <category android:name="android.intent.category.BROWSABLE" />
+
                 <data
                     android:host="www.plantplaces.com"
                     android:pathPrefix="/colorcapture.shtml"
@@ -38,6 +63,7 @@
         <activity android:name=".ExampleActivity">
             <intent-filter>
                 <action android:name="com.ogangi.Messangi.SDK.Demo.ExampleActivity" />
+
                 <category android:name="android.intent.category.DEFAULT" />
             </intent-filter>
         </activity>
@@ -51,5 +77,10 @@
             </intent-filter>
         </activity>
     </application>
+
+    <permission
+        android:name="com.ogangi.Messangi.SDK.Demo.permission.pushReceive"
+        android:protectionLevel="signature" />
+    <uses-permission android:name="com.ogangi.Messangi.SDK.Demo.permission.pushReceive" />
 
 </manifest>

@@ -3,6 +3,8 @@ package com.messaging.sdk;
 import com.google.firebase.messaging.FirebaseMessagingService;
 import com.google.firebase.messaging.RemoteMessage;
 
+import java.io.Serializable;
+
 /**
  * class MessagingService let handle notification push using FirebaseMessagingService .
  *
