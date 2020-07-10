@@ -49,6 +49,7 @@ public class MessagingDevice implements Serializable {
     private String timestamp;
     private String transaction;
     private String nameMethod;
+    private static MessagingDevice mInstance;
 
     /**
      * direct access to the singletone instance defined in Messangi
@@ -61,6 +62,7 @@ public class MessagingDevice implements Serializable {
         //direct access to the singletone instance defined in Messangi
         return Messaging.getInstance().messagingDevice;
     }
+
 
     /**
      * Method that make Update of paramenter Device using service
@@ -149,7 +151,9 @@ public class MessagingDevice implements Serializable {
      */
 
     public MessagingDevice addTagToDevice(String newTags){
-
+        nameMethod=new Object(){}.getClass().getEnclosingMethod().getName();
+        Messaging messaging = Messaging.getInstance();
+        messaging.utils.showInfoLog(this,nameMethod,"tags "+newTags);
         if(tags!=null){
             tags.add(newTags);
 
@@ -159,6 +163,7 @@ public class MessagingDevice implements Serializable {
 
         }
 
+        messaging.utils.showInfoLog(this,nameMethod,"tags "+tags);
         return this;
 
     }
@@ -296,6 +301,7 @@ public class MessagingDevice implements Serializable {
      *
      */
     public List<String> getTags() {
+
         return tags;
     }
 
@@ -382,6 +388,19 @@ public class MessagingDevice implements Serializable {
         LocalBroadcastManager.getInstance(context).sendBroadcast(intent);
     }
 
+    private void sendEventToActivityTwo(String action,JSONObject something, Context context) {
+        try {
+            Intent intent = new Intent(action);
+            intent.putExtra(Messaging.INTENT_EXTRA_DATA, something.toString());
+            intent.putExtra(Messaging.INTENT_EXTRA_HAS_ERROR, something == null);
+            context.sendBroadcast(intent, context.getPackageName() + ".permission.pushReceive");
+            //context.sendBroadcast(intent);
+        }catch (NullPointerException e){
+            e.getStackTrace();
+        }
+
+    }
+
     private class HTTPReqTaskPut extends AsyncTask<Void,Void,String> {
 
         private JSONObject jsonObject;
@@ -405,10 +424,9 @@ public class MessagingDevice implements Serializable {
             HttpURLConnection urlConnection = null;
 
             try {
-                //String authToken= MessagingSdkUtils.getMessaging_token();
+
                 String authToken= MessagingSdkUtils.getMessagingToken();
                 JSONObject postData = jsonObject;
-                //provUrl=MessagingSdkUtils.getMessangi_host()+"/devices/"+Id;
                 provUrl=MessagingSdkUtils.getMessagingHost()+"/devices/"+Id;
                 messaging.utils.showHttpRequestLog(provUrl, MessagingDevice.this,nameMethod,"PUT",postData.toString());
                 URL url = new URL(provUrl);
@@ -428,7 +446,8 @@ public class MessagingDevice implements Serializable {
 
                 int code = urlConnection.getResponseCode();
                 if (code !=  200) {
-                    sendEventToActivity(Messaging.ACTION_SAVE_DEVICE,null,context);
+                    //sendEventToActivity(Messaging.ACTION_SAVE_DEVICE,null,context);
+                    sendEventToActivityTwo(Messaging.ACTION_SAVE_DEVICE,null,context);
                     messaging.utils.showErrorLog(this,nameMethod,"Invalid response from server: " + code,null);
                     throw new IOException("Invalid response from server: " + code);
                 }
@@ -442,7 +461,8 @@ public class MessagingDevice implements Serializable {
 
             } catch (Exception e) {
                 e.printStackTrace();
-                sendEventToActivity(Messaging.ACTION_SAVE_DEVICE,null,context);
+                //sendEventToActivity(Messaging.ACTION_SAVE_DEVICE,null,context);
+                sendEventToActivityTwo(Messaging.ACTION_SAVE_DEVICE,null,context);
             } finally {
                 if (urlConnection != null) {
                     urlConnection.disconnect();
@@ -462,16 +482,19 @@ public class MessagingDevice implements Serializable {
                     JSONObject resp=new JSONObject(response);
                     messagingDevice = messaging.utils.getMessagingDevFromJson(resp);
                     messaging.messagingStorageController.saveDevice(resp);
-                    sendEventToActivity(Messaging.ACTION_SAVE_DEVICE,messagingDevice,context);
+                    //sendEventToActivity(Messaging.ACTION_SAVE_DEVICE,messagingDevice,context);
+                    sendEventToActivityTwo(Messaging.ACTION_SAVE_DEVICE,resp,context);
 
                 }
             }catch (NullPointerException e){
                 messaging.utils.showErrorLog(this,nameMethod,"device not update! NullPointerException",e.getStackTrace().toString());
-                sendEventToActivity(Messaging.ACTION_SAVE_DEVICE,null,context);
+                //sendEventToActivity(Messaging.ACTION_SAVE_DEVICE,null,context);
+                sendEventToActivityTwo(Messaging.ACTION_SAVE_DEVICE,null,context);
             } catch (JSONException e) {
                 e.printStackTrace();
                 messaging.utils.showErrorLog(this,nameMethod,"device not update! JSONException",e.getStackTrace().toString());
-                sendEventToActivity(Messaging.ACTION_SAVE_DEVICE,null,context);
+                //sendEventToActivity(Messaging.ACTION_SAVE_DEVICE,null,context);
+                sendEventToActivityTwo(Messaging.ACTION_SAVE_DEVICE,null,context);
             }
         }
     }
