@@ -16,22 +16,22 @@ import java.util.Map;
 import java.util.Set;
 
 /**
- * class MessagingStorageController is a singletone to save in sharepreference data user and data device
+ * class MessagingStorageController is a singleton to save in sharepreference data user and data device
  */
-class MessagingStorageController {
+public class MessagingStorageController {
 
     //private static MessagingStorageController mInstance;
-    private static Context contexto;
+    private static Context context;
     private SharedPreferences mSharedPreferences;
     private Messaging messaging;
     private String nameMethod;
 
     public MessagingStorageController(Context context, Messaging messaging){
 
-        this.contexto=context;
+        this.context=context;
         this.messaging = messaging;
         this.nameMethod="";
-        this.mSharedPreferences = contexto.getApplicationContext().getSharedPreferences("StorageCallback", 0);
+        this.mSharedPreferences = context.getApplicationContext().getSharedPreferences("StorageCallback", 0);
 
     }
     /**
@@ -50,7 +50,7 @@ class MessagingStorageController {
      * Method hasTokenRegiter lets Know if token is registered in local storage
      *
      */
-    public boolean hasTokenRegiter(){
+    public boolean hasTokenRegister(){
         nameMethod=new Object(){}.getClass().getEnclosingMethod().getName();
         boolean hasToken = false;
         String token=mSharedPreferences.getString("Token","");
@@ -74,7 +74,7 @@ class MessagingStorageController {
     }
 
     public void deleteToken(){
-        mSharedPreferences=contexto.getSharedPreferences("StorageCallback", 0);
+        mSharedPreferences=context.getSharedPreferences("StorageCallback", 0);
         SharedPreferences.Editor editorlogin = mSharedPreferences.edit();
         editorlogin.clear();
         editorlogin.commit();
@@ -174,7 +174,7 @@ class MessagingStorageController {
     }
 
     public void deleteDeviceTags(){
-        mSharedPreferences=contexto.getSharedPreferences("StorageCallback", 0);
+        mSharedPreferences=context.getSharedPreferences("StorageCallback", 0);
         SharedPreferences.Editor editorlogin = mSharedPreferences.edit();
         editorlogin.clear();
         editorlogin.commit();
@@ -236,7 +236,7 @@ class MessagingStorageController {
     }
 
     public void deleteUserByDevice(){
-        mSharedPreferences=contexto.getSharedPreferences("StorageCallback", 0);
+        mSharedPreferences=context.getSharedPreferences("StorageCallback", 0);
         SharedPreferences.Editor editorlogin = mSharedPreferences.edit();
         editorlogin.clear();
         editorlogin.commit();

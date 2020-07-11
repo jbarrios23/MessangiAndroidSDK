@@ -81,7 +81,7 @@ import java.util.List;
             showDebugLog(this,nameMethod,"UserId "+"does not have UserId yet");
 
         }
-        if(messagingStorageController.hasTokenRegiter()){
+        if(messagingStorageController.hasTokenRegister()){
             showDebugLog(this,nameMethod,"PushToken "+messagingStorageController.getToken());
         }else{
             showDebugLog(this,nameMethod,"PushToken "+"does not have PushToken yet");

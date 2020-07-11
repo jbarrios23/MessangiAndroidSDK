@@ -120,19 +120,7 @@ public class MessagingNotification implements Serializable {
 
 
 
-    if(this.notification!=null){
-         messaging.utils.showDebugLog(this,nameMethod, "Notification "
-                 +"Title "+title+" "+"Body "+body);
-         messaging.utils.showDebugLog(this, nameMethod, "Notification "
-                + "click_action " + clickAction + " Uri Link " + deepUriLink);
 
-        if(deepUriLink!=null) {
-            messaging.utils.showDebugLog(this, nameMethod, "Notification "
-                    + "name Url schema or Link Universal "+deepUriLink);
-            launchBrowser(deepUriLink,context,additionalData);
-        }
-
-    }
 
 
    if(this.additionalData!=null && additionalData.size()>0){
@@ -147,15 +135,27 @@ public class MessagingNotification implements Serializable {
      JSONObject totalResponse=toJSON(this);
      messaging.utils.showDebugLog(this,nameMethod, "Notification "
                 +"responseTotal "+totalResponse);
+        if(this.notification!=null){
+            messaging.utils.showDebugLog(this,nameMethod, "Notification "
+                    +"Title "+title+" "+"Body "+body);
+            messaging.utils.showDebugLog(this, nameMethod, "Notification "
+                    + "click_action " + clickAction + " Uri Link " + deepUriLink);
+
+            if(deepUriLink!=null) {
+                messaging.utils.showDebugLog(this, nameMethod, "Notification "
+                        + "name Url schema or Link Universal "+deepUriLink);
+
+                launchBrowser(deepUriLink,context,totalResponse);
+            }
+
+        }
 
      messaging.setLastMessagingNotification(this);
-     //sendEventToActivity(Messaging.ACTION_GET_NOTIFICATION,this,this.context);
+
      sendEventToActivity(Messaging.ACTION_GET_NOTIFICATION,totalResponse, this.context);
-
-
     }
 
-    private void launchBrowser(Uri deepUriLink, Context context, Map<String, String> additionalData) {
+    private void launchBrowser(Uri deepUriLink, Context context, JSONObject additionalData) {
         nameMethod="launchBrowser";
         messaging.utils.showDebugLog(this, nameMethod, "Notification "
                 + "Link " + deepUriLink);
@@ -164,9 +164,8 @@ public class MessagingNotification implements Serializable {
             Intent browserIntent = new Intent(Intent.ACTION_VIEW,
                     Uri.parse(String.valueOf(deepUriLink)));
             browserIntent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
-            for (Map.Entry<String, String> entry : additionalData.entrySet()) {
-                browserIntent .putExtra(entry.getKey(),  entry.getValue());
-            }
+            browserIntent.putExtra("data",additionalData.toString());
+            browserIntent.putExtra("enable",true);
             context.startActivity(browserIntent);
         }catch (Exception e){
             e.printStackTrace();

@@ -112,31 +112,22 @@ public class MessagingUser implements Serializable {
       //  this.devices = devices;
     //}
 
-    /**
-     * Method that send Parameter (Ej: messagingDevice or MessagingUser) registered to Activity
-     @param something: Object Serializable for send to activity (Ej MeesangiDev).
-     @param context : context instance
-     */
-    private void sendEventToActivity(String action,Serializable something, Context context) {
-
-        Intent intent=new Intent(action);
-        intent.putExtra(Messaging.INTENT_EXTRA_DATA,something);
-        intent.putExtra(Messaging.INTENT_EXTRA_HAS_ERROR,something==null);
-        LocalBroadcastManager.getInstance(context).sendBroadcast(intent);
-    }
 
     /**
      * Method that send Parameter (Ej: messagingDevice or MessagingUser) registered to Activity
-     @param something: Object Json for send to activity (Ej MeesangiDev).
+     @param something: Object Json for send to activity (Ej MessagingDev).
      @param context : context instance
      */
-
-    private void sendEventToActivityTwo(String action,JSONObject something, Context context) {
-        Intent intent=new Intent(action);
-        intent.putExtra(Messaging.INTENT_EXTRA_DATA,something.toString());
-        intent.putExtra(Messaging.INTENT_EXTRA_HAS_ERROR,something==null);
-        context.sendBroadcast(intent,context.getPackageName()+".permission.pushReceive");
-
+    private void sendEventToActivity(String action,JSONObject something, Context context) {
+        Messaging messaging=Messaging.getInstance();
+        if(something!=null) {
+            Intent intent = new Intent(action);
+            intent.putExtra(Messaging.INTENT_EXTRA_DATA, something.toString());
+            intent.putExtra(Messaging.INTENT_EXTRA_HAS_ERROR, something == null);
+            context.sendBroadcast(intent, context.getPackageName() + ".permission.pushReceive");
+        }else{
+            messaging.utils.showErrorLog(this,nameMethod,"Error Server: ","");
+        }
     }
 
     /**
@@ -310,7 +301,7 @@ public class MessagingUser implements Serializable {
                 int code = urlConnection.getResponseCode();
                 if (code !=  200) {
                     //sendEventToActivity(Messaging.ACTION_SAVE_USER,null,context);
-                    sendEventToActivityTwo(Messaging.ACTION_SAVE_USER,null,context);
+                    sendEventToActivity(Messaging.ACTION_SAVE_USER,null,context);
                     messaging.utils.showErrorLog(this,nameMethod,"Invalid response from server: " + code,"");
                     throw new IOException("Invalid response from server: " + code);
                 }
@@ -324,9 +315,8 @@ public class MessagingUser implements Serializable {
 
             } catch (Exception e) {
                 e.printStackTrace();
-                //sendEventToActivity(Messaging.ACTION_SAVE_USER,null,context);
                 messaging.utils.showErrorLog(this,nameMethod,"Exception",e.getStackTrace().toString());
-                sendEventToActivityTwo(Messaging.ACTION_SAVE_USER,null,context);
+                sendEventToActivity(Messaging.ACTION_SAVE_USER,null,context);
             } finally {
                 if (urlConnection != null) {
                     urlConnection.disconnect();
@@ -347,18 +337,17 @@ public class MessagingUser implements Serializable {
                     Map<String, String> resultMap=toMap(data);
                     messaging.messagingStorageController.saveUserByDevice(resultMap);
                     messagingUser = MessagingUser.parseData(resultMap);
-                    //sendEventToActivity(Messaging.ACTION_SAVE_USER,messagingUser, context);
-                    sendEventToActivityTwo(Messaging.ACTION_SAVE_USER,resp, context);
+                    sendEventToActivity(Messaging.ACTION_SAVE_USER,resp, context);
 
                 }
             }catch (NullPointerException e){
                 //sendEventToActivity(Messaging.ACTION_SAVE_USER,null,context);
-                sendEventToActivityTwo(Messaging.ACTION_SAVE_USER,null,context);
+                sendEventToActivity(Messaging.ACTION_SAVE_USER,null,context);
                 messaging.utils.showErrorLog(this,nameMethod,"User not update! NullPointerException",e.getStackTrace().toString());
             } catch (JSONException e) {
                 e.printStackTrace();
                 //sendEventToActivity(Messaging.ACTION_SAVE_USER,null,context);
-                sendEventToActivityTwo(Messaging.ACTION_SAVE_USER,null,context);
+                sendEventToActivity(Messaging.ACTION_SAVE_USER,null,context);
                 messaging.utils.showErrorLog(this,nameMethod,"User not update! JSONException",e.getStackTrace().toString());
             }
         }
