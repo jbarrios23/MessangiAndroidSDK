@@ -26,7 +26,7 @@ import java.util.List;
     private MessagingDevice messagingDevice;
 
     /**
-     * Method init Resourses system from config file
+     * Method init Resources system from config file
      * @param context
      * @param messaging
      *
@@ -46,7 +46,7 @@ import java.util.List;
 
             int key_messagi_host = context.getResources()
                     .getIdentifier("messaging_host", "string", context.getPackageName());
-            //messaging_host = context.getString(key_messagi_host);
+
             messagingHost = context.getString(key_messagi_host);
             showDebugLog(this,nameMethod,messagingHost);
 
@@ -103,7 +103,7 @@ import java.util.List;
 
     /**
      * Method Show Debug log
-     @param instance: intance for Tag.
+     @param instance: instance for Tag.
      @param nameMethod: name of method.
      @param message : message to show.
      */
@@ -115,7 +115,7 @@ import java.util.List;
     }
     /**
      * Method Show Info log
-     @param instance: intance for Tag.
+     @param instance: instance for Tag.
      @param nameMethod: name of method.
      @param message : message to show.
      */
@@ -127,7 +127,7 @@ import java.util.List;
 
     /**
      * Method Show Info log
-     @param instance: intance for Tag.
+     @param instance: instance for Tag.
      @param nameMethod: name of method.
      @param message : message to show.
      */
@@ -138,11 +138,8 @@ import java.util.List;
     }
 
     /**
-     * Method get MessangingHost
+     * Method get MessagingHost
      */
-
-
-
      public static String getMessagingHost() {
          return messagingHost;
      }
@@ -223,33 +220,33 @@ import java.util.List;
 
     /**
      * Method Show Error log
-     @param instance: intance for Tag.
-     @param url_hascode: url
+     @param instance: instance for Tag.
+     @param url_has_code: url
      @param nameMethod: name of method
      @param type: POST/GET/PUT/DELETE
      @param body: Body
      */
-    public  void showHttpRequestLog(String url_hascode,Object instance,String nameMethod,
+    public  void showHttpRequestLog(String url_has_code,Object instance,String nameMethod,
                                     String type,String body){
         if(logging_allowed){
-            Log.d(TAG,"HTTP_REQUEST: "+url_hascode.hashCode()+": "+instance.getClass().getSimpleName()+": "+ nameMethod+": "+type
-                    +": "+url_hascode+": "+body);
+            Log.d(TAG,"HTTP_REQUEST: "+url_has_code.hashCode()+": "+instance.getClass().getSimpleName()+": "+ nameMethod+": "+type
+                    +": "+url_has_code+": "+body);
         }
 
     }
 
     /**
      * Method Show Error log
-     @param instance: intance for Tag.
-     @param url_hascode: url
+     @param instance: instance for Tag.
+     @param url_has_code: url
      @param nameMethod: name of method
      @param status: Status
      @param response: Response.
      */
-    public  void showHttpResponsetLog(String url_hascode,Object instance,String nameMethod,
+    public  void showHttpResponseLog(String url_has_code,Object instance,String nameMethod,
                                       String status,String response){
         if(logging_allowed){
-            Log.d(TAG,"HTTP_REQUEST: "+url_hascode.hashCode()+": "+instance.getClass().getSimpleName()+": "+ nameMethod+": "
+            Log.d(TAG,"HTTP_REQUEST: "+url_has_code.hashCode()+": "+instance.getClass().getSimpleName()+": "+ nameMethod+": "
                     +status+": "+response);
         }
 

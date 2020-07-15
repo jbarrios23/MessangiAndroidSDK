@@ -30,7 +30,7 @@ import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 /**
- * class MessagingDevice is used for handle Device paramenter in SDK
+ * class MessagingDevice is used for handle Device parameter in SDK
  * and service for update device and requestUserByDevice.
  */
 
@@ -52,14 +52,14 @@ public class MessagingDevice implements Serializable {
     private static MessagingDevice mInstance;
 
     /**
-     * direct access to the singletone instance defined in Messangi
+     * direct access to the singleton instance defined in Messaging
 
      */
     public static synchronized MessagingDevice getInstance() {
         if (Messaging.getInstance() == null) {
             return null;
         }
-        //direct access to the singletone instance defined in Messangi
+        //direct access to the singleton instance defined in Messaging
         return Messaging.getInstance().messagingDevice;
     }
 
@@ -104,7 +104,7 @@ public class MessagingDevice implements Serializable {
     }
 
     /**
-     * Method for check Sdk Veriosn and Languaje, if one of these parameters changes
+     * Method for check Sdk Version and Language, if one of these parameters changes
      * immediately it is updated in the database.
      @param context: instance context
      */
@@ -129,7 +129,7 @@ public class MessagingDevice implements Serializable {
 
         if(getLanguage().equals("0") || !getLanguage().equals(lenguaje)){
             setLanguage(lenguaje);
-            messaging.utils.showInfoLog(this,nameMethod,"Update lenguaje");
+            messaging.utils.showInfoLog(this,nameMethod,"Update language");
             try {
                 Thread.sleep(3000);
                 save(context);
@@ -138,7 +138,7 @@ public class MessagingDevice implements Serializable {
             }
 
         }else{
-            messaging.utils.showInfoLog(this,nameMethod,"Not update lenguaje");
+            messaging.utils.showInfoLog(this,nameMethod,"Not update language");
         }
 
     }
@@ -372,26 +372,20 @@ public class MessagingDevice implements Serializable {
 
         return requestBody;
     }
+
     /**
      * Method that send Parameter (Ej: messagingDevice or MessagingUser) registered to Activity
-     @param something: Object Json for send to activity (Ej MessagingDev).
+     @param something: Object Serializable for send to activity (Ej MessagingDev).
      @param context : context instance
      */
+    private void sendEventToActivity(String action,Serializable something, Context context) {
 
-    private void sendEventToActivity(String action,JSONObject something, Context context) {
-        Messaging messaging=Messaging.getInstance();
-        try {
-            Intent intent = new Intent(action);
-            intent.putExtra(Messaging.INTENT_EXTRA_DATA, something.toString());
-            intent.putExtra(Messaging.INTENT_EXTRA_HAS_ERROR, something == null);
-            context.sendBroadcast(intent, context.getPackageName() + ".permission.pushReceive");
-
-        }catch (NullPointerException e){
-            e.getStackTrace();
-            messaging.utils.showErrorLog(this,nameMethod,"Exception: "+e.getMessage(),"");
-        }
-
+        Intent intent=new Intent(action);
+        intent.putExtra(Messaging.INTENT_EXTRA_DATA,something);
+        intent.putExtra(Messaging.INTENT_EXTRA_HAS_ERROR,something==null);
+        LocalBroadcastManager.getInstance(context).sendBroadcast(intent);
     }
+
 
     private class HTTPReqTaskPut extends AsyncTask<Void,Void,String> {
 
@@ -469,11 +463,12 @@ public class MessagingDevice implements Serializable {
             try{
                 if(!response.equals("")) {
                     nameMethod=new Object(){}.getClass().getEnclosingMethod().getName();
-                    messaging.utils.showHttpResponsetLog(provUrl, MessagingDevice.this,nameMethod,"Successful",response);
+                    messaging.utils.showHttpResponseLog(provUrl, MessagingDevice.this,nameMethod,"Successful",response);
                     JSONObject resp=new JSONObject(response);
                     messagingDevice = messaging.utils.getMessagingDevFromJson(resp);
                     messaging.messagingStorageController.saveDevice(resp);
-                    sendEventToActivity(Messaging.ACTION_SAVE_DEVICE,resp,context);
+                    //sendEventToActivity(Messaging.ACTION_SAVE_DEVICE,resp,context);
+                    sendEventToActivity(Messaging.ACTION_SAVE_DEVICE,messagingDevice,context);
 
                 }
             }catch (NullPointerException e){

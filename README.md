@@ -58,8 +58,8 @@ Put the configuration file in the values folder of the Android project
   <bool name="logging_allowed">boolean condition</bool>
 </resources>
 ```
-### 4) Put BroadcastReceiver in Activity project.
-Put BroadcastReceiver in Activity file project, example:
+### 4) Put LocalBroadcastReceiver in Activity project.
+Put LocalBroadcastReceiver in Activity file project, example:
 
 ```java
 ...
@@ -96,7 +96,7 @@ Using fetchDevice device delivers the instance of a device, by internal memory, 
     }
 Unregister Receiver in actinvtiy main.
 
-If you want to get a response from the fetch device request you should implement a BroadcastReceiver in the main activity:
+If you want to get a response from the fetch device request you should implement a LocalBroadcastReceiver in the main activity:
  
 ```java
 private BroadcastReceiver mReceiver=new BroadcastReceiver() {
@@ -108,17 +108,33 @@ private BroadcastReceiver mReceiver=new BroadcastReceiver() {
                 Serializable data=intent.getSerializableExtra(Messaging.INTENT_EXTRA_DATA);
                 if(intent.getAction().equals(Messaging.ACTION_FETCH_DEVICE)&& data!=null){
                     messagingDevice = (MessagingDevice) data; //you can cast this for get information
+                    //or messagingDevice = MessagingDevice.getInstance();
                     .....
                 }else if(intent.getAction().equals(Messaging.ACTION_FETCH_USER)&& data!=null){
                     messagingUser =(MessagingUser) data;
+                    //or messagingUser = MessagingUser.getInstance();
                     .......
                 }else if(intent.getAction().equals(Messaging.ACTION_GET_NOTIFICATION)&& data!=null){
-                    messagingNotification =(MessagingNotification) data;
+                    String dataNotification = intent.getStringExtra(Messaging.INTENT_EXTRA_DATA);
+                            if (dataNotification != null) {
+                                try {
+                                    JSONObject jsonObject = new JSONObject(dataNotification);
+                                   .....
+                                } catch (JSONException e) {
+                                    e.printStackTrace();
+                                }
+                            }
                 }else if(intent.getAction().equals(Messaging.ACTION_SAVE_DEVICE)&& data!=null) {
                     messagingDevice = (MessagingDevice) data; //you can cast this for get information
+                    //or messagingDevice = MessagingDevice.getInstance();
                    ......
                 }else if(intent.getAction().equals(Messaging.ACTION_SAVE_USER)&& data!=null) {
                     messagingUser =(MessagingUser) data; //you can cast this for get information
+                    //or messagingUser = MessagingUser.getInstance();
+                    
+            }else if(intent.getAction().equals(Messaging.ACTION_REGISTER_DEVICE) ) {
+                    messagingDevice = (MessagingDevice)data;
+                    //or messagingDevice = MessagingDevice.getInstance();
                 ......
                 } 
                 .....
@@ -130,6 +146,73 @@ private BroadcastReceiver mReceiver=new BroadcastReceiver() {
         }
     };
    //you can see all the implementation in example app
+```
+### 5) Put BroadcastReceiver in app project.
+Put BroadcastReceiver in app project, example:
+
+```java
+...
+import com.ogangi.messangi.sdk.Messangi;
+
+public class MessagingNotificationReceiver extends BroadcastReceiver{
+    ...
+    
+           ...
+        @Override
+    public void onReceive(Context context, Intent intent) {
+       boolean hasError=intent.getBooleanExtra(Messaging.INTENT_EXTRA_HAS_ERROR,true);
+        
+        if (!hasError ) {
+            String action=intent.getAction();
+            String data = intent.getStringExtra(Messaging.INTENT_EXTRA_DATA);
+            if(intent.getAction().equals(Messaging.ACTION_GET_NOTIFICATION)&& data!=null){
+            ........
+            }
+            }
+                .....
+    }
+    //to send data to Activity
+    private void sendEventToActivity(String action,JSONObject something, Context context) {
+        
+        if(something!=null) {
+            Intent intent = new Intent(action);
+            intent.putExtra(Messaging.INTENT_EXTRA_DATA, something.toString());
+            intent.putExtra(Messaging.INTENT_EXTRA_HAS_ERROR, something == null);
+            LocalBroadcastManager.getInstance(context).sendBroadcast(intent);
+        }else{
+            //error
+        }
+    }
+    
+```
+It is important to use,  please declare BroadcastReceiver in Manifest.xml of app project, example:
+
+```xml
+<?xml version="1.0" encoding="utf-8"?>
+<manifest xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    package="com.ogangi.Messangi.SDK.Demo">
+
+    <application
+        .....
+        <activity 
+        </activity>
+        <receiver
+            android:name=".MessagingNotificationReceiver"
+            android:enabled="true"
+            android:permission="${applicationId}.permission.pushReceive"
+            android:exported="false"
+            tools:ignore="Instantiatable">
+            <intent-filter>
+                <action android:name="com.messaging.sdk.PUSH_NOTIFICATION"/>
+            </intent-filter>
+        </receiver>
+    </application>
+    <permission
+        android:name="${applicationId}.permission.pushReceive"
+        android:protectionLevel="signature" />
+    <uses-permission android:name="${applicationId}.permission.pushReceive" />
+</manifest>
 ```
 
 ## Usage
@@ -269,6 +352,8 @@ public class MainActivity extends AppCompatActivity{
                      .....
                 }else if(intent.getAction().equals(Messaging.ACTION_FETCH_USER)&& data!=null){
                     messagingUser =(MessagingUser) data;
+                    //or
+                    messagingUser = MessagingUser.getInstance();
                     .......
                 
             }else{
@@ -347,8 +432,25 @@ public class MainActivity extends AppCompatActivity {
 
         //for handle notification from background
         Bundle extras=getIntent().getExtras();
-        messagingNotification =new MessagingNotification(extras,getApplicationContext());
-
+       if(extras!=null){
+            isBackground=extras.getBoolean("isInBackground",false);
+            if(isBackground) {
+                String data = extras.getString(Messaging.INTENT_EXTRA_DATA);
+                try {
+                    JSONObject data1 = new JSONObject(data);
+                    .....
+                } catch (JSONException e) {
+                    e.printStackTrace();
+                }
+            }else {
+                //to process notification from background mode
+                additionalData=new HashMap<>();
+                for(String key:extras.keySet()){
+                    additionalData.put(key,extras.getString(key));
+                }
+                ......
+            }
+        }
     }
 
     @Override
@@ -378,32 +480,42 @@ public class MainActivity extends AppCompatActivity {
     private BroadcastReceiver mReceiver=new BroadcastReceiver() {
         @Override
         public void onReceive(Context context, Intent intent) {
-            nameMethod=new Object(){}.getClass().getEnclosingMethod().getName();
+            
 
             boolean hasError=intent.getBooleanExtra(Messaging.INTENT_EXTRA_HAS_ERROR,true);
-            Log.d(TAG,"ERROR: "+CLASS_TAG+": "+nameMethod+": Has error:  "+ hasError);
+            
             if (!hasError ) {
                 Serializable data=intent.getSerializableExtra(Messaging.INTENT_EXTRA_DATA);
                 if(intent.getAction().equals(Messaging.ACTION_FETCH_DEVICE)&& data!=null){
                     messagingDevice = (MessagingDevice) data; //you can cast this for get information
-
+                    //or messagingDevice = MessagingDevice.getInstance();
                     showdevice(messagingDevice);
 
                 }else if(intent.getAction().equals(Messaging.ACTION_FETCH_USER)&& data!=null){
                     messagingUser =(MessagingUser) data;
+                    //or messagingUser = MessagingUser.getInstance();
                     shwUser(messagingUser);
 
                 }else if(intent.getAction().equals(Messaging.ACTION_GET_NOTIFICATION)&& data!=null){
-                    messagingNotification =(MessagingNotification) data;
-                    showAlertNotificaction(messagingNotification);
+                    String dataNotification = intent.getStringExtra(Messaging.INTENT_EXTRA_DATA);
+                            if (dataNotification != null) {
+                                try {
+                                    JSONObject jsonObject = new JSONObject(dataNotification);
+                                    showAlertNotificationAlt(jsonObject);
+                                } catch (JSONException e) {
+                                    e.printStackTrace();
+                                }
+                            }
 
                 }else if(intent.getAction().equals(Messaging.ACTION_SAVE_DEVICE)&& data!=null) {
                     messagingDevice = (MessagingDevice) data; //you can cast this for get information
+                    //or messagingDevice = MessagingDevice.getInstance();
                     //for condition of save (user or device);
                     Toast.makeText(getApplicationContext(),intent.getAction(),Toast.LENGTH_LONG).show();
                     showdevice(messagingDevice);
                 }else if(intent.getAction().equals(Messaging.ACTION_SAVE_USER)&& data!=null) {
                     messagingUser =(MessagingUser) data; //you can cast this for get information
+                    //or messagingUser = MessagingUser.getInstance();
                     //for condition of save (user or device);
                     Toast.makeText(getApplicationContext(),intent.getAction(),Toast.LENGTH_LONG).show();
                     shwUser(messagingUser);
@@ -436,7 +548,24 @@ For handle Notification in Background you must use this code in Activity:
 ```java
         //for handle notification from background
         Bundle extras=getIntent().getExtras();
-        messagingNotification =new MessagingNotification(extras,getApplicationContext());
+       if(extras!=null){
+            isBackground=extras.getBoolean("isInBackground",false);
+            if(isBackground) {
+                String data = extras.getString(Messaging.INTENT_EXTRA_DATA);
+                try {
+                    JSONObject data1 = new JSONObject(data);
+                    .....
+                } catch (JSONException e) {
+                    e.printStackTrace();
+                }
+            }else {
+                //to process notification from background mode
+                additionalData=new HashMap<>();
+                for(String key:extras.keySet()){
+                    additionalData.put(key,extras.getString(key));
+                }
+                ......
+            }
 ```
 ## more detail see example app (demoApp)
 

@@ -25,7 +25,7 @@ import java.util.Map;
 import static com.messaging.sdk.MessagingDevice.toMap;
 
 /**
- * class MessagingUser is used for handle User paramenter in SDK and make service
+ * class MessagingUser is used for handle User parameter in SDK and make service
  * update user.
  */
 public class MessagingUser implements Serializable {
@@ -42,7 +42,7 @@ public class MessagingUser implements Serializable {
     MessagingUser messagingUser;
 
     /**
-     * direct access to the singletone instance defined in Messagi
+     * direct access to the singleton instance defined in Messaging
 
      */
     public static synchronized MessagingUser getInstance() {
@@ -72,8 +72,8 @@ public class MessagingUser implements Serializable {
         Map<String, String> provPro=properties;
         provPro.remove("transaction");
         provPro.remove("timestamp");
-        JSONObject requestUpdatebody=new JSONObject(provPro);
-        new HTTPReqTaskPutUserByDevice(deviceId,requestUpdatebody,context, messaging).execute();
+        JSONObject requestUpdateBody=new JSONObject(provPro);
+        new HTTPReqTaskPutUserByDevice(deviceId,requestUpdateBody,context, messaging).execute();
 
 
     }
@@ -84,7 +84,7 @@ public class MessagingUser implements Serializable {
     }
     /**
      * Method for add Property to user
-     * example: name, lastname, email or phone
+     * example: name, lastName, email or phone
      * @param key : example name
      * @param value : example Jose
      * @return : Instance MessagingUser;
@@ -112,23 +112,20 @@ public class MessagingUser implements Serializable {
       //  this.devices = devices;
     //}
 
-
     /**
      * Method that send Parameter (Ej: messagingDevice or MessagingUser) registered to Activity
-     @param something: Object Json for send to activity (Ej MessagingDev).
+     @param something: Object Serializable for send to activity (Ej MessagingDev).
      @param context : context instance
      */
-    private void sendEventToActivity(String action,JSONObject something, Context context) {
-        Messaging messaging=Messaging.getInstance();
-        if(something!=null) {
-            Intent intent = new Intent(action);
-            intent.putExtra(Messaging.INTENT_EXTRA_DATA, something.toString());
-            intent.putExtra(Messaging.INTENT_EXTRA_HAS_ERROR, something == null);
-            context.sendBroadcast(intent, context.getPackageName() + ".permission.pushReceive");
-        }else{
-            messaging.utils.showErrorLog(this,nameMethod,"Error Server: ","");
-        }
+    private void sendEventToActivity(String action,Serializable something, Context context) {
+
+        Intent intent=new Intent(action);
+        intent.putExtra(Messaging.INTENT_EXTRA_DATA,something);
+        intent.putExtra(Messaging.INTENT_EXTRA_HAS_ERROR,something==null);
+        LocalBroadcastManager.getInstance(context).sendBroadcast(intent);
     }
+
+
 
     /**
      * Method for parse data and convert to MessagingUser Object
@@ -204,7 +201,7 @@ public class MessagingUser implements Serializable {
 
     /**
      * Method for set email to user
-     * example: name, lastname, email or phone
+     * example: name, lastName, email or phone
      * @param value : example JB@Jb.com
      * @return : Instance MessagingUser;
      */
@@ -217,7 +214,7 @@ public class MessagingUser implements Serializable {
     }
     /**
      * Method for set phone to user
-     * example: name, lastname, email or phone
+     * example: name, lastName, email or phone
      * @param value : example 5555555
      * @return : Instance MessagingUser;
      */
@@ -229,7 +226,7 @@ public class MessagingUser implements Serializable {
     }
     /**
      * Method for set external Id to user
-     * example: name, lastname, email or phone
+     * example: name, lastName, email or phone
      * @param value : example 555Jggf
      * @return : Instance MessagingUser;
      */
@@ -331,22 +328,21 @@ public class MessagingUser implements Serializable {
             super.onPostExecute(response);
             try{
                 if(!response.equals("")) {
-                    messaging.utils.showHttpResponsetLog(provUrl, MessagingUser.this,nameMethod,"Successful",response);
+                    messaging.utils.showHttpResponseLog(provUrl, MessagingUser.this,nameMethod,"Successful",response);
                     JSONObject resp=new JSONObject(response);
                     JSONObject data=resp.getJSONObject("subscriber").getJSONObject("data");
                     Map<String, String> resultMap=toMap(data);
                     messaging.messagingStorageController.saveUserByDevice(resultMap);
                     messagingUser = MessagingUser.parseData(resultMap);
-                    sendEventToActivity(Messaging.ACTION_SAVE_USER,resp, context);
+                    //sendEventToActivity(Messaging.ACTION_SAVE_USER,resp, context);
+                    sendEventToActivity(Messaging.ACTION_SAVE_USER,messagingUser, context);
 
                 }
             }catch (NullPointerException e){
-                //sendEventToActivity(Messaging.ACTION_SAVE_USER,null,context);
                 sendEventToActivity(Messaging.ACTION_SAVE_USER,null,context);
                 messaging.utils.showErrorLog(this,nameMethod,"User not update! NullPointerException",e.getStackTrace().toString());
             } catch (JSONException e) {
                 e.printStackTrace();
-                //sendEventToActivity(Messaging.ACTION_SAVE_USER,null,context);
                 sendEventToActivity(Messaging.ACTION_SAVE_USER,null,context);
                 messaging.utils.showErrorLog(this,nameMethod,"User not update! JSONException",e.getStackTrace().toString());
             }

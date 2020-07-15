@@ -40,11 +40,6 @@ import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 
-import javax.net.ssl.HttpsURLConnection;
-import javax.net.ssl.SSLContext;
-import javax.net.ssl.SSLEngine;
-import javax.net.ssl.SSLSocketFactory;
-
 
 /**
  * class Messaging let stablish Instances, handle services "get" and "create device" and LifecycleObserver
@@ -71,18 +66,11 @@ public class Messaging implements LifecycleObserver{
     MessagingSdkUtils utils;
     public MessagingStorageController messagingStorageController;
     private String sdkVersion;
-    private String lenguaje;
+    private String language;
     private int identifier;
     private MessagingNotification messagingNotification;
     private String nameMethod;
     private String packageName;
-
-//    public static String ACTION_REGISTER_DEVICE="ActionRegisterDevice";
-//    public static String ACTION_FETCH_DEVICE="ActionFetchDevice";
-//    public static String ACTION_SAVE_DEVICE="ActionSaveDevice";
-//    public static String ACTION_FETCH_USER="ActionFetchUser";
-//    public static String ACTION_SAVE_USER="ActionSaveUser";
-    //public static String ACTION_GET_NOTIFICATION="ActionGetNotification";
 
     public static String ACTION_REGISTER_DEVICE="com.messaging.sdk.ACTION_REGISTER_DEVICE";
     public static String ACTION_FETCH_DEVICE="com.messaging.sdk.ACTION_FETCH_DEVICE";
@@ -92,7 +80,7 @@ public class Messaging implements LifecycleObserver{
     public static String ACTION_GET_NOTIFICATION="com.messaging.sdk.PUSH_NOTIFICATION";
 
     public static String INTENT_EXTRA_DATA="messaging_data";
-    public static String INTENT_EXTRA_HAS_ERROR="messaging_haserror";
+    public static String INTENT_EXTRA_HAS_ERROR="messaging_has_error";
 
 
 
@@ -103,7 +91,7 @@ public class Messaging implements LifecycleObserver{
         this.icon=-1;
         this.initResource();
         this.sdkVersion= BuildConfig.VERSION_NAME;
-        this.lenguaje= Locale.getDefault().getDisplayLanguage();
+        this.language = Locale.getDefault().getDisplayLanguage();
         this.type="android";
         this.model=getDeviceName();
         this.os=Build.VERSION.RELEASE;
@@ -152,8 +140,9 @@ public class Messaging implements LifecycleObserver{
 
         }
         if(getLastMessagingNotification()!=null){
-            JSONObject response=toJSON(messagingNotification);
-            sendEventToActivity(ACTION_GET_NOTIFICATION,response,context);
+//            JSONObject response=toJSON(messagingNotification);
+//            sendEventToActivity(ACTION_GET_NOTIFICATION,response,context);
+            sendEventToActivity(ACTION_GET_NOTIFICATION,messagingNotification,context);
             setLastMessagingNotification(null);
         }
 
@@ -244,10 +233,10 @@ public class Messaging implements LifecycleObserver{
     }
     /**
      * Method that Set name class
-     * @param nameclass
+     * @param nameClass
      */
-    private void setNameClass(String nameclass) {
-        Nameclass = nameclass;
+    private void setNameClass(String nameClass) {
+        Nameclass = nameClass;
     }
     /**
      * Method that Set Firebase topic for use to Backend
@@ -279,12 +268,12 @@ public class Messaging implements LifecycleObserver{
         this.sdkVersion = sdkVersion;
     }
 
-    public String getLenguaje() {
-        return lenguaje;
+    public String getLanguage() {
+        return language;
     }
 
-    private void setLenguaje(String lenguaje) {
-        this.lenguaje = lenguaje;
+    private void setLanguage(String language) {
+        this.language = language;
     }
 
 
@@ -345,8 +334,8 @@ public class Messaging implements LifecycleObserver{
         nameMethod=new Object(){}.getClass().getEnclosingMethod().getName();
         String type=getType();
         utils.showInfoLog(this,nameMethod,"Create device type "+type);
-        String lenguaje=getLenguaje();
-        utils.showDebugLog(this,nameMethod,"Create device Lenguaje "+lenguaje);
+        String language= getLanguage();
+        utils.showDebugLog(this,nameMethod,"Create device Language "+language);
         String model=getDeviceName();
         utils.showDebugLog(this,nameMethod,"Create Device model "+model);
         String os = getOs();
@@ -355,7 +344,7 @@ public class Messaging implements LifecycleObserver{
         utils.showDebugLog(this,nameMethod,"Create Device SDK version "+ sdkVersion);
         pushToken= messagingStorageController.getToken();
         setPushToken(pushToken);
-        createDevice(pushToken,type,lenguaje,model,os,sdkVersion);
+        createDevice(pushToken,type,language,model,os,sdkVersion);
 
     }
 
@@ -415,15 +404,17 @@ public class Messaging implements LifecycleObserver{
         final Messaging messaging = Messaging.getInstance(context);
         if(!forsecallservice && messaging.messagingDevice !=null){
             messaging.utils.showDebugLog(messaging,nameMethod,"Device From RAM ");
-            JSONObject response=toJSON(messaging.messagingDevice);
-            messaging.sendEventToActivity(ACTION_FETCH_DEVICE,response,context);
+//            JSONObject response=toJSON(messaging.messagingDevice);
+//            messaging.sendEventToActivity(ACTION_FETCH_DEVICE,response,context);
+            messaging.sendEventToActivity(ACTION_FETCH_DEVICE,messaging.messagingDevice,context);
 
         }else{
             if(!forsecallservice && messaging.messagingStorageController.isRegisterDevice()){
                 messaging.messagingDevice = messaging.messagingStorageController.getDevice();
                 messaging.utils.showDebugLog(messaging,nameMethod,"Device From Local Storage ");
-                JSONObject response=toJSON(messaging.messagingDevice);
-                messaging.sendEventToActivity(ACTION_FETCH_DEVICE,response,context);
+//                JSONObject response=toJSON(messaging.messagingDevice);
+//                messaging.sendEventToActivity(ACTION_FETCH_DEVICE,response,context);
+                messaging.sendEventToActivity(ACTION_FETCH_DEVICE,messaging.messagingDevice,context);
             }else{
 
                 if(messaging.messagingStorageController.isRegisterDevice()){
@@ -442,39 +433,30 @@ public class Messaging implements LifecycleObserver{
 
     /**
      * Method that send Parameter (Ej: messagingDevice or MessagingUser) registered to Activity
-     @param something: Object Json for send to activity (Ej MeesangiDev).
+     @param something: Object Serializable for send to activity (Ej MessagingDev).
      @param context : context instance
      */
+    private void sendEventToActivity(String action, Serializable something, Context context) {
 
-    private void sendEventToActivity(String action,JSONObject something, Context context) {
-        if(something!=null) {
-            this.nameMethod = new Object() {
-            }.getClass().getEnclosingMethod().getName();
-            utils.showDebugLog(this, nameMethod, "Action " + action
-                    + "  " + something.toString());
-            Intent intent = new Intent(action);
-            intent.putExtra(Messaging.INTENT_EXTRA_DATA, something.toString());
-            intent.putExtra(Messaging.INTENT_EXTRA_HAS_ERROR, something == null);
-            context.sendBroadcast(intent, context.getPackageName() + ".permission.pushReceive");
-
-        }else{
-
-            utils.showErrorLog(this, nameMethod, "Action " + action
-                    + " service error  ","" );
-        }
+        Intent intent=new Intent(action);
+        intent.putExtra(INTENT_EXTRA_DATA,something);
+        intent.putExtra(INTENT_EXTRA_HAS_ERROR,something==null);
+        LocalBroadcastManager.getInstance(context).sendBroadcast(intent);
 
     }
+
+
     /**
      * Method create Device
      @param pushToken: token for notification push.
      @param type : type device
-     @param lenguaje : languaje of device setting
+     @param language : language of device setting
      @param model : model of device
      @param os : operating system version
      @param sdkVersion: SDK version
 
      */
-    private void createDevice(String pushToken, String type, String lenguaje,
+    private void createDevice(String pushToken, String type, String language,
                               String model, String os, String sdkVersion){
 
         nameMethod=new Object(){}.getClass().getEnclosingMethod().getName();
@@ -482,7 +464,7 @@ public class Messaging implements LifecycleObserver{
         try {
             requestBody.put("pushToken",pushToken);
             requestBody.put("type",type);
-            requestBody.put("language",lenguaje);
+            requestBody.put("language",language);
             requestBody.put("model",model);
             requestBody.put("os",os);
             requestBody.put("sdkVersion",sdkVersion);
@@ -565,12 +547,13 @@ public class Messaging implements LifecycleObserver{
             try{
                 if(!response.equals("")) {
                     nameMethod=new Object(){}.getClass().getEnclosingMethod().getName();
-                    messaging.utils.showHttpResponsetLog(provUrl,messaging,nameMethod,"Successful",response);
+                    messaging.utils.showHttpResponseLog(provUrl,messaging,nameMethod,"Successful",response);
                     JSONObject resp=new JSONObject(response);
                     messaging.messagingDevice =messaging.utils.getMessagingDevFromJson(resp);
                     //messagingStorageController.saveDevice(messagingDevice);
                     messaging.messagingStorageController.saveDevice(resp);
-                    messaging.sendEventToActivity(ACTION_FETCH_DEVICE,resp,context);
+                    //messaging.sendEventToActivity(ACTION_FETCH_DEVICE,resp,context);
+                    messaging.sendEventToActivity(ACTION_FETCH_DEVICE,messaging.messagingDevice,context);
 
                 }
             }catch (NullPointerException e){
@@ -683,7 +666,7 @@ public class Messaging implements LifecycleObserver{
                 if(!response.equals("")) {
                     JSONObject resp=new JSONObject(response);
                     nameMethod=new Object(){}.getClass().getEnclosingMethod().getName();
-                    messaging.utils.showHttpResponsetLog(provUrl,messaging,nameMethod,"Successful",response);
+                    messaging.utils.showHttpResponseLog(provUrl,messaging,nameMethod,"Successful",response);
                     messaging.messagingDevice =messaging.utils.getMessagingDevFromJson(resp);
                     messaging.messagingStorageController.saveDevice(resp);
                     if(messaging.messagingStorageController.hasTokenRegister()&&
@@ -692,7 +675,8 @@ public class Messaging implements LifecycleObserver{
                         messaging.messagingDevice.setPushToken(token);
                         messaging.messagingDevice.save(messaging.context);
                     }
-                    messaging.sendEventToActivity(ACTION_REGISTER_DEVICE,resp,messaging.context);
+                    messaging.sendEventToActivity(ACTION_REGISTER_DEVICE,messaging.messagingDevice,messaging.context);
+                    //messaging.sendEventToActivity(ACTION_REGISTER_DEVICE,resp,messaging.context);
                 }
             }catch (NullPointerException e){
                 messaging.sendEventToActivity(ACTION_REGISTER_DEVICE,null,messaging.context);
@@ -717,15 +701,13 @@ public class Messaging implements LifecycleObserver{
         final MessagingStorageController messagingStorageController = Messaging.getInstance().messagingStorageController;
         if(!forsecallservice && messaging.messagingUser !=null){
             messaging.utils.showDebugLog(messaging,nameMethod,"User From RAM ");
-            JSONObject response=toJSON(messaging.messagingUser);
-            messaging.sendEventToActivity(ACTION_FETCH_USER,response,context);
+            messaging.sendEventToActivity(ACTION_FETCH_USER,messaging.messagingUser,context);
         }else {
             if (!forsecallservice && messagingStorageController.isRegisterUserByDevice()) {
                 messaging.utils.showDebugLog(messaging,nameMethod,"User From Local storage ");
                 Map<String, String> resultMap= messagingStorageController.getUserByDevice();
                 messaging.messagingUser = MessagingUser.parseData(resultMap) ;
-                JSONObject response=toJSON(messaging.messagingUser);
-                messaging.sendEventToActivity(ACTION_FETCH_USER,response,context);
+                messaging.sendEventToActivity(ACTION_FETCH_USER,messaging.messagingUser,context);
 
             } else {
                 messaging.utils.showDebugLog(messaging,nameMethod, "User From Service ");
@@ -805,13 +787,13 @@ public class Messaging implements LifecycleObserver{
             try{
                 if(!response.equals("")) {
                     nameMethod=new Object(){}.getClass().getEnclosingMethod().getName();
-                    messaging.utils.showHttpResponsetLog(provUrl,this,nameMethod,"Successful",response);
+                    messaging.utils.showHttpResponseLog(provUrl,this,nameMethod,"Successful",response);
                     JSONObject resp=new JSONObject(response);
                     Map<String, String> resultMap=toMap(resp);
                     messaging.messagingStorageController.saveUserByDevice(resultMap);
                     messaging.messagingUser = MessagingUser.parseData(resultMap);
                     //messagingUser.id = deviceId;
-                    messaging.sendEventToActivity(ACTION_FETCH_USER,resp,context);
+                    messaging.sendEventToActivity(ACTION_FETCH_USER,messaging.messagingUser, context);
 
                 }
             }catch (NullPointerException e){

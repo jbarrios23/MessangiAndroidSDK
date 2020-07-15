@@ -47,7 +47,7 @@ public class MessagingStorageController {
 
     }
     /**
-     * Method hasTokenRegiter lets Know if token is registered in local storage
+     * Method hasTokenRegister lets Know if token is registered in local storage
      *
      */
     public boolean hasTokenRegister(){
@@ -152,7 +152,7 @@ public class MessagingStorageController {
         String updatedAt=mSharedPreferences.getString("updatedAt","");
         String timestamp=mSharedPreferences.getString("timestamp","");
         String transaction=mSharedPreferences.getString("transaction","");
-        //create Objetc MeesangiDev
+        //create Object MessagingDev
         MessagingDevice messagingDevice =new MessagingDevice();
         messagingDevice.setId(id);
         messagingDevice.setPushToken(pushToken);
