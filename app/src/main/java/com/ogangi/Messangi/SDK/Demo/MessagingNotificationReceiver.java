@@ -17,6 +17,7 @@ import com.messaging.sdk.MessagingUser;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import java.io.Serializable;
 import java.util.Map;
 
 public class MessagingNotificationReceiver extends BroadcastReceiver {
@@ -33,8 +34,8 @@ public class MessagingNotificationReceiver extends BroadcastReceiver {
         Log.d(TAG,"ERROR: "+CLASS_TAG+": "+nameMethod+": Has error:  "+ hasError);
         if (!hasError ) {
             String action=intent.getAction();
-            String data = intent.getStringExtra(Messaging.INTENT_EXTRA_DATA);
-            Log.d(TAG,"DEBUG: "+CLASS_TAG+": "+nameMethod+": DATA:  "+ data);
+            Serializable data = intent.getSerializableExtra(Messaging.INTENT_EXTRA_DATA);
+
              if(intent.getAction().equals(Messaging.ACTION_GET_NOTIFICATION)&& data!=null){
                 Log.d(TAG,"DEBUG: "+CLASS_TAG+": "+nameMethod+": DATA:  "+ data);
                 handleDataNotification(data,intent,context,action);
@@ -52,44 +53,35 @@ public class MessagingNotificationReceiver extends BroadcastReceiver {
 
     }
 
-    private void handleDataNotification(String data, Intent intent, Context context, String action) {
+    private void handleDataNotification(Serializable data, Intent intent, Context context, String action) {
 
-        try {
-            final JSONObject data1=new JSONObject(data);
-
-            //optional code
-            ActivityManager.RunningAppProcessInfo myProcess = new ActivityManager.RunningAppProcessInfo();
-            ActivityManager.getMyMemoryState(myProcess);
-            boolean isInBackground = myProcess.importance != ActivityManager.RunningAppProcessInfo.IMPORTANCE_FOREGROUND;
-            Log.d(TAG,"Data: "+CLASS_TAG+": "+nameMethod+": isInBackground:  "+ isInBackground);
-            if(isInBackground){
-                intent.putExtra(Messaging.INTENT_EXTRA_DATA,data);
-                intent.putExtra("isInBackground",isInBackground);
-                intent.setClassName(context.getPackageName(), context.getPackageName()+".MainActivity");
-                intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
-                context.startActivity(intent);
-            }else{
-                //mainActivityInstance.showAlertNotificationAlt(data1);
-                sendEventToActivity(action,data1,context);
-            }
-        } catch (JSONException e) {
-            e.printStackTrace();
-            Log.e(TAG,"Error: "+CLASS_TAG+": "+nameMethod+":  "
-                    + e.getMessage());
+        //optional code to determinate if app is Background or not
+        ActivityManager.RunningAppProcessInfo myProcess = new ActivityManager.RunningAppProcessInfo();
+        ActivityManager.getMyMemoryState(myProcess);
+        boolean isInBackground = myProcess.importance != ActivityManager.RunningAppProcessInfo.IMPORTANCE_FOREGROUND;
+        Log.d(TAG,"Data: "+CLASS_TAG+": "+nameMethod+": isInBackground:  "+ isInBackground);
+        if(isInBackground){
+            intent.putExtra(Messaging.INTENT_EXTRA_DATA,data);
+            intent.putExtra("isInBackground",isInBackground);
+            intent.setClassName(context.getPackageName(), context.getPackageName()+".MainActivity");
+            intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+            context.startActivity(intent);
+        }else{
+            sendEventToActivity(action,data,context);
         }
-   }
+    }
 
     /**
      * Method that send Parameter (Ej: messagingDevice or MessagingUser) registered to Activity
-     @param something: Object JSON for send to activity (Ej messagingDevice).
-     @param context : context instance
+     * @param something : Object Serializable for send to activity (Ej messagingDevice).
+     * @param context : context instance
      */
-    private void sendEventToActivity(String action,JSONObject something, Context context) {
+    private void sendEventToActivity(String action, Serializable something, Context context) {
         this.nameMethod=new Object(){}.getClass().getEnclosingMethod().getName();
         if(something!=null) {
             Log.d(TAG, "Data: " + CLASS_TAG + ": " + nameMethod + ": Action:  " + action + " data: " + something.toString());
             Intent intent = new Intent(action);
-            intent.putExtra(Messaging.INTENT_EXTRA_DATA, something.toString());
+            intent.putExtra(Messaging.INTENT_EXTRA_DATA, something);
             intent.putExtra(Messaging.INTENT_EXTRA_HAS_ERROR, something == null);
             LocalBroadcastManager.getInstance(context).sendBroadcast(intent);
         }else{

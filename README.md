@@ -115,15 +115,8 @@ private BroadcastReceiver mReceiver=new BroadcastReceiver() {
                     //or messagingUser = MessagingUser.getInstance();
                     .......
                 }else if(intent.getAction().equals(Messaging.ACTION_GET_NOTIFICATION)&& data!=null){
-                    String dataNotification = intent.getStringExtra(Messaging.INTENT_EXTRA_DATA);
-                            if (dataNotification != null) {
-                                try {
-                                    JSONObject jsonObject = new JSONObject(dataNotification);
-                                   .....
-                                } catch (JSONException e) {
-                                    e.printStackTrace();
-                                }
-                            }
+                    messagingNotification=(MessagingNotification)data;
+                    .....
                 }else if(intent.getAction().equals(Messaging.ACTION_SAVE_DEVICE)&& data!=null) {
                     messagingDevice = (MessagingDevice) data; //you can cast this for get information
                     //or messagingDevice = MessagingDevice.getInstance();
@@ -164,19 +157,19 @@ public class MessagingNotificationReceiver extends BroadcastReceiver{
         
         if (!hasError ) {
             String action=intent.getAction();
-            String data = intent.getStringExtra(Messaging.INTENT_EXTRA_DATA);
+            Serializable data = intent.getSerializableExtra(Messaging.INTENT_EXTRA_DATA);
             if(intent.getAction().equals(Messaging.ACTION_GET_NOTIFICATION)&& data!=null){
             ........
             }
             }
                 .....
     }
-    //to send data to Activity
-    private void sendEventToActivity(String action,JSONObject something, Context context) {
+    //to send data to Activity if app is foreground
+    private void sendEventToActivity(String action,Serializable something, Context context) {
         
         if(something!=null) {
             Intent intent = new Intent(action);
-            intent.putExtra(Messaging.INTENT_EXTRA_DATA, something.toString());
+            intent.putExtra(Messaging.INTENT_EXTRA_DATA, something);
             intent.putExtra(Messaging.INTENT_EXTRA_HAS_ERROR, something == null);
             LocalBroadcastManager.getInstance(context).sendBroadcast(intent);
         }else{
@@ -431,25 +424,25 @@ public class MainActivity extends AppCompatActivity {
         });
 
         //for handle notification from background
-        Bundle extras=getIntent().getExtras();
-       if(extras!=null){
+    Bundle extras=getIntent().getExtras();
+        if(extras!=null){
             isBackground=extras.getBoolean("isInBackground",false);
+            
             if(isBackground) {
-                String data = extras.getString(Messaging.INTENT_EXTRA_DATA);
-                try {
-                    JSONObject data1 = new JSONObject(data);
-                    .....
-                } catch (JSONException e) {
-                    e.printStackTrace();
-                }
+                Serializable data = extras.getSerializable(Messaging.INTENT_EXTRA_DATA);
+                messagingNotification=(MessagingNotification)data;
+               ......
+
             }else {
+
                 //to process notification from background mode
                 additionalData=new HashMap<>();
                 for(String key:extras.keySet()){
                     additionalData.put(key,extras.getString(key));
                 }
-                ......
+                .....
             }
+
         }
     }
 
@@ -497,15 +490,8 @@ public class MainActivity extends AppCompatActivity {
                     shwUser(messagingUser);
 
                 }else if(intent.getAction().equals(Messaging.ACTION_GET_NOTIFICATION)&& data!=null){
-                    String dataNotification = intent.getStringExtra(Messaging.INTENT_EXTRA_DATA);
-                            if (dataNotification != null) {
-                                try {
-                                    JSONObject jsonObject = new JSONObject(dataNotification);
-                                    showAlertNotificationAlt(jsonObject);
-                                } catch (JSONException e) {
-                                    e.printStackTrace();
-                                }
-                            }
+                    messagingNotification=(MessagingNotification)data;
+                    .....
 
                 }else if(intent.getAction().equals(Messaging.ACTION_SAVE_DEVICE)&& data!=null) {
                     messagingDevice = (MessagingDevice) data; //you can cast this for get information
@@ -548,24 +534,21 @@ For handle Notification in Background you must use this code in Activity:
 ```java
         //for handle notification from background
         Bundle extras=getIntent().getExtras();
-       if(extras!=null){
+        if(extras!=null){
             isBackground=extras.getBoolean("isInBackground",false);
             if(isBackground) {
-                String data = extras.getString(Messaging.INTENT_EXTRA_DATA);
-                try {
-                    JSONObject data1 = new JSONObject(data);
-                    .....
-                } catch (JSONException e) {
-                    e.printStackTrace();
-                }
+                Serializable data = extras.getSerializable(Messaging.INTENT_EXTRA_DATA);
+                messagingNotification=(MessagingNotification)data;
+                .....
             }else {
                 //to process notification from background mode
                 additionalData=new HashMap<>();
                 for(String key:extras.keySet()){
                     additionalData.put(key,extras.getString(key));
                 }
-                ......
+                .......
             }
+        }
 ```
 ## more detail see example app (demoApp)
 
@@ -591,8 +574,9 @@ public class CustomMessangiService extends MessagingFirebaseService {
     @Override
     public void onMessageReceived(RemoteMessage remoteMessage) {
         //example to custom
-        MessagingNotification messagingNotification = new MessagingNotification(remoteMessage, this);
-        messagingNotification.getAdditionalData();
+        MessagingNotification messagingNotification = new MessagingNotification(remoteMessage);
+        messaging = Messaging.getInstance(this);
+        messaging.sendGlobalEventToActivity(Messaging.ACTION_GET_NOTIFICATION,messagingNotification);
     }
 }
 
@@ -652,12 +636,32 @@ Pressing the notification opens the preselected activity and displays the notifi
 
 ```Java
 Bundle extras=getIntent().getExtras();
-        if(extras!=null) {
+        boolean enable=extras.getBoolean("enable",false);
+        additionalData = new HashMap<>();
+        if(extras!=null && !enable) {
             for (String key : extras.keySet()) {
-            Key =  key  
-            Value=extras.getString(key)
+               additionalData.put(key, extras.getString(key));
+                messangiData.add(key + " , " + extras.getString(key));
             }
-        } 
+            .....
+        }else{
+            Serializable data = extras.getSerializable(Messaging.INTENT_EXTRA_DATA);
+            messagingNotification=(MessagingNotification)data;
+            additionalData=messagingNotification.getAdditionalData();
+            if(additionalData!=null&& additionalData.size()>0) {
+                messangiData.add("Title: " + messagingNotification.getTitle());
+                messangiData.add("Body: " + messagingNotification.getBody());
+                messangiData.add("ClickAction: " + messagingNotification.getClickAction());
+                messangiData.add("DeepUriLink: " + messagingNotification.getDeepUriLink());
+                for (Map.Entry entry : messagingNotification.getAdditionalData().entrySet()) {
+                    if (!entry.getKey().equals("profile")) {
+                        messangiData.add(entry.getKey() + " , " + entry.getValue());
+                    }
+
+                }
+            }
+        }
+        .....
 ```
 
 <img src="step3c.jpg" />
@@ -674,12 +678,31 @@ Defined in this way.
 And the data can also be processed using:
 ```Java
 Bundle extras=getIntent().getExtras();
-        if(extras!=null) {
+        boolean enable=extras.getBoolean("enable",false);
+        additionalData = new HashMap<>();
+        if(extras!=null && !enable) {
             for (String key : extras.keySet()) {
-            Key =  key  
-            Value=extras.getString(key)
+               additionalData.put(key, extras.getString(key));
+                messangiData.add(key + " , " + extras.getString(key));
             }
-        } 
+            .....
+        }else{
+            Serializable data = extras.getSerializable(Messaging.INTENT_EXTRA_DATA);
+            messagingNotification=(MessagingNotification)data;
+            additionalData=messagingNotification.getAdditionalData();
+            if(additionalData!=null&& additionalData.size()>0) {
+                messangiData.add("Title: " + messagingNotification.getTitle());
+                messangiData.add("Body: " + messagingNotification.getBody());
+                messangiData.add("ClickAction: " + messagingNotification.getClickAction());
+                messangiData.add("DeepUriLink: " + messagingNotification.getDeepUriLink());
+                for (Map.Entry entry : messagingNotification.getAdditionalData().entrySet()) {
+                    if (!entry.getKey().equals("profile")) {
+                        messangiData.add(entry.getKey() + " , " + entry.getValue());
+                    }
+
+                }
+            }
+        }
 ```
 
 

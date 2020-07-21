@@ -444,6 +444,19 @@ public class Messaging implements LifecycleObserver{
         LocalBroadcastManager.getInstance(context).sendBroadcast(intent);
 
     }
+    /**
+     * Method that send GlobalEventToActivity (Ej: messagingNotification) registered to Activity
+     @param something: Object Serializable for send to activity (Ej messagingNotification).
+     */
+    public void sendGlobalEventToActivity(String action,Serializable something) {
+        this.nameMethod=new Object(){}.getClass().getEnclosingMethod().getName();
+        utils.showDebugLog(this,nameMethod, ""+action
+                +"  "+something.toString());
+        Intent intent=new Intent(action);
+        intent.putExtra(Messaging.INTENT_EXTRA_DATA,something);
+        intent.putExtra(Messaging.INTENT_EXTRA_HAS_ERROR,something==null);
+        context.sendBroadcast(intent,context.getPackageName()+".permission.pushReceive");
+    }
 
 
     /**

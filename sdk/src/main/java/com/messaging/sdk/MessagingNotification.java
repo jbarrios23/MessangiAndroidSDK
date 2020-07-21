@@ -31,184 +31,160 @@ import java.util.Random;
 
 public class MessagingNotification implements Serializable {
 
-    private Messaging messaging = Messaging.getInstance();
-    private Context context;
-
     //common
 
     private String notificationId;
     private boolean silent;
     private String title;
     private String body;
-    //private String deepLink;
     private String clickAction;
-    private Uri deepUriLink;
+    private String deepUriLink;
 
     private Map<String,String> additionalData;
     private int badge;
-    private RemoteMessage rawPayload;
+
 
     //exclusive
 
     private String icon;
-    private String imageUrl;
+    private Uri imageUrl;
     private boolean sticky;
     private String channelId;
     private String ticker;
     private String sound;
 
     //For RemoteMessage
-    private RemoteMessage.Notification notification;
-    public String nameMethod;
 
-    public MessagingNotification(RemoteMessage remoteMessage, Context context) {
+    private String nameMethod;
+    private String from;
+    private String messageId;
+    private String messageType;
+    private int priority;
+    private int originalPriority;
+    private String senderId;
+    private long sentTime;
+    private String toSomeBody;
+    //other
+    private String[] bodyLocalizationArgs;
+    private String bodyLocalizationKey;
+    private String color;
+    private boolean defaultLightSettings;
+    private boolean defaultSound;
+    private boolean defaultVibrateSettings;
+    private long[] vibrateTimings;
+    private boolean localOnly;
+    private int visibility;
+
+    public MessagingNotification(RemoteMessage remoteMessage) {
      this.nameMethod="MessagingNotification";
-     this.context=context;
-     this.notification=remoteMessage.getNotification();
+
+     RemoteMessage.Notification notification=remoteMessage.getNotification();
      //common
      this.notificationId=remoteMessage.getMessageId();
      this.silent=true;
-     if(this.notification!=null){
+     Messaging messaging = Messaging.getInstance();
+     messaging.utils.showDebugLog(this,nameMethod, "silent: "+silent);
+     if(notification!=null){
          this.silent=false;
          this.title=remoteMessage.getNotification().getTitle();
          this.body=remoteMessage.getNotification().getBody();
          this.clickAction=remoteMessage.getNotification().getClickAction();
-         this.deepUriLink=remoteMessage.getNotification().getLink();
+         if(remoteMessage.getNotification().getLink()!=null) {
+             this.deepUriLink = remoteMessage.getNotification().getLink().toString();
+         }else{
+             this.deepUriLink=null;
+         }
          this.icon=remoteMessage.getNotification().getIcon();
          this.sound=remoteMessage.getNotification().getSound();
+         this.imageUrl=remoteMessage.getNotification().getImageUrl();
+         this.channelId=remoteMessage.getNotification().getChannelId();
+         this.sticky=remoteMessage.getNotification().getSticky();
+         if(remoteMessage.getNotification().getNotificationCount()!=null) {
+             this.badge = remoteMessage.getNotification().getNotificationCount();
+         }else{
+             this.badge=0;
+         }
+         this.ticker=remoteMessage.getNotification().getTicker();
+         //other
+
+         this.bodyLocalizationArgs=remoteMessage.getNotification().getBodyLocalizationArgs();
+         this.bodyLocalizationKey=remoteMessage.getNotification().getBodyLocalizationKey();
+         this.color=remoteMessage.getNotification().getColor();
+         this.defaultLightSettings=remoteMessage.getNotification().getDefaultVibrateSettings();
+         this.defaultVibrateSettings=remoteMessage.getNotification().getDefaultVibrateSettings();
+         this.defaultSound=remoteMessage.getNotification().getDefaultSound();
+         this.vibrateTimings=remoteMessage.getNotification().getVibrateTimings();
+         this.localOnly=remoteMessage.getNotification().getLocalOnly();
+         if(remoteMessage.getNotification().getVisibility()!=null) {
+             this.visibility = remoteMessage.getNotification().getVisibility();
+         }else{
+             this.visibility=0;
+         }
+         //show parameter
+
+         messaging.utils.showDebugLog(this,nameMethod, "Notification "
+                 +"Title "+title+" "+"Body "+body);
+         messaging.utils.showDebugLog(this, nameMethod, "Notification "
+                 + "click_action " + clickAction + " Uri Link " + deepUriLink);
+
+         if(deepUriLink!=null) {
+             messaging.utils.showDebugLog(this, nameMethod, "Notification "
+                     + "name Url schema or Link Universal " + deepUriLink);
+
+         }
+         messaging.utils.showDebugLog(this,nameMethod, "silent: "+silent);
+         messaging.utils.showDebugLog(this,nameMethod, "sticky: "+sticky);
+         messaging.utils.showDebugLog(this,nameMethod, "defaultVibrateSettings: "+defaultVibrateSettings);
+         messaging.utils.showDebugLog(this,nameMethod, "icon: "+icon+" sound "+sound);
+         messaging.utils.showDebugLog(this,nameMethod, "imageUrl: "+imageUrl+" chanelId "+channelId);
+         messaging.utils.showDebugLog(this,nameMethod, "badge: "+badge+" ticker "+ticker);
+         //other
+         messaging.utils.showDebugLog(this,nameMethod, "bodyLocalizationArgs: "+bodyLocalizationArgs);
+         messaging.utils.showDebugLog(this,nameMethod, "bodyLocalizationKey: "+bodyLocalizationKey);
+         messaging.utils.showDebugLog(this,nameMethod, "color: "+color+" defaultLightSettings "+defaultLightSettings);
+         messaging.utils.showDebugLog(this,nameMethod, "defaultSound: "+defaultSound+" vibrateTimings "+vibrateTimings);
+         messaging.utils.showDebugLog(this,nameMethod, "localOnly: "+localOnly+" visibility "+visibility);
+
 
      }
 
      if(remoteMessage.getData()!=null){
 
-         this.additionalData=remoteMessage.getData();
-         //this.badge=Integer.parseInt(remoteMessage.getNotification().getBody());
-         if(remoteMessage.getData().get("badge")!=null && !remoteMessage.getData().get("badge").isEmpty()){
-             this.badge=Integer.parseInt(remoteMessage.getData().get("badge"));
-         }else{
-             this.badge=0;
-         }
-         if(remoteMessage.getData().get("imageUrl")!=null && !remoteMessage.getData().get("imageUrl").isEmpty()){
-             this.imageUrl=remoteMessage.getData().get("imageUrl");
-         }else{
-             this.imageUrl="";
-         }
-
-         if(remoteMessage.getData().get("channelId")!=null && !remoteMessage.getData().get("channelId").isEmpty()){
-             this.channelId=remoteMessage.getData().get("channelId");
-         }else{
-             this.channelId="";
-         }
-
-         if(remoteMessage.getData().get("ticker")!=null && !remoteMessage.getData().get("ticker").isEmpty()){
-             this.ticker=remoteMessage.getData().get("ticker");
-         }else{
-             this.ticker="";
-         }
-     }
-
-     this.rawPayload=remoteMessage;
-
-     this.sticky=false;
-     if(remoteMessage.getCollapseKey()!=null && !remoteMessage.getCollapseKey().isEmpty()){
-         this.sticky=true;
-     }
-
-
-     messaging.utils.showDebugLog(this,nameMethod, "silent: "+silent);
-     messaging.utils.showDebugLog(this,nameMethod, "sticky: "+sticky);
-
-
-
-
-
-
-   if(this.additionalData!=null && additionalData.size()>0){
+         this.additionalData=new HashMap<>(remoteMessage.getData());
          this.nameMethod="MessagingNotification";
+         //Messaging messaging = Messaging.getInstance();
          messaging.utils.showDebugLog(this,nameMethod, "additionalData: "+additionalData);
-         messaging.utils.showDebugLog(this,nameMethod, "ticker: "+ticker);
-         messaging.utils.showDebugLog(this,nameMethod, "icon: "+icon);
-         messaging.utils.showDebugLog(this,nameMethod, "badge: "+badge);
 
      }
 
-     JSONObject totalResponse=toJSON(this);
-     messaging.utils.showDebugLog(this,nameMethod, "Notification "
-                +"responseTotal "+totalResponse);
-        if(this.notification!=null){
-            messaging.utils.showDebugLog(this,nameMethod, "Notification "
-                    +"Title "+title+" "+"Body "+body);
-            messaging.utils.showDebugLog(this, nameMethod, "Notification "
-                    + "click_action " + clickAction + " Uri Link " + deepUriLink);
+     RemoteMessage rawPayload=remoteMessage;
+        if(rawPayload!=null){
+            this.from=rawPayload.getFrom();
+            this.messageId=rawPayload.getMessageId();
+            this.messageType=rawPayload.getMessageType();
+            this.priority=rawPayload.getPriority();
+            this.originalPriority=rawPayload.getOriginalPriority();
+            this.senderId=rawPayload.getSenderId();
+            this.sentTime=rawPayload.getSentTime();
+            this.toSomeBody=rawPayload.getTo();
 
-            if(deepUriLink!=null) {
-                messaging.utils.showDebugLog(this, nameMethod, "Notification "
-                        + "name Url schema or Link Universal "+deepUriLink);
-
-                launchBrowser(deepUriLink,context,totalResponse);
-            }
-
-        }
-
-     messaging.setLastMessagingNotification(this);
-
-     sendEventToActivity(Messaging.ACTION_GET_NOTIFICATION,totalResponse, this.context);
-    }
-
-    private void launchBrowser(Uri deepUriLink, Context context, JSONObject additionalData) {
-        nameMethod="launchBrowser";
-        messaging.utils.showDebugLog(this, nameMethod, "Notification "
-                + "Link " + deepUriLink);
-        try {
-
-            Intent browserIntent = new Intent(Intent.ACTION_VIEW,
-                    Uri.parse(String.valueOf(deepUriLink)));
-            browserIntent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
-            browserIntent.putExtra("data",additionalData.toString());
-            browserIntent.putExtra("enable",true);
-            context.startActivity(browserIntent);
-        }catch (Exception e){
-            e.printStackTrace();
-            messaging.utils.showErrorLog(this,nameMethod,e.getMessage(),"");
+            messaging.utils.showDebugLog(this,nameMethod, "from: "+from);
+            messaging.utils.showDebugLog(this,nameMethod, "messageId: "+messageId);
+            messaging.utils.showDebugLog(this,nameMethod, "messageType: "+messageType+" priority "+priority);
+            messaging.utils.showDebugLog(this,nameMethod, "originalPriority: "+originalPriority+" senderId "+senderId);
+            messaging.utils.showDebugLog(this,nameMethod, "sentTime: "+sentTime+" toSomeBody "+toSomeBody);
 
         }
 
     }
+
+
 
     public MessagingNotification() {
 
     }
 
     //method
-
-    public RemoteMessage.Notification getNotification() {
-        return notification;
-    }
-
-    public Uri getDeepUriLink() {
-        return deepUriLink;
-    }
-
-    public String getIcon() {
-        return icon;
-    }
-
-    public String getImageUrl() {
-        return imageUrl;
-    }
-
-    public boolean isSticky() {
-        return sticky;
-    }
-
-    public String getChannelId() {
-        return channelId;
-    }
-
-    public String getTicker() {
-        return ticker;
-    }
-
     public String getNotificationId() {
         return notificationId;
     }
@@ -225,12 +201,12 @@ public class MessagingNotification implements Serializable {
         return body;
     }
 
-//    public String getDeepLink() {
-//        return deepLink;
-//    }
-
     public String getClickAction() {
         return clickAction;
+    }
+
+    public String getDeepUriLink() {
+        return deepUriLink;
     }
 
     public Map<String, String> getAdditionalData() {
@@ -241,53 +217,103 @@ public class MessagingNotification implements Serializable {
         return badge;
     }
 
-    public RemoteMessage getRawPayload() {
-        return rawPayload;
+    public String getIcon() {
+        return icon;
     }
 
+    public Uri getImageUrl() {
+        return imageUrl;
+    }
 
+    public boolean isSticky() {
+        return sticky;
+    }
 
+    public String getChannelId() {
+        return channelId;
+    }
+
+    public String getTicker() {
+        return ticker;
+    }
+
+    public String getSound() {
+        return sound;
+    }
+
+    public String getFrom() {
+        return from;
+    }
+
+    public String getMessageId() {
+        return messageId;
+    }
+
+    public String getMessageType() {
+        return messageType;
+    }
+
+    public int getPriority() {
+        return priority;
+    }
+
+    public int getOriginalPriority() {
+        return originalPriority;
+    }
+
+    public String getSenderId() {
+        return senderId;
+    }
+
+    public long getSentTime() {
+        return sentTime;
+    }
+
+    public String getToSomeBody() {
+        return toSomeBody;
+    }
+
+    public String[] getBodyLocalizationArgs() {
+        return bodyLocalizationArgs;
+    }
+
+    public String getBodyLocalizationKey() {
+        return bodyLocalizationKey;
+    }
+
+    public String getColor() {
+        return color;
+    }
+
+    public boolean isDefaultLightSettings() {
+        return defaultLightSettings;
+    }
+
+    public boolean isDefaultSound() {
+        return defaultSound;
+    }
+
+    public boolean isDefaultVibrateSettings() {
+        return defaultVibrateSettings;
+    }
+
+    public long[] getVibrateTimings() {
+        return vibrateTimings;
+    }
+
+    public boolean isLocalOnly() {
+        return localOnly;
+    }
+
+    public int getVisibility() {
+        return visibility;
+    }
 
     public void writeToParcel (Parcel out, int flags){
 
     }
 
-    public static JSONObject toJSON(Object object){
-        String str = "";
-        Class c = object.getClass();
-        JSONObject jsonObject = new JSONObject();
-        for (Field field : c.getDeclaredFields()) {
-            field.setAccessible(true);
-            String name = field.getName();
 
-            try {
-                //String value = String.valueOf(field.get(object));
-                jsonObject.put(name, field.get(object));
-            } catch (JSONException | IllegalAccessException e) {
-                e.printStackTrace();
-            }
-        }
-
-        //return jsonObject.toString();
-        return jsonObject;
-    }
-
-
-
-    /**
-     * Method that send Parameter (Ej: messagingDevice or MessagingUser) registered to Activity
-     @param something: Object JSON for send to activity (Ej messagingDevice).
-     @param context : context instance
-     */
-    private void sendEventToActivity(String action,JSONObject something, Context context) {
-        this.nameMethod=new Object(){}.getClass().getEnclosingMethod().getName();
-        messaging.utils.showDebugLog(this,nameMethod, "Notification "+action
-                +"  "+something.toString());
-        Intent intent=new Intent(action);
-        intent.putExtra(Messaging.INTENT_EXTRA_DATA,something.toString());
-        intent.putExtra(Messaging.INTENT_EXTRA_HAS_ERROR,something==null);
-        context.sendBroadcast(intent,context.getPackageName()+".permission.pushReceive");
-    }
 
 
 

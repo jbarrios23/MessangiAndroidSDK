@@ -9,10 +9,14 @@ import android.view.Window;
 import android.widget.ArrayAdapter;
 import android.widget.ListView;
 
+import com.messaging.sdk.Messaging;
+import com.messaging.sdk.MessagingNotification;
+
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Iterator;
@@ -25,9 +29,12 @@ public class ExampleUrlActivity extends AppCompatActivity {
     public static String TAG="MESSAGING";
     private String nameMethod;
     private ListView printData;
-    public Map<String, Object> additionalData;
-    public ArrayList<Map.Entry<String, Object>> dataArrayList;
-    public ArrayAdapter dataAdapter;
+    public Map<String, String> additionalData;
+//    public ArrayList<Map.Entry<String, Object>> dataArrayList;
+//    public ArrayAdapter dataAdapter;
+    public ArrayList<String> messangiData;
+    public ArrayAdapter<String> messangiDataArrayAdapter;
+    public MessagingNotification messagingNotification;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -39,6 +46,7 @@ public class ExampleUrlActivity extends AppCompatActivity {
         nameMethod=new Object(){}.getClass().getEnclosingMethod().getName();
         Log.i(TAG,"INFO: "+CLASS_TAG+": "+nameMethod);
         additionalData = new HashMap<>();
+        messangiData=new ArrayList<>();
         Intent intent=getIntent();
 
         Bundle extras=getIntent().getExtras();
@@ -48,71 +56,58 @@ public class ExampleUrlActivity extends AppCompatActivity {
             for (String key : extras.keySet()) {
                 Log.i(TAG, "INFO DATA: " + CLASS_TAG + ": " + nameMethod + " " + "Extras received:  Key: " + key + " Value: " + extras.getString(key));
                 additionalData.put(key, extras.getString(key));
+                messangiData.add(key + " , " + extras.getString(key));
             }
             Log.i(TAG, "INFO DATA BUILD: " + CLASS_TAG + " data: " + additionalData);
+            Log.i(TAG, "INFO DATA BUILD: " + CLASS_TAG + " data 2: " + messangiData);
 
         }else{
-            try {
-                JSONObject jsonObjData = new JSONObject(getIntent().getStringExtra("data"));
-                additionalData=toMap(jsonObjData);
-                Log.i(TAG, "INFO DATA BUILD 2: " + CLASS_TAG + " data: " + additionalData);
-            } catch (JSONException e) {
-                e.printStackTrace();
+            //Serializable data = extras.getSerializable(Messaging.INTENT_EXTRA_DATA);
+            if(Static.messagingNotification!=null){
+                messagingNotification=Static.messagingNotification;
+                additionalData=messagingNotification.getAdditionalData();
+                if(additionalData!=null&& additionalData.size()>0) {
+                    messangiData.add("Title: " + messagingNotification.getTitle());
+                    messangiData.add("Body: " + messagingNotification.getBody());
+                    messangiData.add("ClickAction: " + messagingNotification.getClickAction());
+                    messangiData.add("DeepUriLink: " + messagingNotification.getDeepUriLink());
+                    for (Map.Entry entry : messagingNotification.getAdditionalData().entrySet()) {
+                        if (!entry.getKey().equals("profile")) {
+                            messangiData.add(entry.getKey() + " , " + entry.getValue());
+
+                        }
+
+                    }
+                }
+
             }
+
         }
-        if(intent!=null ){
+        if(intent!=null){
             Log.i(TAG,"INFO: "+CLASS_TAG+" action: "+intent.getAction());
             Log.i(TAG,"INFO: "+CLASS_TAG+" scheme: "+intent.getScheme());
             Log.i(TAG,"INFO: "+CLASS_TAG+" data: "+intent.getData());
             Log.i(TAG,"INFO: "+CLASS_TAG+" param1: "+intent.getData().getQueryParameter("param1"));
             Log.i(TAG,"INFO: "+CLASS_TAG+" Package: "+intent.getPackage());
 
-            additionalData.put("action",intent.getAction());
-            additionalData.put("scheme",intent.getScheme());
-            additionalData.put("data", String.valueOf(intent.getData()));
-            additionalData.put("param1",intent.getData().getQueryParameter("param1"));
-            additionalData.put("param2",intent.getData().getQueryParameter("param2"));
-            additionalData.put("Package",intent.getPackage());
-        }
-        if(additionalData!=null&& additionalData.size()>0) {
-            dataArrayList = new ArrayList(additionalData.entrySet());
-            dataAdapter = new ArrayAdapter<>(this, R.layout.item_device, R.id.Texview_value, dataArrayList);
-            printData.setAdapter(dataAdapter);
-        }
-    }
-    public  Map<String, Object> toMap(JSONObject object) throws JSONException {
-        Map<String, Object> map = new HashMap<String, Object>();
+//            additionalData.put("action",intent.getAction());
+//            additionalData.put("scheme",intent.getScheme());
+//            additionalData.put("data", String.valueOf(intent.getData()));
+//            additionalData.put("param1",intent.getData().getQueryParameter("param1"));
+//            additionalData.put("param2",intent.getData().getQueryParameter("param2"));
+//            additionalData.put("Package",intent.getPackage());
+            messangiData.add("action "+intent.getAction());
+            messangiData.add("scheme "+intent.getScheme());
+            messangiData.add("data "+ String.valueOf(intent.getData()));
+            messangiData.add("param1 "+intent.getData().getQueryParameter("param1"));
+            messangiData.add("param2 "+intent.getData().getQueryParameter("param2"));
+            messangiData.add("Package "+intent.getPackage());
 
-        Iterator<String> keysItr = object.keys();
-        while(keysItr.hasNext()) {
-            String key = keysItr.next();
-            Object value = object.get(key);
-
-            if(value instanceof JSONArray) {
-                value = toList((JSONArray) value);
-            }
-
-            else if(value instanceof JSONObject) {
-                value = toMap((JSONObject) value);
-            }
-            map.put(key, value);
         }
-        return map;
+        messangiDataArrayAdapter = new ArrayAdapter<>(this, R.layout.item_device, R.id.Texview_value, messangiData);
+        //dataAdapter = new ArrayAdapter<>(this, R.layout.item_device, R.id.Texview_value, dataArrayList);
+        printData.setAdapter(messangiDataArrayAdapter);
+
     }
 
-    public List<Object> toList(JSONArray array) throws JSONException {
-        List<Object> list = new ArrayList<Object>();
-        for(int i = 0; i < array.length(); i++) {
-            Object value = array.get(i);
-            if(value instanceof JSONArray) {
-                value = toList((JSONArray) value);
-            }
-
-            else if(value instanceof JSONObject) {
-                value = toMap((JSONObject) value);
-            }
-            list.add(value);
-        }
-        return list;
-    }
 }

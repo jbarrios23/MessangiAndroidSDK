@@ -25,7 +25,7 @@ public class CustomMessangiService extends MessagingService {
 
         Log.d(TAG, CLASS_TAG + ":remote message ");
         //example to custom
-        MessagingNotification messagingNotification = new MessagingNotification(remoteMessage, this);
+        MessagingNotification messagingNotification = new MessagingNotification(remoteMessage);
         Log.d(TAG, CLASS_TAG + ":remote data "+ messagingNotification.getAdditionalData());
 
     }

@@ -1,8 +1,6 @@
 package com.ogangi.Messangi.SDK.Demo;
 
 import android.annotation.SuppressLint;
-import android.app.Activity;
-import android.app.ActivityManager;
 import android.app.AlertDialog;
 import android.app.NotificationChannel;
 import android.app.NotificationManager;
@@ -17,11 +15,9 @@ import android.media.RingtoneManager;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
-import android.os.Parcelable;
 import android.util.Log;
 import android.view.View;
 import android.view.Window;
-import android.view.WindowManager;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.CompoundButton;
@@ -37,7 +33,6 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.app.NotificationCompat;
 import androidx.localbroadcastmanager.content.LocalBroadcastManager;
 
-import com.google.firebase.messaging.FirebaseMessaging;
 import com.messaging.sdk.Messaging;
 import com.messaging.sdk.MessagingDevice;
 import com.messaging.sdk.MessagingNotification;
@@ -65,7 +60,7 @@ public class MainActivity extends AppCompatActivity {
     public TextView imprime;
     public MessagingDevice messagingDevice;
     public MessagingUser messagingUser;
-    public ListView lista_device,lista_user;
+    public ListView list_device,list_user;
 
     public ArrayList messagingDevArrayList;
     //public ArrayList<Map.Entry<String, Object>> messagingDevArrayList;
@@ -98,8 +93,8 @@ public class MainActivity extends AppCompatActivity {
         //messaging = Messaging.getInstance(this);
         messaging = Messaging.getInstance();
 
-        lista_device = findViewById(R.id.lista_device);
-        lista_user = findViewById(R.id.lista_user);
+        list_device = findViewById(R.id.lista_device);
+        list_user = findViewById(R.id.lista_user);
         title = findViewById(R.id.textView_imprimir);
         device = findViewById(R.id.device);
         user = findViewById(R.id.user);
@@ -174,14 +169,10 @@ public class MainActivity extends AppCompatActivity {
             isBackground=extras.getBoolean("isInBackground",false);
             Log.i(TAG, "INFO: " + CLASS_TAG + ": " + nameMethod + ": " + isBackground);
             if(isBackground) {
-                String data = extras.getString(Messaging.INTENT_EXTRA_DATA);
-                Log.i(TAG, "INFO: " + CLASS_TAG + ": " + nameMethod + ": " + data);
-                try {
-                    JSONObject data1 = new JSONObject(data);
-                    showAlertNotificationAlt(data1);
-                } catch (JSONException e) {
-                    e.printStackTrace();
-                }
+                Serializable data = extras.getSerializable(Messaging.INTENT_EXTRA_DATA);
+                messagingNotification=(MessagingNotification)data;
+                showAlertNotification(messagingNotification,data);
+
             }else {
 
                 //to process notification from background mode
@@ -280,192 +271,49 @@ public class MainActivity extends AppCompatActivity {
 
     }
 
-    public void showAlertNotificationAlt(JSONObject data1){
-        nameMethod=new Object(){}.getClass().getEnclosingMethod().getName();
-        Log.i(TAG,"INFO: "+CLASS_TAG+": "+nameMethod+":  "
-                + data1.toString()+" has "+data1.has("additionalData"));
-        Map<String, Object> additionalData;
+    private void launchBrowser(String deepUriLink, Context context, Serializable additionalData) {
+        nameMethod="launchBrowser";
+        Log.d(TAG,"DEBUG: "+CLASS_TAG+": "+nameMethod+":  "+deepUriLink);
+        Log.d(TAG,"DEBUG: "+CLASS_TAG+": "+nameMethod+":  "+additionalData.toString());
+
         try {
-            if(data1.has("clickAction")){
-                String clickAction=data1.getString("clickAction");
-                launchNotification(clickAction,getApplicationContext(),data1);
-            }
-            Log.i(TAG,"INFO: "+CLASS_TAG+": "+nameMethod+":  "
-                    + !data1.getString("additionalData").equals("{}"));
-            if(!data1.getString("additionalData").equals("{}")) {
-
-                additionalData = toMap(data1);
-
-                Log.i(TAG, "INFO: " + CLASS_TAG + ": " + nameMethod + ":  "
-                        + additionalData);
-
-                // create an alert builder
-                AlertDialog.Builder builder = new AlertDialog.Builder(this);
-                builder.setTitle("Notification");
-                // set the custom layout
-                //final View customLayout = getLayoutInflater().inflate(R.layout.custom_notification_layout, null);
-                final View customLayout = getLayoutInflater().inflate(R.layout.notification_layout, null);
-                builder.setView(customLayout);
-                //TextView data=customLayout.findViewById(R.id.data_noti);
-                ArrayList<Map.Entry<String, Object>> messangiData = new ArrayList(additionalData.entrySet());
-
-                ArrayAdapter messangiDataArrayAdapter;
-                ListView listView = customLayout.findViewById(R.id.list_data_noti);
-                messangiDataArrayAdapter = new ArrayAdapter<>(this, R.layout.item_device, R.id.Texview_value, messangiData);
-                listView.setAdapter(messangiDataArrayAdapter);
-
-
-                // add a button
-                builder.setPositiveButton("Ok", new DialogInterface.OnClickListener() {
-                    @SuppressLint("SetTextI18n")
-                    @Override
-                    public void onClick(DialogInterface dialog, int which) {
-                        // send data from the AlertDialog to the Activity
-                        onetimeFlag = true;
-
-                        dialog.dismiss();
-
-
-                    }
-                });
-
-                builder.setNegativeButton("Close", new DialogInterface.OnClickListener() {
-                    @Override
-                    public void onClick(DialogInterface dialog, int which) {
-                        dialog.cancel();
-
-
-                    }
-                });
-                // create and show the alert dialog
-                AlertDialog dialog = builder.create();
-                try {
-                    dialog.show();
-                }catch (Exception e){
-                    e.getStackTrace();
-                }
-            }else{
-                Toast.makeText(getApplicationContext(), "Notification Push has Not data", Toast.LENGTH_LONG).show();
-                showOtherParameter(data1);
-            }
-
-        } catch (JSONException e) {
+//            Intent browserIntent = new Intent(Intent.ACTION_VIEW,
+//                    Uri.parse(String.valueOf(deepUriLink)));
+            MessagingNotification messagingNotification=(MessagingNotification)additionalData;
+            Static.messagingNotification=messagingNotification;
+            Intent browserIntent = new Intent(Intent.ACTION_VIEW,
+                    Uri.parse(deepUriLink));
+            //browserIntent.putExtra(Messaging.INTENT_EXTRA_DATA,messagingNotification);
+            browserIntent.putExtra("enable",true);
+            browserIntent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+            browserIntent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+            context.startActivity(browserIntent);
+        }catch (Exception e){
             e.printStackTrace();
             Log.e(TAG,"ERROR: "+CLASS_TAG+": "+nameMethod+":  "+e.getMessage());
+
         }
 
-
-    }
-
-    private void showOtherParameter(JSONObject data1) {
-        try {
-            Log.i(TAG,"INFO: "+CLASS_TAG+": "+nameMethod+":  "+
-                    " only noti "+data1.getString("title")+" "
-                    +data1.getString("body"));
-
-            // create an alert builder
-            AlertDialog.Builder builder = new AlertDialog.Builder(this);
-            builder.setTitle("Notification");
-            // set the custom layout
-            //final View customLayout = getLayoutInflater().inflate(R.layout.custom_notification_layout, null);
-            final View customLayout = getLayoutInflater().inflate(R.layout.notification_layout, null);
-            builder.setView(customLayout);
-            //TextView data=customLayout.findViewById(R.id.data_noti);
-            ArrayList<String> messagingData = new ArrayList();
-            messagingData.add(data1.getString("title"));
-            messagingData.add(data1.getString("body"));
-            messagingData.add(data1.getString("silent"));
-            messagingData.add(data1.getString("sound"));
-            messagingData.add(data1.getString("sticky"));
-            messagingData.add(data1.getString("badge"));
-            ArrayAdapter messangiDataArrayAdapter;
-            ListView listView = customLayout.findViewById(R.id.list_data_noti);
-            messangiDataArrayAdapter = new ArrayAdapter<String>(this, R.layout.item_device, R.id.Texview_value, messagingData);
-            listView.setAdapter(messangiDataArrayAdapter);
-
-
-            // add a button
-            builder.setPositiveButton("Ok", new DialogInterface.OnClickListener() {
-                @SuppressLint("SetTextI18n")
-                @Override
-                public void onClick(DialogInterface dialog, int which) {
-                    // send data from the AlertDialog to the Activity
-                    onetimeFlag = true;
-
-                    dialog.dismiss();
-
-
-                }
-            });
-
-            builder.setNegativeButton("Close", new DialogInterface.OnClickListener() {
-                @Override
-                public void onClick(DialogInterface dialog, int which) {
-                    dialog.cancel();
-
-
-                }
-            });
-            // create and show the alert dialog
-            AlertDialog dialog = builder.create();
-            dialog.show();
-
-        } catch (JSONException e) {
-            e.printStackTrace();
-            Log.e(TAG,"ERROR: "+CLASS_TAG+": "+nameMethod+":  "+e.getMessage());
-        }
-
-
-    }
-
-    public  Map<String, Object> toMap(JSONObject object) throws JSONException {
-        Map<String, Object> map = new HashMap<String, Object>();
-
-        Iterator<String> keysItr = object.keys();
-        while(keysItr.hasNext()) {
-            String key = keysItr.next();
-            Object value = object.get(key);
-
-            if(value instanceof JSONArray) {
-                value = toList((JSONArray) value);
-            }
-
-            else if(value instanceof JSONObject) {
-                value = toMap((JSONObject) value);
-            }
-            map.put(key, value);
-        }
-        return map;
-    }
-
-    public  List<Object> toList(JSONArray array) throws JSONException {
-        List<Object> list = new ArrayList<Object>();
-        for(int i = 0; i < array.length(); i++) {
-            Object value = array.get(i);
-            if(value instanceof JSONArray) {
-                value = toList((JSONArray) value);
-            }
-
-            else if(value instanceof JSONObject) {
-                value = toMap((JSONObject) value);
-            }
-            list.add(value);
-        }
-        return list;
     }
 
 
     //optional code
-    private void launchNotification(String clickAction, Context context, JSONObject additionalData) {
+    private void launchNotification(String clickAction, Context context, Serializable additionalData) {
         nameMethod=new Object(){}.getClass().getEnclosingMethod().getName();
         String title="";
         String body = "";
+        MessagingNotification messagingNotification=(MessagingNotification)additionalData;
+        if(messagingNotification.getTitle()!=null &&!messagingNotification.getTitle().equals("")) {
+            title = messagingNotification.getTitle();
+        }
+        if(messagingNotification.getBody()!=null &&!messagingNotification.getBody().equals("")) {
+            body = messagingNotification.getBody();
+        }
         Intent notificationIntent=null;
         try {
-            title=additionalData.getString("title");
-            body=additionalData.getString("body");
+
             notificationIntent = new Intent(context, Class.forName(clickAction));
-            notificationIntent.putExtra("data",additionalData.toString());
+            notificationIntent.putExtra(Messaging.INTENT_EXTRA_DATA,additionalData);
             notificationIntent.putExtra("enable",true);
 //            for (Map.Entry<String, String> entry : additionalData.entrySet()) {
 //                notificationIntent.putExtra(entry.getKey(),  entry.getValue());
@@ -478,8 +326,6 @@ public class MainActivity extends AppCompatActivity {
             e.printStackTrace();
 
             notificationIntent = new Intent("android.intent.action.MAIN");
-        } catch (JSONException e) {
-            e.printStackTrace();
         }
 
         notificationIntent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
@@ -649,7 +495,7 @@ public class MainActivity extends AppCompatActivity {
 
         }
 
-        lista_user.setAdapter(messagingUserDeviceArrayAdapter);
+        list_user.setAdapter(messagingUserDeviceArrayAdapter);
     }
 
     private void showDevice(MessagingDevice messagingDevice) {
@@ -670,8 +516,110 @@ public class MainActivity extends AppCompatActivity {
         messagingDevArrayList.add("Timestamp: "    + messagingDevice.getTimestamp());
         messagingDevArrayList.add("Transaction: "  + messagingDevice.getTransaction());
         messagingDevArrayList.add("ExternalId: "  + messaging.getExternalId());
-        lista_device.setAdapter(messagingDevArrayAdapter);
+        list_device.setAdapter(messagingDevArrayAdapter);
         Messaging.fetchUser(getApplicationContext(),false);
+
+    }
+    @SuppressLint("SetTextI18n")
+    private void showAlertNotification(MessagingNotification messagingNotification, Serializable data) {
+        // create an alert builder
+        AlertDialog.Builder builder = new AlertDialog.Builder(this);
+        builder.setTitle("Notification");
+        // set the custom layout
+        //final View customLayout = getLayoutInflater().inflate(R.layout.custom_notification_layout, null);
+        final View customLayout = getLayoutInflater().inflate(R.layout.notification_layout, null);
+        builder.setView(customLayout);
+        //TextView data=customLayout.findViewById(R.id.data_noti);
+        ArrayList<String> messangiData = new ArrayList<>();
+        ArrayAdapter<String> messangiDataArrayAdapter;
+        ListView listView=customLayout.findViewById(R.id.list_data_noti);
+        //optional code
+        if(messagingNotification.getClickAction()!=null && data!=null){
+            String clickAction=messagingNotification.getClickAction();
+            if(onetimeFlag) {
+                launchNotification(clickAction, getApplicationContext(), data);
+                onetimeFlag=false;
+            }
+        }
+        //optional code
+        if(messagingNotification.getDeepUriLink()!=null && data!=null){
+            String deepUriLink=messagingNotification.getDeepUriLink();
+            if(onetimeFlag) {
+                launchBrowser(deepUriLink, this, data);
+                onetimeFlag=false;
+            }
+        }
+
+        if(!messagingNotification.isSilent()&&(messagingNotification.getAdditionalData()!=null && messagingNotification.getAdditionalData().size() > 0)){
+
+            messangiData.add("Title: "           + messagingNotification.getTitle());
+            messangiData.add("Body: "           + messagingNotification.getBody());
+            messangiData.add("ClickAction: "           + messagingNotification.getClickAction());
+            messangiData.add("DeepUriLink: "           + messagingNotification.getDeepUriLink());
+            messangiData.add("Silent: "           + messagingNotification.isSilent());
+            for (Map.Entry entry : messagingNotification.getAdditionalData().entrySet()) {
+                if(!entry.getKey().equals("profile")){
+                    messangiData.add(entry.getKey() + " , " + entry.getValue());
+
+                }
+
+            }
+            messangiDataArrayAdapter = new ArrayAdapter<>(this, R.layout.item_device, R.id.Texview_value, messangiData);
+            listView.setAdapter(messangiDataArrayAdapter);
+
+        }else if(messagingNotification.getAdditionalData()!=null && messagingNotification.getAdditionalData().size() > 0) {
+            messangiData.add("Has only Data");
+            messangiData.add("Silent: "           + messagingNotification.isSilent());
+            for (Map.Entry entry : messagingNotification.getAdditionalData().entrySet()) {
+                if(!entry.getKey().equals("profile")){
+                    messangiData.add(entry.getKey() + " , " + entry.getValue());
+
+                }
+
+            }
+            messangiDataArrayAdapter = new ArrayAdapter<>(this, R.layout.item_device, R.id.Texview_value, messangiData);
+            listView.setAdapter(messangiDataArrayAdapter);
+
+        }else if(!messagingNotification.isSilent()) {
+            messangiData.add("Has only Notification ");
+            messangiData.add("Title: "           + messagingNotification.getTitle());
+            messangiData.add("Body: "           + messagingNotification.getBody());
+            messangiData.add("ClickAction: "           + messagingNotification.getClickAction());
+            messangiData.add("DeepUriLink: "           + messagingNotification.getDeepUriLink());
+            messangiData.add("MessageId: "           + messagingNotification.getMessageId());
+            messangiData.add("Silent: "           + messagingNotification.isSilent());
+
+            messangiDataArrayAdapter = new ArrayAdapter<>(this, R.layout.item_device, R.id.Texview_value, messangiData);
+            listView.setAdapter(messangiDataArrayAdapter);
+
+        }
+
+        // add a button
+        builder.setPositiveButton("Ok", new DialogInterface.OnClickListener() {
+            @SuppressLint("SetTextI18n")
+            @Override
+            public void onClick(DialogInterface dialog, int which) {
+                // send data from the AlertDialog to the Activity
+                onetimeFlag=true;
+
+                dialog.dismiss();
+
+
+            }
+        });
+
+        builder.setNegativeButton("Close", new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialog, int which) {
+                onetimeFlag=true;
+                dialog.cancel();
+
+
+            }
+        });
+        // create and show the alert dialog
+        AlertDialog dialog = builder.create();
+        dialog.show();
 
     }
 
@@ -703,17 +651,8 @@ public class MainActivity extends AppCompatActivity {
                     shwUser(messagingUser);
 
                 }else if(intent.getAction().equals(Messaging.ACTION_GET_NOTIFICATION)&& data!=null){
-
-                            String dataNotification = intent.getStringExtra(Messaging.INTENT_EXTRA_DATA);
-                            if (dataNotification != null) {
-                                Log.d(TAG, "DEBUG: " + CLASS_TAG + ": " + nameMethod + ": dataNotification:  " + dataNotification);
-                                try {
-                                    JSONObject jsonObject = new JSONObject(dataNotification);
-                                    showAlertNotificationAlt(jsonObject);
-                                } catch (JSONException e) {
-                                    e.printStackTrace();
-                                }
-                            }
+                    messagingNotification=(MessagingNotification)data;
+                    showAlertNotification(messagingNotification, data);
 
                 }else if(intent.getAction().equals(Messaging.ACTION_SAVE_DEVICE)&& data!=null) {
                     messagingDevice = (MessagingDevice) data; //you can cast this for get information

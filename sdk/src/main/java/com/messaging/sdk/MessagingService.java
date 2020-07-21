@@ -56,8 +56,8 @@ public class MessagingService extends FirebaseMessagingService  {
         super.onMessageReceived(remoteMessage);
         nameMethod=new Object(){}.getClass().getEnclosingMethod().getName();
         messaging = Messaging.getInstance(this);
-        messaging.utils.showDebugLog(this,nameMethod, "");
-        new MessagingNotification(remoteMessage,this);
+        MessagingNotification messagingNotification=new MessagingNotification(remoteMessage);
+        messaging.sendGlobalEventToActivity(Messaging.ACTION_GET_NOTIFICATION,messagingNotification);
     }
 
 }
