@@ -38,15 +38,11 @@ import com.messaging.sdk.MessagingDevice;
 import com.messaging.sdk.MessagingNotification;
 import com.messaging.sdk.MessagingUser;
 
-import org.json.JSONArray;
-import org.json.JSONException;
-import org.json.JSONObject;
+
 
 import java.io.Serializable;
 import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.Iterator;
-import java.util.List;
+
 import java.util.Map;
 import java.util.Random;
 
@@ -81,6 +77,7 @@ public class MainActivity extends AppCompatActivity {
     public Map<String,String> additionalData;
     public boolean isBackground;
 
+    @SuppressLint("NewApi")
     @RequiresApi(api = Build.VERSION_CODES.JELLY_BEAN_MR2)
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -173,15 +170,13 @@ public class MainActivity extends AppCompatActivity {
                 messagingNotification=(MessagingNotification)data;
                 showAlertNotification(messagingNotification,data);
 
-            }else {
+            }else{
 
                 //to process notification from background mode
-                additionalData=new HashMap<>();
-                for(String key:extras.keySet()){
-                    additionalData.put(key,extras.getString(key));
-                }
-                Log.i(TAG, "INFO: " + CLASS_TAG + ": " + nameMethod + ": " + additionalData);
-                showAlertNotificationAltPlus(additionalData);
+                MessagingNotification notification=Messaging.checkNotification(extras);
+                Log.i(TAG, "INFO: " + CLASS_TAG + ": " + nameMethod + ": " + notification.toString());
+                Log.i(TAG, "INFO: " + CLASS_TAG + ": " + nameMethod + ": " + notification.equals(notification));
+                Log.i(TAG, "INFO: " + CLASS_TAG + ": " + nameMethod + ": " + notification.hashCode());
             }
 
         }
@@ -251,6 +246,8 @@ public class MainActivity extends AppCompatActivity {
                 new IntentFilter(Messaging.ACTION_FETCH_USER));
         LocalBroadcastManager.getInstance(this).registerReceiver(mReceiver,
                 new IntentFilter(Messaging.ACTION_GET_NOTIFICATION));
+        LocalBroadcastManager.getInstance(this).registerReceiver(mReceiver,
+                new IntentFilter(Messaging.ACTION_GET_NOTIFICATION_OPENED));
         LocalBroadcastManager.getInstance(this).registerReceiver(mReceiver,
                 new IntentFilter(Messaging.ACTION_SAVE_DEVICE));
         LocalBroadcastManager.getInstance(this).registerReceiver(mReceiver,
@@ -549,50 +546,26 @@ public class MainActivity extends AppCompatActivity {
                 onetimeFlag=false;
             }
         }
-
-        if(!messagingNotification.isSilent()&&(messagingNotification.getAdditionalData()!=null && messagingNotification.getAdditionalData().size() > 0)){
-
+        if(messagingNotification!=null){
             messangiData.add("Title: "           + messagingNotification.getTitle());
             messangiData.add("Body: "           + messagingNotification.getBody());
             messangiData.add("ClickAction: "           + messagingNotification.getClickAction());
             messangiData.add("DeepUriLink: "           + messagingNotification.getDeepUriLink());
+            messangiData.add("MessageId: "           + messagingNotification.getNotificationId());
             messangiData.add("Silent: "           + messagingNotification.isSilent());
-            for (Map.Entry entry : messagingNotification.getAdditionalData().entrySet()) {
+            messangiData.add("Type: "           + messagingNotification.getType());
+            if(messagingNotification.getAdditionalData()!=null){
+                for (Map.Entry entry : messagingNotification.getAdditionalData().entrySet()) {
                 if(!entry.getKey().equals("profile")){
                     messangiData.add(entry.getKey() + " , " + entry.getValue());
-
                 }
-
+            }
             }
             messangiDataArrayAdapter = new ArrayAdapter<>(this, R.layout.item_device, R.id.Texview_value, messangiData);
             listView.setAdapter(messangiDataArrayAdapter);
-
-        }else if(messagingNotification.getAdditionalData()!=null && messagingNotification.getAdditionalData().size() > 0) {
-            messangiData.add("Has only Data");
-            messangiData.add("Silent: "           + messagingNotification.isSilent());
-            for (Map.Entry entry : messagingNotification.getAdditionalData().entrySet()) {
-                if(!entry.getKey().equals("profile")){
-                    messangiData.add(entry.getKey() + " , " + entry.getValue());
-
-                }
-
-            }
-            messangiDataArrayAdapter = new ArrayAdapter<>(this, R.layout.item_device, R.id.Texview_value, messangiData);
-            listView.setAdapter(messangiDataArrayAdapter);
-
-        }else if(!messagingNotification.isSilent()) {
-            messangiData.add("Has only Notification ");
-            messangiData.add("Title: "           + messagingNotification.getTitle());
-            messangiData.add("Body: "           + messagingNotification.getBody());
-            messangiData.add("ClickAction: "           + messagingNotification.getClickAction());
-            messangiData.add("DeepUriLink: "           + messagingNotification.getDeepUriLink());
-            messangiData.add("MessageId: "           + messagingNotification.getMessageId());
-            messangiData.add("Silent: "           + messagingNotification.isSilent());
-
-            messangiDataArrayAdapter = new ArrayAdapter<>(this, R.layout.item_device, R.id.Texview_value, messangiData);
-            listView.setAdapter(messangiDataArrayAdapter);
-
         }
+
+
 
         // add a button
         builder.setPositiveButton("Ok", new DialogInterface.OnClickListener() {
@@ -650,7 +623,8 @@ public class MainActivity extends AppCompatActivity {
                     messagingUser =(MessagingUser) data;
                     shwUser(messagingUser);
 
-                }else if(intent.getAction().equals(Messaging.ACTION_GET_NOTIFICATION)&& data!=null){
+                }else if(((intent.getAction().equals(Messaging.ACTION_GET_NOTIFICATION))||
+                        (intent.getAction().equals(Messaging.ACTION_GET_NOTIFICATION_OPENED)))&& data!=null){
                     messagingNotification=(MessagingNotification)data;
                     showAlertNotification(messagingNotification, data);
 

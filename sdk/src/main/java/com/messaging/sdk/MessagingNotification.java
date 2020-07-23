@@ -25,8 +25,10 @@ import org.json.JSONObject;
 
 import java.io.Serializable;
 import java.lang.reflect.Field;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Random;
 
 public class MessagingNotification implements Serializable {
@@ -34,6 +36,7 @@ public class MessagingNotification implements Serializable {
     //common
 
     private String notificationId;
+    private String type;
     private boolean silent;
     private String title;
     private String body;
@@ -57,7 +60,6 @@ public class MessagingNotification implements Serializable {
 
     private String nameMethod;
     private String from;
-    private String messageId;
     private String messageType;
     private int priority;
     private int originalPriority;
@@ -80,14 +82,12 @@ public class MessagingNotification implements Serializable {
 
      RemoteMessage.Notification notification=remoteMessage.getNotification();
      //common
-     this.notificationId=remoteMessage.getMessageId();
+     //this.notificationId=remoteMessage.getMessageId();
      this.silent=true;
      Messaging messaging = Messaging.getInstance();
      messaging.utils.showDebugLog(this,nameMethod, "silent: "+silent);
      if(notification!=null){
          this.silent=false;
-         this.title=remoteMessage.getNotification().getTitle();
-         this.body=remoteMessage.getNotification().getBody();
          this.clickAction=remoteMessage.getNotification().getClickAction();
          if(remoteMessage.getNotification().getLink()!=null) {
              this.deepUriLink = remoteMessage.getNotification().getLink().toString();
@@ -149,10 +149,14 @@ public class MessagingNotification implements Serializable {
      }
 
      if(remoteMessage.getData()!=null){
-
          this.additionalData=new HashMap<>(remoteMessage.getData());
          this.nameMethod="MessagingNotification";
          //Messaging messaging = Messaging.getInstance();
+         this.notificationId=additionalData.get("msgId");
+         this.type=additionalData.get("type");
+         this.title=additionalData.get("subject");
+         this.body=additionalData.get("content");
+
          messaging.utils.showDebugLog(this,nameMethod, "additionalData: "+additionalData);
 
      }
@@ -160,7 +164,6 @@ public class MessagingNotification implements Serializable {
      RemoteMessage rawPayload=remoteMessage;
         if(rawPayload!=null){
             this.from=rawPayload.getFrom();
-            this.messageId=rawPayload.getMessageId();
             this.messageType=rawPayload.getMessageType();
             this.priority=rawPayload.getPriority();
             this.originalPriority=rawPayload.getOriginalPriority();
@@ -169,10 +172,37 @@ public class MessagingNotification implements Serializable {
             this.toSomeBody=rawPayload.getTo();
 
             messaging.utils.showDebugLog(this,nameMethod, "from: "+from);
-            messaging.utils.showDebugLog(this,nameMethod, "messageId: "+messageId);
+            messaging.utils.showDebugLog(this,nameMethod, "messageId: "+notificationId);
             messaging.utils.showDebugLog(this,nameMethod, "messageType: "+messageType+" priority "+priority);
             messaging.utils.showDebugLog(this,nameMethod, "originalPriority: "+originalPriority+" senderId "+senderId);
             messaging.utils.showDebugLog(this,nameMethod, "sentTime: "+sentTime+" toSomeBody "+toSomeBody);
+
+        }
+
+    }
+
+    public MessagingNotification(Bundle extras) {
+        this.nameMethod="MessagingNotification";
+        Messaging messaging = Messaging.getInstance();
+        boolean send=true;
+        if(extras!=null){
+             additionalData=new HashMap<>();
+            for(String key:extras.keySet()){
+                additionalData.put(key, extras.get(key).toString());
+                if(key.equals("profile")){
+                    send=false;
+                }else if(key.equals("msgId")){
+                    this.notificationId=extras.getString(key);
+                }else if(key.equals("subject")){
+                    this.title=extras.getString(key);
+                }else if(key.equals("content")){
+                    this.body=extras.getString(key);
+                }else if(key.equals("type")){
+                    this.type=extras.getString(key);
+                }
+            }
+
+            messaging.utils.showDebugLog(this,nameMethod,"Data: " +additionalData);
 
         }
 
@@ -245,11 +275,7 @@ public class MessagingNotification implements Serializable {
         return from;
     }
 
-    public String getMessageId() {
-        return messageId;
-    }
-
-    public String getMessageType() {
+   public String getMessageType() {
         return messageType;
     }
 
@@ -308,14 +334,65 @@ public class MessagingNotification implements Serializable {
     public int getVisibility() {
         return visibility;
     }
+    public String getType() {
+        return type;
+    }
 
     public void writeToParcel (Parcel out, int flags){
 
     }
 
 
+    @Override
+    public String toString() {
+        return "MessagingNotification{" +
+                "notificationId='" + notificationId + '\'' +
+                ", type='" + type + '\'' +
+                ", silent=" + silent +
+                ", title='" + title + '\'' +
+                ", body='" + body + '\'' +
+                ", clickAction='" + clickAction + '\'' +
+                ", deepUriLink='" + deepUriLink + '\'' +
+                ", additionalData=" + additionalData +
+                ", badge=" + badge +
+                ", icon='" + icon + '\'' +
+                ", imageUrl=" + imageUrl +
+                ", sticky=" + sticky +
+                ", channelId='" + channelId + '\'' +
+                ", ticker='" + ticker + '\'' +
+                ", sound='" + sound + '\'' +
+                ", nameMethod='" + nameMethod + '\'' +
+                ", from='" + from + '\'' +
+                ", messageType='" + messageType + '\'' +
+                ", priority=" + priority +
+                ", originalPriority=" + originalPriority +
+                ", senderId='" + senderId + '\'' +
+                ", sentTime=" + sentTime +
+                ", toSomeBody='" + toSomeBody + '\'' +
+                ", bodyLocalizationArgs=" + Arrays.toString(bodyLocalizationArgs) +
+                ", bodyLocalizationKey='" + bodyLocalizationKey + '\'' +
+                ", color='" + color + '\'' +
+                ", defaultLightSettings=" + defaultLightSettings +
+                ", defaultSound=" + defaultSound +
+                ", defaultVibrateSettings=" + defaultVibrateSettings +
+                ", vibrateTimings=" + Arrays.toString(vibrateTimings) +
+                ", localOnly=" + localOnly +
+                ", visibility=" + visibility +
+                '}';
+    }
 
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        MessagingNotification that = (MessagingNotification) o;
+        return notificationId.equals(that.notificationId) &&
+                type.equals(that.type);
+    }
 
-
-
+    @RequiresApi(api = Build.VERSION_CODES.KITKAT)
+    @Override
+    public int hashCode() {
+        return Objects.hash(notificationId, type);
+    }
 }

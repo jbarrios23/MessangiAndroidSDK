@@ -114,7 +114,7 @@ private BroadcastReceiver mReceiver=new BroadcastReceiver() {
                     messagingUser =(MessagingUser) data;
                     //or messagingUser = MessagingUser.getInstance();
                     .......
-                }else if(intent.getAction().equals(Messaging.ACTION_GET_NOTIFICATION)&& data!=null){
+                }else if(((intent.getAction().equals(Messaging.ACTION_GET_NOTIFICATION))||(intent.getAction().equals(Messaging.ACTION_GET_NOTIFICATION_OPENED)))&& data!=null){
                     messagingNotification=(MessagingNotification)data;
                     .....
                 }else if(intent.getAction().equals(Messaging.ACTION_SAVE_DEVICE)&& data!=null) {
@@ -436,10 +436,7 @@ public class MainActivity extends AppCompatActivity {
             }else {
 
                 //to process notification from background mode
-                additionalData=new HashMap<>();
-                for(String key:extras.keySet()){
-                    additionalData.put(key,extras.getString(key));
-                }
+                MessagingNotification notification=Messaging.checkNotification(extras);
                 .....
             }
 
@@ -455,6 +452,8 @@ public class MainActivity extends AppCompatActivity {
                 new IntentFilter(Messaging.ACTION_FETCH_USER));
         LocalBroadcastManager.getInstance(this).registerReceiver(mReceiver,
                 new IntentFilter(Messaging.ACTION_GET_NOTIFICATION));
+        LocalBroadcastManager.getInstance(this).registerReceiver(mReceiver,
+                new IntentFilter(Messaging.ACTION_GET_NOTIFICATION_OPENED));
         LocalBroadcastManager.getInstance(this).registerReceiver(mReceiver,
                 new IntentFilter(Messaging.ACTION_SAVE_DEVICE));
         LocalBroadcastManager.getInstance(this).registerReceiver(mReceiver,
@@ -489,7 +488,7 @@ public class MainActivity extends AppCompatActivity {
                     //or messagingUser = MessagingUser.getInstance();
                     shwUser(messagingUser);
 
-                }else if(intent.getAction().equals(Messaging.ACTION_GET_NOTIFICATION)&& data!=null){
+                }else if(((intent.getAction().equals(Messaging.ACTION_GET_NOTIFICATION))||(intent.getAction().equals(Messaging.ACTION_GET_NOTIFICATION_OPENED)))&& data!=null){
                     messagingNotification=(MessagingNotification)data;
                     .....
 
@@ -542,10 +541,7 @@ For handle Notification in Background you must use this code in Activity:
                 .....
             }else {
                 //to process notification from background mode
-                additionalData=new HashMap<>();
-                for(String key:extras.keySet()){
-                    additionalData.put(key,extras.getString(key));
-                }
+    MessagingNotification notification=Messaging.checkNotification(extras);
                 .......
             }
         }

@@ -6,6 +6,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.os.AsyncTask;
 import android.os.Build;
+import android.os.Bundle;
 import android.provider.Settings;
 
 import androidx.lifecycle.Lifecycle;
@@ -78,6 +79,7 @@ public class Messaging implements LifecycleObserver{
     public static String ACTION_FETCH_USER="com.messaging.sdk.ACTION_FETCH_USER";
     public static String ACTION_SAVE_USER="com.messaging.sdk.ACTION_SAVE_USER";
     public static String ACTION_GET_NOTIFICATION="com.messaging.sdk.PUSH_NOTIFICATION";
+    public static String ACTION_GET_NOTIFICATION_OPENED="com.messaging.sdk.PUSH_NOTIFICATION_TO_OPEN";
 
     public static String INTENT_EXTRA_DATA="messaging_data";
     public static String INTENT_EXTRA_HAS_ERROR="messaging_has_error";
@@ -140,32 +142,26 @@ public class Messaging implements LifecycleObserver{
 
         }
         if(getLastMessagingNotification()!=null){
-//            JSONObject response=toJSON(messagingNotification);
-//            sendEventToActivity(ACTION_GET_NOTIFICATION,response,context);
-            sendEventToActivity(ACTION_GET_NOTIFICATION,messagingNotification,context);
-            setLastMessagingNotification(null);
+            sendEventToActivity(ACTION_GET_NOTIFICATION_OPENED,messagingNotification,context);
+            setLastMessagingNotification(null,context);
         }
 
     }
-    public static JSONObject toJSON(Object object){
-        String str = "";
-        Class c = object.getClass();
-        JSONObject jsonObject = new JSONObject();
-        for (Field field : c.getDeclaredFields()) {
-            field.setAccessible(true);
-            String name = field.getName();
 
-            try {
-                //String value = String.valueOf(field.get(object));
-                jsonObject.put(name, field.get(object));
-            } catch (JSONException | IllegalAccessException e) {
-                e.printStackTrace();
-            }
+    public static MessagingNotification checkNotification(Bundle extras){
+        String nameMethod=new Object(){}.getClass().getEnclosingMethod().getName();
+        Messaging messaging = Messaging.getInstance();
+        MessagingNotification notification=new MessagingNotification(extras);
+        messaging.utils.showInfoLog(messaging,nameMethod,"notification "+notification.toString());
+        if(notification!=null) {
+            messaging.utils.showInfoLog(messaging,nameMethod,"The Activity was opened as a consequence of a notification");
+        }else {
+            messaging.utils.showInfoLog(messaging,nameMethod,"intent.extra does not contain a notification");
         }
-
-        //return jsonObject.toString();
-        return jsonObject;
+        setLastMessagingNotification(notification,messaging.context);
+        return notification;
     }
+
 
     public String getPackageName() {
         return packageName;
@@ -198,9 +194,9 @@ public class Messaging implements LifecycleObserver{
      * Method that Set Las notification
      * @param messagingNotification
      */
-    void setLastMessagingNotification(MessagingNotification messagingNotification) {
-
-        this.messagingNotification = messagingNotification;
+    public static void setLastMessagingNotification(MessagingNotification messagingNotification,Context context) {
+        final Messaging messaging = Messaging.getInstance(context);
+        messaging.messagingNotification = messagingNotification;
     }
 
     public ArrayList<String> getTags() {
