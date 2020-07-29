@@ -19,7 +19,7 @@ It is a tool that allows you to add the following functionalities to your soluti
 ---
 To use the Messangi SDK is required:
 - A registered apple account in the development program.
-- Follow the n steps for installation.
+- Follow the next steps for installation.
 
 ## Installation
 ----
@@ -29,6 +29,15 @@ Open Android Studio IDE and start new project you are working on.
 Place the "MessagiSDK" dependency in app.gradle
 ```Gradle 
 implementation 'com.android.testdefsdknotificactionpush:sdk:1.0'
+```
+or
+The SDK folder can only be obtained from this repo, put folder new project project directory and put this line in app.gradle:
+```Gradle 
+ implementation project(path: ':sdk')
+```
+and in settings.gradle:
+```Gradle 
+ include ':app', ':sdk'
 ```
 ### 2) Configure FCM in Android Project Project
 Select your project and go to the **Tools** tab, select a Firebase and open the assistant then:
@@ -178,7 +187,7 @@ public class MessagingNotificationReceiver extends BroadcastReceiver{
     }
     
 ```
-It is important to use,  please declare BroadcastReceiver in Manifest.xml of app project, example:
+Please declare BroadcastReceiver in Manifest.xml of app project, example:
 
 ```xml
 <?xml version="1.0" encoding="utf-8"?>
@@ -604,12 +613,12 @@ public class CustomMessangiService extends MessagingFirebaseService {
 ```
 
 ## To use DeepLink:
-1.	By Payload:
+1.	**By Payload:**
 For this, the property "click_action" sent through the push notification will be used, which has two cases:
 
-a.	Notification in foreground: this case the notification will be handled by the SDK taking the property "click_action" of the notification which should have a value as shown in the example: "click_action": "com.ogangi.Messangi.SDK. Demo.ExampleActivity ", which is processed by the SDK creating an icon in the notification tray that when clicked opens the activity selected or described in the action.
+a.	**Notification in foreground:** In this case the notification will be handled by the SDK taking the property **"click_action"** of the notification which should have a value as shown in the example: **"click_action": "com.ogangi.Messangi.SDK.Demo.ExampleActivity"**, the which is processed by the SDK allowing the host app to create an icon in the notification tray that when pressed opens the activity selected or described in the action.
 
-b.	Background notification: in this case the notification will be handled by the operating system as native behavior, where the app programmer must declare the activity to open when pressing this notification, it is important to remember that the notification must bring the field " click_action ":" com.ogangi.Messangi.SDK.Demo.ExampleActivity ", for example, and the declaration of the activity by the programmer must be done in the AndroidManifest.xml file, for example:
+b.	**Background notification:** in this case the notification will be handled by the operating system as native behavior, where the app programmer must declare the activity to open when pressing this notification, it is important to remember that the notification must bring the field **" click_action ":" com.ogangi.Messangi.SDK.Demo.ExampleActivity "**, for example, and the declaration of the activity by the programmer must be done in the **AndroidManifest.xml** file, for example:
 ```xml
         <activity android: name = ". ExampleActivity">
              <intent-filter>
@@ -621,11 +630,12 @@ b.	Background notification: in this case the notification will be handled by the
 In MainActivity of the demo app.
 In foreground and notification is sent.
 
-<img src="step3.jpg" />
+<img src="step3a.jpg" />
 
 Arrival of the NP to the app that shows the detail of the same and in the upper part shows the generation of the Notification thanks to the Click-Action parameter that comes in it.
 
 The alert is ok and the notification palette opens:
+
 <img src="step3b.jpg" />
 
 Pressing the notification opens the preselected activity and displays the notification data using the following structure:
@@ -669,7 +679,7 @@ The notification palette opens and you press:
 
 <img src="step4.jpg" />
 
-This action was performed using the native behavior of the SO. But it is important that the notification has the field: "click_action": "com.ogangi.Messangi.SDK.Demo.ExampleActivity" 
+This action was performed using the native behavior of the SO. But it is important that the notification has the field: **"click_action": "com.ogangi.Messangi.SDK.Demo.ExampleActivity"** 
 Defined in this way.
 And the data can also be processed using:
 ```Java
@@ -701,6 +711,126 @@ Bundle extras=getIntent().getExtras();
         }
 ```
 
+The implementation of this functionality in the demo app of this repository, in the main activity you have an **example code**.
+
+
+2.	**By url schemes:**
+For this, the property **"link"** sent through the push notification will be used, which has two cases:
+
+a.	**Notification in foreground:** In this case the notification will be handled by the SDK taking the property "link" of the notification which should have a value as shown in the example:
+**"link": exampleapp: // example / example? param1 = 1**, which is processed by the SDK allowing the host app to launch a navigation attempt with said Url, which if it is registered in an activity (in the file **AndroidManifest.xml**), the app will directly open that activity and handle the information sent in the notification.
+
+b.	**Background notification:** in this case the notification will be handled by the operating system as native behavior, where the app programmer must declare the activity to open when pressing this notification, it is important to remember that the notification must bring the field **"link": exampleapp://example/example?param1=1**, for example, and the declaration of the activity by the programmer must be done in the **AndroidManifest.xml** file, for example:
+
+```xml
+        <activity android:name=".ExampleURLSchemasActivity">
+            <intent-filter>
+                <action android:name="android.intent.action.VIEW" />
+                <category android:name="android.intent.category.DEFAULT" />
+                <category android:name="android.intent.category.BROWSABLE" />
+                <data
+                    android:host="example"
+                    android:pathPrefix="/example"
+                    android:scheme="exampleapp" />
+            </intent-filter>
+        </activity>
+```
+c. **From a web browser:** in this case the flow will be managed by the operating system as native behavior, where the app programmer must declare the activity to open when pressing this DeepLink Url schemas.
+
+<img src="step5.jpg" />
+
+And the data can also be processed using:
+in ExampleURLSchemasActivity.java
+```Java
+Bundle extras=getIntent().getExtras();
+        boolean enable=extras.getBoolean("enable",false);
+        additionalData = new HashMap<>();
+        if(extras!=null && !enable) {
+            for (String key : extras.keySet()) {
+               additionalData.put(key, extras.getString(key));
+                messangiData.add(key + " , " + extras.getString(key));
+            }
+            .....
+        }else{
+            Serializable data = extras.getSerializable(Messaging.INTENT_EXTRA_DATA);
+            messagingNotification=(MessagingNotification)data;
+            additionalData=messagingNotification.getAdditionalData();
+            if(additionalData!=null&& additionalData.size()>0) {
+                messangiData.add("Title: " + messagingNotification.getTitle());
+                messangiData.add("Body: " + messagingNotification.getBody());
+                messangiData.add("ClickAction: " + messagingNotification.getClickAction());
+                messangiData.add("DeepUriLink: " + messagingNotification.getDeepUriLink());
+                for (Map.Entry entry : messagingNotification.getAdditionalData().entrySet()) {
+                    if (!entry.getKey().equals("profile")) {
+                        messangiData.add(entry.getKey() + " , " + entry.getValue());
+                    }
+
+                }
+            }
+        }
+```
+
+The implementation of this functionality in the demo app of this repository, in the main activity you have an **example code**.
+
+
+3.	**By universal links:**
+For this, the property **"link"** sent through the push notification will be used, which has two cases:
+
+a.	**Notification in foreground:** In this case the notification will be handled by the SDK taking the property "link" of the notification which should have a value as shown in the example:
+**"link":http://www.plantplaces.com/colorcapture.shtml?param1=value1&param2=value2**, which is processed by the SDK allowing the host app to launch a navigation attempt with said Url, which if it is registered in an activity (in the file **AndroidManifest.xml**), the app will directly open that activity and handle the information sent in the notification.
+
+b.	**Background notification:** in this case the notification will be handled by the operating system as native behavior, where the app programmer must declare the activity to open when pressing this notification, it is important to remember that the notification must bring the field **"link": http://www.plantplaces.com/colorcapture.shtml?param1=value1&param2=value2**, for example, and the declaration of the activity by the programmer must be done in the **AndroidManifest.xml** file, for example:
+
+```xml
+        <activity android:name=".ExampleUrlActivity">
+            <intent-filter>
+                <action android:name="android.intent.action.VIEW" />
+                <category android:name="android.intent.category.DEFAULT" />
+                <category android:name="android.intent.category.BROWSABLE" />
+                <data
+                    android:host="www.plantplaces.com"
+                    android:pathPrefix="/colorcapture.shtml"
+                    android:scheme="http" />
+            </intent-filter>
+        </activity>
+
+```
+c. **From a web browser:** in this case the flow will be managed by the operating system as native behavior, where the app programmer must declare the activity to open when pressing this DeepLink Url schemas.
+
+<img src="step8.jpg" />
+
+And the data can also be processed using:
+in ExampleUrlActivity.java
+```Java
+Bundle extras=getIntent().getExtras();
+        boolean enable=extras.getBoolean("enable",false);
+        additionalData = new HashMap<>();
+        if(extras!=null && !enable) {
+            for (String key : extras.keySet()) {
+               additionalData.put(key, extras.getString(key));
+                messangiData.add(key + " , " + extras.getString(key));
+            }
+            .....
+        }else{
+            Serializable data = extras.getSerializable(Messaging.INTENT_EXTRA_DATA);
+            messagingNotification=(MessagingNotification)data;
+            additionalData=messagingNotification.getAdditionalData();
+            if(additionalData!=null&& additionalData.size()>0) {
+                messangiData.add("Title: " + messagingNotification.getTitle());
+                messangiData.add("Body: " + messagingNotification.getBody());
+                messangiData.add("ClickAction: " + messagingNotification.getClickAction());
+                messangiData.add("DeepUriLink: " + messagingNotification.getDeepUriLink());
+                for (Map.Entry entry : messagingNotification.getAdditionalData().entrySet()) {
+                    if (!entry.getKey().equals("profile")) {
+                        messangiData.add(entry.getKey() + " , " + entry.getValue());
+                    }
+
+                }
+            }
+        }
+```
+
+The implementation of this functionality in the demo app of this repository, in the main activity you have an **example code**.
 
 
 ## Author
