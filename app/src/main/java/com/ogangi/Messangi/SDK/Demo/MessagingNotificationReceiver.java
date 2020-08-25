@@ -33,20 +33,15 @@ public class MessagingNotificationReceiver extends BroadcastReceiver {
         // TODO: This method is called when the BroadcastReceiver is receiving
         nameMethod=new Object(){}.getClass().getEnclosingMethod().getName();
         boolean hasError=intent.getBooleanExtra(Messaging.INTENT_EXTRA_HAS_ERROR,true);
-        Log.d(TAG,"ERROR: "+CLASS_TAG+": "+nameMethod+": Has error:  "+ hasError);
+        Log.d(TAG,"DEBUG: "+CLASS_TAG+": "+nameMethod+": Has error:  "+ hasError);
         if (!hasError ) {
             String action=intent.getAction();
             Serializable data = intent.getSerializableExtra(Messaging.INTENT_EXTRA_DATA);
 
              if(intent.getAction().equals(Messaging.ACTION_GET_NOTIFICATION)&& data!=null){
                 Log.d(TAG,"DEBUG: "+CLASS_TAG+": "+nameMethod+": DATA:  "+ data);
-                messagingNotification=(MessagingNotification) data;
-                if(messagingNotification.isMatchAppId()) {
-                    handleDataNotification(data, intent, context, action);
-                }else{
-                    Log.d(TAG, "DEBUG: " + CLASS_TAG + ": " + nameMethod + ": " + "Security does not match");
-                   // Toast.makeText(context,"Security does not match",Toast.LENGTH_LONG).show();
-                }
+                 handleDataNotification(data, intent, context, action);
+
 
             } else {
 
@@ -67,7 +62,7 @@ public class MessagingNotificationReceiver extends BroadcastReceiver {
         ActivityManager.RunningAppProcessInfo myProcess = new ActivityManager.RunningAppProcessInfo();
         ActivityManager.getMyMemoryState(myProcess);
         boolean isInBackground = myProcess.importance != ActivityManager.RunningAppProcessInfo.IMPORTANCE_FOREGROUND;
-        Log.d(TAG,"Data: "+CLASS_TAG+": "+nameMethod+": isInBackground:  "+ isInBackground);
+        Log.d(TAG,"DEBUG: "+CLASS_TAG+": "+nameMethod+": isInBackground:  "+ isInBackground);
         if(isInBackground){
             intent.putExtra(Messaging.INTENT_EXTRA_DATA,data);
             intent.putExtra("isInBackground",isInBackground);
@@ -87,13 +82,13 @@ public class MessagingNotificationReceiver extends BroadcastReceiver {
     private void sendEventToActivity(String action, Serializable something, Context context) {
         this.nameMethod=new Object(){}.getClass().getEnclosingMethod().getName();
         if(something!=null) {
-            Log.d(TAG, "Data: " + CLASS_TAG + ": " + nameMethod + ": Action:  " + action + " data: " + something.toString());
+            Log.d(TAG, "DEBUG: " + CLASS_TAG + ": " + nameMethod + ": Action:  " + action + " data: " + something.toString());
             Intent intent = new Intent(action);
             intent.putExtra(Messaging.INTENT_EXTRA_DATA, something);
             intent.putExtra(Messaging.INTENT_EXTRA_HAS_ERROR, something == null);
             LocalBroadcastManager.getInstance(context).sendBroadcast(intent);
         }else{
-            Log.e(TAG, "error: " + CLASS_TAG + ": " + nameMethod);
+            Log.e(TAG, "ERROR: " + CLASS_TAG + ": " + nameMethod);
         }
     }
 

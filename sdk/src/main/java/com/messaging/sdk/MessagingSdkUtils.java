@@ -41,7 +41,7 @@ import java.util.List;
             int key_logging_allowed = context.getResources()
                     .getIdentifier("logging_allowed", "bool", context.getPackageName());
             logging_allowed = context.getResources().getBoolean(key_logging_allowed);
-            showDebugLog(this,nameMethod," logging_allowed "+location_allowed);
+            showDebugLog(this,nameMethod," logging_allowed "+logging_allowed);
 
             int key_messagi_host = context.getResources()
                     .getIdentifier("messaging_host", "string", context.getPackageName());
@@ -98,6 +98,9 @@ import java.util.List;
         }
         if(messagingStorageController.hasLocationAllowed()==1) {
             isLocation_allowed();
+        }
+        if(messagingStorageController.hasLoggingAllowed()==1) {
+            isLogging_allowed();
         }
         showConfigParameter();
 
@@ -161,23 +164,18 @@ import java.util.List;
              showDebugLog(this,nameMethod,"Value default messagingHost "
                      +messagingHost);
          }
-
-
-
          return messagingHost;
      }
 
-     public  void setMessagingHost(String messaging_host) {
-         //guardo en la varibale compartida
-         messagingHost = messaging_host;
+     public void setMessagingHost(String messaging_host) {
+         messagingStorageController.saveMessagingHost(messaging_host);
+         //messagingHost = messaging_host;
      }
 
     /**
      * Method get MessagingToken
      */
-
-
-     public  String getMessagingToken() {
+     public String getMessagingToken() {
          String nameMethod=new Object(){}.getClass().getEnclosingMethod().getName();
          if(messagingStorageController.hasMessagingToken()){
              messagingToken=messagingStorageController.getMessagingToken();
@@ -185,41 +183,61 @@ import java.util.List;
              showDebugLog(this,nameMethod,"Value default messagingToken "
                      +messagingToken);
          }
-
          return messagingToken;
      }
 
      public void setMessagingToken(String messaging_token) {
-         messagingToken = messaging_token;
+         messagingStorageController.saveMessagingToken(messaging_token);
+         //messagingToken = messaging_token;
      }
 
      public  boolean isAnalytics_allowed() {
          String nameMethod=new Object(){}.getClass().getEnclosingMethod().getName();
          if(messagingStorageController.hasAnalyticsAllowed()==1){
              analytics_allowed=messagingStorageController.isAnalyticsAllowed();
+
          }else{
              showDebugLog(this,nameMethod,"Value default analytics_allowed "
                      +messagingToken);
          }
-
          return analytics_allowed;
      }
 
      public  boolean isLocation_allowed() {
          String nameMethod=new Object(){}.getClass().getEnclosingMethod().getName();
          if(messagingStorageController.hasLocationAllowed()==1){
-             analytics_allowed=messagingStorageController.isLocationAllowed();
+             location_allowed=messagingStorageController.isLocationAllowed();
          }else{
              showDebugLog(this,nameMethod,"Value default location_allowed "
                      +messagingToken);
          }
-
          return location_allowed;
      }
 
      public  boolean isLogging_allowed() {
-         //cambiar remotamente
+         String nameMethod=new Object(){}.getClass().getEnclosingMethod().getName();
+         if(messagingStorageController.hasLoggingAllowed()==1){
+             logging_allowed=messagingStorageController.isLoggingAllowed();
+         }else{
+             showDebugLog(this,nameMethod,"Value default logging_allowed "
+                     +logging_allowed);
+         }
          return logging_allowed;
+     }
+
+     public void setAnalytics_allowed(boolean analytics_allowed) {
+         messagingStorageController.setAnalyticsAllowed(analytics_allowed);
+         //this.analytics_allowed = analytics_allowed;
+     }
+
+     public void setLocation_allowed(boolean location_allowed) {
+         messagingStorageController.setLocationAllowed(location_allowed);
+         //this.location_allowed = location_allowed;
+     }
+
+     public void setLogging_allowed(boolean logging_allowed) {
+         messagingStorageController.setLoggingAllowed(logging_allowed);
+         //this.logging_allowed = logging_allowed;
      }
 
     public MessagingDevice getMessagingDevFromJson(JSONObject resp){
@@ -318,7 +336,7 @@ import java.util.List;
         if(mgsAppId.equals(messagingTokenDefault)){
             result=true;
         }
-        Log.d(TAG,"verifyMatchAppId "+mgsAppId+" host "+messagingToken+" result "+result);
+        //Log.d(TAG,"verifyMatchAppId "+mgsAppId+" host "+messagingToken+" result "+result);
         return result;
 
     }
@@ -330,7 +348,54 @@ import java.util.List;
         showDebugLog(this,nameMethod, " messagingToken "+messagingToken);
         showDebugLog(this,nameMethod, " analytics_allowed "+analytics_allowed);
         showDebugLog(this,nameMethod, " location_allowed "+location_allowed);
+    }
 
+    public void saveConfigParameter(String parameter){
+        String nameMethod=new Object(){}.getClass().getEnclosingMethod().getName();
+        try {
+            JSONObject jsonObject=new JSONObject(parameter);
+            if(jsonObject.has(Messaging.MESSAGING_APP_TOKEN)){
+                String provEnable=jsonObject.getString(Messaging.MESSAGING_APP_TOKEN);
+                showDebugLog(this,nameMethod, "appToken : "
+                        +provEnable);
+                setMessagingToken(provEnable);
+
+            }
+            if(jsonObject.has(Messaging.MESSAGING_APP_HOST)){
+                String provEnable=jsonObject.getString(Messaging.MESSAGING_APP_HOST);
+                showDebugLog(this,nameMethod, "host : "
+                        +provEnable);
+                setMessagingHost(provEnable);
+
+            }
+            if(jsonObject.has(Messaging.MESSAGING_LOCATION_ENABLE)){
+                boolean provEnable=jsonObject.getBoolean(Messaging.MESSAGING_LOCATION_ENABLE);
+                showDebugLog(this,nameMethod, "locationEnable : "
+                        +provEnable);
+                setLocation_allowed(provEnable);
+            }
+            if(jsonObject.has(Messaging.MESSAGING_ANALYTICS_ENABLE)){
+                boolean provEnable=jsonObject.getBoolean(Messaging.MESSAGING_ANALYTICS_ENABLE);
+                showDebugLog(this,nameMethod, "analyticsEnable : "
+                        +provEnable);
+                setAnalytics_allowed(provEnable);
+            }
+
+            if(jsonObject.has(Messaging.MESSAGING_LOGGING_ENABLE)){
+                boolean provEnable=jsonObject.getBoolean(Messaging.MESSAGING_LOGGING_ENABLE);
+                showDebugLog(this,nameMethod, "loggingEnable : "
+                        +provEnable);
+                setLogging_allowed(provEnable);
+            }
+
+            if(jsonObject.has(Messaging.MESSAGING_APP_ID)||jsonObject.has(Messaging.MESSAGING_APP_HOST)){
+                //create device
+                showDebugLog(this,nameMethod, "create device and user new : ");
+            }
+
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
     }
 
 }

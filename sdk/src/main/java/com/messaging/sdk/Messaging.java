@@ -82,8 +82,22 @@ public class Messaging implements LifecycleObserver{
     public static String ACTION_GET_NOTIFICATION="com.messaging.sdk.PUSH_NOTIFICATION";
     public static String ACTION_GET_NOTIFICATION_OPENED="com.messaging.sdk.PUSH_NOTIFICATION_TO_OPEN";
 
+
     public static String INTENT_EXTRA_DATA="messaging_data";
     public static String INTENT_EXTRA_HAS_ERROR="messaging_has_error";
+
+    public static String MESSAGING_ID="MSGI_MSGID";
+    public static String MESSAGING_TYPE="MSGI_TYPE";
+    public static String MESSAGING_TITLE="MSGI_TITLE";
+    public static String MESSAGING_BODY="MSGI_BODY";
+    public static String MESSAGING_APP_ID="MSGI_APPID";
+    public static String MESSAGING_CONFIGURATION="MSGI_CONFIGURATION";
+    public static String MESSAGING_APP_TOKEN="appToken";
+    public static String MESSAGING_LOCATION_ENABLE="locationEnable";
+    public static String MESSAGING_ANALYTICS_ENABLE="analyticsEnable";
+    public static String MESSAGING_LOGGING_ENABLE="loggingEnable";
+    public static String MESSAGING_APP_HOST="host";
+
 
 
 

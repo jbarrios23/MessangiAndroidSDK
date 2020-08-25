@@ -115,7 +115,7 @@ public class MainActivity extends AppCompatActivity {
                 Messaging.fetchDevice(true,getApplicationContext());
                 Log.i(TAG,"INFO: "+CLASS_TAG+": "+nameMethod+": "+messaging.getExternalId());
                 Messaging.fetchUser(getApplicationContext(), true);
-                messaging.messagingStorageController.deleteMessagingToken();
+                //messaging.messagingStorageController.deleteMessagingToken();
             }
         });
 
@@ -169,15 +169,10 @@ public class MainActivity extends AppCompatActivity {
             if(isBackground) {
                 Serializable data = extras.getSerializable(Messaging.INTENT_EXTRA_DATA);
                 messagingNotification=(MessagingNotification)data;
-                if(messagingNotification.isMatchAppId()) {
-                    showAlertNotification(messagingNotification, data);
-                }else{
-                    Log.i(TAG, "INFO: " + CLASS_TAG + ": " + nameMethod + ": " + "Security does not match");
-                    //Toast.makeText(this,"Security does not match",Toast.LENGTH_LONG).show();
-                }
+                showAlertNotification(messagingNotification, data);
+
 
             }else{
-
                 //to process notification from background mode
                 MessagingNotification notification=Messaging.checkNotification(extras);
                 Log.i(TAG, "INFO: " + CLASS_TAG + ": " + nameMethod + ": " + notification.toString());
@@ -186,58 +181,6 @@ public class MainActivity extends AppCompatActivity {
             }
 
         }
-
-
-    }
-
-    private void showAlertNotificationAltPlus(Map<String, String> data1) {
-            nameMethod=new Object(){}.getClass().getEnclosingMethod().getName();
-            Log.d(TAG,"Data1: "+CLASS_TAG+": "+nameMethod+":  "
-                + data1.toString());
-            additionalData=data1;
-            Log.d(TAG,"Data3: "+CLASS_TAG+": "+nameMethod+":  "
-                    + additionalData);
-
-            // create an alert builder
-            AlertDialog.Builder builder = new AlertDialog.Builder(this);
-            builder.setTitle("Notification");
-            // set the custom layout
-            //final View customLayout = getLayoutInflater().inflate(R.layout.custom_notification_layout, null);
-            final View customLayout = getLayoutInflater().inflate(R.layout.notification_layout, null);
-            builder.setView(customLayout);
-            //TextView data=customLayout.findViewById(R.id.data_noti);
-            ArrayList<Map.Entry<String, Object>> messangiData = new ArrayList(additionalData.entrySet());
-            ArrayAdapter messagingDataArrayAdapter;
-            ListView listView=customLayout.findViewById(R.id.list_data_noti);
-            messagingDataArrayAdapter = new ArrayAdapter<>(this, R.layout.item_device, R.id.Texview_value, messangiData);
-            listView.setAdapter(messagingDataArrayAdapter);
-
-            // add a button
-            builder.setPositiveButton("Ok", new DialogInterface.OnClickListener() {
-                @SuppressLint("SetTextI18n")
-                @Override
-                public void onClick(DialogInterface dialog, int which) {
-                    // send data from the AlertDialog to the Activity
-                    onetimeFlag=true;
-
-                    dialog.dismiss();
-
-
-                }
-            });
-
-            builder.setNegativeButton("Close", new DialogInterface.OnClickListener() {
-                @Override
-                public void onClick(DialogInterface dialog, int which) {
-                    dialog.cancel();
-
-
-                }
-            });
-            // create and show the alert dialog
-            AlertDialog dialog = builder.create();
-            dialog.show();
-
 
     }
 

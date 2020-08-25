@@ -1,5 +1,6 @@
 package com.messaging.sdk;
 
+import android.util.Log;
 import android.widget.Toast;
 
 import com.google.firebase.messaging.FirebaseMessagingService;
@@ -59,7 +60,13 @@ public class MessagingService extends FirebaseMessagingService  {
         nameMethod=new Object(){}.getClass().getEnclosingMethod().getName();
         messaging = Messaging.getInstance(this);
         MessagingNotification messagingNotification=new MessagingNotification(remoteMessage);
-        messaging.sendGlobalEventToActivity(Messaging.ACTION_GET_NOTIFICATION, messagingNotification);
+        if(messagingNotification.isMatchAppId()) {
+            messaging.sendGlobalEventToActivity(Messaging.ACTION_GET_NOTIFICATION, messagingNotification);
+        }else{
+            messaging.utils.showDebugLog(this,nameMethod,"Security does not match");
+        }
+
+
 
     }
 

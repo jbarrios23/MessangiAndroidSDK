@@ -78,6 +78,7 @@ public class MessagingNotification implements Serializable {
     private int visibility;
     private String msgAppId="";
     private boolean matchAppId;
+    private String messagingConfiguration;
 
     public MessagingNotification(RemoteMessage remoteMessage) {
      this.nameMethod="MessagingNotification";
@@ -154,18 +155,34 @@ public class MessagingNotification implements Serializable {
          this.additionalData=new HashMap<>(remoteMessage.getData());
          this.nameMethod="MessagingNotification";
          //Messaging messaging = Messaging.getInstance();
-         this.notificationId=additionalData.get("MSGI_MSGID");
-         this.type=additionalData.get("MSGI_TYPE");
-         this.title=additionalData.get("MSGI_TITLE");
-         this.body=additionalData.get("MSGI_BODY");
-         this.msgAppId=additionalData.get("MSGI_APPID");
+         this.notificationId=additionalData.get(Messaging.MESSAGING_ID);
+         this.type=additionalData.get(Messaging.MESSAGING_TYPE);
+         this.title=additionalData.get(Messaging.MESSAGING_TITLE);
+         this.body=additionalData.get(Messaging.MESSAGING_BODY);
+         this.msgAppId=additionalData.get(Messaging.MESSAGING_APP_ID);
          if(msgAppId!=null && msgAppId!="") {
-             messaging.messagingStorageController.saveMessagingToken(msgAppId);
-             messaging.utils.getMessagingToken();
              this.matchAppId = messaging.utils.verifyMatchAppId(msgAppId);
              messaging.utils.showDebugLog(this,nameMethod, "MSGI_APPID: "
                      +msgAppId+" Verify: "+matchAppId);
+         }else{
+             this.matchAppId=true;
          }
+
+         if(additionalData.get(Messaging.MESSAGING_CONFIGURATION)!=null &&
+                 !additionalData.get(Messaging.MESSAGING_CONFIGURATION).isEmpty()){
+             this.messagingConfiguration=additionalData.get(Messaging.MESSAGING_CONFIGURATION);
+             messaging.utils.showDebugLog(this,nameMethod, "has Configuration: "
+                     +additionalData.get(Messaging.MESSAGING_CONFIGURATION));
+             messaging.utils.saveConfigParameter(messagingConfiguration);
+             messaging.utils.getMessagingHost();
+             messaging.utils.getMessagingToken();
+             messaging.utils.isAnalytics_allowed();
+             messaging.utils.isLocation_allowed();
+             messaging.utils.isLogging_allowed();
+             messaging.utils.showConfigParameter();
+
+         }
+
          messaging.utils.showDebugLog(this,nameMethod, "additionalData: "+additionalData);
 
 
@@ -201,24 +218,37 @@ public class MessagingNotification implements Serializable {
                 additionalData.put(key, extras.get(key).toString());
                 if(key.equals("profile")){
                     send=false;
-                }else if(key.equals("MSGI_MSGID")){
+                }else if(key.equals(Messaging.MESSAGING_ID)){
                     this.notificationId=extras.getString(key);
-                }else if(key.equals("MSGI_TITLE")){
+                }else if(key.equals(Messaging.MESSAGING_TITLE)){
                     this.title=extras.getString(key);
-                }else if(key.equals("MSGI_BODY")){
+                }else if(key.equals(Messaging.MESSAGING_BODY)){
                     this.body=extras.getString(key);
-                }else if(key.equals("MSGI_TYPE")){
+                }else if(key.equals(Messaging.MESSAGING_TYPE)){
                     this.type=extras.getString(key);
-                }else if(key.equals("MSGI_APPID")) {
+                }else if(key.equals(Messaging.MESSAGING_APP_ID)) {
                     this.msgAppId = extras.getString(key);
+                }else if(key.equals(Messaging.MESSAGING_CONFIGURATION)) {
+                    this.messagingConfiguration=additionalData.get(key);
+                    messaging.utils.showDebugLog(this,nameMethod, "has Configuration: "
+                            +additionalData.get(Messaging.MESSAGING_CONFIGURATION));
+                    messaging.utils.saveConfigParameter(messagingConfiguration);
+                    messaging.utils.getMessagingHost();
+                    messaging.utils.getMessagingToken();
+                    messaging.utils.isAnalytics_allowed();
+                    messaging.utils.isLocation_allowed();
+                    messaging.utils.isLogging_allowed();
+                    messaging.utils.showConfigParameter();
+                    messaging.utils.showDebugLog(this,nameMethod, "MSGI_APPID: "
+                            +msgAppId+" Verify: "+matchAppId);
                 }
             }
             if(msgAppId!=null && msgAppId!="") {
-                messaging.messagingStorageController.saveMessagingToken(msgAppId);
                 this.matchAppId=messaging.utils.verifyMatchAppId(msgAppId);
                 messaging.utils.showDebugLog(this,nameMethod, "MSGI_APPID: "+msgAppId+" Verify: "+matchAppId);
+            }else{
+                this.matchAppId=true;
             }
-
             messaging.utils.showDebugLog(this,nameMethod,"Data: " +additionalData);
 
         }
@@ -241,8 +271,7 @@ public class MessagingNotification implements Serializable {
     }
 
     public String getTitle() {
-        Messaging messaging = Messaging.getInstance();
-        messaging.utils.showConfigParameter();
+
         return title;
     }
 

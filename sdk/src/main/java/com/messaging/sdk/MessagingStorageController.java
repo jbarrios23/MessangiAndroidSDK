@@ -23,6 +23,7 @@ public class MessagingStorageController {
     //private static MessagingStorageController mInstance;
     private static Context context;
     private SharedPreferences mSharedPreferences;
+    private SharedPreferences mSharedPreferencesConfig;
     private Messaging messaging;
     private String nameMethod;
 
@@ -32,6 +33,7 @@ public class MessagingStorageController {
         this.messaging = messaging;
         this.nameMethod="";
         this.mSharedPreferences = context.getApplicationContext().getSharedPreferences("StorageCallback", 0);
+        this.mSharedPreferencesConfig = context.getApplicationContext().getSharedPreferences("ConfigStorageCallback", 0);
 
     }
     /**
@@ -265,10 +267,10 @@ public class MessagingStorageController {
      */
     public void saveMessagingHost(String host){
         nameMethod=new Object(){}.getClass().getEnclosingMethod().getName();
-        SharedPreferences.Editor data=mSharedPreferences.edit();
+        SharedPreferences.Editor data=mSharedPreferencesConfig.edit();
         data.putString("messagingHost",host);
         data.apply();
-        messaging.utils.showDebugLog(this,nameMethod,"messagingHost Saved");
+        messaging.utils.showDebugLog(this,nameMethod,"messagingHost Saved "+host);
 
     }
     /**
@@ -278,7 +280,7 @@ public class MessagingStorageController {
     public boolean hasMessagingHost(){
         nameMethod=new Object(){}.getClass().getEnclosingMethod().getName();
         boolean hasToken = false;
-        String token=mSharedPreferences.getString("messagingHost","");
+        String token=mSharedPreferencesConfig.getString("messagingHost","");
         if(token.length()>0){
             hasToken=true;
 
@@ -292,15 +294,16 @@ public class MessagingStorageController {
      */
     public String getMessagingHost(){
         nameMethod=new Object(){}.getClass().getEnclosingMethod().getName();
-        String token=mSharedPreferences.getString("messagingHost","");
+        String token=mSharedPreferencesConfig.getString("messagingHost","");
         return token;
     }
 
-    public void deleteMessagingHost(){
-        mSharedPreferences=context.getSharedPreferences("StorageCallback", 0);
-        SharedPreferences.Editor editorlogin = mSharedPreferences.edit();
+    public void deleteMessagingConfig(){
+        mSharedPreferencesConfig=context.getSharedPreferences("ConfigStorageCallback", 0);
+        SharedPreferences.Editor editorlogin = mSharedPreferencesConfig.edit();
         editorlogin.clear();
         editorlogin.commit();
+        messaging.utils.showDebugLog(this,nameMethod," Delete Config of Storage");
     }
 
     /**
@@ -309,7 +312,7 @@ public class MessagingStorageController {
      */
     public void saveMessagingToken(String token){
         nameMethod=new Object(){}.getClass().getEnclosingMethod().getName();
-        SharedPreferences.Editor data=mSharedPreferences.edit();
+        SharedPreferences.Editor data=mSharedPreferencesConfig.edit();
         data.putString("messagingToken",token);
         data.apply();
         messaging.utils.showDebugLog(this,nameMethod,"messagingToken Saved "+token);
@@ -322,7 +325,7 @@ public class MessagingStorageController {
     public boolean hasMessagingToken(){
         nameMethod=new Object(){}.getClass().getEnclosingMethod().getName();
         boolean hasToken = false;
-        String token=mSharedPreferences.getString("messagingToken","");
+        String token=mSharedPreferencesConfig.getString("messagingToken","");
         if(token.length()>0){
             hasToken=true;
 
@@ -336,19 +339,12 @@ public class MessagingStorageController {
      */
     public String getMessagingToken(){
         nameMethod=new Object(){}.getClass().getEnclosingMethod().getName();
-        String token=mSharedPreferences.getString("messagingToken","");
+        String token=mSharedPreferencesConfig.getString("messagingToken","");
         messaging.utils.showDebugLog(this,nameMethod,"messagingToken from Storage ");
         return token;
     }
 
-    public void deleteMessagingToken(){
-        nameMethod=new Object(){}.getClass().getEnclosingMethod().getName();
-        mSharedPreferences=context.getSharedPreferences("StorageCallback", 0);
-        SharedPreferences.Editor editorlogin = mSharedPreferences.edit();
-        editorlogin.clear();
-        editorlogin.commit();
-        messaging.utils.showDebugLog(this,nameMethod," Delete messagingToken of Storage");
-    }
+
 
     /**
      * Method setAnalyticsAllowed
@@ -356,9 +352,9 @@ public class MessagingStorageController {
      */
     public void setAnalyticsAllowed(boolean enable){
         nameMethod=new Object(){}.getClass().getEnclosingMethod().getName();
-        SharedPreferences.Editor data=mSharedPreferences.edit();
+        SharedPreferences.Editor data=mSharedPreferencesConfig.edit();
         data.putBoolean("AnalyticsAllowed",enable);
-        data.putInt("AnalyticsAllowed",1);
+        data.putInt("AnalyticsAllowedInt",1);
         data.apply();
         messaging.utils.showDebugLog(this,nameMethod,"Set AnalyticsAllowed "+enable);
 
@@ -369,13 +365,15 @@ public class MessagingStorageController {
      */
     public int hasAnalyticsAllowed(){
         nameMethod=new Object(){}.getClass().getEnclosingMethod().getName();
-        int token=mSharedPreferences.getInt("AnalyticsAllowed",0);
+        int token=mSharedPreferencesConfig.getInt("AnalyticsAllowedInt",0);
+        //messaging.utils.showDebugLog(this,nameMethod,"has AnalyticsAllowed "+token);
         return token;
     }
 
     public boolean isAnalyticsAllowed(){
-        messaging.utils.showDebugLog(this,nameMethod,"Get AnalyticsAllowed from storage ");
-        return mSharedPreferences.getBoolean("AnalyticsAllowed",false);
+        boolean result=mSharedPreferencesConfig.getBoolean("AnalyticsAllowed",false);
+        //messaging.utils.showDebugLog(this,nameMethod,"Get AnalyticsAllowed from storage "+result);
+        return result ;
     }
 
     /**
@@ -384,9 +382,9 @@ public class MessagingStorageController {
      */
     public void setLocationAllowed(boolean enable){
         nameMethod=new Object(){}.getClass().getEnclosingMethod().getName();
-        SharedPreferences.Editor data=mSharedPreferences.edit();
+        SharedPreferences.Editor data=mSharedPreferencesConfig.edit();
         data.putBoolean("LocationAllowed",enable);
-        data.putInt("LocationAllowed",1);
+        data.putInt("LocationAllowedInt",1);
         data.apply();
         messaging.utils.showDebugLog(this,nameMethod,"Set LocationAllowed "+enable);
 
@@ -394,13 +392,15 @@ public class MessagingStorageController {
 
     public int hasLocationAllowed(){
         nameMethod=new Object(){}.getClass().getEnclosingMethod().getName();
-        int token=mSharedPreferences.getInt("LocationAllowed",0);
+        int token=mSharedPreferencesConfig.getInt("LocationAllowedInt",0);
+        //messaging.utils.showDebugLog(this,nameMethod,"has LocationAllowed "+token);
         return token;
     }
 
     public boolean isLocationAllowed(){
-        messaging.utils.showDebugLog(this,nameMethod,"Get LocationAllowed from storage ");
-        return mSharedPreferences.getBoolean("LocationAllowed",false);
+        boolean result=mSharedPreferencesConfig.getBoolean("LocationAllowed",false);
+        //messaging.utils.showDebugLog(this,nameMethod,"Get LocationAllowed from storage "+result);
+        return result ;
     }
 
     /**
@@ -409,15 +409,24 @@ public class MessagingStorageController {
      */
     public void setLoggingAllowed(boolean enable){
         nameMethod=new Object(){}.getClass().getEnclosingMethod().getName();
-        SharedPreferences.Editor data=mSharedPreferences.edit();
+        SharedPreferences.Editor data=mSharedPreferencesConfig.edit();
         data.putBoolean("LoggingAllowed",enable);
+        data.putInt("LoggingAllowedInt",1);
         data.apply();
         messaging.utils.showDebugLog(this,nameMethod,"Set LoggingAllowed "+enable);
 
     }
 
+    public int hasLoggingAllowed(){
+        nameMethod=new Object(){}.getClass().getEnclosingMethod().getName();
+        int token=mSharedPreferencesConfig.getInt("LoggingAllowedInt",0);
+        return token;
+    }
+
     public boolean isLoggingAllowed(){
-        return mSharedPreferences.getBoolean("LoggingAllowed",false);
+        boolean result=mSharedPreferencesConfig.getBoolean("LoggingAllowed",false);
+        messaging.utils.showDebugLog(this,nameMethod,"Get LoggingAllowed from storage "+result);
+        return result;
     }
 
 
