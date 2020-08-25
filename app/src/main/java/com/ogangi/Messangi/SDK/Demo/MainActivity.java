@@ -115,6 +115,7 @@ public class MainActivity extends AppCompatActivity {
                 Messaging.fetchDevice(true,getApplicationContext());
                 Log.i(TAG,"INFO: "+CLASS_TAG+": "+nameMethod+": "+messaging.getExternalId());
                 Messaging.fetchUser(getApplicationContext(), true);
+                messaging.messagingStorageController.deleteMessagingToken();
             }
         });
 

@@ -342,10 +342,12 @@ public class MessagingStorageController {
     }
 
     public void deleteMessagingToken(){
+        nameMethod=new Object(){}.getClass().getEnclosingMethod().getName();
         mSharedPreferences=context.getSharedPreferences("StorageCallback", 0);
         SharedPreferences.Editor editorlogin = mSharedPreferences.edit();
         editorlogin.clear();
         editorlogin.commit();
+        messaging.utils.showDebugLog(this,nameMethod," Delete messagingToken of Storage");
     }
 
     /**
