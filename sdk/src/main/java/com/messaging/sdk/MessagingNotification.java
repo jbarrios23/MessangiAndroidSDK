@@ -76,6 +76,8 @@ public class MessagingNotification implements Serializable {
     private long[] vibrateTimings;
     private boolean localOnly;
     private int visibility;
+    private String msgAppId="";
+    private boolean matchAppId;
 
     public MessagingNotification(RemoteMessage remoteMessage) {
      this.nameMethod="MessagingNotification";
@@ -152,12 +154,20 @@ public class MessagingNotification implements Serializable {
          this.additionalData=new HashMap<>(remoteMessage.getData());
          this.nameMethod="MessagingNotification";
          //Messaging messaging = Messaging.getInstance();
-         this.notificationId=additionalData.get("msgId");
-         this.type=additionalData.get("type");
-         this.title=additionalData.get("subject");
-         this.body=additionalData.get("content");
-
+         this.notificationId=additionalData.get("MSGI_MSGID");
+         this.type=additionalData.get("MSGI_TYPE");
+         this.title=additionalData.get("MSGI_TITLE");
+         this.body=additionalData.get("MSGI_BODY");
+         this.msgAppId=additionalData.get("MSGI_APPID");
+         if(msgAppId!=null && msgAppId!="") {
+             messaging.messagingStorageController.saveMessagingToken(msgAppId);
+             messaging.utils.getMessagingToken();
+             this.matchAppId = messaging.utils.verifyMatchAppId(msgAppId);
+             messaging.utils.showDebugLog(this,nameMethod, "MSGI_APPID: "
+                     +msgAppId+" Verify: "+matchAppId);
+         }
          messaging.utils.showDebugLog(this,nameMethod, "additionalData: "+additionalData);
+
 
      }
 
@@ -191,15 +201,22 @@ public class MessagingNotification implements Serializable {
                 additionalData.put(key, extras.get(key).toString());
                 if(key.equals("profile")){
                     send=false;
-                }else if(key.equals("msgId")){
+                }else if(key.equals("MSGI_MSGID")){
                     this.notificationId=extras.getString(key);
-                }else if(key.equals("subject")){
+                }else if(key.equals("MSGI_TITLE")){
                     this.title=extras.getString(key);
-                }else if(key.equals("content")){
+                }else if(key.equals("MSGI_BODY")){
                     this.body=extras.getString(key);
-                }else if(key.equals("type")){
+                }else if(key.equals("MSGI_TYPE")){
                     this.type=extras.getString(key);
+                }else if(key.equals("MSGI_APPID")) {
+                    this.msgAppId = extras.getString(key);
                 }
+            }
+            if(msgAppId!=null && msgAppId!="") {
+                messaging.messagingStorageController.saveMessagingToken(msgAppId);
+                this.matchAppId=messaging.utils.verifyMatchAppId(msgAppId);
+                messaging.utils.showDebugLog(this,nameMethod, "MSGI_APPID: "+msgAppId+" Verify: "+matchAppId);
             }
 
             messaging.utils.showDebugLog(this,nameMethod,"Data: " +additionalData);
@@ -224,6 +241,8 @@ public class MessagingNotification implements Serializable {
     }
 
     public String getTitle() {
+        Messaging messaging = Messaging.getInstance();
+        messaging.utils.showConfigParameter();
         return title;
     }
 
@@ -336,6 +355,10 @@ public class MessagingNotification implements Serializable {
     }
     public String getType() {
         return type;
+    }
+
+    public boolean isMatchAppId() {
+        return matchAppId;
     }
 
     public void writeToParcel (Parcel out, int flags){

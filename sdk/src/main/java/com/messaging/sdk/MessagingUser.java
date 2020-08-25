@@ -275,10 +275,12 @@ public class MessagingUser implements Serializable {
             try {
 
                 //String authToken= MessagingSdkUtils.getMessaging_token();
-                String authToken= MessagingSdkUtils.getMessagingToken();
+                //String authToken= MessagingSdkUtils.getMessagingToken();
+                String authToken= messaging.utils.getMessagingToken();
                 JSONObject postData = jsonObject;
                 //provUrl= MessagingSdkUtils.getMessangi_host()+"/users?device="+deviceId;
-                provUrl= MessagingSdkUtils.getMessagingHost()+"/users?device="+deviceId;
+                //provUrl= MessagingSdkUtils.getMessagingHost()+"/users?device="+deviceId;
+                provUrl= messaging.utils.getMessagingHost()+"/users?device="+deviceId;
                 messaging.utils.showHttpRequestLog(provUrl, MessagingUser.this,nameMethod,"PUT",postData.toString());
                 URL url = new URL(provUrl);
                 urlConnection = (HttpURLConnection) url.openConnection();

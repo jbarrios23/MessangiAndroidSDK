@@ -168,7 +168,12 @@ public class MainActivity extends AppCompatActivity {
             if(isBackground) {
                 Serializable data = extras.getSerializable(Messaging.INTENT_EXTRA_DATA);
                 messagingNotification=(MessagingNotification)data;
-                showAlertNotification(messagingNotification,data);
+                if(messagingNotification.isMatchAppId()) {
+                    showAlertNotification(messagingNotification, data);
+                }else{
+                    Log.i(TAG, "INFO: " + CLASS_TAG + ": " + nameMethod + ": " + "Security does not match");
+                    //Toast.makeText(this,"Security does not match",Toast.LENGTH_LONG).show();
+                }
 
             }else{
 
@@ -557,7 +562,7 @@ public class MainActivity extends AppCompatActivity {
             if(messagingNotification.getAdditionalData()!=null){
                 for (Map.Entry entry : messagingNotification.getAdditionalData().entrySet()) {
                 if(!entry.getKey().equals("profile")){
-                    messangiData.add(entry.getKey() + " , " + entry.getValue());
+                    messangiData.add(entry.getKey() + ": " + entry.getValue());
                 }
             }
             }

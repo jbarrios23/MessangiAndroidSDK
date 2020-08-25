@@ -17,11 +17,12 @@ import java.util.List;
     public static String TAG="MESSAGING";
 //    private static String messaging_host;
 //    private static String messaging_token;
-    private static String messagingHost;
-    private static String messagingToken;
-    private static boolean analytics_allowed;
-    private static boolean location_allowed;
-    private static boolean logging_allowed;
+    private  String messagingHost;
+    private  String messagingToken;
+    private  String messagingTokenDefault;
+    private  boolean analytics_allowed;
+    private  boolean location_allowed;
+    private  boolean logging_allowed;
     private MessagingStorageController messagingStorageController;
     private MessagingDevice messagingDevice;
 
@@ -35,37 +36,36 @@ import java.util.List;
 
         String nameMethod=new Object(){}.getClass().getEnclosingMethod().getName();
 
-
-
         try {
 
             int key_logging_allowed = context.getResources()
                     .getIdentifier("logging_allowed", "bool", context.getPackageName());
             logging_allowed = context.getResources().getBoolean(key_logging_allowed);
-            showDebugLog(this,nameMethod,location_allowed);
+            showDebugLog(this,nameMethod," logging_allowed "+location_allowed);
 
             int key_messagi_host = context.getResources()
                     .getIdentifier("messaging_host", "string", context.getPackageName());
 
             messagingHost = context.getString(key_messagi_host);
-            showDebugLog(this,nameMethod,messagingHost);
+            showDebugLog(this,nameMethod," messagingHost "+messagingHost);
 
 
             int key_messaging_app_token = context.getResources()
                     .getIdentifier("messaging_app_token", "string", context.getPackageName());
 
             messagingToken = context.getString(key_messaging_app_token);
-            showDebugLog(this,nameMethod, messagingToken);
+            messagingTokenDefault = context.getString(key_messaging_app_token);
+            showDebugLog(this,nameMethod, " messagingToken "+messagingToken);
 
             int key_analytics_allowed = context.getResources()
                     .getIdentifier("analytics_allowed", "bool", context.getPackageName());
             analytics_allowed = context.getResources().getBoolean(key_analytics_allowed);
-            showDebugLog(this,nameMethod, analytics_allowed);
+            showDebugLog(this,nameMethod, " analytics_allowed "+analytics_allowed);
 
             int key_location_allowed = context.getResources()
                     .getIdentifier("location_allowed", "bool", context.getPackageName());
-             location_allowed = context.getResources().getBoolean(key_location_allowed);
-            showDebugLog(this,nameMethod, location_allowed);
+            location_allowed = context.getResources().getBoolean(key_location_allowed);
+            showDebugLog(this,nameMethod, " location_allowed "+location_allowed);
 
         }catch (Resources.NotFoundException e){
             showErrorLog(this,nameMethod,"Hasn't config file",e.getStackTrace().toString());
@@ -87,6 +87,19 @@ import java.util.List;
             showDebugLog(this,nameMethod,"PushToken "+"does not have PushToken yet");
         }
 
+        if(messagingStorageController.hasMessagingToken()) {
+            getMessagingToken();
+        }
+        if(messagingStorageController.hasMessagingHost()) {
+            getMessagingHost();
+        }
+        if(messagingStorageController.hasAnalyticsAllowed()==1) {
+            isAnalytics_allowed();
+        }
+        if(messagingStorageController.hasLocationAllowed()==1) {
+            isLocation_allowed();
+        }
+        showConfigParameter();
 
     }
 
@@ -140,12 +153,23 @@ import java.util.List;
     /**
      * Method get MessagingHost
      */
-     public static String getMessagingHost() {
+     public  String getMessagingHost() {
+         String nameMethod=new Object(){}.getClass().getEnclosingMethod().getName();
+         if(messagingStorageController.hasMessagingHost()){
+             messagingHost=messagingStorageController.getMessagingHost();
+         }else{
+             showDebugLog(this,nameMethod,"Value default messagingHost "
+                     +messagingHost);
+         }
+
+
+
          return messagingHost;
      }
 
-     public static void setMessagingHost(String messaging_host) {
-         MessagingSdkUtils.messagingHost = messaging_host;
+     public  void setMessagingHost(String messaging_host) {
+         //guardo en la varibale compartida
+         messagingHost = messaging_host;
      }
 
     /**
@@ -153,12 +177,49 @@ import java.util.List;
      */
 
 
-     public static String getMessagingToken() {
+     public  String getMessagingToken() {
+         String nameMethod=new Object(){}.getClass().getEnclosingMethod().getName();
+         if(messagingStorageController.hasMessagingToken()){
+             messagingToken=messagingStorageController.getMessagingToken();
+         }else{
+             showDebugLog(this,nameMethod,"Value default messagingToken "
+                     +messagingToken);
+         }
+
          return messagingToken;
      }
 
-     public static void setMessagingToken(String messaging_token) {
-         MessagingSdkUtils.messagingToken = messaging_token;
+     public void setMessagingToken(String messaging_token) {
+         messagingToken = messaging_token;
+     }
+
+     public  boolean isAnalytics_allowed() {
+         String nameMethod=new Object(){}.getClass().getEnclosingMethod().getName();
+         if(messagingStorageController.hasAnalyticsAllowed()==1){
+             analytics_allowed=messagingStorageController.isAnalyticsAllowed();
+         }else{
+             showDebugLog(this,nameMethod,"Value default analytics_allowed "
+                     +messagingToken);
+         }
+
+         return analytics_allowed;
+     }
+
+     public  boolean isLocation_allowed() {
+         String nameMethod=new Object(){}.getClass().getEnclosingMethod().getName();
+         if(messagingStorageController.hasLocationAllowed()==1){
+             analytics_allowed=messagingStorageController.isLocationAllowed();
+         }else{
+             showDebugLog(this,nameMethod,"Value default location_allowed "
+                     +messagingToken);
+         }
+
+         return location_allowed;
+     }
+
+     public  boolean isLogging_allowed() {
+         //cambiar remotamente
+         return logging_allowed;
      }
 
     public MessagingDevice getMessagingDevFromJson(JSONObject resp){
@@ -226,7 +287,7 @@ import java.util.List;
      @param type: POST/GET/PUT/DELETE
      @param body: Body
      */
-    public  void showHttpRequestLog(String url_has_code,Object instance,String nameMethod,
+    public void showHttpRequestLog(String url_has_code,Object instance,String nameMethod,
                                     String type,String body){
         if(logging_allowed){
             Log.d(TAG,"HTTP_REQUEST: "+url_has_code.hashCode()+": "+instance.getClass().getSimpleName()+": "+ nameMethod+": "+type
@@ -243,12 +304,32 @@ import java.util.List;
      @param status: Status
      @param response: Response.
      */
-    public  void showHttpResponseLog(String url_has_code,Object instance,String nameMethod,
+    public void showHttpResponseLog(String url_has_code,Object instance,String nameMethod,
                                       String status,String response){
         if(logging_allowed){
             Log.d(TAG,"HTTP_REQUEST: "+url_has_code.hashCode()+": "+instance.getClass().getSimpleName()+": "+ nameMethod+": "
                     +status+": "+response);
         }
+
+    }
+
+    public boolean verifyMatchAppId(String mgsAppId){
+        boolean result=false;
+        if(mgsAppId.equals(messagingTokenDefault)){
+            result=true;
+        }
+        Log.d(TAG,"verifyMatchAppId "+mgsAppId+" host "+messagingToken+" result "+result);
+        return result;
+
+    }
+
+    public void showConfigParameter(){
+        String nameMethod=new Object(){}.getClass().getEnclosingMethod().getName();
+        showDebugLog(this,nameMethod," logging_allowed "+logging_allowed);
+        showDebugLog(this,nameMethod," messagingHost "+messagingHost);
+        showDebugLog(this,nameMethod, " messagingToken "+messagingToken);
+        showDebugLog(this,nameMethod, " analytics_allowed "+analytics_allowed);
+        showDebugLog(this,nameMethod, " location_allowed "+location_allowed);
 
     }
 

@@ -411,9 +411,11 @@ public class MessagingDevice implements Serializable {
 
             try {
 
-                String authToken= MessagingSdkUtils.getMessagingToken();
+                //String authToken= MessagingSdkUtils.getMessagingToken();
+                String authToken= messaging.utils.getMessagingToken();
                 JSONObject postData = jsonObject;
-                provUrl=MessagingSdkUtils.getMessagingHost()+"/devices/"+Id;
+                //provUrl=MessagingSdkUtils.getMessagingHost()+"/devices/"+Id;
+                provUrl=messaging.utils.getMessagingHost()+"/devices/"+Id;
                 messaging.utils.showHttpRequestLog(provUrl, MessagingDevice.this,nameMethod,"PUT",postData.toString());
                 URL url = new URL(provUrl);
                 urlConnection = (HttpURLConnection) url.openConnection();

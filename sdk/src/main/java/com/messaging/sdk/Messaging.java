@@ -8,6 +8,7 @@ import android.os.AsyncTask;
 import android.os.Build;
 import android.os.Bundle;
 import android.provider.Settings;
+import android.widget.Toast;
 
 import androidx.lifecycle.Lifecycle;
 import androidx.lifecycle.LifecycleObserver;
@@ -142,8 +143,13 @@ public class Messaging implements LifecycleObserver{
 
         }
         if(getLastMessagingNotification()!=null){
-            sendEventToActivity(ACTION_GET_NOTIFICATION_OPENED,messagingNotification,context);
-            setLastMessagingNotification(null,context);
+            if(messagingNotification.isMatchAppId()) {
+                sendEventToActivity(ACTION_GET_NOTIFICATION_OPENED, messagingNotification, context);
+                setLastMessagingNotification(null, context);
+            }else{
+                utils.showInfoLog(this,nameMethod,"Security does not match");
+                //Toast.makeText(context,"Security does not match",Toast.LENGTH_LONG).show();
+            }
         }
 
     }
@@ -445,6 +451,7 @@ public class Messaging implements LifecycleObserver{
      @param something: Object Serializable for send to activity (Ej messagingNotification).
      */
     public void sendGlobalEventToActivity(String action,Serializable something) {
+
         this.nameMethod=new Object(){}.getClass().getEnclosingMethod().getName();
         utils.showDebugLog(this,nameMethod, ""+action
                 +"  "+something.toString());
@@ -510,11 +517,13 @@ public class Messaging implements LifecycleObserver{
 
             try {
                 //String authToken= MessagingSdkUtils.getMessaging_token();
-                String authToken= MessagingSdkUtils.getMessagingToken();
+                //String authToken= MessagingSdkUtils.getMessagingToken();
+                String authToken= messaging.utils.getMessagingToken();
                 nameMethod=new Object(){}.getClass().getEnclosingMethod().getName();
                 String param ="Bearer "+authToken;
                 //provUrl= MessagingSdkUtils.getMessangi_host()+"/devices/"+provIdDevice;
-                provUrl= MessagingSdkUtils.getMessagingHost()+"/devices/"+provIdDevice;
+                //provUrl= MessagingSdkUtils.getMessagingHost()+"/devices/"+provIdDevice;
+                provUrl= messaging.utils.getMessagingHost()+"/devices/"+provIdDevice;
                 messaging.utils.showHttpRequestLog(provUrl,messaging,nameMethod,"GET","");
                 URL url = new URL(provUrl);
                 urlConnection = (HttpURLConnection) url.openConnection();
@@ -619,11 +628,13 @@ public class Messaging implements LifecycleObserver{
 
             try {
                 //String authToken= MessagingSdkUtils.getMessaging_token();
-                String authToken= MessagingSdkUtils.getMessagingToken();
+                //String authToken= MessagingSdkUtils.getMessagingToken();
+                String authToken= messaging.utils.getMessagingToken();
                 nameMethod=new Object(){}.getClass().getEnclosingMethod().getName();
                 JSONObject postData = provRequestBody;
                 //provUrl= MessagingSdkUtils.getMessangi_host()+"/devices/";
-                provUrl= MessagingSdkUtils.getMessagingHost()+"/devices/";
+                //provUrl= MessagingSdkUtils.getMessagingHost()+"/devices/";
+                provUrl= messaging.utils.getMessagingHost()+"/devices/";
                 messaging.utils.showHttpRequestLog(provUrl,messaging,nameMethod,"POST",postData.toString());
                 URL url = new URL(provUrl);
                 urlConnection = (HttpURLConnection) url.openConnection();
@@ -685,7 +696,7 @@ public class Messaging implements LifecycleObserver{
                         messaging.messagingDevice.save(messaging.context);
                     }
                     messaging.sendEventToActivity(ACTION_REGISTER_DEVICE,messaging.messagingDevice,messaging.context);
-                    //messaging.sendEventToActivity(ACTION_REGISTER_DEVICE,resp,messaging.context);
+
                 }
             }catch (NullPointerException e){
                 messaging.sendEventToActivity(ACTION_REGISTER_DEVICE,null,messaging.context);
@@ -750,10 +761,12 @@ public class Messaging implements LifecycleObserver{
             try {
                 nameMethod=new Object(){}.getClass().getEnclosingMethod().getName();
 
-                String authToken= MessagingSdkUtils.getMessagingToken();
+                //String authToken= MessagingSdkUtils.getMessagingToken();
+                String authToken= messaging.utils.getMessagingToken();
                 String param ="Bearer "+authToken;
                 //provUrl= MessagingSdkUtils.getMessangi_host()+"/users?device="+deviceId;
-                provUrl= MessagingSdkUtils.getMessagingHost()+"/users?device="+deviceId;
+                //provUrl= MessagingSdkUtils.getMessagingHost()+"/users?device="+deviceId;
+                provUrl= messaging.utils.getMessagingHost()+"/users?device="+deviceId;
                 messaging.utils.showHttpRequestLog(provUrl, messaging,nameMethod,"GET","");
                 URL url = new URL(provUrl);
                 urlConnection = (HttpURLConnection) url.openConnection();

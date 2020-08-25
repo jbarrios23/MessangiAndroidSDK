@@ -1,5 +1,7 @@
 package com.messaging.sdk;
 
+import android.widget.Toast;
+
 import com.google.firebase.messaging.FirebaseMessagingService;
 import com.google.firebase.messaging.RemoteMessage;
 
@@ -57,7 +59,8 @@ public class MessagingService extends FirebaseMessagingService  {
         nameMethod=new Object(){}.getClass().getEnclosingMethod().getName();
         messaging = Messaging.getInstance(this);
         MessagingNotification messagingNotification=new MessagingNotification(remoteMessage);
-        messaging.sendGlobalEventToActivity(Messaging.ACTION_GET_NOTIFICATION,messagingNotification);
+        messaging.sendGlobalEventToActivity(Messaging.ACTION_GET_NOTIFICATION, messagingNotification);
+
     }
 
 }

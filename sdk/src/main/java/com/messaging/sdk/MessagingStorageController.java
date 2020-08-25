@@ -259,6 +259,165 @@ public class MessagingStorageController {
      return mSharedPreferences.getBoolean("DisableForUser",false);
     }
 
+    /**
+     * Method save messagingHost
+     * @param host: messagingHost
+     */
+    public void saveMessagingHost(String host){
+        nameMethod=new Object(){}.getClass().getEnclosingMethod().getName();
+        SharedPreferences.Editor data=mSharedPreferences.edit();
+        data.putString("messagingHost",host);
+        data.apply();
+        messaging.utils.showDebugLog(this,nameMethod,"messagingHost Saved");
+
+    }
+    /**
+     * Method hasTokenRegister lets Know if messagingHost is registered in local storage
+     *
+     */
+    public boolean hasMessagingHost(){
+        nameMethod=new Object(){}.getClass().getEnclosingMethod().getName();
+        boolean hasToken = false;
+        String token=mSharedPreferences.getString("messagingHost","");
+        if(token.length()>0){
+            hasToken=true;
+
+        }
+
+        return hasToken;
+    }
+    /**
+     * Method get MessagingHost registered in local storage
+     *
+     */
+    public String getMessagingHost(){
+        nameMethod=new Object(){}.getClass().getEnclosingMethod().getName();
+        String token=mSharedPreferences.getString("messagingHost","");
+        return token;
+    }
+
+    public void deleteMessagingHost(){
+        mSharedPreferences=context.getSharedPreferences("StorageCallback", 0);
+        SharedPreferences.Editor editorlogin = mSharedPreferences.edit();
+        editorlogin.clear();
+        editorlogin.commit();
+    }
+
+    /**
+     * Method save messagingHost
+     * @param token: messagingHost
+     */
+    public void saveMessagingToken(String token){
+        nameMethod=new Object(){}.getClass().getEnclosingMethod().getName();
+        SharedPreferences.Editor data=mSharedPreferences.edit();
+        data.putString("messagingToken",token);
+        data.apply();
+        messaging.utils.showDebugLog(this,nameMethod,"messagingToken Saved "+token);
+
+    }
+    /**
+     * Method hasTokenRegister lets Know if messagingHost is registered in local storage
+     *
+     */
+    public boolean hasMessagingToken(){
+        nameMethod=new Object(){}.getClass().getEnclosingMethod().getName();
+        boolean hasToken = false;
+        String token=mSharedPreferences.getString("messagingToken","");
+        if(token.length()>0){
+            hasToken=true;
+
+        }
+
+        return hasToken;
+    }
+    /**
+     * Method get MessagingToken registered in local storage
+     *
+     */
+    public String getMessagingToken(){
+        nameMethod=new Object(){}.getClass().getEnclosingMethod().getName();
+        String token=mSharedPreferences.getString("messagingToken","");
+        messaging.utils.showDebugLog(this,nameMethod,"messagingToken from Storage ");
+        return token;
+    }
+
+    public void deleteMessagingToken(){
+        mSharedPreferences=context.getSharedPreferences("StorageCallback", 0);
+        SharedPreferences.Editor editorlogin = mSharedPreferences.edit();
+        editorlogin.clear();
+        editorlogin.commit();
+    }
+
+    /**
+     * Method setAnalyticsAllowed
+     * @param enable : enable
+     */
+    public void setAnalyticsAllowed(boolean enable){
+        nameMethod=new Object(){}.getClass().getEnclosingMethod().getName();
+        SharedPreferences.Editor data=mSharedPreferences.edit();
+        data.putBoolean("AnalyticsAllowed",enable);
+        data.putInt("AnalyticsAllowed",1);
+        data.apply();
+        messaging.utils.showDebugLog(this,nameMethod,"Set AnalyticsAllowed "+enable);
+
+    }
+    /**
+     * Method hasTokenRegister lets Know if messagingHost is registered in local storage
+     *
+     */
+    public int hasAnalyticsAllowed(){
+        nameMethod=new Object(){}.getClass().getEnclosingMethod().getName();
+        int token=mSharedPreferences.getInt("AnalyticsAllowed",0);
+        return token;
+    }
+
+    public boolean isAnalyticsAllowed(){
+        messaging.utils.showDebugLog(this,nameMethod,"Get AnalyticsAllowed from storage ");
+        return mSharedPreferences.getBoolean("AnalyticsAllowed",false);
+    }
+
+    /**
+     * Method setLocationAllowed
+     * @param enable : enable
+     */
+    public void setLocationAllowed(boolean enable){
+        nameMethod=new Object(){}.getClass().getEnclosingMethod().getName();
+        SharedPreferences.Editor data=mSharedPreferences.edit();
+        data.putBoolean("LocationAllowed",enable);
+        data.putInt("LocationAllowed",1);
+        data.apply();
+        messaging.utils.showDebugLog(this,nameMethod,"Set LocationAllowed "+enable);
+
+    }
+
+    public int hasLocationAllowed(){
+        nameMethod=new Object(){}.getClass().getEnclosingMethod().getName();
+        int token=mSharedPreferences.getInt("LocationAllowed",0);
+        return token;
+    }
+
+    public boolean isLocationAllowed(){
+        messaging.utils.showDebugLog(this,nameMethod,"Get LocationAllowed from storage ");
+        return mSharedPreferences.getBoolean("LocationAllowed",false);
+    }
+
+    /**
+     * Method setLoggingAllowed
+     * @param enable : enable
+     */
+    public void setLoggingAllowed(boolean enable){
+        nameMethod=new Object(){}.getClass().getEnclosingMethod().getName();
+        SharedPreferences.Editor data=mSharedPreferences.edit();
+        data.putBoolean("LoggingAllowed",enable);
+        data.apply();
+        messaging.utils.showDebugLog(this,nameMethod,"Set LoggingAllowed "+enable);
+
+    }
+
+    public boolean isLoggingAllowed(){
+        return mSharedPreferences.getBoolean("LoggingAllowed",false);
+    }
+
 
 
 }

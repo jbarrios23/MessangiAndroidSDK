@@ -12,6 +12,7 @@ import androidx.localbroadcastmanager.content.LocalBroadcastManager;
 
 import com.messaging.sdk.Messaging;
 import com.messaging.sdk.MessagingDevice;
+import com.messaging.sdk.MessagingNotification;
 import com.messaging.sdk.MessagingUser;
 
 import org.json.JSONException;
@@ -25,6 +26,7 @@ public class MessagingNotificationReceiver extends BroadcastReceiver {
     public static String CLASS_TAG=MessagingNotificationReceiver.class.getSimpleName();
     public static String TAG="MESSAGING";
     private String nameMethod;
+    private MessagingNotification messagingNotification;
 
     @Override
     public void onReceive(Context context, Intent intent) {
@@ -38,7 +40,13 @@ public class MessagingNotificationReceiver extends BroadcastReceiver {
 
              if(intent.getAction().equals(Messaging.ACTION_GET_NOTIFICATION)&& data!=null){
                 Log.d(TAG,"DEBUG: "+CLASS_TAG+": "+nameMethod+": DATA:  "+ data);
-                handleDataNotification(data,intent,context,action);
+                messagingNotification=(MessagingNotification) data;
+                if(messagingNotification.isMatchAppId()) {
+                    handleDataNotification(data, intent, context, action);
+                }else{
+                    Log.d(TAG, "DEBUG: " + CLASS_TAG + ": " + nameMethod + ": " + "Security does not match");
+                   // Toast.makeText(context,"Security does not match",Toast.LENGTH_LONG).show();
+                }
 
             } else {
 
