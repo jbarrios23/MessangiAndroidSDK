@@ -8,6 +8,9 @@ import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import java.net.MalformedURLException;
+import java.net.URISyntaxException;
+import java.net.URL;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -23,6 +26,7 @@ import java.util.List;
     private  boolean analytics_allowed;
     private  boolean location_allowed;
     private  boolean logging_allowed;
+    public String provHost;
     private MessagingStorageController messagingStorageController;
     private MessagingDevice messagingDevice;
 
@@ -350,7 +354,7 @@ import java.util.List;
         showDebugLog(this,nameMethod, " location_allowed "+location_allowed);
     }
 
-    public void saveConfigParameter(String parameter){
+    public void saveConfigParameter(String parameter, Messaging messaging){
         String nameMethod=new Object(){}.getClass().getEnclosingMethod().getName();
         try {
             JSONObject jsonObject=new JSONObject(parameter);
@@ -362,10 +366,15 @@ import java.util.List;
 
             }
             if(jsonObject.has(Messaging.MESSAGING_APP_HOST)){
-                String provEnable=jsonObject.getString(Messaging.MESSAGING_APP_HOST);
+                provHost=jsonObject.getString(Messaging.MESSAGING_APP_HOST);
                 showDebugLog(this,nameMethod, "host : "
-                        +provEnable);
-                setMessagingHost(provEnable);
+                        +provHost);
+                if(isValidURL(provHost)) {
+                    setMessagingHost(provHost);
+                }else{
+                    showErrorLog(this,nameMethod, "invalid Url will not update," +
+                            " please check the url submitted ","");
+                }
 
             }
             if(jsonObject.has(Messaging.MESSAGING_LOCATION_ENABLE)){
@@ -388,14 +397,30 @@ import java.util.List;
                 setLogging_allowed(provEnable);
             }
 
-            if(jsonObject.has(Messaging.MESSAGING_APP_ID)||jsonObject.has(Messaging.MESSAGING_APP_HOST)){
+            if((jsonObject.has(Messaging.MESSAGING_APP_TOKEN))||
+                    (jsonObject.has(Messaging.MESSAGING_APP_HOST))){
                 //create device
-                showDebugLog(this,nameMethod, "create device and user new : ");
+                showDebugLog(this,nameMethod, "Create device and user new ");
+                messaging.createDeviceParameters();
+            }else{
+                showDebugLog(this,nameMethod, "Not Create device and user new");
+
             }
 
         } catch (JSONException e) {
             e.printStackTrace();
         }
     }
+
+     public boolean isValidURL(String url) {
+
+         try {
+             new URL(url).toURI();
+         } catch (MalformedURLException | URISyntaxException e) {
+             return false;
+         }
+
+         return true;
+     }
 
 }

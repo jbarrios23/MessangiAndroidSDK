@@ -641,13 +641,10 @@ public class Messaging implements LifecycleObserver{
             HttpURLConnection urlConnection = null;
 
             try {
-                //String authToken= MessagingSdkUtils.getMessaging_token();
-                //String authToken= MessagingSdkUtils.getMessagingToken();
                 String authToken= messaging.utils.getMessagingToken();
                 nameMethod=new Object(){}.getClass().getEnclosingMethod().getName();
+                messaging.utils.showDebugLog(this,nameMethod, "authToken "+authToken);
                 JSONObject postData = provRequestBody;
-                //provUrl= MessagingSdkUtils.getMessangi_host()+"/devices/";
-                //provUrl= MessagingSdkUtils.getMessagingHost()+"/devices/";
                 provUrl= messaging.utils.getMessagingHost()+"/devices/";
                 messaging.utils.showHttpRequestLog(provUrl,messaging,nameMethod,"POST",postData.toString());
                 URL url = new URL(provUrl);

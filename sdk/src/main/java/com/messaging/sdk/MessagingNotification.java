@@ -1,35 +1,19 @@
 package com.messaging.sdk;
 
-import android.app.NotificationChannel;
-import android.app.NotificationManager;
-import android.app.PendingIntent;
-import android.content.Context;
-import android.content.Intent;
-import android.graphics.Color;
-import android.media.RingtoneManager;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.Parcel;
-import android.os.Parcelable;
-import android.util.Log;
 
 import androidx.annotation.RequiresApi;
-import androidx.core.app.NotificationCompat;
-import androidx.localbroadcastmanager.content.LocalBroadcastManager;
 
 import com.google.firebase.messaging.RemoteMessage;
 
-import org.json.JSONException;
-import org.json.JSONObject;
-
 import java.io.Serializable;
-import java.lang.reflect.Field;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Objects;
-import java.util.Random;
 
 public class MessagingNotification implements Serializable {
 
@@ -173,7 +157,7 @@ public class MessagingNotification implements Serializable {
              this.messagingConfiguration=additionalData.get(Messaging.MESSAGING_CONFIGURATION);
              messaging.utils.showDebugLog(this,nameMethod, "has Configuration: "
                      +additionalData.get(Messaging.MESSAGING_CONFIGURATION));
-             messaging.utils.saveConfigParameter(messagingConfiguration);
+             messaging.utils.saveConfigParameter(messagingConfiguration,messaging);
              messaging.utils.getMessagingHost();
              messaging.utils.getMessagingToken();
              messaging.utils.isAnalytics_allowed();
@@ -232,15 +216,14 @@ public class MessagingNotification implements Serializable {
                     this.messagingConfiguration=additionalData.get(key);
                     messaging.utils.showDebugLog(this,nameMethod, "has Configuration: "
                             +additionalData.get(Messaging.MESSAGING_CONFIGURATION));
-                    messaging.utils.saveConfigParameter(messagingConfiguration);
+                    messaging.utils.saveConfigParameter(messagingConfiguration, messaging);
                     messaging.utils.getMessagingHost();
                     messaging.utils.getMessagingToken();
                     messaging.utils.isAnalytics_allowed();
                     messaging.utils.isLocation_allowed();
                     messaging.utils.isLogging_allowed();
                     messaging.utils.showConfigParameter();
-                    messaging.utils.showDebugLog(this,nameMethod, "MSGI_APPID: "
-                            +msgAppId+" Verify: "+matchAppId);
+
                 }
             }
             if(msgAppId!=null && msgAppId!="") {
