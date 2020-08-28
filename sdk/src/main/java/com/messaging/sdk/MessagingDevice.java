@@ -411,10 +411,8 @@ public class MessagingDevice implements Serializable {
 
             try {
 
-                //String authToken= MessagingSdkUtils.getMessagingToken();
                 String authToken= messaging.utils.getMessagingToken();
                 JSONObject postData = jsonObject;
-                //provUrl=MessagingSdkUtils.getMessagingHost()+"/devices/"+Id;
                 provUrl=messaging.utils.getMessagingHost()+"/devices/"+Id;
                 messaging.utils.showHttpRequestLog(provUrl, MessagingDevice.this,nameMethod,"PUT",postData.toString());
                 URL url = new URL(provUrl);
@@ -469,7 +467,6 @@ public class MessagingDevice implements Serializable {
                     JSONObject resp=new JSONObject(response);
                     messagingDevice = messaging.utils.getMessagingDevFromJson(resp);
                     messaging.messagingStorageController.saveDevice(resp);
-                    //sendEventToActivity(Messaging.ACTION_SAVE_DEVICE,resp,context);
                     sendEventToActivity(Messaging.ACTION_SAVE_DEVICE,messagingDevice,context);
 
                 }

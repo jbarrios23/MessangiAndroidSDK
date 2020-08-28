@@ -13,4 +13,8 @@
     <string name="example_activity_name">DeepLink Activity</string>
     <string name="example_activity_name_url">DeepLink Activity Universal Link</string>
     <string name="example_activity_name_url_schemas">DeepLink Activity URL Schema</string>
+    <string name="get_started">GET STARTED</string>
+    <string name="get_finish">FINISH</string>
+    <string name="pusher_title">PUSHER</string>
+    <string name="scan_title">scan your QRcode</string>
 </resources>

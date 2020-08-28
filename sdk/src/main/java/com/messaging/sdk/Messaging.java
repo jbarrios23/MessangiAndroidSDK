@@ -98,6 +98,19 @@ public class Messaging implements LifecycleObserver{
     public static String MESSAGING_LOGGING_ENABLE="loggingEnable";
     public static String MESSAGING_APP_HOST="host";
 
+    public static String MESSAGING_DEVICE_ID="id";
+    public static String MESSAGING_USER_ID="userId";
+    public static String MESSAGING_PUSH_TOKEN="pushToken";
+    public static String MESSAGING_DEVICE_TYPE="type";
+    public static String MESSAGING_DEVICE_LANGUAGE="language";
+    public static String MESSAGING_DEVICE_MODEL="model";
+    public static String MESSAGING_DEVICE_OS="os";
+    public static String MESSAGING_DEVICE_SDK_VERSION="sdkVersion";
+    public static String MESSAGING_DEVICE_TAGS="tags";
+    public static String MESSAGING_DEVICE_CREATE_AT="createAt";
+    public static String MESSAGING_DEVICE_UPDATE_AT="updateAt";
+    public static String MESSAGING_DEVICE_TIMESTAMP="timestamp";
+    public static String MESSAGING_DEVICE_TRANSACTION="transaction";
 
 
 
@@ -530,8 +543,7 @@ public class Messaging implements LifecycleObserver{
             HttpURLConnection urlConnection = null;
 
             try {
-                //String authToken= MessagingSdkUtils.getMessaging_token();
-                //String authToken= MessagingSdkUtils.getMessagingToken();
+
                 String authToken= messaging.utils.getMessagingToken();
                 nameMethod=new Object(){}.getClass().getEnclosingMethod().getName();
                 String param ="Bearer "+authToken;
@@ -673,7 +685,6 @@ public class Messaging implements LifecycleObserver{
 
                 if(code == HttpURLConnection.HTTP_CREATED){
                     server_response = messaging.readStream(urlConnection.getInputStream());
-
                 }
 
 

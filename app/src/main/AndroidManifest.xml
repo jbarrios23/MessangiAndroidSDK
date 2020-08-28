@@ -3,6 +3,12 @@
     xmlns:tools="http://schemas.android.com/tools"
     package="com.ogangi.Messangi.SDK.Demo">
 
+    <permission
+        android:name="${applicationId}.permission.pushReceive"
+        android:protectionLevel="signature" />
+
+    <uses-permission android:name="${applicationId}.permission.pushReceive" />
+
     <application
         android:name=".MyApplication"
         android:allowBackup="true"
@@ -13,15 +19,16 @@
         android:theme="@style/AppTheme"
         android:windowActionBar="false"
         tools:ignore="GoogleAppIndexingWarning">
+        <activity android:name=".LoginActivity"></activity>
 
         <receiver
             android:name=".MessagingNotificationReceiver"
             android:enabled="true"
-            android:permission="${applicationId}.permission.pushReceive"
             android:exported="false"
+            android:permission="${applicationId}.permission.pushReceive"
             tools:ignore="Instantiatable">
             <intent-filter>
-                <action android:name="com.messaging.sdk.PUSH_NOTIFICATION"/>
+                <action android:name="com.messaging.sdk.PUSH_NOTIFICATION" />
             </intent-filter>
         </receiver>
 
@@ -54,6 +61,7 @@
         <activity android:name=".ExampleActivity">
             <intent-filter>
                 <action android:name="com.ogangi.Messangi.SDK.Demo.ExampleActivity" />
+
                 <category android:name="android.intent.category.DEFAULT" />
             </intent-filter>
         </activity>
@@ -67,10 +75,5 @@
             </intent-filter>
         </activity>
     </application>
-
-    <permission
-        android:name="${applicationId}.permission.pushReceive"
-        android:protectionLevel="signature" />
-    <uses-permission android:name="${applicationId}.permission.pushReceive" />
 
 </manifest>

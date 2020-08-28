@@ -223,7 +223,6 @@ public class MessagingNotification implements Serializable {
                     messaging.utils.isLocation_allowed();
                     messaging.utils.isLogging_allowed();
                     messaging.utils.showConfigParameter();
-
                 }
             }
             if(msgAppId!=null && msgAppId!="") {

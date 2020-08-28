@@ -109,13 +109,14 @@ public class MainActivity extends AppCompatActivity {
         device.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                messagingDevArrayList.clear();
-                messagingUserDeviceArrayList.clear();
-                progressBar.setVisibility(View.VISIBLE);
-                Messaging.fetchDevice(true,getApplicationContext());
-                Log.i(TAG,"INFO: "+CLASS_TAG+": "+nameMethod+": "+messaging.getExternalId());
-                Messaging.fetchUser(getApplicationContext(), true);
+//                messagingDevArrayList.clear();
+//                messagingUserDeviceArrayList.clear();
+//                progressBar.setVisibility(View.VISIBLE);
+//                Messaging.fetchDevice(true,getApplicationContext());
+//                Log.i(TAG,"INFO: "+CLASS_TAG+": "+nameMethod+": "+messaging.getExternalId());
+//                Messaging.fetchUser(getApplicationContext(), true);
                 //messaging.messagingStorageController.deleteMessagingToken();
+                goToLogin();
             }
         });
 
@@ -182,6 +183,12 @@ public class MainActivity extends AppCompatActivity {
 
         }
 
+    }
+
+    private void goToLogin() {
+
+        Intent intent=new Intent(MainActivity.this,LoginActivity.class);
+        startActivity(intent);
     }
 
     @Override

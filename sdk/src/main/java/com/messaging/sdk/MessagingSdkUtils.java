@@ -247,52 +247,49 @@ import java.util.List;
     public MessagingDevice getMessagingDevFromJson(JSONObject resp){
         MessagingDevice messagingDevice =new MessagingDevice();
         try {
-            if(resp.has("id")){
-
-                messagingDevice.setId(resp.getString("id"));
-
+            if(resp.has(Messaging.MESSAGING_DEVICE_ID)){
+            messagingDevice.setId(resp.getString(Messaging.MESSAGING_DEVICE_ID));
             }
-            if(resp.has("pushToken")){
-                messagingDevice.setPushToken(resp.getString("pushToken"));
+            if(resp.has(Messaging.MESSAGING_PUSH_TOKEN)){
+            messagingDevice.setPushToken(resp.getString(Messaging.MESSAGING_PUSH_TOKEN));
             }
-            if(resp.has("userId")){
-                messagingDevice.setUserId(resp.getString("userId"));
+            if(resp.has(Messaging.MESSAGING_USER_ID)){
+            messagingDevice.setUserId(resp.getString(Messaging.MESSAGING_USER_ID));
             }
-            if(resp.has("type")){
-                messagingDevice.setType(resp.getString("type"));
+            if(resp.has(Messaging.MESSAGING_DEVICE_TYPE)){
+            messagingDevice.setType(resp.getString(Messaging.MESSAGING_DEVICE_TYPE));
             }
-            if(resp.has("language")){
-                messagingDevice.setLanguage(resp.getString("language"));
+            if(resp.has(Messaging.MESSAGING_DEVICE_LANGUAGE)){
+            messagingDevice.setLanguage(resp.getString(Messaging.MESSAGING_DEVICE_LANGUAGE));
             }
-            if(resp.has("model")){
-                messagingDevice.setModel(resp.getString("model"));
+            if(resp.has(Messaging.MESSAGING_DEVICE_MODEL)){
+            messagingDevice.setModel(resp.getString(Messaging.MESSAGING_DEVICE_MODEL));
             }
-            if(resp.has("os")){
-                messagingDevice.setOs(resp.getString("os"));
+            if(resp.has(Messaging.MESSAGING_DEVICE_OS)){
+            messagingDevice.setOs(resp.getString(Messaging.MESSAGING_DEVICE_OS));
             }
-            if(resp.has("sdkVersion")){
-                messagingDevice.setSdkVersion(resp.getString("sdkVersion"));
+            if(resp.has(Messaging.MESSAGING_DEVICE_SDK_VERSION)){
+            messagingDevice.setSdkVersion(resp.getString(Messaging.MESSAGING_DEVICE_SDK_VERSION));
             }
-            if(resp.has("tags")){
+            if(resp.has(Messaging.MESSAGING_DEVICE_TAGS)){
                 List<String> prvTag=new ArrayList<>();
-                JSONArray jsonArray=resp.getJSONArray("tags");
+                JSONArray jsonArray=resp.getJSONArray(Messaging.MESSAGING_DEVICE_TAGS);
                 for (int i = 0; i < jsonArray.length(); i++) {
                     prvTag.add(jsonArray.getString(i));
                 }
                 messagingDevice.setTags(prvTag);
-
             }
-            if(resp.has("createdAt")){
-                messagingDevice.setCreatedAt(resp.getString("createdAt"));
+            if(resp.has(Messaging.MESSAGING_DEVICE_CREATE_AT)){
+                messagingDevice.setCreatedAt(resp.getString(Messaging.MESSAGING_DEVICE_CREATE_AT));
             }
-            if(resp.has("updatedAt")){
-                messagingDevice.setUpdatedAt(resp.getString("updatedAt"));
+            if(resp.has(Messaging.MESSAGING_DEVICE_UPDATE_AT)){
+                messagingDevice.setUpdatedAt(resp.getString(Messaging.MESSAGING_DEVICE_UPDATE_AT));
             }
-            if(resp.has("timestamp")){
-                messagingDevice.setTimestamp(resp.getString("timestamp"));
+            if(resp.has(Messaging.MESSAGING_DEVICE_TIMESTAMP)){
+                messagingDevice.setTimestamp(resp.getString(Messaging.MESSAGING_DEVICE_TIMESTAMP));
             }
-            if(resp.has("transaction")){
-                messagingDevice.setTransaction(resp.getString("transaction"));
+            if(resp.has(Messaging.MESSAGING_DEVICE_TRANSACTION)){
+                messagingDevice.setTransaction(resp.getString(Messaging.MESSAGING_DEVICE_TRANSACTION));
             }
         } catch (JSONException e) {
             e.printStackTrace();
