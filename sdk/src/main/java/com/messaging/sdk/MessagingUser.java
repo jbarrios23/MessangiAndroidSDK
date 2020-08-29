@@ -144,7 +144,7 @@ public class MessagingUser implements Serializable {
                     JSONArray jsonArrayDevice=new JSONArray(retMap.get("devices"));
                     for(int i=0;i<jsonArrayDevice.length();i++){
                         JSONObject provDevice=jsonArrayDevice.getJSONObject(i);
-                        MessagingDevice messagingDevice = messaging.utils.getMessagingDevFromJson(provDevice);
+                        MessagingDevice messagingDevice = messaging.utils.getMessagingDevFromJsonOnlyResp(provDevice, messaging.getPushToken());
                         messagingUser.devices.add(messagingDevice);
                     }
                 } catch (JSONException e) {
@@ -161,6 +161,8 @@ public class MessagingUser implements Serializable {
         return messagingUser;
 
     }
+
+
     /**
      * Method for get Email user
      */
@@ -274,12 +276,9 @@ public class MessagingUser implements Serializable {
 
             try {
 
-                //String authToken= MessagingSdkUtils.getMessaging_token();
-                //String authToken= MessagingSdkUtils.getMessagingToken();
                 String authToken= messaging.utils.getMessagingToken();
                 JSONObject postData = jsonObject;
-                //provUrl= MessagingSdkUtils.getMessangi_host()+"/users?device="+deviceId;
-                //provUrl= MessagingSdkUtils.getMessagingHost()+"/users?device="+deviceId;
+                //provUrl= messaging.utils.getMessagingHost()+"/users?device="+deviceId;
                 provUrl= messaging.utils.getMessagingHost()+"/users?device="+deviceId;
                 messaging.utils.showHttpRequestLog(provUrl, MessagingUser.this,nameMethod,"PUT",postData.toString());
                 URL url = new URL(provUrl);
@@ -330,13 +329,12 @@ public class MessagingUser implements Serializable {
             super.onPostExecute(response);
             try{
                 if(!response.equals("")) {
-                    messaging.utils.showHttpResponseLog(provUrl, MessagingUser.this,nameMethod,"Successful",response);
-                    JSONObject resp=new JSONObject(response);
-                    JSONObject data=resp.getJSONObject("subscriber").getJSONObject("data");
-                    Map<String, String> resultMap=toMap(data);
+                    messaging.utils.showHttpResponseLog(provUrl, MessagingUser.this,nameMethod,"User Update Successful",response);
+//                    JSONObject resp=new JSONObject(response);
+//                    JSONObject data=resp.getJSONObject("subscriber").getJSONObject("data");
+                    Map<String, String> resultMap=toMap(jsonObject);
                     messaging.messagingStorageController.saveUserByDevice(resultMap);
                     messagingUser = MessagingUser.parseData(resultMap);
-                    //sendEventToActivity(Messaging.ACTION_SAVE_USER,resp, context);
                     sendEventToActivity(Messaging.ACTION_SAVE_USER,messagingUser, context);
 
                 }

@@ -244,36 +244,45 @@ import java.util.List;
          //this.logging_allowed = logging_allowed;
      }
 
-    public MessagingDevice getMessagingDevFromJson(JSONObject resp){
+    public MessagingDevice getMessagingDevFromJson(JSONObject resp, JSONObject body, String id, String userId){
+        String nameMethod=new Object(){}.getClass().getEnclosingMethod().getName();
         MessagingDevice messagingDevice =new MessagingDevice();
         try {
             if(resp.has(Messaging.MESSAGING_DEVICE_ID)){
             messagingDevice.setId(resp.getString(Messaging.MESSAGING_DEVICE_ID));
+            }else{
+            messagingDevice.setId(id);
+                showDebugLog(this,nameMethod,"Set ID update "
+                        +id);
             }
-            if(resp.has(Messaging.MESSAGING_PUSH_TOKEN)){
-            messagingDevice.setPushToken(resp.getString(Messaging.MESSAGING_PUSH_TOKEN));
+            if(body.has(Messaging.MESSAGING_PUSH_TOKEN)){
+            messagingDevice.setPushToken(body.getString(Messaging.MESSAGING_PUSH_TOKEN));
             }
             if(resp.has(Messaging.MESSAGING_USER_ID)){
             messagingDevice.setUserId(resp.getString(Messaging.MESSAGING_USER_ID));
+            }else{
+                messagingDevice.setUserId(userId);
+                showDebugLog(this,nameMethod,"Set userID update "
+                        +userId);
             }
-            if(resp.has(Messaging.MESSAGING_DEVICE_TYPE)){
-            messagingDevice.setType(resp.getString(Messaging.MESSAGING_DEVICE_TYPE));
+            if(body.has(Messaging.MESSAGING_DEVICE_TYPE)){
+            messagingDevice.setType(body.getString(Messaging.MESSAGING_DEVICE_TYPE));
             }
-            if(resp.has(Messaging.MESSAGING_DEVICE_LANGUAGE)){
-            messagingDevice.setLanguage(resp.getString(Messaging.MESSAGING_DEVICE_LANGUAGE));
+            if(body.has(Messaging.MESSAGING_DEVICE_LANGUAGE)){
+            messagingDevice.setLanguage(body.getString(Messaging.MESSAGING_DEVICE_LANGUAGE));
             }
-            if(resp.has(Messaging.MESSAGING_DEVICE_MODEL)){
-            messagingDevice.setModel(resp.getString(Messaging.MESSAGING_DEVICE_MODEL));
+            if(body.has(Messaging.MESSAGING_DEVICE_MODEL)){
+            messagingDevice.setModel(body.getString(Messaging.MESSAGING_DEVICE_MODEL));
             }
-            if(resp.has(Messaging.MESSAGING_DEVICE_OS)){
-            messagingDevice.setOs(resp.getString(Messaging.MESSAGING_DEVICE_OS));
+            if(body.has(Messaging.MESSAGING_DEVICE_OS)){
+            messagingDevice.setOs(body.getString(Messaging.MESSAGING_DEVICE_OS));
             }
-            if(resp.has(Messaging.MESSAGING_DEVICE_SDK_VERSION)){
-            messagingDevice.setSdkVersion(resp.getString(Messaging.MESSAGING_DEVICE_SDK_VERSION));
+            if(body.has(Messaging.MESSAGING_DEVICE_SDK_VERSION)){
+            messagingDevice.setSdkVersion(body.getString(Messaging.MESSAGING_DEVICE_SDK_VERSION));
             }
-            if(resp.has(Messaging.MESSAGING_DEVICE_TAGS)){
+            if(body.has(Messaging.MESSAGING_DEVICE_TAGS)){
                 List<String> prvTag=new ArrayList<>();
-                JSONArray jsonArray=resp.getJSONArray(Messaging.MESSAGING_DEVICE_TAGS);
+                JSONArray jsonArray=body.getJSONArray(Messaging.MESSAGING_DEVICE_TAGS);
                 for (int i = 0; i < jsonArray.length(); i++) {
                     prvTag.add(jsonArray.getString(i));
                 }
@@ -297,6 +306,62 @@ import java.util.List;
 
         return messagingDevice;
     }
+
+     public MessagingDevice getMessagingDevFromJsonOnlyResp(JSONObject resp, String pushToken){
+         MessagingDevice messagingDevice =new MessagingDevice();
+         try {
+             if(resp.has(Messaging.MESSAGING_DEVICE_ID)){
+                 messagingDevice.setId(resp.getString(Messaging.MESSAGING_DEVICE_ID));
+             }
+             if(resp.has(Messaging.MESSAGING_PUSH_TOKEN)){
+                 messagingDevice.setPushToken(resp.getString(Messaging.MESSAGING_PUSH_TOKEN));
+             }else{
+                 messagingDevice.setPushToken(pushToken);
+             }
+             if(resp.has(Messaging.MESSAGING_USER_ID)){
+                 messagingDevice.setUserId(resp.getString(Messaging.MESSAGING_USER_ID));
+             }
+             if(resp.has(Messaging.MESSAGING_DEVICE_TYPE)){
+                 messagingDevice.setType(resp.getString(Messaging.MESSAGING_DEVICE_TYPE));
+             }
+             if(resp.has(Messaging.MESSAGING_DEVICE_LANGUAGE)){
+                 messagingDevice.setLanguage(resp.getString(Messaging.MESSAGING_DEVICE_LANGUAGE));
+             }
+             if(resp.has(Messaging.MESSAGING_DEVICE_MODEL)){
+                 messagingDevice.setModel(resp.getString(Messaging.MESSAGING_DEVICE_MODEL));
+             }
+             if(resp.has(Messaging.MESSAGING_DEVICE_OS)){
+                 messagingDevice.setOs(resp.getString(Messaging.MESSAGING_DEVICE_OS));
+             }
+             if(resp.has(Messaging.MESSAGING_DEVICE_SDK_VERSION)){
+                 messagingDevice.setSdkVersion(resp.getString(Messaging.MESSAGING_DEVICE_SDK_VERSION));
+             }
+             if(resp.has(Messaging.MESSAGING_DEVICE_TAGS)){
+                 List<String> prvTag=new ArrayList<>();
+                 JSONArray jsonArray=resp.getJSONArray(Messaging.MESSAGING_DEVICE_TAGS);
+                 for (int i = 0; i < jsonArray.length(); i++) {
+                     prvTag.add(jsonArray.getString(i));
+                 }
+                 messagingDevice.setTags(prvTag);
+             }
+             if(resp.has(Messaging.MESSAGING_DEVICE_CREATE_AT)){
+                 messagingDevice.setCreatedAt(resp.getString(Messaging.MESSAGING_DEVICE_CREATE_AT));
+             }
+             if(resp.has(Messaging.MESSAGING_DEVICE_UPDATE_AT)){
+                 messagingDevice.setUpdatedAt(resp.getString(Messaging.MESSAGING_DEVICE_UPDATE_AT));
+             }
+             if(resp.has(Messaging.MESSAGING_DEVICE_TIMESTAMP)){
+                 messagingDevice.setTimestamp(resp.getString(Messaging.MESSAGING_DEVICE_TIMESTAMP));
+             }
+             if(resp.has(Messaging.MESSAGING_DEVICE_TRANSACTION)){
+                 messagingDevice.setTransaction(resp.getString(Messaging.MESSAGING_DEVICE_TRANSACTION));
+             }
+         } catch (JSONException e) {
+             e.printStackTrace();
+         }
+
+         return messagingDevice;
+     }
 
     /**
      * Method Show Error log

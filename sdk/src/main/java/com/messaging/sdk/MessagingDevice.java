@@ -14,10 +14,8 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.io.BufferedOutputStream;
-import java.io.BufferedReader;
 import java.io.BufferedWriter;
 import java.io.IOException;
-import java.io.InputStreamReader;
 import java.io.OutputStream;
 import java.io.OutputStreamWriter;
 import java.io.Serializable;
@@ -72,7 +70,7 @@ public class MessagingDevice implements Serializable {
     public void save(final Context context){
         nameMethod=new Object(){}.getClass().getEnclosingMethod().getName();
         JSONObject requestUpdateBody=requestJsonBodyForUpdate(pushToken);
-        new HTTPReqTaskPut(id,requestUpdateBody,context).execute();
+        new HTTPReqTaskPut(id,requestUpdateBody,context,userId).execute();
 
     }
 
@@ -355,17 +353,14 @@ public class MessagingDevice implements Serializable {
         JSONArray jsonArray=new JSONArray(tags);
 
         try {
-            if(!pushToken.equals("")) {
-                requestBody.put("pushToken", pushToken);
-                requestBody.put("type", type);
-                requestBody.put("tags", jsonArray);
-                requestBody.put("language", language);
-                requestBody.put("model", model);
-                requestBody.put("os", os);
-                requestBody.put("sdkVersion", sdkVersion);
-            }else{
-                requestBody.put("pushToken", pushToken);
-            }
+            requestBody.put(Messaging.MESSAGING_PUSH_TOKEN, pushToken);
+            requestBody.put(Messaging.MESSAGING_DEVICE_TYPE, type);
+            requestBody.put(Messaging.MESSAGING_DEVICE_TAGS, jsonArray);
+            requestBody.put(Messaging.MESSAGING_DEVICE_LANGUAGE, language);
+            requestBody.put(Messaging.MESSAGING_DEVICE_MODEL, model);
+            requestBody.put(Messaging.MESSAGING_DEVICE_OS, os);
+            requestBody.put(Messaging.MESSAGING_DEVICE_SDK_VERSION, sdkVersion);
+
         } catch (JSONException e) {
             e.printStackTrace();
         }
@@ -396,12 +391,14 @@ public class MessagingDevice implements Serializable {
         private Context context;
         private String provUrl;
         private MessagingDevice messagingDevice;
+        private String userId;
 
-        public HTTPReqTaskPut(String id, JSONObject gsonObject, Context context) {
+        public HTTPReqTaskPut(String id, JSONObject gsonObject, Context context, String userId) {
             this.jsonObject=gsonObject;
             this.Id=id;
             this.context=context;
             this.messaging = Messaging.getInstance(this.context);
+            this.userId=userId;
 
         }
 
@@ -463,10 +460,10 @@ public class MessagingDevice implements Serializable {
             try{
                 if(!response.equals("")) {
                     nameMethod=new Object(){}.getClass().getEnclosingMethod().getName();
-                    messaging.utils.showHttpResponseLog(provUrl, MessagingDevice.this,nameMethod,"Successful",response);
+                    messaging.utils.showHttpResponseLog(provUrl, MessagingDevice.this,nameMethod,"Update Successful",response);
                     JSONObject resp=new JSONObject(response);
-                    messagingDevice = messaging.utils.getMessagingDevFromJson(resp);
-                    messaging.messagingStorageController.saveDevice(resp);
+                    messagingDevice = messaging.utils.getMessagingDevFromJson(resp, jsonObject,Id,userId);
+                    messaging.messagingStorageController.saveDevice(resp,Id);
                     sendEventToActivity(Messaging.ACTION_SAVE_DEVICE,messagingDevice,context);
 
                 }

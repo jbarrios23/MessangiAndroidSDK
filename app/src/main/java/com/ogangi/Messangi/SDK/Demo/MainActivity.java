@@ -109,14 +109,13 @@ public class MainActivity extends AppCompatActivity {
         device.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-//                messagingDevArrayList.clear();
-//                messagingUserDeviceArrayList.clear();
-//                progressBar.setVisibility(View.VISIBLE);
-//                Messaging.fetchDevice(true,getApplicationContext());
-//                Log.i(TAG,"INFO: "+CLASS_TAG+": "+nameMethod+": "+messaging.getExternalId());
-//                Messaging.fetchUser(getApplicationContext(), true);
-                //messaging.messagingStorageController.deleteMessagingToken();
-                goToLogin();
+                messagingDevArrayList.clear();
+                messagingUserDeviceArrayList.clear();
+                progressBar.setVisibility(View.VISIBLE);
+                Messaging.fetchDevice(true,getApplicationContext());
+                Log.i(TAG,"INFO: "+CLASS_TAG+": "+nameMethod+": "+messaging.getExternalId());
+                //Messaging.fetchUser(getApplicationContext(), true);
+                //goToLogin();
             }
         });
 
@@ -437,14 +436,14 @@ public class MainActivity extends AppCompatActivity {
 
     private void shwUser(MessagingUser messagingUser) {
         messagingUserDeviceArrayList.clear();
-        Log.d(TAG,"DEBUG: "+CLASS_TAG+": "+nameMethod+" User:  "+ messagingUser.getDevices());
+        Log.d(TAG,"DEBUG: "+CLASS_TAG+": "+nameMethod+" User:  "+ messagingUser.getProperties());
 
         if(messagingUser.getProperties().size()>0){
             Map<String,String> result= messagingUser.getProperties();
             for (Map.Entry<String, String> entry : result.entrySet()) {
                 messagingUserDeviceArrayList.add(entry.getKey()+": "+entry.getValue());
             }
-            messagingUserDeviceArrayList.add("devices: "+ this.messagingUser.getDevices());
+            //messagingUserDeviceArrayList.add("devices: "+ this.messagingUser.getDevices());
 
         }
 
@@ -464,8 +463,8 @@ public class MainActivity extends AppCompatActivity {
         messagingDevArrayList.add("Os: "           + messagingDevice.getOs());
         messagingDevArrayList.add("SdkVersion: "   + messagingDevice.getSdkVersion());
         messagingDevArrayList.add("Tags: "         + messagingDevice.getTags());
-        messagingDevArrayList.add("CreateAt: "     + messagingDevice.getCreatedAt());
-        messagingDevArrayList.add("UpdatedAt: "    + messagingDevice.getUpdatedAt());
+//        messagingDevArrayList.add("CreateAt: "     + messagingDevice.getCreatedAt());
+//        messagingDevArrayList.add("UpdatedAt: "    + messagingDevice.getUpdatedAt());
         messagingDevArrayList.add("Timestamp: "    + messagingDevice.getTimestamp());
         messagingDevArrayList.add("Transaction: "  + messagingDevice.getTransaction());
         messagingDevArrayList.add("ExternalId: "  + messaging.getExternalId());
