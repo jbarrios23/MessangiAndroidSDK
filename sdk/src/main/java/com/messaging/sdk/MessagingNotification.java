@@ -28,6 +28,7 @@ public class MessagingNotification implements Serializable {
     private String deepUriLink;
 
     private Map<String,String> additionalData;
+
     private int badge;
 
 
@@ -62,6 +63,8 @@ public class MessagingNotification implements Serializable {
     private int visibility;
     private String msgAppId="";
     private boolean matchAppId;
+    private String provRegisterLogs;
+    private boolean registerLogs;
     private String messagingConfiguration;
 
     public MessagingNotification(RemoteMessage remoteMessage) {
@@ -150,6 +153,26 @@ public class MessagingNotification implements Serializable {
                      +msgAppId+" Verify: "+matchAppId);
          }else{
              this.matchAppId=true;
+         }
+         this.provRegisterLogs= additionalData.get(Messaging.MESSAGING_LOGGING_ENABLE);
+         if(provRegisterLogs!=null && provRegisterLogs!=""){
+             if(provRegisterLogs.equals("true")){
+                 this.registerLogs=true;
+             }else{
+                 this.registerLogs=false;
+             }
+             messaging.utils.setLogging_allowed(registerLogs);
+             messaging.utils.showDebugLog(this,nameMethod, "MSGI_REGISTER_LOGS: "
+                     +registerLogs);
+             messaging.utils.isLogging_allowed();
+             messaging.utils.showConfigParameter();
+         }else{
+             this.registerLogs=true;
+             messaging.utils.setLogging_allowed(registerLogs);
+             messaging.utils.showDebugLog(this,nameMethod, "AMSGI_REGISTER_LOGS: "
+                     +registerLogs);
+             messaging.utils.isLogging_allowed();
+             messaging.utils.showConfigParameter();
          }
 
          if(additionalData.get(Messaging.MESSAGING_CONFIGURATION)!=null &&

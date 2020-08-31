@@ -93,7 +93,7 @@ public class Messaging implements LifecycleObserver{
     public static String MESSAGING_APP_TOKEN="appToken";
     public static String MESSAGING_LOCATION_ENABLE="locationEnable";
     public static String MESSAGING_ANALYTICS_ENABLE="analyticsEnable";
-    public static String MESSAGING_LOGGING_ENABLE="loggingEnable";
+    public static String MESSAGING_LOGGING_ENABLE="MSGI_REGISTER_LOGS";
     public static String MESSAGING_APP_HOST="host";
 
     public static String MESSAGING_DEVICE_ID="id";
@@ -774,11 +774,10 @@ public class Messaging implements LifecycleObserver{
             try {
                 nameMethod=new Object(){}.getClass().getEnclosingMethod().getName();
 
-                //String authToken= MessagingSdkUtils.getMessagingToken();
+
                 String authToken= messaging.utils.getMessagingToken();
                 String param ="Bearer "+authToken;
-                //provUrl= MessagingSdkUtils.getMessangi_host()+"/users?device="+deviceId;
-                //provUrl= MessagingSdkUtils.getMessagingHost()+"/users?device="+deviceId;
+
                 provUrl= messaging.utils.getMessagingHost()+"/users?device="+deviceId;
                 messaging.utils.showHttpRequestLog(provUrl, messaging,nameMethod,"GET","");
                 URL url = new URL(provUrl);

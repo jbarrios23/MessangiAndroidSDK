@@ -452,12 +452,6 @@ import java.util.List;
                 setAnalytics_allowed(provEnable);
             }
 
-            if(jsonObject.has(Messaging.MESSAGING_LOGGING_ENABLE)){
-                boolean provEnable=jsonObject.getBoolean(Messaging.MESSAGING_LOGGING_ENABLE);
-                showDebugLog(this,nameMethod, "loggingEnable : "
-                        +provEnable);
-                setLogging_allowed(provEnable);
-            }
 
             if((jsonObject.has(Messaging.MESSAGING_APP_TOKEN))||
                     (jsonObject.has(Messaging.MESSAGING_APP_HOST))){
