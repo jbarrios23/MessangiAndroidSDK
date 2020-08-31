@@ -21,7 +21,9 @@
         android:windowActionBar="false"
         tools:replace="android:allowBackup"
         tools:ignore="GoogleAppIndexingWarning">
-        <activity android:name=".LoginActivity"></activity>
+        <activity android:name=".LoginActivity">
+
+        </activity>
 
         <receiver
             android:name=".MessagingNotificationReceiver"

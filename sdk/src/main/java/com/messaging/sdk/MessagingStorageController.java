@@ -162,7 +162,7 @@ public class MessagingStorageController {
             hasToken=true;
 
         }
-        messaging.utils.showDebugLog(this,nameMethod,"From Local Storage isRegisterDevice "+hasToken);
+        //messaging.utils.showDebugLog(this,nameMethod,"From Local Storage isRegisterDevice "+hasToken);
         return hasToken;
     }
     /**

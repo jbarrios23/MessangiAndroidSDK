@@ -456,10 +456,10 @@ import java.util.List;
             if((jsonObject.has(Messaging.MESSAGING_APP_TOKEN))||
                     (jsonObject.has(Messaging.MESSAGING_APP_HOST))){
                 //create device
-                showDebugLog(this,nameMethod, "Create device and user new ");
+                showDebugLog(this,nameMethod, "Reload SDK ");
                 messaging.createDeviceParameters();
             }else{
-                showDebugLog(this,nameMethod, "Not Create device and user new");
+                showDebugLog(this,nameMethod, "Not Reload SDK");
 
             }
 
