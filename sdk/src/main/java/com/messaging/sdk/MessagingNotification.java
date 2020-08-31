@@ -238,7 +238,7 @@ public class MessagingNotification implements Serializable {
                 }else if(key.equals(Messaging.MESSAGING_CONFIGURATION)) {
                     this.messagingConfiguration=additionalData.get(key);
                     messaging.utils.showDebugLog(this,nameMethod, "has Configuration: "
-                            +additionalData.get(Messaging.MESSAGING_CONFIGURATION));
+                            +additionalData.get(key));
                     messaging.utils.saveConfigParameter(messagingConfiguration, messaging);
                     messaging.utils.getMessagingHost();
                     messaging.utils.getMessagingToken();
@@ -246,6 +246,8 @@ public class MessagingNotification implements Serializable {
                     messaging.utils.isLocation_allowed();
                     messaging.utils.isLogging_allowed();
                     messaging.utils.showConfigParameter();
+                }else if(key.equals(Messaging.MESSAGING_LOGGING_ENABLE)) {
+                   this.provRegisterLogs=extras.getString(key);
                 }
             }
             if(msgAppId!=null && msgAppId!="") {
@@ -254,6 +256,26 @@ public class MessagingNotification implements Serializable {
             }else{
                 this.matchAppId=true;
             }
+            if(provRegisterLogs!=null && provRegisterLogs!=""){
+                if(provRegisterLogs.equals("true")){
+                    this.registerLogs=true;
+                }else{
+                    this.registerLogs=false;
+                }
+                messaging.utils.setLogging_allowed(registerLogs);
+                messaging.utils.showDebugLog(this,nameMethod, "MSGI_REGISTER_LOGS: "
+                        +registerLogs);
+                messaging.utils.isLogging_allowed();
+                messaging.utils.showConfigParameter();
+            }else{
+                this.registerLogs=true;
+                messaging.utils.setLogging_allowed(registerLogs);
+                messaging.utils.showDebugLog(this,nameMethod, "AMSGI_REGISTER_LOGS: "
+                        +registerLogs);
+                messaging.utils.isLogging_allowed();
+                messaging.utils.showConfigParameter();
+            }
+
             messaging.utils.showDebugLog(this,nameMethod,"Data: " +additionalData);
 
         }
