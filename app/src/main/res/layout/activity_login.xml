@@ -37,11 +37,63 @@
         android:id="@+id/imageView_visualizer"
         android:layout_width="match_parent"
         android:layout_height="250dp"
+        android:visibility="invisible"
+        tools:visibility="visible"
         android:layout_marginBottom="8dp"
         android:src="@mipmap/ic_launcher"
         app:layout_constraintBottom_toTopOf="@+id/button"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent" />
+
+
+    <LinearLayout
+
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:id="@+id/linearLayoutData"
+        android:visibility="invisible"
+        tools:visibility="visible"
+        android:layout_marginBottom="8dp"
+        android:src="@mipmap/ic_launcher"
+        android:padding="20dp"
+        app:layout_constraintBottom_toTopOf="@+id/button"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        android:orientation="vertical">
+
+        <EditText
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:padding="15dp"
+            android:layout_marginBottom="15dp"
+            android:background="@color/greyColorSoft"
+            android:id="@+id/editText_custom_field"
+            android:textColor="@color/greyColor"
+            android:textColorHint="@color/greyColor"
+            android:hint="@string/hint_custom_field"/>
+
+        <EditText
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:id="@+id/editText_email"
+            android:padding="15dp"
+            android:layout_marginBottom="15dp"
+            android:background="@color/greyColorSoft"
+            android:textColor="@color/greyColor"
+            android:textColorHint="@color/greyColor"
+            android:hint="@string/hint_email"/>
+
+        <EditText
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:id="@+id/editText_phone"
+            android:padding="15dp"
+            android:background="@color/greyColorSoft"
+            android:textColor="@color/greyColor"
+            android:textColorHint="@color/greyColor"
+            android:hint="@string/hint_phone"/>
+
+    </LinearLayout>
 
     <Button
         android:id="@+id/button"

@@ -17,4 +17,10 @@
     <string name="get_finish">FINISH</string>
     <string name="pusher_title">PUSHER</string>
     <string name="scan_title">scan your QRcode</string>
+    <string name="get_continue">CONTINUE</string>
+    <string name="hint_custom_field">CUSTOM FIELD</string>
+    <string name="hint_email">EMAIL</string>
+    <string name="hint_phone">PHONE</string>
+    <string name="let_get_started_title">Lets Get Started</string>
+
 </resources>

@@ -10,6 +10,7 @@ import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.IntentFilter;
+import android.content.pm.ActivityInfo;
 import android.graphics.Color;
 import android.media.RingtoneManager;
 import android.net.Uri;
@@ -52,7 +53,7 @@ public class MainActivity extends AppCompatActivity {
     public static final String DELETE_TAG = "DELETE_TAG";
 
     public Messaging messaging;
-    public Button device,user,tags,save;
+    public Button device,user,tags,save,login;
     public TextView imprime;
     public MessagingDevice messagingDevice;
     public MessagingUser messagingUser;
@@ -85,6 +86,7 @@ public class MainActivity extends AppCompatActivity {
         getWindow().requestFeature(Window.FEATURE_ACTION_BAR);
         getSupportActionBar().hide();
         setContentView(R.layout.activity_main);
+        setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_PORTRAIT);
         mainActivityInstance=this;
         nameMethod=new Object(){}.getClass().getEnclosingMethod().getName();
         //messaging = Messaging.getInstance(this);
@@ -97,6 +99,7 @@ public class MainActivity extends AppCompatActivity {
         user = findViewById(R.id.user);
         tags = findViewById(R.id.tag);
         save = findViewById(R.id.save);
+        login=findViewById(R.id.button_list);
         //pressButton=findViewById(R.id.button_lista);
         progressBar = findViewById(R.id.progressBar);
         Switch simpleSwitch = findViewById(R.id.simpleSwitch);
@@ -115,7 +118,14 @@ public class MainActivity extends AppCompatActivity {
                 Messaging.fetchDevice(true,getApplicationContext());
                 Log.i(TAG,"INFO: "+CLASS_TAG+": "+nameMethod+": "+messaging.getExternalId());
                 //Messaging.fetchUser(getApplicationContext(), true);
-                //goToLogin();
+
+            }
+        });
+
+        login.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                goToLogin();
             }
         });
 
@@ -463,8 +473,6 @@ public class MainActivity extends AppCompatActivity {
         messagingDevArrayList.add("Os: "           + messagingDevice.getOs());
         messagingDevArrayList.add("SdkVersion: "   + messagingDevice.getSdkVersion());
         messagingDevArrayList.add("Tags: "         + messagingDevice.getTags());
-//        messagingDevArrayList.add("CreateAt: "     + messagingDevice.getCreatedAt());
-//        messagingDevArrayList.add("UpdatedAt: "    + messagingDevice.getUpdatedAt());
         messagingDevArrayList.add("Timestamp: "    + messagingDevice.getTimestamp());
         messagingDevArrayList.add("Transaction: "  + messagingDevice.getTransaction());
         messagingDevArrayList.add("ExternalId: "  + messaging.getExternalId());
