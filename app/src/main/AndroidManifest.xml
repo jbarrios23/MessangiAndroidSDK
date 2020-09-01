@@ -8,6 +8,7 @@
         android:protectionLevel="signature" />
 
     <uses-permission android:name="${applicationId}.permission.pushReceive" />
+    <uses-sdk tools:overrideLibrary="com.google.zxing.client.android" />
 
     <application
         android:name=".MyApplication"
@@ -19,11 +20,10 @@
         android:supportsRtl="true"
         android:theme="@style/AppTheme"
         android:windowActionBar="false"
-        tools:replace="android:allowBackup"
-        tools:ignore="GoogleAppIndexingWarning">
-        <activity android:name=".LoginActivity">
-
-        </activity>
+        tools:ignore="GoogleAppIndexingWarning"
+        tools:replace="android:allowBackup">
+        <activity android:name=".scanqr.SmallCaptureActivity"></activity>
+        <activity android:name=".LoginActivity"></activity>
 
         <receiver
             android:name=".MessagingNotificationReceiver"
@@ -84,6 +84,7 @@
             android:stateNotNeeded="true"
             android:theme="@style/zxing_CaptureTheme"
             android:windowSoftInputMode="stateAlwaysHidden" />
+
     </application>
 
 </manifest>
