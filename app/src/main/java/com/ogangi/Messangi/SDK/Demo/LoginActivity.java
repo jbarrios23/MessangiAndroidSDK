@@ -1,10 +1,13 @@
 package com.ogangi.Messangi.SDK.Demo;
 
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.localbroadcastmanager.content.LocalBroadcastManager;
 
 import android.annotation.SuppressLint;
+import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
+import android.content.IntentFilter;
 import android.content.pm.ActivityInfo;
 import android.os.AsyncTask;
 import android.os.Bundle;
@@ -21,6 +24,9 @@ import android.widget.Toast;
 import com.google.zxing.integration.android.IntentIntegrator;
 import com.google.zxing.integration.android.IntentResult;
 import com.messaging.sdk.Messaging;
+import com.messaging.sdk.MessagingDevice;
+import com.messaging.sdk.MessagingNotification;
+import com.messaging.sdk.MessagingUser;
 import com.ogangi.Messangi.SDK.Demo.scanqr.CaptureActivityAnyOrientation;
 import com.ogangi.Messangi.SDK.Demo.scanqr.SmallCaptureActivity;
 
@@ -31,6 +37,7 @@ import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
+import java.io.Serializable;
 import java.net.HttpURLConnection;
 import java.net.URL;
 
@@ -92,6 +99,16 @@ public class LoginActivity extends AppCompatActivity {
         });
     }
 
+    @Override
+    protected void onStart() {
+        super.onStart();
+        nameMethod=new Object(){}.getClass().getEnclosingMethod().getName();
+        Log.d(TAG,"DEBUG: "+CLASS_TAG+": "+nameMethod+": register LocalBroadcastReceiver");
+        LocalBroadcastManager.getInstance(this).registerReceiver(mReceiver,
+                new IntentFilter(Messaging.ACTION_FETCH_FIELDS));
+
+    }
+
     private void callScanQr() {
         IntentIntegrator scanIntegrator = new IntentIntegrator(LoginActivity.this);
 
@@ -140,6 +157,14 @@ public class LoginActivity extends AppCompatActivity {
     }
 
     @Override
+    protected void onDestroy() {
+        nameMethod=new Object(){}.getClass().getEnclosingMethod().getName();
+        Log.d(TAG,"DEBUG: "+CLASS_TAG+": "+nameMethod+": unregister LocalBroadcastReceiver");
+        LocalBroadcastManager.getInstance(this).unregisterReceiver(mReceiver);
+        super.onDestroy();
+    }
+
+    @Override
     public void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
 
@@ -161,12 +186,11 @@ public class LoginActivity extends AppCompatActivity {
                 Log.d(TAG, "INFO: " + CLASS_TAG + ": " + nameMethod + "Token: " +prvTokenApp+" Host "+provHostApp);
                 //new HttpRequestTaskGet(provHostApp,prvTokenApp).execute();
                 showLinearData(prvTokenApp,provHostApp);
+                //Messaging.fetchFields(getApplicationContext(),prvTokenApp,provHostApp);
             }else{
                 Toast.makeText(getApplicationContext(),"Cancelled",Toast.LENGTH_LONG).show();
                 Log.d(TAG, "INFO: " + CLASS_TAG + ": " + nameMethod + ": " +"Cancelled");
             }
-
-
 
         } else {
             Toast.makeText(this, "Nothing scanned", Toast.LENGTH_SHORT).show();
@@ -175,114 +199,36 @@ public class LoginActivity extends AppCompatActivity {
 
     }
 
-    private static class HttpRequestTaskGet extends AsyncTask<Void,Void,String> {
-
-        public String provAppHost;
-        private String provAppToken;
-        private String nameMethod;
-        private String provUrl;
-        private String server_response;
-        @SuppressLint("StaticFieldLeak")
-
-
-        public HttpRequestTaskGet(String appHost, String appToken) {
-            this.provAppHost=appHost;
-            this.provAppToken=appToken;
-
-        }
-
-
+    private BroadcastReceiver mReceiver=new BroadcastReceiver() {
         @Override
-        protected String doInBackground(Void... voids) {
-            HttpURLConnection urlConnection = null;
+        public void onReceive(Context context, Intent intent) {
+            nameMethod=new Object(){}.getClass().getEnclosingMethod().getName();
 
-            try {
+            boolean hasError=intent.getBooleanExtra(Messaging.INTENT_EXTRA_HAS_ERROR,true);
+            Log.d(TAG,"ERROR: "+CLASS_TAG+": "+nameMethod+": Has error:  "+ hasError);
+            if (!hasError ) {
+                //Serializable data=intent.getSerializableExtra(Messaging.INTENT_EXTRA_DATA);
+                String data=intent.getStringExtra(Messaging.INTENT_EXTRA_DATA);
+                if(intent.getAction().equals(Messaging.ACTION_FETCH_FIELDS) && data!=null){
+                    Log.d(TAG,"DEBUG: "+CLASS_TAG+": "+nameMethod+": data:  "+ data);
 
-                String authToken= provAppToken;
-                nameMethod=new Object(){}.getClass().getEnclosingMethod().getName();
-                String param ="Bearer "+authToken;
-                provUrl= provAppHost+"/fields";
-
-                Log.d(TAG, "DEBUG: " + CLASS_TAG + ": " + nameMethod + "GET "+provUrl);
-                URL url = new URL(provUrl);
-                urlConnection = (HttpURLConnection) url.openConnection();
-                urlConnection.setRequestProperty("Authorization","Bearer "+authToken);
-                urlConnection.setRequestProperty("Content-Type","application/json");
-                urlConnection.setRequestMethod("GET");
-                int code = urlConnection.getResponseCode();
-                if (code !=  200) {
-                    Log.e(TAG, "ERROR: " + CLASS_TAG + ": " + nameMethod + " Invalid response from server: " + code);
-
-                    throw new IOException("Invalid response from server: " + code);
+                }else{
+                    Toast.makeText(getApplicationContext(),intent.getAction(),Toast.LENGTH_LONG).show();
+                    Log.e(TAG,"DEBUG: "+CLASS_TAG+": "+nameMethod+": An error occurred on action:  "
+                            + intent.getAction());
                 }
 
-                BufferedReader rd = new BufferedReader(new InputStreamReader(
-                        urlConnection.getInputStream()));
+            }else{
+                Log.e(TAG,"DEBUG: "+CLASS_TAG+": "+nameMethod+": An error occurred on action:  "
+                        + intent.getAction());
+                Toast.makeText(getApplicationContext(),"An error occurred on action "
+                        +intent.getAction(),Toast.LENGTH_LONG).show();
 
-
-                if(code == HttpURLConnection.HTTP_OK){
-                    server_response = readStream(urlConnection.getInputStream());
-
-                }
-
-            } catch (Exception e) {
-                e.printStackTrace();
-                Log.e(TAG, "ERROR: " + CLASS_TAG + ": " + nameMethod + "Exception "+e.getStackTrace().toString());
-
-            } finally {
-                if (urlConnection != null) {
-                    urlConnection.disconnect();
-                }
             }
 
-            return server_response;
         }
 
-        @Override
-        protected void onPostExecute(String response) {
-            super.onPostExecute(response);
-            try{
-                if(!response.equals("")) {
-                    nameMethod=new Object(){}.getClass().getEnclosingMethod().getName();
-                    Log.d(TAG, "DEBUG: " + CLASS_TAG + ": " + nameMethod + "Get Field Successful "+response);
-                    JSONObject resp=new JSONObject(response);
-                    LoginActivity loginActivity=new LoginActivity();
-                    loginActivity.showLinearData(provAppToken,provAppHost);
-
-                }
-            }catch (NullPointerException e){
-                Log.e(TAG, "ERROR: " + CLASS_TAG + ": " + nameMethod + "Field not Get! NullPointerException "+e.getStackTrace().toString());
+    };
 
 
-            } catch (JSONException e) {
-                e.printStackTrace();
-                Log.e(TAG, "ERROR: " + CLASS_TAG + ": " + nameMethod + "Field not Get! JSONException "+e.getStackTrace().toString());
-
-            }
-        }
-
-        public String readStream(InputStream inputStream) {
-            BufferedReader reader = null;
-            StringBuffer response = new StringBuffer();
-            try {
-                reader = new BufferedReader(new InputStreamReader(inputStream));
-                String line = "";
-                while ((line = reader.readLine()) != null) {
-                    response.append(line);
-                }
-            } catch (IOException e) {
-                e.printStackTrace();
-            } finally {
-                if (reader != null) {
-                    try {
-                        reader.close();
-                    } catch (IOException e) {
-                        e.printStackTrace();
-                    }
-                }
-            }
-            return response.toString();
-
-        }
-    }
 }

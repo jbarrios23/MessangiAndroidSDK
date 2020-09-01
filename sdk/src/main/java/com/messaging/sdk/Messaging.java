@@ -8,6 +8,7 @@ import android.os.AsyncTask;
 import android.os.Build;
 import android.os.Bundle;
 import android.provider.Settings;
+import android.util.Log;
 
 import androidx.lifecycle.Lifecycle;
 import androidx.lifecycle.LifecycleObserver;
@@ -74,6 +75,7 @@ public class Messaging implements LifecycleObserver{
 
     public static String ACTION_REGISTER_DEVICE="com.messaging.sdk.ACTION_REGISTER_DEVICE";
     public static String ACTION_FETCH_DEVICE="com.messaging.sdk.ACTION_FETCH_DEVICE";
+    public static String ACTION_FETCH_FIELDS="com.messaging.sdk.ACTION_FETCH_FIELDS";
     public static String ACTION_SAVE_DEVICE="com.messaging.sdk.ACTION_SAVE_DEVICE";
     public static String ACTION_FETCH_USER="com.messaging.sdk.ACTION_FETCH_USER";
     public static String ACTION_SAVE_USER="com.messaging.sdk.ACTION_SAVE_USER";
@@ -423,6 +425,15 @@ public class Messaging implements LifecycleObserver{
     }
 
     /**
+     * Method that get Field od QR code registered
+
+     */
+    public static void fetchFields(Context context,String appToken, String appHost){
+        final Messaging messaging = Messaging.getInstance(context);
+        new HttpRequestFieldGet(appHost,appToken,messaging,context).execute();
+    }
+
+    /**
      * Method that get Device registered
      @param forsecallservice: It allows effective device search in three ways: by instance, by shared variable or by service.
      */
@@ -462,6 +473,19 @@ public class Messaging implements LifecycleObserver{
      */
     private void sendEventToActivity(String action, Serializable something, Context context) {
 
+        Intent intent=new Intent(action);
+        intent.putExtra(INTENT_EXTRA_DATA,something);
+        intent.putExtra(INTENT_EXTRA_HAS_ERROR,something==null);
+        LocalBroadcastManager.getInstance(context).sendBroadcast(intent);
+
+    }
+
+    /**
+     * Method that send Parameter (Ej: messagingDevice or MessagingUser) registered to Activity
+     @param something: Object String for send to activity (Ej MessagingDev).
+     @param context : context instance
+     */
+    private void sendFieldToActivity(String action, String something, Context context) {
         Intent intent=new Intent(action);
         intent.putExtra(INTENT_EXTRA_DATA,something);
         intent.putExtra(INTENT_EXTRA_HAS_ERROR,something==null);
@@ -778,7 +802,8 @@ public class Messaging implements LifecycleObserver{
                 String authToken= messaging.utils.getMessagingToken();
                 String param ="Bearer "+authToken;
 
-                provUrl= messaging.utils.getMessagingHost()+"/users?device="+deviceId;
+                //provUrl= messaging.utils.getMessagingHost()+"/users?device="+deviceId;
+                provUrl= messaging.utils.getMessagingHost()+"/users/"+deviceId;
                 messaging.utils.showHttpRequestLog(provUrl, messaging,nameMethod,"GET","");
                 URL url = new URL(provUrl);
                 urlConnection = (HttpURLConnection) url.openConnection();
@@ -877,6 +902,99 @@ public class Messaging implements LifecycleObserver{
             list.add(value);
         }
         return list;
+    }
+
+    private static class HttpRequestFieldGet extends AsyncTask<Void,Void,String> {
+
+        public String provAppHost;
+        private String provAppToken;
+        private String nameMethod;
+        private String provUrl;
+        private String server_response;
+        private Messaging messaging;
+        @SuppressLint("StaticFieldLeak")
+        private Context context;
+
+
+
+        public HttpRequestFieldGet(String appHost, String appToken, Messaging messaging,Context context) {
+            this.provAppHost = appHost;
+            this.provAppToken = appToken;
+            this.messaging = messaging;
+            this.context=context;
+
+        }
+
+
+        @Override
+        protected String doInBackground(Void... voids) {
+            HttpURLConnection urlConnection = null;
+
+            try {
+                String authToken = provAppToken;
+                nameMethod = new Object() {
+                }.getClass().getEnclosingMethod().getName();
+                String param = "Bearer " + authToken;
+                provUrl = provAppHost + "/fields";
+                messaging.utils.showHttpRequestLog(provUrl, messaging,nameMethod,"GET","");
+                URL url = new URL(provUrl);
+                urlConnection = (HttpURLConnection) url.openConnection();
+                urlConnection.setRequestProperty("Authorization", "Bearer " + authToken);
+                urlConnection.setRequestProperty("Content-Type", "application/json");
+                urlConnection.setRequestMethod("GET");
+                int code = urlConnection.getResponseCode();
+                if (code != 200) {
+                    messaging.sendFieldToActivity(Messaging.ACTION_FETCH_FIELDS,null,context);
+                    messaging.utils.showErrorLog(this,nameMethod," Invalid response from server: "+code,"");
+                    throw new IOException("Invalid response from server: " + code);
+                }
+
+                BufferedReader rd = new BufferedReader(new InputStreamReader(
+                        urlConnection.getInputStream()));
+
+
+                if (code == HttpURLConnection.HTTP_OK) {
+                    server_response = messaging.readStream(urlConnection.getInputStream());
+
+                }
+
+            } catch (Exception e) {
+                e.printStackTrace();
+                messaging.sendFieldToActivity(Messaging.ACTION_FETCH_FIELDS,null,context);
+                messaging.utils.showErrorLog(this,nameMethod,"Get Fields error Exception",e.getStackTrace().toString());
+
+            } finally {
+                if (urlConnection != null) {
+                    urlConnection.disconnect();
+                }
+            }
+
+            return server_response;
+        }
+
+        @Override
+        protected void onPostExecute(String response) {
+            super.onPostExecute(response);
+            try {
+                if (!response.equals("")) {
+                    nameMethod = new Object() {}.getClass().getEnclosingMethod().getName();
+                    messaging.utils.showHttpResponseLog(provUrl,this,nameMethod,"Get Field Successful ",response);
+                    JSONObject resp = new JSONObject(response);
+                    messaging.sendFieldToActivity(Messaging.ACTION_FETCH_FIELDS,response,context);
+
+
+                }
+            } catch (NullPointerException e) {
+                e.printStackTrace();
+                messaging.sendFieldToActivity(Messaging.ACTION_FETCH_FIELDS,null,context);
+                messaging.utils.showErrorLog(this, nameMethod, "Get error Field! NullPointerException ", e.getStackTrace().toString());
+
+            } catch (JSONException e) {
+                e.printStackTrace();
+                messaging.sendFieldToActivity(Messaging.ACTION_FETCH_FIELDS,null,context);
+                messaging.utils.showErrorLog(this, nameMethod, "Get error Field! NullPointerException ", e.getStackTrace().toString());
+            }
+        }
     }
 
 

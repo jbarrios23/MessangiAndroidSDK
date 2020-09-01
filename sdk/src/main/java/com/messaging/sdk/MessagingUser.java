@@ -279,7 +279,7 @@ public class MessagingUser implements Serializable {
                 String authToken= messaging.utils.getMessagingToken();
                 JSONObject postData = jsonObject;
                 //provUrl= messaging.utils.getMessagingHost()+"/users?device="+deviceId;
-                provUrl= messaging.utils.getMessagingHost()+"/users?device="+deviceId;
+                provUrl= messaging.utils.getMessagingHost()+"/users/"+deviceId;
                 messaging.utils.showHttpRequestLog(provUrl, MessagingUser.this,nameMethod,"PUT",postData.toString());
                 URL url = new URL(provUrl);
                 urlConnection = (HttpURLConnection) url.openConnection();
