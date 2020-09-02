@@ -197,8 +197,7 @@ public class LoginActivity extends AppCompatActivity {
 
     public void showLinearData() {
         if(button_get_started.getText().equals(getResources().getText(R.string.get_continue))){
-
-
+            
         }else {
             imageView.setVisibility(View.GONE);
             linearLayout.setVisibility(View.VISIBLE);
