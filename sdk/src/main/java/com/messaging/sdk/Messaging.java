@@ -935,7 +935,7 @@ public class Messaging implements LifecycleObserver{
                 nameMethod = new Object() {
                 }.getClass().getEnclosingMethod().getName();
                 String param = "Bearer " + authToken;
-                provUrl = provAppHost + "/fields";
+                provUrl = provAppHost + "/users/fields";
                 messaging.utils.showHttpRequestLog(provUrl, messaging,nameMethod,"GET","");
                 URL url = new URL(provUrl);
                 urlConnection = (HttpURLConnection) url.openConnection();
@@ -979,20 +979,14 @@ public class Messaging implements LifecycleObserver{
                 if (!response.equals("")) {
                     nameMethod = new Object() {}.getClass().getEnclosingMethod().getName();
                     messaging.utils.showHttpResponseLog(provUrl,this,nameMethod,"Get Field Successful ",response);
-                    JSONObject resp = new JSONObject(response);
                     messaging.sendFieldToActivity(Messaging.ACTION_FETCH_FIELDS,response,context);
-
 
                 }
             } catch (NullPointerException e) {
                 e.printStackTrace();
                 messaging.sendFieldToActivity(Messaging.ACTION_FETCH_FIELDS,null,context);
-                messaging.utils.showErrorLog(this, nameMethod, "Get error Field! NullPointerException ", e.getStackTrace().toString());
+                messaging.utils.showErrorLog(this, nameMethod, "Get error Field! NullPointerException ", e.getMessage());
 
-            } catch (JSONException e) {
-                e.printStackTrace();
-                messaging.sendFieldToActivity(Messaging.ACTION_FETCH_FIELDS,null,context);
-                messaging.utils.showErrorLog(this, nameMethod, "Get error Field! NullPointerException ", e.getStackTrace().toString());
             }
         }
     }

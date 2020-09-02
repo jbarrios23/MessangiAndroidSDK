@@ -1,15 +1,11 @@
 package com.ogangi.Messangi.SDK.Demo;
 
-import androidx.appcompat.app.AppCompatActivity;
-import androidx.localbroadcastmanager.content.LocalBroadcastManager;
-
 import android.annotation.SuppressLint;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.pm.ActivityInfo;
-import android.os.AsyncTask;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
@@ -18,28 +14,30 @@ import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
+import android.widget.ProgressBar;
 import android.widget.TextView;
 import android.widget.Toast;
+
+import androidx.appcompat.app.AppCompatActivity;
+import androidx.localbroadcastmanager.content.LocalBroadcastManager;
 
 import com.google.zxing.integration.android.IntentIntegrator;
 import com.google.zxing.integration.android.IntentResult;
 import com.messaging.sdk.Messaging;
-import com.messaging.sdk.MessagingDevice;
-import com.messaging.sdk.MessagingNotification;
-import com.messaging.sdk.MessagingUser;
 import com.ogangi.Messangi.SDK.Demo.scanqr.CaptureActivityAnyOrientation;
 import com.ogangi.Messangi.SDK.Demo.scanqr.SmallCaptureActivity;
 
+import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
-import java.io.BufferedReader;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.InputStreamReader;
-import java.io.Serializable;
-import java.net.HttpURLConnection;
-import java.net.URL;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
+
+import static android.text.InputType.TYPE_CLASS_NUMBER;
+import static android.text.InputType.TYPE_CLASS_PHONE;
+import static android.text.InputType.TYPE_CLASS_TEXT;
 
 public class LoginActivity extends AppCompatActivity {
     public static String CLASS_TAG=LoginActivity.class.getSimpleName();
@@ -50,6 +48,14 @@ public class LoginActivity extends AppCompatActivity {
     private String nameMethod;
     public LinearLayout linearLayout;
     public EditText customField,customEmail,customPhone;
+    public EditText editText;
+    public int numberFields=2;
+//    public String [] myListName;
+//    public String [] myListType;
+    public String [] myListResult;
+    public List<String> myListName;
+    public List<String> myListType;
+    public ProgressBar progressBar;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -63,19 +69,30 @@ public class LoginActivity extends AppCompatActivity {
         scan_title=findViewById(R.id.textView_scan);
         imageView=findViewById(R.id.imageView_visualizer);
         linearLayout=findViewById(R.id.linearLayoutData);
-        customField=findViewById(R.id.editText_custom_field);
-        customEmail=findViewById(R.id.editText_email);
-        customPhone=findViewById(R.id.editText_phone);
+        progressBar=findViewById(R.id.progressBar);
+//        myListName= new String[]{"masukan jenis kursus","Tambah jenis kursus",
+//                "masukan jenis kursus","masukan jenis kursus","Tambah jenis kursus",
+//                 "new task","new task","new task"};
+//        customField=findViewById(R.id.editText_custom_field);
+//        customEmail=findViewById(R.id.editText_email);
+//        customPhone=findViewById(R.id.editText_phone);
 
         button_get_started.setText(getResources().getText(R.string.get_started));
         imageView.setVisibility(View.VISIBLE);
+
+//        // Create EditText
+//        editText= new EditText(this);
+//        editText.setHint(R.string.hint);
+//        editText.setLayoutParams(new LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT));
+//        editText.setPadding(20, 20, 20, 20);
+
 
         button_get_started.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 if(button_get_started.getText().equals(getResources().getText(R.string.get_finish))){
                     //LoginActivity.this.finish();
-                    showLinearData("", "");
+                    showLinearData();
 
 
 
@@ -88,7 +105,7 @@ public class LoginActivity extends AppCompatActivity {
                         button_get_started.setText(getResources().getText(R.string.get_finish));
                         scan_title.setVisibility(View.VISIBLE);
                         //imageView.setImageResource(R.drawable.common_google_signin_btn_text_light);
-                        imageView.setVisibility(View.INVISIBLE);
+                        imageView.setVisibility(View.GONE);
                         Log.i(TAG, "INFO: " + CLASS_TAG + ": " + nameMethod + ": " + button_get_started.getText());
                     }
 
@@ -97,6 +114,28 @@ public class LoginActivity extends AppCompatActivity {
 
             }
         });
+    }
+
+    private void addEditTextDynamically(LinearLayout mParentLayout, List<String> myList){
+
+        for (int i=0;i<myList.size();i++){
+            editText = new EditText(mParentLayout.getContext());
+            LinearLayout.LayoutParams lp=new LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.WRAP_CONTENT);
+            lp.setMargins(20,20,0,30);
+            editText.setLayoutParams(lp);
+            editText.setId(i);
+            editText.setTag(myListName.get(i));
+            editText.setHint(myListName.get(i));
+            if(myListType.get(i).equals("STRING")){
+                editText.setInputType(TYPE_CLASS_TEXT);
+            }else if(myListType.get(i).equals("NUMBER")){
+                editText.setInputType(TYPE_CLASS_PHONE);
+            }
+            editText.setPadding(20, 20, 20, 20);
+            editText.setHintTextColor(getResources().getColor(R.color.greyColor));
+            editText.setBackgroundColor(getResources().getColor(R.color.greyColorSoft));
+            mParentLayout.addView(editText);
+        }
     }
 
     @Override
@@ -127,30 +166,58 @@ public class LoginActivity extends AppCompatActivity {
         scanIntegrator.initiateScan();
     }
 
+    @SuppressLint("ResourceType")
     private void getDataFromEditText() {
-        String provCustomField=customField.getText().toString();
-        String provCustomEmail=customEmail.getText().toString();
-        String provCustomPhone=customPhone.getText().toString();
-        Log.i(TAG, "INFO: " + CLASS_TAG + ": " + nameMethod + ": " + provCustomField
-                +" Email "+provCustomEmail+" Phone "+provCustomPhone);
-        LoginActivity.this.finish();
+    nameMethod=new Object(){}.getClass().getEnclosingMethod().getName();
+    myListResult=getInputArrayFromEditTexts(linearLayout);
+    Log.i(TAG, "INFO: " + CLASS_TAG + ": " + nameMethod + ": " + Arrays.toString(myListResult));
+    Log.i(TAG, "INFO: " + CLASS_TAG + ": " + nameMethod + ": " + Arrays.toString(new List[]{myListName}));
+    JSONObject jsonObject = new JSONObject();
+    for(int i=0;i<myListName.size();i++){
+
+        try {
+            jsonObject.put(myListName.get(i),myListResult[i]);
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
+    }
+    Log.i(TAG, "INFO: " + CLASS_TAG + ": " + nameMethod + ": " + jsonObject);
+    LoginActivity.this.finish();
 
     }
 
-    public void showLinearData(String prvTokenApp, String provHostApp) {
+    private String[] getInputArrayFromEditTexts(LinearLayout mParentLayout){
+        String[] inputArray = new String [mParentLayout.getChildCount()];
+        for (int i = 0; i <inputArray.length ; i++) {
+            editText  =(EditText) mParentLayout.getChildAt(i);
+            inputArray[i] = editText.getText().toString();
+        }
+        return inputArray;
+    }
+
+    public void showLinearData() {
         if(button_get_started.getText().equals(getResources().getText(R.string.get_continue))){
 
 
         }else {
-            imageView.setVisibility(View.INVISIBLE);
+            imageView.setVisibility(View.GONE);
             linearLayout.setVisibility(View.VISIBLE);
             scan_title.setVisibility(View.VISIBLE);
             scan_title.setTextSize(25);
             scan_title.setText(getResources().getText(R.string.let_get_started_title));
             button_get_started.setText(getResources().getText(R.string.get_continue));
-            customField.setText(prvTokenApp);
-            customEmail.setText(prvTokenApp);
-            customPhone.setText(provHostApp);
+            // Add EditText to LinearLayout
+            if(myListName!=null && myListName.size()>0) {
+                if(progressBar.isShown()){
+                    progressBar.setVisibility(View.GONE);
+                }
+                addEditTextDynamically(linearLayout, myListName);
+            }else{
+                if(progressBar.isShown()){
+                    progressBar.setVisibility(View.GONE);
+                }
+                 LoginActivity.this.finish();
+            }
             Log.i(TAG, "INFO: " + CLASS_TAG + ": " + nameMethod + ": " + button_get_started.getText());
         }
 
@@ -177,7 +244,6 @@ public class LoginActivity extends AppCompatActivity {
                 scanFormat = scanningResult.getFormatName().toString();
             }
 
-
             Log.d(TAG, "INFO: " + CLASS_TAG + ": " + nameMethod + ": " + scanContent + "    type:" + scanFormat);
             if(!scanContent.equals("")&& !scanContent.isEmpty()){
                 String[] prvHandlerMessage=scanContent.split(":%:");
@@ -185,8 +251,9 @@ public class LoginActivity extends AppCompatActivity {
                 String provHostApp=prvHandlerMessage[1];
                 Log.d(TAG, "INFO: " + CLASS_TAG + ": " + nameMethod + "Token: " +prvTokenApp+" Host "+provHostApp);
                 //new HttpRequestTaskGet(provHostApp,prvTokenApp).execute();
-                showLinearData(prvTokenApp,provHostApp);
-                //Messaging.fetchFields(getApplicationContext(),prvTokenApp,provHostApp);
+                //showLinearData(prvTokenApp,provHostApp);
+                progressBar.setVisibility(View.VISIBLE);
+                Messaging.fetchFields(getApplicationContext(),prvTokenApp,provHostApp);
             }else{
                 Toast.makeText(getApplicationContext(),"Cancelled",Toast.LENGTH_LONG).show();
                 Log.d(TAG, "INFO: " + CLASS_TAG + ": " + nameMethod + ": " +"Cancelled");
@@ -211,6 +278,22 @@ public class LoginActivity extends AppCompatActivity {
                 String data=intent.getStringExtra(Messaging.INTENT_EXTRA_DATA);
                 if(intent.getAction().equals(Messaging.ACTION_FETCH_FIELDS) && data!=null){
                     Log.d(TAG,"DEBUG: "+CLASS_TAG+": "+nameMethod+": data:  "+ data);
+                    JSONArray arr = null;
+                    try {
+                        arr = new JSONArray(data);
+                         myListName = new ArrayList<String>();
+                         myListType = new ArrayList<String>();
+                        for(int i = 0; i < arr.length(); i++){
+                            myListName.add(arr.getJSONObject(i).getString("name"));
+                            myListType.add(arr.getJSONObject(i).getString("type"));
+                        }
+                        showLinearData();
+
+                    } catch (JSONException e) {
+                        e.printStackTrace();
+                    }
+
+
 
                 }else{
                     Toast.makeText(getApplicationContext(),intent.getAction(),Toast.LENGTH_LONG).show();
