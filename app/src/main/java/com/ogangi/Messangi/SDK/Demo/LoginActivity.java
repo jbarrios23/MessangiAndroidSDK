@@ -33,6 +33,9 @@ import org.json.JSONObject;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
+import java.util.Comparator;
+import java.util.HashMap;
 import java.util.List;
 
 import static android.text.InputType.TYPE_CLASS_NUMBER;
@@ -55,6 +58,10 @@ public class LoginActivity extends AppCompatActivity {
     public String [] myListResult;
     public List<String> myListName;
     public List<String> myListType;
+    public List<String> myListField;
+    public List<String> myListLabel;
+    public HashMap<String,String> dataInput;
+    public ArrayList<HashMap<String,String>> dataInputList;
     public ProgressBar progressBar;
 
     @Override
@@ -116,7 +123,8 @@ public class LoginActivity extends AppCompatActivity {
         });
     }
 
-    private void addEditTextDynamically(LinearLayout mParentLayout, List<String> myList){
+    private void addEditTextDynamically(LinearLayout mParentLayout,
+                                        ArrayList<HashMap<String, String>> myList){
 
         for (int i=0;i<myList.size();i++){
             editText = new EditText(mParentLayout.getContext());
@@ -124,16 +132,37 @@ public class LoginActivity extends AppCompatActivity {
             lp.setMargins(20,20,0,30);
             editText.setLayoutParams(lp);
             editText.setId(i);
-            editText.setTag(myListName.get(i));
-            editText.setHint(myListName.get(i));
-            if(myListType.get(i).equals("STRING")){
-                editText.setInputType(TYPE_CLASS_TEXT);
-            }else if(myListType.get(i).equals("NUMBER")){
-                editText.setInputType(TYPE_CLASS_PHONE);
+            if(myList.get(i).containsKey("label")){
+                editText.setTag(myList.get(i).get("label"));
+                editText.setHint(myList.get(i).get("label"));
+                if(myList.get(i).containsKey("type")){
+                    if(myList.get(i).get("type").equals("STRING")){
+                        editText.setInputType(TYPE_CLASS_TEXT);
+                    }else if(myList.get(i).get("type").equals("NUMBER")){
+                        editText.setInputType(TYPE_CLASS_PHONE);
+                    }
+                }else{
+                    editText.setInputType(TYPE_CLASS_TEXT);
+                }
             }
+            if(myList.get(i).containsKey("name")){
+                editText.setTag(myList.get(i).get("name"));
+                editText.setHint(myList.get(i).get("name"));
+                if(myList.get(i).containsKey("type")){
+                    if(myList.get(i).get("type").equals("STRING")){
+                        editText.setInputType(TYPE_CLASS_TEXT);
+                    }else if(myList.get(i).get("type").equals("NUMBER")){
+                        editText.setInputType(TYPE_CLASS_PHONE);
+                    }
+                }else{
+                    editText.setInputType(TYPE_CLASS_TEXT);
+                }
+            }
+
+            editText.setTextSize(14f);
             editText.setPadding(20, 20, 20, 20);
             editText.setHintTextColor(getResources().getColor(R.color.greyColor));
-            editText.setBackgroundColor(getResources().getColor(R.color.greyColorSoft));
+            editText.setBackgroundColor(getResources().getColor(R.color.whiteColor));
             mParentLayout.addView(editText);
         }
     }
@@ -171,18 +200,18 @@ public class LoginActivity extends AppCompatActivity {
     nameMethod=new Object(){}.getClass().getEnclosingMethod().getName();
     myListResult=getInputArrayFromEditTexts(linearLayout);
     Log.i(TAG, "INFO: " + CLASS_TAG + ": " + nameMethod + ": " + Arrays.toString(myListResult));
-    Log.i(TAG, "INFO: " + CLASS_TAG + ": " + nameMethod + ": " + Arrays.toString(new List[]{myListName}));
-    JSONObject jsonObject = new JSONObject();
-    for(int i=0;i<myListName.size();i++){
-
-        try {
-            jsonObject.put(myListName.get(i),myListResult[i]);
-        } catch (JSONException e) {
-            e.printStackTrace();
-        }
-    }
-    Log.i(TAG, "INFO: " + CLASS_TAG + ": " + nameMethod + ": " + jsonObject);
-    LoginActivity.this.finish();
+//    Log.i(TAG, "INFO: " + CLASS_TAG + ": " + nameMethod + ": " + Arrays.toString(new List[]{myListName}));
+//    JSONObject jsonObject = new JSONObject();
+//    for(int i=0;i<myListName.size();i++){
+//
+//        try {
+//            jsonObject.put(myListName.get(i),myListResult[i]);
+//        } catch (JSONException e) {
+//            e.printStackTrace();
+//        }
+//    }
+//    Log.i(TAG, "INFO: " + CLASS_TAG + ": " + nameMethod + ": " + jsonObject);
+//    LoginActivity.this.finish();
 
     }
 
@@ -197,7 +226,7 @@ public class LoginActivity extends AppCompatActivity {
 
     public void showLinearData() {
         if(button_get_started.getText().equals(getResources().getText(R.string.get_continue))){
-            
+
         }else {
             imageView.setVisibility(View.GONE);
             linearLayout.setVisibility(View.VISIBLE);
@@ -206,11 +235,12 @@ public class LoginActivity extends AppCompatActivity {
             scan_title.setText(getResources().getText(R.string.let_get_started_title));
             button_get_started.setText(getResources().getText(R.string.get_continue));
             // Add EditText to LinearLayout
-            if(myListName!=null && myListName.size()>0) {
+            if(dataInputList!=null && dataInputList.size()>0) {
                 if(progressBar.isShown()){
                     progressBar.setVisibility(View.GONE);
                 }
-                addEditTextDynamically(linearLayout, myListName);
+                //addEditTextDynamically(linearLayout, myListName);
+                addEditTextDynamically(linearLayout, dataInputList);
             }else{
                 if(progressBar.isShown()){
                     progressBar.setVisibility(View.GONE);
@@ -277,15 +307,41 @@ public class LoginActivity extends AppCompatActivity {
                 String data=intent.getStringExtra(Messaging.INTENT_EXTRA_DATA);
                 if(intent.getAction().equals(Messaging.ACTION_FETCH_FIELDS) && data!=null){
                     Log.d(TAG,"DEBUG: "+CLASS_TAG+": "+nameMethod+": data:  "+ data);
-                    JSONArray arr = null;
+                    int[] order={3,2,1,6,5,4};
                     try {
-                        arr = new JSONArray(data);
+                        JSONArray arr = new JSONArray(data);
+                        JSONArray sortedJsonArray =getJsonArraySorted(arr);
+
+                    Log.d(TAG,"DEBUG: "+CLASS_TAG+": "+nameMethod+": sortedJsonArray:  "
+                            + sortedJsonArray.toString());
+
+                         dataInputList=new ArrayList<HashMap<String, String>>();
                          myListName = new ArrayList<String>();
                          myListType = new ArrayList<String>();
-                        for(int i = 0; i < arr.length(); i++){
-                            myListName.add(arr.getJSONObject(i).getString("name"));
-                            myListType.add(arr.getJSONObject(i).getString("type"));
+
+                        for(int i = 0; i < sortedJsonArray.length(); i++){
+                            dataInput=new HashMap<String, String>();
+                            if(sortedJsonArray.getJSONObject(i).has("label")) {
+                                dataInput.put("label",sortedJsonArray.getJSONObject(i).getString("label"));
+                            }
+                            if(sortedJsonArray.getJSONObject(i).has("type")) {
+                                dataInput.put("type",sortedJsonArray.getJSONObject(i).getString("type"));
+                            }
+                            if(sortedJsonArray.getJSONObject(i).has("field")) {
+                                dataInput.put("field",sortedJsonArray.getJSONObject(i).getString("field"));
+                            }
+                            if(sortedJsonArray.getJSONObject(i).has("name")) {
+                                dataInput.put("name",sortedJsonArray.getJSONObject(i).getString("name"));
+                            }
+                            Log.d(TAG,"DEBUG: "+CLASS_TAG+": "+nameMethod+": dataInput:  "
+                                    + dataInput);
+                            dataInputList.add(dataInput);
+//                            myListName.add(sortedJsonArray.getJSONObject(i).getString("name"));
+//                            myListType.add(sortedJsonArray.getJSONObject(i).getString("type"));
                         }
+
+                        Log.d(TAG,"DEBUG: "+CLASS_TAG+": "+nameMethod+": dataInputList:  "
+                                + dataInputList.size());
                         showLinearData();
 
                     } catch (JSONException e) {
@@ -312,5 +368,57 @@ public class LoginActivity extends AppCompatActivity {
 
     };
 
+    public JSONArray getJsonArraySorted(JSONArray arr){
+        JSONArray sortedJsonArray = new JSONArray();
+        List<JSONObject> jsonValues = new ArrayList<JSONObject>();
+        for (int i = 0; i < arr.length(); i++) {
+            JSONObject jsonObject= null;
+            try {
+//                jsonObject = arr.getJSONObject(i);
+//                jsonObject.put("order",order[i]);
+                jsonValues.add(arr.getJSONObject(i));
+                //jsonValues.add(jsonObject);
+            } catch (JSONException e) {
+                e.printStackTrace();
+            }
+
+
+        }
+        Collections.sort(jsonValues, new Comparator<JSONObject>() {
+            private static final String KEY_ORDER = "order";
+            @Override
+            public int compare(JSONObject a, JSONObject b) {
+//          String valA = new String();
+//          String valB = new String();
+                int valA = 0;
+                int valB = 0;
+
+                try {
+                    valA = (int) a.get(KEY_ORDER);
+                    valB = (int) b.get(KEY_ORDER);
+                }
+                catch (JSONException e) {
+                    //do something
+                    //e.printStackTrace();
+
+                }
+
+                if(valA==valB) {
+                    return 0;
+                }else{
+                    if(valA<valB){
+                        return -1;
+                    }else{
+                        return 1;
+                    }
+                }
+            }
+        });
+
+        for (int i = 0; i < arr.length(); i++) {
+            sortedJsonArray.put(jsonValues.get(i));
+        }
+        return sortedJsonArray;
+    }
 
 }
