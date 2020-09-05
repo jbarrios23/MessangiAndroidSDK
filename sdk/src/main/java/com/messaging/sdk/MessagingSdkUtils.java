@@ -468,6 +468,12 @@ import java.util.List;
         }
     }
 
+     public void saveConfigParameterFromApp(String token, String Host){
+         String nameMethod=new Object(){}.getClass().getEnclosingMethod().getName();
+         setMessagingToken(token);
+         setMessagingHost(Host);
+     }
+
      public boolean isValidURL(String url) {
 
          try {

@@ -40,7 +40,9 @@ import com.messaging.sdk.MessagingNotification;
 import com.messaging.sdk.MessagingUser;
 
 
-
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.io.InputStreamReader;
 import java.io.Serializable;
 import java.util.ArrayList;
 
@@ -230,6 +232,27 @@ public class MainActivity extends AppCompatActivity {
         progressBar.setVisibility(View.VISIBLE);
         Messaging.fetchDevice(false,getApplicationContext());
         Log.i(TAG,"INFO: "+CLASS_TAG+": "+nameMethod+"onResume: ");
+        //readLogCatFromSdk();
+
+    }
+
+    private void readLogCatFromSdk() {
+        try {
+            Process process = Runtime.getRuntime().exec("logcat -d");
+            BufferedReader bufferedReader = new BufferedReader(
+                    new InputStreamReader(process.getInputStream()));
+
+            StringBuilder log=new StringBuilder();
+            String line = "";
+            while ((line = bufferedReader.readLine()) != null) {
+                log.append(line);
+            }
+//            TextView tv = (TextView)findViewById(R.id.textView1);
+//            tv.setText(log.toString());
+        }
+        catch (IOException e) {
+            e.printStackTrace();
+        }
 
     }
 

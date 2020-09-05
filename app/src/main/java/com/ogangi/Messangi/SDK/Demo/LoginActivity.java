@@ -25,6 +25,7 @@ import androidx.localbroadcastmanager.content.LocalBroadcastManager;
 import com.google.zxing.integration.android.IntentIntegrator;
 import com.google.zxing.integration.android.IntentResult;
 import com.messaging.sdk.Messaging;
+
 import com.ogangi.Messangi.SDK.Demo.scanqr.CaptureActivityAnyOrientation;
 import com.ogangi.Messangi.SDK.Demo.scanqr.SmallCaptureActivity;
 
@@ -56,8 +57,11 @@ public class LoginActivity extends AppCompatActivity {
     public EditText customField,customEmail,customPhone;
     public EditText editText;
     public int numberFields=2;
+    public String prvTokenApp;
+    public String provHostApp;
     public String [] myListResult;
     public ArrayList<String> listField;
+    public ArrayList<String> listTypes;
     public HashMap<String,String> dataInputToSendUser;
     public HashMap<String,String> dataInput;
     public ArrayList<HashMap<String,String>> dataInputList;
@@ -186,6 +190,7 @@ public class LoginActivity extends AppCompatActivity {
     nameMethod=new Object(){}.getClass().getEnclosingMethod().getName();
     myListResult=getInputArrayFromEditTexts(linearLayout);
     listField=new ArrayList<>();
+    listTypes=new ArrayList<>();
     Log.i(TAG, "INFO: " + CLASS_TAG + ": " + nameMethod + ": " + Arrays.toString(myListResult));
     for(int i=0;i<dataInputList.size();i++){
         for (Map.Entry<String, String> entry : dataInputList.get(i).entrySet()) {
@@ -193,48 +198,101 @@ public class LoginActivity extends AppCompatActivity {
 //                    + entry.getKey()+": "+entry.getValue());
             if(entry.getKey().equals("field")){
                 listField.add(entry.getValue());
-            }else if(entry.getKey().equals("name")){
+            }
+            if(entry.getKey().equals("name")){
                 listField.add(entry.getValue());
+            }
+            if(entry.getKey().equals("type")){
+                listTypes.add(entry.getValue());
             }
         }
 
     }
-        Log.i(TAG, "INFO: " + CLASS_TAG + ": " + nameMethod + ": "
+        Log.i(TAG, "INFO: " + CLASS_TAG + " Fields : " + nameMethod + ": "
             + Arrays.toString(new List[]{listField}));
+        Log.i(TAG, "INFO: " + CLASS_TAG + " Types : " + nameMethod + ": "
+                + Arrays.toString(new List[]{listTypes}));
             dataInputToSendUser=new HashMap<String, String>();
             for(int i=0;i<myListResult.length;i++){
                 dataInputToSendUser.put(listField.get(i),myListResult[i]);
-                if(listField.get(i).equals("phone")){
-                    Log.i(TAG, "INFO: " + CLASS_TAG + ": " + nameMethod
-                            + " phone: " + isValidPhoneNumber(myListResult[i]));
-                    if(!isValidPhoneNumber(myListResult[i])){
-                        Log.i(TAG, "INFO: " + CLASS_TAG + ": " + nameMethod + " It is not a valid phone number: "
+                if(listTypes.get(i).equals("STRING")) {
+//                    Log.i(TAG, "INFO: " + CLASS_TAG + ": " + nameMethod
+//                            + "type String: " + Utils.isNullOrEmpty(myListResult[i]));
+                    if (Utils.isNullOrEmpty(myListResult[i])) {
+                        Log.i(TAG, "INFO: " + CLASS_TAG + ": " + nameMethod + " this field can not be blank: "
+                                + listField.get(i));
+                        Toast.makeText(getApplicationContext(), " this field can not be blank: "
+                                + listField.get(i), Toast.LENGTH_LONG).show();
+                        flagError = false;
+                        break;
+                    } else {
+                        flagError = true;
+                    }
+
+                    if (listField.get(i).equals("email")) {
+//                        Log.i(TAG, "INFO: " + CLASS_TAG + ": " + nameMethod
+//                                + "email: " + Utils.isValidMail(myListResult[i]));
+                        if (!Utils.isValidMail(myListResult[i])) {
+                            Log.i(TAG, "INFO: " + CLASS_TAG + ": " + nameMethod + " It is not a valid email: "
+                                    + myListResult[i]);
+                            Toast.makeText(getApplicationContext(), " It is not a valid email: "
+                                    + myListResult[i], Toast.LENGTH_LONG).show();
+                            flagError = false;
+                            break;
+                        } else {
+                            flagError = true;
+                        }
+                    }
+
+                    if (listTypes.get(i).equals("DATE")) {
+//                        Log.i(TAG, "INFO: " + CLASS_TAG + ": " + nameMethod
+//                                + "type Date: " + Utils.checkDateFormat(myListResult[i]));
+                        if (!Utils.checkDateFormat(myListResult[i])) {
+                            Log.i(TAG, "INFO: " + CLASS_TAG + ": " + nameMethod + " Format date is not valid: "
+                                    + myListResult[i]);
+                            Toast.makeText(getApplicationContext(), " Format date is not valid: "
+                                    + myListResult[i], Toast.LENGTH_LONG).show();
+                            flagError = false;
+                            break;
+                        } else {
+                            flagError = true;
+                        }
+
+                    }
+                }
+                if(listTypes.get(i).equals("NUMBER")){
+//                    Log.i(TAG, "INFO: " + CLASS_TAG + ": " + nameMethod
+//                            + "type Number: " + Utils.isNumeric(myListResult[i]));
+                    if(!Utils.isNumeric(myListResult[i])){
+                        Log.i(TAG, "INFO: " + CLASS_TAG + ": " + nameMethod + " this number does not have a valid format: "
                                 + myListResult[i]);
-                        Toast.makeText(getApplicationContext()," It is not a valid phone number: "
+                        Toast.makeText(getApplicationContext()," this number does not have a valid format: "
                                 + myListResult[i],Toast.LENGTH_LONG).show();
                         flagError=false;
                         break;
                     }else{
                         flagError=true;
                     }
-                }
-                if(listField.get(i).equals("email")){
-                    Log.i(TAG, "INFO: " + CLASS_TAG + ": " + nameMethod
-                            + "email: " + isValidMail(myListResult[i]));
-                    if(!isValidMail(myListResult[i])){
-                        Log.i(TAG, "INFO: " + CLASS_TAG + ": " + nameMethod + " It is not a valid email: "
-                                + myListResult[i]);
-                        Toast.makeText(getApplicationContext()," It is not a valid email: "
-                                + myListResult[i],Toast.LENGTH_LONG).show();
-                        flagError=false;
-                        break;
-                    }else{
-                        flagError=true;
+                    if(listField.get(i).equals("phone")){
+//                        Log.i(TAG, "INFO: " + CLASS_TAG + ": " + nameMethod
+//                                + " phone: " + Utils.isValidPhoneNumber(myListResult[i]));
+                        if(!Utils.isValidPhoneNumber(myListResult[i])){
+                            Log.i(TAG, "INFO: " + CLASS_TAG + ": " + nameMethod + " It is not a valid phone number: "
+                                    + myListResult[i]);
+                            Toast.makeText(getApplicationContext()," It is not a valid phone number: "
+                                    + myListResult[i],Toast.LENGTH_LONG).show();
+                            flagError=false;
+                            break;
+                        }else{
+                            flagError=true;
+                        }
                     }
                 }
             }
             if(flagError){
+                //flujo update config, create device and user, update user
                 Log.i(TAG, "INFO: " + CLASS_TAG + ": " + nameMethod + "def: " + dataInputToSendUser);
+                reloadSdkParameter(dataInputToSendUser,true);
             }
 
 
@@ -243,29 +301,14 @@ public class LoginActivity extends AppCompatActivity {
 
     }
 
-    /**
-     * Validation of Phone Number
-     */
-    public final static boolean isValidPhoneNumber(CharSequence target) {
-        if (target == null || target.length() < 6 || target.length() > 13) {
-            return false;
-        } else {
-            return android.util.Patterns.PHONE.matcher(target).matches();
-        }
+    private void reloadSdkParameter(HashMap<String, String> dataInputToSendUser, boolean userUpdate) {
+        Log.i(TAG, "INFO: " + CLASS_TAG + ": " + nameMethod + "update config: "
+                + prvTokenApp+"  "+provHostApp);
+        Messaging messaging=Messaging.getInstance(this);
+        messaging.setConfigParameterFromApp(prvTokenApp,provHostApp);
 
     }
 
-    /**
-     * Validation of Email
-     */
-    private boolean isValidMail(String email) {
-
-        String EMAIL_STRING = "^[_A-Za-z0-9-\\+]+(\\.[_A-Za-z0-9-]+)*@"
-                + "[A-Za-z0-9-]+(\\.[A-Za-z0-9]+)*(\\.[A-Za-z]{2,})$";
-
-        return Pattern.compile(EMAIL_STRING).matcher(email).matches();
-
-    }
 
     private String[] getInputArrayFromEditTexts(LinearLayout mParentLayout){
         String[] inputArray = new String [mParentLayout.getChildCount()];
@@ -295,12 +338,17 @@ public class LoginActivity extends AppCompatActivity {
                     progressBar.setVisibility(View.GONE);
                 }
                 //addEditTextDynamically(linearLayout, myListName);
+                Log.i(TAG, "INFO: " + CLASS_TAG + ": " + nameMethod + "dataInputList: "
+                        + "With data");
                 addEditTextDynamically(linearLayout, dataInputList);
             }else{
                 if(progressBar.isShown()){
                     progressBar.setVisibility(View.GONE);
                 }
-                 LoginActivity.this.finish();
+                //flujo uno update config, create device and user
+                Log.i(TAG, "INFO: " + CLASS_TAG + ": " + nameMethod + "dataInputList: "
+                        + "No data");
+                LoginActivity.this.finish();
             }
             Log.i(TAG, "INFO: " + CLASS_TAG + ": " + nameMethod + ": " + button_get_started.getText());
         }
@@ -331,8 +379,8 @@ public class LoginActivity extends AppCompatActivity {
             Log.d(TAG, "INFO: " + CLASS_TAG + ": " + nameMethod + ": " + scanContent + "    type:" + scanFormat);
             if(!scanContent.equals("")&& !scanContent.isEmpty()){
                 String[] prvHandlerMessage=scanContent.split(":%:");
-                String prvTokenApp=prvHandlerMessage[0];
-                String provHostApp=prvHandlerMessage[1];
+                prvTokenApp=prvHandlerMessage[0];
+                provHostApp=prvHandlerMessage[1];
                 Log.d(TAG, "INFO: " + CLASS_TAG + ": " + nameMethod + "Token: " +prvTokenApp+" Host "+provHostApp);
                 //new HttpRequestTaskGet(provHostApp,prvTokenApp).execute();
                 //showLinearData(prvTokenApp,provHostApp);
@@ -371,8 +419,6 @@ public class LoginActivity extends AppCompatActivity {
                             + sortedJsonArray.toString());
 
                          dataInputList=new ArrayList<HashMap<String, String>>();
-
-
                         for(int i = 0; i < sortedJsonArray.length(); i++){
                             dataInput=new HashMap<String, String>();
                             if(sortedJsonArray.getJSONObject(i).has("label")) {

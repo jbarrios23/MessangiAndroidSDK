@@ -64,7 +64,7 @@ public class Messaging implements LifecycleObserver{
 
     MessagingUser messagingUser;
     MessagingDevice messagingDevice;
-    MessagingSdkUtils utils;
+    public MessagingSdkUtils utils;
     public MessagingStorageController messagingStorageController;
     private String sdkVersion;
     private String language;
@@ -328,6 +328,10 @@ public class Messaging implements LifecycleObserver{
 
     private void setOs(String os) {
         this.os = os;
+    }
+
+    public void setConfigParameterFromApp(String token, String Host){
+        utils.saveConfigParameterFromApp(token,Host);
     }
 
     /**
