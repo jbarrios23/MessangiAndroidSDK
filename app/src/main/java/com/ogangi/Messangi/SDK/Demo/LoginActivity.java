@@ -26,6 +26,8 @@ import com.google.zxing.integration.android.IntentIntegrator;
 import com.google.zxing.integration.android.IntentResult;
 import com.messaging.sdk.Messaging;
 
+import com.messaging.sdk.MessagingDevice;
+import com.messaging.sdk.MessagingUser;
 import com.ogangi.Messangi.SDK.Demo.scanqr.CaptureActivityAnyOrientation;
 import com.ogangi.Messangi.SDK.Demo.scanqr.SmallCaptureActivity;
 
@@ -33,6 +35,7 @@ import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
@@ -67,6 +70,9 @@ public class LoginActivity extends AppCompatActivity {
     public ArrayList<HashMap<String,String>> dataInputList;
     public ProgressBar progressBar;
     public boolean flagError=true;
+    public Messaging messaging;
+    public MessagingUser messagingUser;
+    public boolean userUpdate=false;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -81,6 +87,8 @@ public class LoginActivity extends AppCompatActivity {
         imageView=findViewById(R.id.imageView_visualizer);
         linearLayout=findViewById(R.id.linearLayoutData);
         progressBar=findViewById(R.id.progressBar);
+        messaging=Messaging.getInstance(this);
+        messagingUser=MessagingUser.getInstance();
 
         button_get_started.setText(getResources().getText(R.string.get_started));
         imageView.setVisibility(View.VISIBLE);
@@ -90,9 +98,6 @@ public class LoginActivity extends AppCompatActivity {
                 if(button_get_started.getText().equals(getResources().getText(R.string.get_finish))){
                     //LoginActivity.this.finish();
                     showLinearData();
-
-
-
                 }else{
                     if(button_get_started.getText().equals(getResources().getText(R.string.get_continue))){
 
@@ -164,6 +169,10 @@ public class LoginActivity extends AppCompatActivity {
         Log.d(TAG,"DEBUG: "+CLASS_TAG+": "+nameMethod+": register LocalBroadcastReceiver");
         LocalBroadcastManager.getInstance(this).registerReceiver(mReceiver,
                 new IntentFilter(Messaging.ACTION_FETCH_FIELDS));
+        LocalBroadcastManager.getInstance(this).registerReceiver(mReceiver,
+                new IntentFilter(Messaging.ACTION_REGISTER_DEVICE));
+        LocalBroadcastManager.getInstance(this).registerReceiver(mReceiver,
+                new IntentFilter(Messaging.ACTION_SAVE_USER));
 
     }
 
@@ -194,8 +203,7 @@ public class LoginActivity extends AppCompatActivity {
     Log.i(TAG, "INFO: " + CLASS_TAG + ": " + nameMethod + ": " + Arrays.toString(myListResult));
     for(int i=0;i<dataInputList.size();i++){
         for (Map.Entry<String, String> entry : dataInputList.get(i).entrySet()) {
-//            Log.i(TAG, "INFO: " + CLASS_TAG + ": " + nameMethod + ": "
-//                    + entry.getKey()+": "+entry.getValue());
+
             if(entry.getKey().equals("field")){
                 listField.add(entry.getValue());
             }
@@ -216,8 +224,7 @@ public class LoginActivity extends AppCompatActivity {
             for(int i=0;i<myListResult.length;i++){
                 dataInputToSendUser.put(listField.get(i),myListResult[i]);
                 if(listTypes.get(i).equals("STRING")) {
-//                    Log.i(TAG, "INFO: " + CLASS_TAG + ": " + nameMethod
-//                            + "type String: " + Utils.isNullOrEmpty(myListResult[i]));
+
                     if (Utils.isNullOrEmpty(myListResult[i])) {
                         Log.i(TAG, "INFO: " + CLASS_TAG + ": " + nameMethod + " this field can not be blank: "
                                 + listField.get(i));
@@ -230,8 +237,7 @@ public class LoginActivity extends AppCompatActivity {
                     }
 
                     if (listField.get(i).equals("email")) {
-//                        Log.i(TAG, "INFO: " + CLASS_TAG + ": " + nameMethod
-//                                + "email: " + Utils.isValidMail(myListResult[i]));
+
                         if (!Utils.isValidMail(myListResult[i])) {
                             Log.i(TAG, "INFO: " + CLASS_TAG + ": " + nameMethod + " It is not a valid email: "
                                     + myListResult[i]);
@@ -245,8 +251,7 @@ public class LoginActivity extends AppCompatActivity {
                     }
 
                     if (listTypes.get(i).equals("DATE")) {
-//                        Log.i(TAG, "INFO: " + CLASS_TAG + ": " + nameMethod
-//                                + "type Date: " + Utils.checkDateFormat(myListResult[i]));
+
                         if (!Utils.checkDateFormat(myListResult[i])) {
                             Log.i(TAG, "INFO: " + CLASS_TAG + ": " + nameMethod + " Format date is not valid: "
                                     + myListResult[i]);
@@ -261,8 +266,7 @@ public class LoginActivity extends AppCompatActivity {
                     }
                 }
                 if(listTypes.get(i).equals("NUMBER")){
-//                    Log.i(TAG, "INFO: " + CLASS_TAG + ": " + nameMethod
-//                            + "type Number: " + Utils.isNumeric(myListResult[i]));
+
                     if(!Utils.isNumeric(myListResult[i])){
                         Log.i(TAG, "INFO: " + CLASS_TAG + ": " + nameMethod + " this number does not have a valid format: "
                                 + myListResult[i]);
@@ -274,8 +278,7 @@ public class LoginActivity extends AppCompatActivity {
                         flagError=true;
                     }
                     if(listField.get(i).equals("phone")){
-//                        Log.i(TAG, "INFO: " + CLASS_TAG + ": " + nameMethod
-//                                + " phone: " + Utils.isValidPhoneNumber(myListResult[i]));
+
                         if(!Utils.isValidPhoneNumber(myListResult[i])){
                             Log.i(TAG, "INFO: " + CLASS_TAG + ": " + nameMethod + " It is not a valid phone number: "
                                     + myListResult[i]);
@@ -290,22 +293,20 @@ public class LoginActivity extends AppCompatActivity {
                 }
             }
             if(flagError){
-                //flujo update config, create device and user, update user
+                //order: update config, create device and user, update user
                 Log.i(TAG, "INFO: " + CLASS_TAG + ": " + nameMethod + "def: " + dataInputToSendUser);
-                reloadSdkParameter(dataInputToSendUser,true);
+                reloadSdkParameter(true);
             }
-
-
-
-            //LoginActivity.this.finish();
-
     }
 
-    private void reloadSdkParameter(HashMap<String, String> dataInputToSendUser, boolean userUpdate) {
+    private void reloadSdkParameter(boolean provUserUpdate) {
         Log.i(TAG, "INFO: " + CLASS_TAG + ": " + nameMethod + "update config: "
                 + prvTokenApp+"  "+provHostApp);
-        Messaging messaging=Messaging.getInstance(this);
+        userUpdate=provUserUpdate;
         messaging.setConfigParameterFromApp(prvTokenApp,provHostApp);
+        messaging.createDeviceParameters();
+        Log.i(TAG, "INFO: " + CLASS_TAG + ": " + nameMethod + "userUpdate: "
+                + userUpdate);
 
     }
 
@@ -345,10 +346,11 @@ public class LoginActivity extends AppCompatActivity {
                 if(progressBar.isShown()){
                     progressBar.setVisibility(View.GONE);
                 }
-                //flujo uno update config, create device and user
+                // update config, create device and user
                 Log.i(TAG, "INFO: " + CLASS_TAG + ": " + nameMethod + "dataInputList: "
                         + "No data");
                 LoginActivity.this.finish();
+
             }
             Log.i(TAG, "INFO: " + CLASS_TAG + ": " + nameMethod + ": " + button_get_started.getText());
         }
@@ -382,8 +384,6 @@ public class LoginActivity extends AppCompatActivity {
                 prvTokenApp=prvHandlerMessage[0];
                 provHostApp=prvHandlerMessage[1];
                 Log.d(TAG, "INFO: " + CLASS_TAG + ": " + nameMethod + "Token: " +prvTokenApp+" Host "+provHostApp);
-                //new HttpRequestTaskGet(provHostApp,prvTokenApp).execute();
-                //showLinearData(prvTokenApp,provHostApp);
                 progressBar.setVisibility(View.VISIBLE);
                 Messaging.fetchFields(getApplicationContext(),prvTokenApp,provHostApp);
             }else{
@@ -406,7 +406,7 @@ public class LoginActivity extends AppCompatActivity {
             boolean hasError=intent.getBooleanExtra(Messaging.INTENT_EXTRA_HAS_ERROR,true);
             Log.d(TAG,"ERROR: "+CLASS_TAG+": "+nameMethod+": Has error:  "+ hasError);
             if (!hasError ) {
-                //Serializable data=intent.getSerializableExtra(Messaging.INTENT_EXTRA_DATA);
+                Serializable dataSdk=intent.getSerializableExtra(Messaging.INTENT_EXTRA_DATA);
                 String data=intent.getStringExtra(Messaging.INTENT_EXTRA_DATA);
                 if(intent.getAction().equals(Messaging.ACTION_FETCH_FIELDS) && data!=null){
                     Log.d(TAG,"DEBUG: "+CLASS_TAG+": "+nameMethod+": data:  "+ data);
@@ -414,44 +414,61 @@ public class LoginActivity extends AppCompatActivity {
                     try {
                         JSONArray arr = new JSONArray(data);
                         JSONArray sortedJsonArray =getJsonArraySorted(arr);
-
                     Log.d(TAG,"DEBUG: "+CLASS_TAG+": "+nameMethod+": sortedJsonArray:  "
-                            + sortedJsonArray.toString());
-
-                         dataInputList=new ArrayList<HashMap<String, String>>();
-                        for(int i = 0; i < sortedJsonArray.length(); i++){
-                            dataInput=new HashMap<String, String>();
-                            if(sortedJsonArray.getJSONObject(i).has("label")) {
-                                dataInput.put("label",sortedJsonArray.getJSONObject(i).getString("label"));
+                    + sortedJsonArray.toString());
+                    if(arr.length()>0) {
+                        dataInputList = new ArrayList<HashMap<String, String>>();
+                        for (int i = 0; i < sortedJsonArray.length(); i++) {
+                            dataInput = new HashMap<String, String>();
+                            if (sortedJsonArray.getJSONObject(i).has("label")) {
+                                dataInput.put("label", sortedJsonArray.getJSONObject(i).getString("label"));
                             }
-                            if(sortedJsonArray.getJSONObject(i).has("type")) {
-                                dataInput.put("type",sortedJsonArray.getJSONObject(i).getString("type"));
+                            if (sortedJsonArray.getJSONObject(i).has("type")) {
+                                dataInput.put("type", sortedJsonArray.getJSONObject(i).getString("type"));
                             }
-                            if(sortedJsonArray.getJSONObject(i).has("field")) {
-                                dataInput.put("field",sortedJsonArray.getJSONObject(i).getString("field"));
+                            if (sortedJsonArray.getJSONObject(i).has("field")) {
+                                dataInput.put("field", sortedJsonArray.getJSONObject(i).getString("field"));
                             }
-                            if(sortedJsonArray.getJSONObject(i).has("name")) {
-                                dataInput.put("name",sortedJsonArray.getJSONObject(i).getString("name"));
+                            if (sortedJsonArray.getJSONObject(i).has("name")) {
+                                dataInput.put("name", sortedJsonArray.getJSONObject(i).getString("name"));
                             }
-                            Log.d(TAG,"DEBUG: "+CLASS_TAG+": "+nameMethod+": dataInput:  "
+                            Log.d(TAG, "DEBUG: " + CLASS_TAG + ": " + nameMethod + ": dataInput:  "
                                     + dataInput);
                             dataInputList.add(dataInput);
 
                         }
 
-                        Log.d(TAG,"DEBUG: "+CLASS_TAG+": "+nameMethod+": dataInputList:  "
+                        Log.d(TAG, "DEBUG: " + CLASS_TAG + ": " + nameMethod + ": dataInputList:  "
                                 + dataInputList.size());
                         showLinearData();
+                    }else{
+                        reloadSdkParameter(false);
+                    }
 
                     } catch (JSONException e) {
                         e.printStackTrace();
+                        reloadSdkParameter(false);
                     }
 
+                }else if(intent.getAction().equals(Messaging.ACTION_REGISTER_DEVICE)&& dataSdk!=null) {
+                    MessagingDevice messagingDevice = (MessagingDevice) dataSdk;
+                    Toast.makeText(getApplicationContext(), intent.getAction(), Toast.LENGTH_LONG).show();
+                    Log.d(TAG, "Debug: " + CLASS_TAG + ": " + nameMethod + ": Data Register:  " + dataSdk);
+                    if (userUpdate) {
+                        sendUserUpdateData(dataInputToSendUser);
+                    } else {
+                        goToMainActivity();
+                    }
 
+                }else if(intent.getAction().equals(Messaging.ACTION_SAVE_USER)&& dataSdk!=null) {
+                        messagingUser =(MessagingUser) dataSdk; //you can cast this for get information
+                        //for condition of save (user or device);
+                        Toast.makeText(getApplicationContext(),intent.getAction(),Toast.LENGTH_LONG).show();
+                        goToMainActivity();
 
                 }else{
                     Toast.makeText(getApplicationContext(),intent.getAction(),Toast.LENGTH_LONG).show();
-                    Log.e(TAG,"DEBUG: "+CLASS_TAG+": "+nameMethod+": An error occurred on action:  "
+                Log.e(TAG,"DEBUG: "+CLASS_TAG+": "+nameMethod+": An error occurred on action:  "
                             + intent.getAction());
                     if(progressBar.isShown()){
                         progressBar.setVisibility(View.GONE);
@@ -472,6 +489,23 @@ public class LoginActivity extends AppCompatActivity {
         }
 
     };
+
+    private void goToMainActivity() {
+        Intent intent=new Intent(LoginActivity.this,MainActivity.class);
+        startActivity(intent);
+        LoginActivity.this.finish();
+    }
+
+    private void sendUserUpdateData(HashMap<String, String> dataInputToSendUser) {
+        for (Map.Entry<String, String> entry : dataInputToSendUser.entrySet()) {
+            messagingUser.addProperty(entry.getKey(),entry.getValue());
+
+        }
+        Log.d(TAG,"DEBUG: "+CLASS_TAG+": "+nameMethod+" Send User data:  "+ messagingUser.getProperties());
+        messagingUser.save(getApplicationContext());
+
+
+    }
 
     public JSONArray getJsonArraySorted(JSONArray arr){
         JSONArray sortedJsonArray = new JSONArray();
