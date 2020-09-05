@@ -7,6 +7,7 @@ import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.pm.ActivityInfo;
 import android.os.Bundle;
+import android.telephony.PhoneNumberUtils;
 import android.util.Log;
 import android.view.View;
 import android.view.Window;
@@ -37,6 +38,8 @@ import java.util.Collections;
 import java.util.Comparator;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
+import java.util.regex.Pattern;
 
 import static android.text.InputType.TYPE_CLASS_NUMBER;
 import static android.text.InputType.TYPE_CLASS_PHONE;
@@ -53,16 +56,13 @@ public class LoginActivity extends AppCompatActivity {
     public EditText customField,customEmail,customPhone;
     public EditText editText;
     public int numberFields=2;
-//    public String [] myListName;
-//    public String [] myListType;
     public String [] myListResult;
-    public List<String> myListName;
-    public List<String> myListType;
-    public List<String> myListField;
-    public List<String> myListLabel;
+    public ArrayList<String> listField;
+    public HashMap<String,String> dataInputToSendUser;
     public HashMap<String,String> dataInput;
     public ArrayList<HashMap<String,String>> dataInputList;
     public ProgressBar progressBar;
+    public boolean flagError=true;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -77,23 +77,9 @@ public class LoginActivity extends AppCompatActivity {
         imageView=findViewById(R.id.imageView_visualizer);
         linearLayout=findViewById(R.id.linearLayoutData);
         progressBar=findViewById(R.id.progressBar);
-//        myListName= new String[]{"masukan jenis kursus","Tambah jenis kursus",
-//                "masukan jenis kursus","masukan jenis kursus","Tambah jenis kursus",
-//                 "new task","new task","new task"};
-//        customField=findViewById(R.id.editText_custom_field);
-//        customEmail=findViewById(R.id.editText_email);
-//        customPhone=findViewById(R.id.editText_phone);
 
         button_get_started.setText(getResources().getText(R.string.get_started));
         imageView.setVisibility(View.VISIBLE);
-
-//        // Create EditText
-//        editText= new EditText(this);
-//        editText.setHint(R.string.hint);
-//        editText.setLayoutParams(new LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT));
-//        editText.setPadding(20, 20, 20, 20);
-
-
         button_get_started.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -199,19 +185,85 @@ public class LoginActivity extends AppCompatActivity {
     private void getDataFromEditText() {
     nameMethod=new Object(){}.getClass().getEnclosingMethod().getName();
     myListResult=getInputArrayFromEditTexts(linearLayout);
+    listField=new ArrayList<>();
     Log.i(TAG, "INFO: " + CLASS_TAG + ": " + nameMethod + ": " + Arrays.toString(myListResult));
-//    Log.i(TAG, "INFO: " + CLASS_TAG + ": " + nameMethod + ": " + Arrays.toString(new List[]{myListName}));
-//    JSONObject jsonObject = new JSONObject();
-//    for(int i=0;i<myListName.size();i++){
-//
-//        try {
-//            jsonObject.put(myListName.get(i),myListResult[i]);
-//        } catch (JSONException e) {
-//            e.printStackTrace();
-//        }
-//    }
-//    Log.i(TAG, "INFO: " + CLASS_TAG + ": " + nameMethod + ": " + jsonObject);
-//    LoginActivity.this.finish();
+    for(int i=0;i<dataInputList.size();i++){
+        for (Map.Entry<String, String> entry : dataInputList.get(i).entrySet()) {
+//            Log.i(TAG, "INFO: " + CLASS_TAG + ": " + nameMethod + ": "
+//                    + entry.getKey()+": "+entry.getValue());
+            if(entry.getKey().equals("field")){
+                listField.add(entry.getValue());
+            }else if(entry.getKey().equals("name")){
+                listField.add(entry.getValue());
+            }
+        }
+
+    }
+        Log.i(TAG, "INFO: " + CLASS_TAG + ": " + nameMethod + ": "
+            + Arrays.toString(new List[]{listField}));
+            dataInputToSendUser=new HashMap<String, String>();
+            for(int i=0;i<myListResult.length;i++){
+                dataInputToSendUser.put(listField.get(i),myListResult[i]);
+                if(listField.get(i).equals("phone")){
+                    Log.i(TAG, "INFO: " + CLASS_TAG + ": " + nameMethod
+                            + " phone: " + isValidPhoneNumber(myListResult[i]));
+                    if(!isValidPhoneNumber(myListResult[i])){
+                        Log.i(TAG, "INFO: " + CLASS_TAG + ": " + nameMethod + " It is not a valid phone number: "
+                                + myListResult[i]);
+                        Toast.makeText(getApplicationContext()," It is not a valid phone number: "
+                                + myListResult[i],Toast.LENGTH_LONG).show();
+                        flagError=false;
+                        break;
+                    }else{
+                        flagError=true;
+                    }
+                }
+                if(listField.get(i).equals("email")){
+                    Log.i(TAG, "INFO: " + CLASS_TAG + ": " + nameMethod
+                            + "email: " + isValidMail(myListResult[i]));
+                    if(!isValidMail(myListResult[i])){
+                        Log.i(TAG, "INFO: " + CLASS_TAG + ": " + nameMethod + " It is not a valid email: "
+                                + myListResult[i]);
+                        Toast.makeText(getApplicationContext()," It is not a valid email: "
+                                + myListResult[i],Toast.LENGTH_LONG).show();
+                        flagError=false;
+                        break;
+                    }else{
+                        flagError=true;
+                    }
+                }
+            }
+            if(flagError){
+                Log.i(TAG, "INFO: " + CLASS_TAG + ": " + nameMethod + "def: " + dataInputToSendUser);
+            }
+
+
+
+            //LoginActivity.this.finish();
+
+    }
+
+    /**
+     * Validation of Phone Number
+     */
+    public final static boolean isValidPhoneNumber(CharSequence target) {
+        if (target == null || target.length() < 6 || target.length() > 13) {
+            return false;
+        } else {
+            return android.util.Patterns.PHONE.matcher(target).matches();
+        }
+
+    }
+
+    /**
+     * Validation of Email
+     */
+    private boolean isValidMail(String email) {
+
+        String EMAIL_STRING = "^[_A-Za-z0-9-\\+]+(\\.[_A-Za-z0-9-]+)*@"
+                + "[A-Za-z0-9-]+(\\.[A-Za-z0-9]+)*(\\.[A-Za-z]{2,})$";
+
+        return Pattern.compile(EMAIL_STRING).matcher(email).matches();
 
     }
 
@@ -220,9 +272,12 @@ public class LoginActivity extends AppCompatActivity {
         for (int i = 0; i <inputArray.length ; i++) {
             editText  =(EditText) mParentLayout.getChildAt(i);
             inputArray[i] = editText.getText().toString();
+            //Log.i(TAG, "INFO: " + CLASS_TAG + ": " + nameMethod + "X: " + editText.getTag());
         }
         return inputArray;
     }
+
+
 
     public void showLinearData() {
         if(button_get_started.getText().equals(getResources().getText(R.string.get_continue))){
@@ -307,7 +362,7 @@ public class LoginActivity extends AppCompatActivity {
                 String data=intent.getStringExtra(Messaging.INTENT_EXTRA_DATA);
                 if(intent.getAction().equals(Messaging.ACTION_FETCH_FIELDS) && data!=null){
                     Log.d(TAG,"DEBUG: "+CLASS_TAG+": "+nameMethod+": data:  "+ data);
-                    int[] order={3,2,1,6,5,4};
+
                     try {
                         JSONArray arr = new JSONArray(data);
                         JSONArray sortedJsonArray =getJsonArraySorted(arr);
@@ -316,8 +371,7 @@ public class LoginActivity extends AppCompatActivity {
                             + sortedJsonArray.toString());
 
                          dataInputList=new ArrayList<HashMap<String, String>>();
-                         myListName = new ArrayList<String>();
-                         myListType = new ArrayList<String>();
+
 
                         for(int i = 0; i < sortedJsonArray.length(); i++){
                             dataInput=new HashMap<String, String>();
@@ -336,8 +390,7 @@ public class LoginActivity extends AppCompatActivity {
                             Log.d(TAG,"DEBUG: "+CLASS_TAG+": "+nameMethod+": dataInput:  "
                                     + dataInput);
                             dataInputList.add(dataInput);
-//                            myListName.add(sortedJsonArray.getJSONObject(i).getString("name"));
-//                            myListType.add(sortedJsonArray.getJSONObject(i).getString("type"));
+
                         }
 
                         Log.d(TAG,"DEBUG: "+CLASS_TAG+": "+nameMethod+": dataInputList:  "
@@ -354,6 +407,9 @@ public class LoginActivity extends AppCompatActivity {
                     Toast.makeText(getApplicationContext(),intent.getAction(),Toast.LENGTH_LONG).show();
                     Log.e(TAG,"DEBUG: "+CLASS_TAG+": "+nameMethod+": An error occurred on action:  "
                             + intent.getAction());
+                    if(progressBar.isShown()){
+                        progressBar.setVisibility(View.GONE);
+                    }
                 }
 
             }else{
@@ -361,6 +417,9 @@ public class LoginActivity extends AppCompatActivity {
                         + intent.getAction());
                 Toast.makeText(getApplicationContext(),"An error occurred on action "
                         +intent.getAction(),Toast.LENGTH_LONG).show();
+                if(progressBar.isShown()){
+                    progressBar.setVisibility(View.GONE);
+                }
 
             }
 
