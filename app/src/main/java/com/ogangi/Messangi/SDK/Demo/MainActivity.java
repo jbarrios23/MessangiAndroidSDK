@@ -127,7 +127,8 @@ public class MainActivity extends AppCompatActivity {
         login.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                goToLogin();
+                //goToLogin();
+                showAlertGetLogCat();
             }
         });
 
@@ -232,27 +233,12 @@ public class MainActivity extends AppCompatActivity {
         progressBar.setVisibility(View.VISIBLE);
         Messaging.fetchDevice(false,getApplicationContext());
         Log.i(TAG,"INFO: "+CLASS_TAG+": "+nameMethod+"onResume: ");
-        //readLogCatFromSdk();
+
 
     }
 
     private void readLogCatFromSdk() {
-        try {
-            Process process = Runtime.getRuntime().exec("logcat -d");
-            BufferedReader bufferedReader = new BufferedReader(
-                    new InputStreamReader(process.getInputStream()));
 
-            StringBuilder log=new StringBuilder();
-            String line = "";
-            while ((line = bufferedReader.readLine()) != null) {
-                log.append(line);
-            }
-//            TextView tv = (TextView)findViewById(R.id.textView1);
-//            tv.setText(log.toString());
-        }
-        catch (IOException e) {
-            e.printStackTrace();
-        }
 
     }
 
@@ -576,6 +562,90 @@ public class MainActivity extends AppCompatActivity {
 
             }
         });
+        // create and show the alert dialog
+        AlertDialog dialog = builder.create();
+        dialog.show();
+
+    }
+
+    private void showAlertGetLogCat() {
+        // create an alert builder
+        AlertDialog.Builder builder = new AlertDialog.Builder(this);
+        builder.setTitle("LogCat From Sdk");
+        // set the custom layout
+        //final View customLayout = getLayoutInflater().inflate(R.layout.custom_notification_layout, null);
+        final View customLayout = getLayoutInflater().inflate(R.layout.layout_logcat, null);
+        builder.setView(customLayout);
+        TextView data=customLayout.findViewById(R.id.texViewLogCat);
+        StringBuilder stringBuilder = new StringBuilder();
+        try {
+//            Process process = Runtime.getRuntime().exec("logcat -d");
+//            BufferedReader bufferedReader = new BufferedReader(
+//                    new InputStreamReader(process.getInputStream()));
+//
+//            StringBuilder log=new StringBuilder();
+//            String line = "";
+//            while ((line = bufferedReader.readLine()) != null) {
+//                log.append(line);
+//            }
+
+//            Process logcat;
+//            final StringBuilder log = new StringBuilder();
+//
+//                logcat = Runtime.getRuntime().exec(new String[]{"logcat", "-d"});
+//                BufferedReader br = new BufferedReader(new InputStreamReader(logcat.getInputStream()),4*1024);
+//                String line;
+//                String separator = System.getProperty("line.separator");
+//                while ((line = br.readLine()) != null) {
+//                    log.append(line);
+//                    log.append(separator);
+//                }
+
+             String processId = Integer.toString(android.os.Process.myPid());
+            String[] command = new String[] { "logcat", "-d", "-v", "threadtime" };
+
+            Process process = Runtime.getRuntime().exec(command);
+
+            BufferedReader bufferedReader = new BufferedReader(
+                    new InputStreamReader(process.getInputStream()));
+
+            String line;
+            while ((line = bufferedReader.readLine()) != null) {
+                if (line.contains(processId)) {
+                    stringBuilder.append(line);
+                    //Code here
+                }
+            }
+            data.setText(stringBuilder.toString());
+
+        }
+        catch (IOException e) {
+            e.printStackTrace();
+        }
+
+
+
+        // add a button
+        builder.setPositiveButton("Ok", new DialogInterface.OnClickListener() {
+            @SuppressLint("SetTextI18n")
+            @Override
+            public void onClick(DialogInterface dialog, int which) {
+                // send data from the AlertDialog to the Activity
+                dialog.dismiss();
+
+
+            }
+        });
+
+//        builder.setNegativeButton("Close", new DialogInterface.OnClickListener() {
+//            @Override
+//            public void onClick(DialogInterface dialog, int which) {
+//                onetimeFlag=true;
+//                dialog.cancel();
+//
+//
+//            }
+//        });
         // create and show the alert dialog
         AlertDialog dialog = builder.create();
         dialog.show();
