@@ -201,8 +201,7 @@ import java.util.List;
              analytics_allowed=messagingStorageController.isAnalyticsAllowed();
 
          }else{
-             showDebugLog(this,nameMethod,"Value default analytics_allowed "
-                     +messagingToken);
+             showDebugLog(this,nameMethod,"Value default analytics_allowed ");
          }
          return analytics_allowed;
      }

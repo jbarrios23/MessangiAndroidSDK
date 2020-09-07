@@ -112,6 +112,8 @@ public class Messaging implements LifecycleObserver{
     public static String MESSAGING_DEVICE_TIMESTAMP="timestamp";
     public static String MESSAGING_DEVICE_TRANSACTION="transaction";
 
+    public boolean analytics_allowed;
+
 
 
     public Messaging(Context context){
@@ -188,11 +190,19 @@ public class Messaging implements LifecycleObserver{
         messaging.utils.showInfoLog(messaging,nameMethod,"notification "+notification.toString());
         if(notification!=null) {
             messaging.utils.showInfoLog(messaging,nameMethod,"The Activity was opened as a consequence of a notification");
+            sendEventToBackend("notification_open");
         }else {
             messaging.utils.showInfoLog(messaging,nameMethod,"intent.extra does not contain a notification");
         }
         setLastMessagingNotification(notification,messaging.context);
         return notification;
+    }
+
+    private static void sendEventToBackend(String notification_open) {
+    final Messaging messaging = Messaging.getInstance();
+    String provId= messaging.messagingDevice.getId();
+    new HttpRequestEventGet(provId,messaging,notification_open).execute();
+
     }
 
 
@@ -332,6 +342,17 @@ public class Messaging implements LifecycleObserver{
 
     public void setConfigParameterFromApp(String token, String Host){
         utils.saveConfigParameterFromApp(token,Host);
+    }
+
+    public void showAnalyticAllowedState(){
+        nameMethod=new Object(){}.getClass().getEnclosingMethod().getName();
+        utils.isAnalytics_allowed();
+        utils.showDebugLog(this,nameMethod,"isLogging_allowed() "+utils.isAnalytics_allowed());
+    }
+
+    public boolean isAnalytics_allowed() {
+        analytics_allowed=utils.isAnalytics_allowed();
+        return analytics_allowed;
     }
 
     /**
@@ -990,6 +1011,91 @@ public class Messaging implements LifecycleObserver{
                 e.printStackTrace();
                 messaging.sendFieldToActivity(Messaging.ACTION_FETCH_FIELDS,null,context);
                 messaging.utils.showErrorLog(this, nameMethod, "Get error Field! NullPointerException ", e.getMessage());
+
+            }
+        }
+    }
+
+    private static class HttpRequestEventGet extends AsyncTask<Void,Void,String> {
+
+        public String provDeviceId;
+        public String provEvent;
+        private String nameMethod;
+        private String provUrl;
+        private String server_response;
+        private Messaging messaging;
+        @SuppressLint("StaticFieldLeak")
+        private Context context;
+
+
+
+        public HttpRequestEventGet(String deviceId,Messaging messaging,String event) {
+            this.provDeviceId=deviceId;
+            this.provEvent=event;
+            this.messaging = messaging;
+
+
+        }
+
+
+        @Override
+        protected String doInBackground(Void... voids) {
+            HttpURLConnection urlConnection = null;
+
+            try {
+                String authToken = messaging.utils.getMessagingToken();
+                nameMethod = new Object() {
+                }.getClass().getEnclosingMethod().getName();
+                String param = "Bearer " + authToken;
+                provUrl = messaging.utils.getMessagingHost()+"/devices/"+provDeviceId+"/event/"+provEvent;
+                messaging.utils.showHttpRequestLog(provUrl, messaging,nameMethod,"GET","");
+                URL url = new URL(provUrl);
+                urlConnection = (HttpURLConnection) url.openConnection();
+                urlConnection.setRequestProperty("Authorization", "Bearer " + authToken);
+                urlConnection.setRequestProperty("Content-Type", "application/json");
+                urlConnection.setRequestMethod("GET");
+                int code = urlConnection.getResponseCode();
+                if (code != 200) {
+
+                    messaging.utils.showErrorLog(this,nameMethod," Invalid response from server: "+code,"");
+                    throw new IOException("Invalid response from server: " + code);
+                }
+
+                BufferedReader rd = new BufferedReader(new InputStreamReader(
+                        urlConnection.getInputStream()));
+
+
+                if (code == HttpURLConnection.HTTP_OK) {
+                    server_response = messaging.readStream(urlConnection.getInputStream());
+
+                }
+
+            } catch (Exception e) {
+                e.printStackTrace();
+                messaging.utils.showErrorLog(this,nameMethod,"Get Fields error Exception",e.getStackTrace().toString());
+
+            } finally {
+                if (urlConnection != null) {
+                    urlConnection.disconnect();
+                }
+            }
+
+            return server_response;
+        }
+
+        @Override
+        protected void onPostExecute(String response) {
+            super.onPostExecute(response);
+            try {
+                if (!response.equals("")) {
+                    nameMethod = new Object() {}.getClass().getEnclosingMethod().getName();
+                    messaging.utils.showHttpResponseLog(provUrl,this,nameMethod,"Get Event Successful ",response);
+
+                }
+            } catch (NullPointerException e) {
+                e.printStackTrace();
+
+                messaging.utils.showErrorLog(this, nameMethod, "Get Event error Field! NullPointerException ", e.getMessage());
 
             }
         }
