@@ -112,6 +112,10 @@ public class Messaging implements LifecycleObserver{
     public static String MESSAGING_DEVICE_TIMESTAMP="timestamp";
     public static String MESSAGING_DEVICE_TRANSACTION="transaction";
 
+    public static String MESSAGING_NOTIFICATION_OPEN="NOTIFICATION_OPEN";
+    public static String MESSAGING_NOTIFICATION_RECEIVED="NOTIFICATION_RECEIVED";
+    public static String MESSAGING_NOTIFICATION_CUSTOM_EVENT="";
+
     public boolean analytics_allowed;
 
 
@@ -190,7 +194,7 @@ public class Messaging implements LifecycleObserver{
         messaging.utils.showInfoLog(messaging,nameMethod,"notification "+notification.toString());
         if(notification!=null) {
             messaging.utils.showInfoLog(messaging,nameMethod,"The Activity was opened as a consequence of a notification");
-            sendEventToBackend("notification_open");
+            sendEventToBackend(Messaging.MESSAGING_NOTIFICATION_OPEN);
         }else {
             messaging.utils.showInfoLog(messaging,nameMethod,"intent.extra does not contain a notification");
         }
@@ -198,11 +202,19 @@ public class Messaging implements LifecycleObserver{
         return notification;
     }
 
-    public static void sendEventToBackend(String event) {
+    public static void sendEventCustomToBackend(String snake,String cases){
+            String nameMethod=new Object(){}.getClass().getEnclosingMethod().getName();
+            Messaging messaging = Messaging.getInstance();
+            MESSAGING_NOTIFICATION_CUSTOM_EVENT=snake.toUpperCase()+"_"+cases.toUpperCase();
+            messaging.utils.showInfoLog(messaging,nameMethod,
+                    "MESSAGING_NOTIFICATION_CUSTOM_EVENT "+MESSAGING_NOTIFICATION_CUSTOM_EVENT);
+            sendEventToBackend(MESSAGING_NOTIFICATION_CUSTOM_EVENT);
+    }
+
+    public static void sendEventToBackend(String nameEvent) {
     final Messaging messaging = Messaging.getInstance();
     String provId= messaging.messagingDevice.getId();
-    new HttpRequestEventGet(provId,messaging,event).execute();
-
+    new HttpRequestEventGet(provId,messaging,nameEvent).execute();
     }
 
 

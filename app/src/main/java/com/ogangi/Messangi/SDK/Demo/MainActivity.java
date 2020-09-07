@@ -203,6 +203,7 @@ public class MainActivity extends AppCompatActivity {
         startActivity(intent);
         messaging.showAnalyticAllowedState();
         Log.i(TAG, "INFO: " + CLASS_TAG + ": " + nameMethod + " isAnalytics_allowed: " + messaging.isAnalytics_allowed());
+        Messaging.sendEventCustomToBackend("notification","push");
 
     }
 
