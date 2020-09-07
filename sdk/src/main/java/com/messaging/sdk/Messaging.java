@@ -198,10 +198,10 @@ public class Messaging implements LifecycleObserver{
         return notification;
     }
 
-    private static void sendEventToBackend(String notification_open) {
+    public static void sendEventToBackend(String event) {
     final Messaging messaging = Messaging.getInstance();
     String provId= messaging.messagingDevice.getId();
-    new HttpRequestEventGet(provId,messaging,notification_open).execute();
+    new HttpRequestEventGet(provId,messaging,event).execute();
 
     }
 
@@ -1072,7 +1072,7 @@ public class Messaging implements LifecycleObserver{
 
             } catch (Exception e) {
                 e.printStackTrace();
-                messaging.utils.showErrorLog(this,nameMethod,"Get Fields error Exception",e.getStackTrace().toString());
+                messaging.utils.showErrorLog(this,nameMethod,"Get Event error Exception",e.getStackTrace().toString());
 
             } finally {
                 if (urlConnection != null) {
@@ -1095,7 +1095,7 @@ public class Messaging implements LifecycleObserver{
             } catch (NullPointerException e) {
                 e.printStackTrace();
 
-                messaging.utils.showErrorLog(this, nameMethod, "Get Event error Field! NullPointerException ", e.getMessage());
+                messaging.utils.showErrorLog(this, nameMethod, "Get Event error ! NullPointerException ", e.getMessage());
 
             }
         }

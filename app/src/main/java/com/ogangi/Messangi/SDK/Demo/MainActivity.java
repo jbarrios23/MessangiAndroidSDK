@@ -671,7 +671,7 @@ public class MainActivity extends AppCompatActivity {
             nameMethod=new Object(){}.getClass().getEnclosingMethod().getName();
 
             boolean hasError=intent.getBooleanExtra(Messaging.INTENT_EXTRA_HAS_ERROR,true);
-            Log.d(TAG,"ERROR: "+CLASS_TAG+": "+nameMethod+": Has error:  "+ hasError);
+            Log.d(TAG,"DEBUG: "+CLASS_TAG+": "+nameMethod+": Has error:  "+ hasError);
             if (!hasError ) {
                 Serializable data=intent.getSerializableExtra(Messaging.INTENT_EXTRA_DATA);
                 if(intent.getAction().equals(Messaging.ACTION_FETCH_DEVICE)&& data!=null){
@@ -702,7 +702,7 @@ public class MainActivity extends AppCompatActivity {
                     messagingDevice = (MessagingDevice)data;
                     showDevice(messagingDevice);
                     Toast.makeText(mainActivityInstance, intent.getAction(), Toast.LENGTH_LONG).show();
-                    Log.d(TAG, "Debug: " + CLASS_TAG + ": " + nameMethod + ": Data Register:  " + data);
+                    Log.d(TAG, "DEBUG: " + CLASS_TAG + ": " + nameMethod + ": Data Register:  " + data);
 
                 }else{
                     Toast.makeText(getApplicationContext(),intent.getAction(),Toast.LENGTH_LONG).show();
