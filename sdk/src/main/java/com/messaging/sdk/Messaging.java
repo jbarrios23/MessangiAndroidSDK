@@ -115,6 +115,9 @@ public class Messaging implements LifecycleObserver{
     public static String MESSAGING_NOTIFICATION_OPEN="NOTIFICATION_OPEN";
     public static String MESSAGING_NOTIFICATION_RECEIVED="NOTIFICATION_RECEIVED";
     public static String MESSAGING_NOTIFICATION_CUSTOM_EVENT="";
+    public static String MESSAGING_INVALID_DEVICE_LOCATION="INVALID_DEVICE_LOCATION";
+    public static String MESSAGING_INVALID_DEVICE_LOCATION_REASON_MISSING="Missing Permission";
+    public static String MESSAGING_INVALID_DEVICE_LOCATION_REASON_CONFIG="Configuration Disabled";
 
     public boolean analytics_allowed;
 
@@ -194,7 +197,7 @@ public class Messaging implements LifecycleObserver{
         messaging.utils.showInfoLog(messaging,nameMethod,"notification "+notification.toString());
         if(notification!=null) {
             messaging.utils.showInfoLog(messaging,nameMethod,"The Activity was opened as a consequence of a notification");
-            sendEventToBackend(Messaging.MESSAGING_NOTIFICATION_OPEN);
+            sendEventToBackend(Messaging.MESSAGING_NOTIFICATION_OPEN,"");
         }else {
             messaging.utils.showInfoLog(messaging,nameMethod,"intent.extra does not contain a notification");
         }
@@ -202,19 +205,19 @@ public class Messaging implements LifecycleObserver{
         return notification;
     }
 
-    public static void sendEventCustomToBackend(String snake,String cases){
+    public static void sendEventCustomToBackend(String snakeCases){
             String nameMethod=new Object(){}.getClass().getEnclosingMethod().getName();
             Messaging messaging = Messaging.getInstance();
-            MESSAGING_NOTIFICATION_CUSTOM_EVENT=snake.toUpperCase()+"_"+cases.toUpperCase();
+            MESSAGING_NOTIFICATION_CUSTOM_EVENT=messaging.utils.toUpperSnakeCase(snakeCases);
             messaging.utils.showInfoLog(messaging,nameMethod,
                     "MESSAGING_NOTIFICATION_CUSTOM_EVENT "+MESSAGING_NOTIFICATION_CUSTOM_EVENT);
-            sendEventToBackend(MESSAGING_NOTIFICATION_CUSTOM_EVENT);
+            sendEventToBackend(MESSAGING_NOTIFICATION_CUSTOM_EVENT,"");
     }
 
-    public static void sendEventToBackend(String nameEvent) {
+    public static void sendEventToBackend(String nameEvent,String reason) {
     final Messaging messaging = Messaging.getInstance();
     String provId= messaging.messagingDevice.getId();
-    new HttpRequestEventGet(provId,messaging,nameEvent).execute();
+    new HttpRequestEventGet(provId,messaging,nameEvent,reason).execute();
     }
 
 
@@ -1034,6 +1037,7 @@ public class Messaging implements LifecycleObserver{
         public String provEvent;
         private String nameMethod;
         private String provUrl;
+        private String reasonEvent;
         private String server_response;
         private Messaging messaging;
         @SuppressLint("StaticFieldLeak")
@@ -1041,9 +1045,10 @@ public class Messaging implements LifecycleObserver{
 
 
 
-        public HttpRequestEventGet(String deviceId,Messaging messaging,String event) {
+        public HttpRequestEventGet(String deviceId, Messaging messaging, String nameEvent, String reason) {
             this.provDeviceId=deviceId;
-            this.provEvent=event;
+            this.provEvent=nameEvent;
+            this.reasonEvent=reason;
             this.messaging = messaging;
 
 
@@ -1059,7 +1064,12 @@ public class Messaging implements LifecycleObserver{
                 nameMethod = new Object() {
                 }.getClass().getEnclosingMethod().getName();
                 String param = "Bearer " + authToken;
-                provUrl = messaging.utils.getMessagingHost()+"/devices/"+provDeviceId+"/event/"+provEvent;
+                if(!reasonEvent.equals("") && !reasonEvent.isEmpty()){
+                    provUrl = messaging.utils.getMessagingHost()+"/devices/"+provDeviceId+"/event/"+provEvent+"?reason="+reasonEvent;
+                }else{
+                    provUrl = messaging.utils.getMessagingHost()+"/devices/"+provDeviceId+"/event/"+provEvent;
+                }
+
                 messaging.utils.showHttpRequestLog(provUrl, messaging,nameMethod,"GET","");
                 URL url = new URL(provUrl);
                 urlConnection = (HttpURLConnection) url.openConnection();

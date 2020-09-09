@@ -383,7 +383,8 @@ public class LoginActivity extends AppCompatActivity {
                 String[] prvHandlerMessage=scanContent.split(":%:");
                 prvTokenApp=prvHandlerMessage[0];
                 provHostApp=prvHandlerMessage[1];
-                Log.d(TAG, "INFO: " + CLASS_TAG + ": " + nameMethod + "Token: " +prvTokenApp+" Host "+provHostApp);
+                Log.d(TAG, "INFO: " + CLASS_TAG + ": " + nameMethod
+                        + "Token: " +prvTokenApp+" Host "+provHostApp);
                 progressBar.setVisibility(View.VISIBLE);
                 Messaging.fetchFields(getApplicationContext(),prvTokenApp,provHostApp);
             }else{
@@ -467,7 +468,7 @@ public class LoginActivity extends AppCompatActivity {
                         goToMainActivity();
 
                 }else{
-                    Toast.makeText(getApplicationContext(),intent.getAction(),Toast.LENGTH_LONG).show();
+                Toast.makeText(getApplicationContext(),intent.getAction(),Toast.LENGTH_LONG).show();
                 Log.e(TAG,"DEBUG: "+CLASS_TAG+": "+nameMethod+": An error occurred on action:  "
                             + intent.getAction());
                     if(progressBar.isShown()){

@@ -484,4 +484,21 @@ import java.util.List;
          return true;
      }
 
+     public String toUpperSnakeCase(String variableName) {
+         StringBuilder builder = new StringBuilder();
+         char[] nameChars = variableName.toCharArray();
+         for (int i = 0; i < nameChars.length; i++) {
+             char ch = nameChars[i];
+             if (i != 0 && Character.isWhitespace(ch)) {
+                 builder.append('_');
+             } else if(i != 0 && Character.isUpperCase(ch)) {
+                 builder.append('_').append(ch);
+
+             } else {
+                 builder.append(Character.toUpperCase(ch));
+             }//from  w  w  w .  j  a va2 s . c o m
+         }
+         return builder.toString();
+     }
+
 }
