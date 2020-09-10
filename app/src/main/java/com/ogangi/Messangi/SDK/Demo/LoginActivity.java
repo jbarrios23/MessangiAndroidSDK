@@ -544,7 +544,6 @@ public class LoginActivity extends AppCompatActivity {
     private void sendUserUpdateData(HashMap<String, String> dataInputToSendUser) {
         for (Map.Entry<String, String> entry : dataInputToSendUser.entrySet()) {
             messagingUser.addProperty(entry.getKey(),entry.getValue());
-
         }
         Log.d(TAG,"DEBUG: "+CLASS_TAG+": "+nameMethod+" Send User data:  "+ messagingUser.getProperties());
         messagingUser.save(getApplicationContext());
