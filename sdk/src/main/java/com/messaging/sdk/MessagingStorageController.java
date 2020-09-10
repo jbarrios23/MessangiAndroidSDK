@@ -144,7 +144,7 @@ public class MessagingStorageController {
 
             datosuser.apply();
         }catch (JSONException e){
-
+        messaging.utils.showErrorLog(this,nameMethod,"Error Device Saved in Storage Controller "+e.getMessage(),"");
         }
         nameMethod=new Object(){}.getClass().getEnclosingMethod().getName();
         messaging.utils.showDebugLog(this,nameMethod,"Device Saved in Storage Controller ");

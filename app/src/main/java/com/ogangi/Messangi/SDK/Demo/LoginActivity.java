@@ -94,7 +94,8 @@ public class LoginActivity extends AppCompatActivity {
         linearLayout=findViewById(R.id.linearLayoutData);
         progressBar=findViewById(R.id.progressBar);
         messaging=Messaging.getInstance(this);
-        messagingUser=MessagingUser.getInstance();
+        //messagingUser=MessagingUser.getInstance();
+        messagingUser=new MessagingUser();
 
         button_get_started.setText(getResources().getText(R.string.get_started));
         imageView.setVisibility(View.VISIBLE);
@@ -127,12 +128,13 @@ public class LoginActivity extends AppCompatActivity {
         skip.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+                verifyHasDeviceRegister();
                 Intent intent=new Intent(LoginActivity.this,MainActivity.class);
                 startActivity(intent);
                 LoginActivity.this.finish();
             }
         });
-        verifyHasDeviceRegister();
+
     }
 
     private void verifyHasDeviceRegister() {
@@ -144,6 +146,7 @@ public class LoginActivity extends AppCompatActivity {
             Toast.makeText(getApplicationContext(),"has device register: "
                     +messaging.messagingStorageController.isRegisterDevice(),Toast.LENGTH_LONG).show();
         }else{
+            messaging.createDeviceParameters();
             Log.d(TAG,"DEBUG: "+CLASS_TAG+": "+nameMethod+"has device register: "
                     +messaging.messagingStorageController.isRegisterDevice());
         }
@@ -338,6 +341,8 @@ public class LoginActivity extends AppCompatActivity {
                 + prvTokenApp+"  "+provHostApp);
         userUpdate=provUserUpdate;
         messaging.setConfigParameterFromApp(prvTokenApp,provHostApp);
+        Log.i(TAG, "INFO: " + CLASS_TAG + ": " + nameMethod + "Creating Device: "
+                + userUpdate);
         messaging.createDeviceParameters();
         Log.i(TAG, "INFO: " + CLASS_TAG + ": " + nameMethod + "userUpdate: "
                 + userUpdate);
@@ -367,6 +372,7 @@ public class LoginActivity extends AppCompatActivity {
             scan_title.setTextSize(25);
             scan_title.setText(getResources().getText(R.string.let_get_started_title));
             button_get_started.setText(getResources().getText(R.string.get_continue));
+            skip.setVisibility(View.INVISIBLE);
             // Add EditText to LinearLayout
             if(dataInputList!=null && dataInputList.size()>0) {
                 if(progressBar.isShown()){
@@ -442,7 +448,7 @@ public class LoginActivity extends AppCompatActivity {
             Log.d(TAG,"ERROR: "+CLASS_TAG+": "+nameMethod+": Has error:  "+ hasError);
             if (!hasError ) {
                 Serializable dataSdk=intent.getSerializableExtra(Messaging.INTENT_EXTRA_DATA);
-                String data=intent.getStringExtra(Messaging.INTENT_EXTRA_DATA);
+                String data=intent.getStringExtra(Messaging.INTENT_EXTRA_DATA_FIELD);
                 if(intent.getAction().equals(Messaging.ACTION_FETCH_FIELDS) && data!=null){
                     Log.d(TAG,"DEBUG: "+CLASS_TAG+": "+nameMethod+": data:  "+ data);
 
@@ -499,6 +505,8 @@ public class LoginActivity extends AppCompatActivity {
                         messagingUser =(MessagingUser) dataSdk; //you can cast this for get information
                         //for condition of save (user or device);
                         Toast.makeText(getApplicationContext(),intent.getAction(),Toast.LENGTH_LONG).show();
+                        Log.d(TAG, "Debug: " + CLASS_TAG + ": " + nameMethod
+                            + ": Save User:  " + dataSdk);
                         goToMainActivity();
 
                 }else{
@@ -526,6 +534,8 @@ public class LoginActivity extends AppCompatActivity {
     };
 
     private void goToMainActivity() {
+        nameMethod=new Object(){}.getClass().getEnclosingMethod().getName();
+        Log.d(TAG, "Debug: " + CLASS_TAG + ": " + nameMethod);
         Intent intent=new Intent(LoginActivity.this,MainActivity.class);
         startActivity(intent);
         LoginActivity.this.finish();

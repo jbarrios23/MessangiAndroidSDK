@@ -84,6 +84,7 @@ public class Messaging implements LifecycleObserver{
 
 
     public static String INTENT_EXTRA_DATA="messaging_data";
+    public static String INTENT_EXTRA_DATA_FIELD="messaging_data_field";
     public static String INTENT_EXTRA_HAS_ERROR="messaging_has_error";
 
     public static String MESSAGING_ID="MSGI_MSGID";
@@ -527,7 +528,7 @@ public class Messaging implements LifecycleObserver{
      */
     private void sendFieldToActivity(String action, String something, Context context) {
         Intent intent=new Intent(action);
-        intent.putExtra(INTENT_EXTRA_DATA,something);
+        intent.putExtra(INTENT_EXTRA_DATA_FIELD,something);
         intent.putExtra(INTENT_EXTRA_HAS_ERROR,something==null);
         LocalBroadcastManager.getInstance(context).sendBroadcast(intent);
 
@@ -1116,7 +1117,6 @@ public class Messaging implements LifecycleObserver{
                 }
             } catch (NullPointerException e) {
                 e.printStackTrace();
-
                 messaging.utils.showErrorLog(this, nameMethod, "Get Event error ! NullPointerException ", e.getMessage());
 
             }
