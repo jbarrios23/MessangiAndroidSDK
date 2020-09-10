@@ -7,6 +7,8 @@ import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.pm.ActivityInfo;
 import android.os.Bundle;
+import android.os.Handler;
+import android.os.Message;
 import android.telephony.PhoneNumberUtils;
 import android.util.Log;
 import android.view.View;
@@ -36,6 +38,8 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.io.Serializable;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
@@ -52,7 +56,7 @@ import static android.text.InputType.TYPE_CLASS_TEXT;
 public class LoginActivity extends AppCompatActivity {
     public static String CLASS_TAG=LoginActivity.class.getSimpleName();
     public static String TAG="MESSAGING";
-    public Button button_get_started;
+    public Button button_get_started,skip;
     public TextView scan_title;
     public ImageView imageView;
     private String nameMethod;
@@ -73,6 +77,7 @@ public class LoginActivity extends AppCompatActivity {
     public Messaging messaging;
     public MessagingUser messagingUser;
     public boolean userUpdate=false;
+    public int delay=4000;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -83,6 +88,7 @@ public class LoginActivity extends AppCompatActivity {
         setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_PORTRAIT);
         nameMethod=new Object(){}.getClass().getEnclosingMethod().getName();
         button_get_started=findViewById(R.id.button);
+        skip=findViewById(R.id.button_skip);
         scan_title=findViewById(R.id.textView_scan);
         imageView=findViewById(R.id.imageView_visualizer);
         linearLayout=findViewById(R.id.linearLayoutData);
@@ -92,6 +98,7 @@ public class LoginActivity extends AppCompatActivity {
 
         button_get_started.setText(getResources().getText(R.string.get_started));
         imageView.setVisibility(View.VISIBLE);
+
         button_get_started.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -116,7 +123,34 @@ public class LoginActivity extends AppCompatActivity {
 
             }
         });
+
+        skip.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Intent intent=new Intent(LoginActivity.this,MainActivity.class);
+                startActivity(intent);
+                LoginActivity.this.finish();
+            }
+        });
+        verifyHasDeviceRegister();
     }
+
+    private void verifyHasDeviceRegister() {
+        nameMethod=new Object(){}.getClass().getEnclosingMethod().getName();
+        if(messaging.messagingStorageController.isRegisterDevice()){
+
+            Log.d(TAG,"DEBUG: "+CLASS_TAG+": "+nameMethod+"has device register: "
+                    +messaging.messagingStorageController.isRegisterDevice());
+            Toast.makeText(getApplicationContext(),"has device register: "
+                    +messaging.messagingStorageController.isRegisterDevice(),Toast.LENGTH_LONG).show();
+        }else{
+            Log.d(TAG,"DEBUG: "+CLASS_TAG+": "+nameMethod+"has device register: "
+                    +messaging.messagingStorageController.isRegisterDevice());
+        }
+
+
+    }
+
 
     private void addEditTextDynamically(LinearLayout mParentLayout,
                                         ArrayList<HashMap<String, String>> myList){

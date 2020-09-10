@@ -78,7 +78,15 @@
             android:layout_width="150dp"
             android:layout_height="wrap_content"
             android:layout_gravity="center"
-            android:layout_marginTop="150dp"
+            android:layout_marginTop="100dp"
+            android:textColor="@color/colorAccent" />
+
+        <Button
+            android:id="@+id/button_skip"
+            android:layout_width="150dp"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center"
+            android:text="@string/button_skip"
             android:textColor="@color/colorAccent" />
 
     </LinearLayout>

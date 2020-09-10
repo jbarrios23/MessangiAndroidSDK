@@ -201,9 +201,10 @@ public class MainActivity extends AppCompatActivity {
      nameMethod=new Object(){}.getClass().getEnclosingMethod().getName();
         Intent intent=new Intent(MainActivity.this,LoginActivity.class);
         startActivity(intent);
+        MainActivity.this.finish();
         messaging.showAnalyticAllowedState();
         Log.i(TAG, "INFO: " + CLASS_TAG + ": " + nameMethod + " isAnalytics_allowed: " + messaging.isAnalytics_allowed());
-        Messaging.sendEventCustomToBackend("notificationPush");
+        //Messaging.sendEventCustomToBackend("notificationPush");
 
     }
 

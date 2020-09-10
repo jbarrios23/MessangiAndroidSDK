@@ -22,5 +22,7 @@
     <string name="hint_email">EMAIL</string>
     <string name="hint_phone">PHONE</string>
     <string name="let_get_started_title">Lets Get Started</string>
+    <string name="button_skip">Skip</string>
+
 
 </resources>
