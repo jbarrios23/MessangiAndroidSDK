@@ -348,13 +348,14 @@ public class MessagingDevice implements Serializable {
      */
 
     private JSONObject requestJsonBodyForUpdate(String pushToken){
-
+        Messaging messaging=Messaging.getInstance();
         JSONObject requestBody=new JSONObject();
         JSONArray jsonArray=new JSONArray(tags);
 
         try {
             requestBody.put(Messaging.MESSAGING_PUSH_TOKEN, pushToken);
             requestBody.put(Messaging.MESSAGING_DEVICE_TYPE, type);
+            messaging.utils.showDebugLog(this,"requestJsonBodyForUpdate ",type);
             requestBody.put(Messaging.MESSAGING_DEVICE_TAGS, jsonArray);
             requestBody.put(Messaging.MESSAGING_DEVICE_LANGUAGE, language);
             requestBody.put(Messaging.MESSAGING_DEVICE_MODEL, model);

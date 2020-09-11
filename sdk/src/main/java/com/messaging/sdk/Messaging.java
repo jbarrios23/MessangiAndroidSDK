@@ -653,7 +653,6 @@ public class Messaging implements LifecycleObserver{
                     nameMethod=new Object(){}.getClass().getEnclosingMethod().getName();
                     messaging.utils.showHttpResponseLog(provUrl,messaging,nameMethod,"Successful",response);
                     JSONObject resp=new JSONObject(response);
-
                     messaging.messagingDevice =messaging.utils.getMessagingDevFromJsonOnlyResp(resp,pushToken);
                     messaging.messagingStorageController.saveDevice(resp, "");
                     messaging.sendEventToActivity(ACTION_FETCH_DEVICE,messaging.messagingDevice,context);

@@ -77,7 +77,8 @@ public class LoginActivity extends AppCompatActivity {
     public Messaging messaging;
     public MessagingUser messagingUser;
     public boolean userUpdate=false;
-    public int delay=4000;
+    public boolean useQrScan=false;
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -140,13 +141,11 @@ public class LoginActivity extends AppCompatActivity {
     private void verifyHasDeviceRegister() {
         nameMethod=new Object(){}.getClass().getEnclosingMethod().getName();
         if(messaging.messagingStorageController.isRegisterDevice()){
-
             Log.d(TAG,"DEBUG: "+CLASS_TAG+": "+nameMethod+"has device register: "
                     +messaging.messagingStorageController.isRegisterDevice());
             Toast.makeText(getApplicationContext(),"has device register: "
                     +messaging.messagingStorageController.isRegisterDevice(),Toast.LENGTH_LONG).show();
         }else{
-            messaging.createDeviceParameters();
             Log.d(TAG,"DEBUG: "+CLASS_TAG+": "+nameMethod+"has device register: "
                     +messaging.messagingStorageController.isRegisterDevice());
         }
@@ -209,6 +208,8 @@ public class LoginActivity extends AppCompatActivity {
         LocalBroadcastManager.getInstance(this).registerReceiver(mReceiver,
                 new IntentFilter(Messaging.ACTION_REGISTER_DEVICE));
         LocalBroadcastManager.getInstance(this).registerReceiver(mReceiver,
+                new IntentFilter(Messaging.ACTION_FETCH_USER));
+        LocalBroadcastManager.getInstance(this).registerReceiver(mReceiver,
                 new IntentFilter(Messaging.ACTION_SAVE_USER));
 
     }
@@ -229,6 +230,8 @@ public class LoginActivity extends AppCompatActivity {
         scanIntegrator.setOrientationLocked(true);
         scanIntegrator.setBarcodeImageEnabled(true);
         scanIntegrator.initiateScan();
+        Log.d(TAG,"DEBUG: "+CLASS_TAG+": "+nameMethod+"ScanQr State: "
+                +useQrScan);
     }
 
     @SuppressLint("ResourceType")
@@ -426,10 +429,13 @@ public class LoginActivity extends AppCompatActivity {
                 Log.d(TAG, "INFO: " + CLASS_TAG + ": " + nameMethod
                         + "Token: " +prvTokenApp+" Host "+provHostApp);
                 progressBar.setVisibility(View.VISIBLE);
+                useQrScan=true;
                 Messaging.fetchFields(getApplicationContext(),prvTokenApp,provHostApp);
             }else{
                 Toast.makeText(getApplicationContext(),"Cancelled",Toast.LENGTH_LONG).show();
-                Log.d(TAG, "INFO: " + CLASS_TAG + ": " + nameMethod + ": " +"Cancelled");
+                useQrScan=false;
+                Log.d(TAG, "INFO: " + CLASS_TAG + ": "
+                        + nameMethod + ": " +"Cancelled QR Scan "+useQrScan);
             }
 
         } else {
@@ -494,20 +500,37 @@ public class LoginActivity extends AppCompatActivity {
                 }else if(intent.getAction().equals(Messaging.ACTION_REGISTER_DEVICE)&& dataSdk!=null) {
                     MessagingDevice messagingDevice = (MessagingDevice) dataSdk;
                     Toast.makeText(getApplicationContext(), intent.getAction(), Toast.LENGTH_LONG).show();
-                    Log.d(TAG, "Debug: " + CLASS_TAG + ": " + nameMethod + ": Data Register:  " + dataSdk);
+                    Log.d(TAG, "Debug: " + CLASS_TAG + ": " + nameMethod + ": Data Register:  " + dataSdk
+                            +" userUpdate "+userUpdate);
                     if (userUpdate) {
-                        sendUserUpdateData(dataInputToSendUser);
+                    Messaging.fetchUser(getApplicationContext(), true);
                     } else {
+                        if (useQrScan) {
                         goToMainActivity();
+                        useQrScan=false;
+                        }
+
                     }
 
-                }else if(intent.getAction().equals(Messaging.ACTION_SAVE_USER)&& dataSdk!=null) {
-                        messagingUser =(MessagingUser) dataSdk; //you can cast this for get information
-                        //for condition of save (user or device);
+                }else if(intent.getAction().equals(Messaging.ACTION_FETCH_USER)&& dataSdk!=null) {
+                        messagingUser =(MessagingUser) dataSdk;
                         Toast.makeText(getApplicationContext(),intent.getAction(),Toast.LENGTH_LONG).show();
                         Log.d(TAG, "Debug: " + CLASS_TAG + ": " + nameMethod
-                            + ": Save User:  " + dataSdk);
-                        goToMainActivity();
+                                + "Action:  " + intent.getAction()+" "+dataSdk+" QR "+useQrScan);
+                        if(useQrScan){
+                            sendUserUpdateData(dataInputToSendUser);
+                        }
+
+                }else if(intent.getAction().equals(Messaging.ACTION_SAVE_USER)&& dataSdk!=null) {
+                        messagingUser =(MessagingUser) dataSdk;
+                        Toast.makeText(getApplicationContext(),intent.getAction(),Toast.LENGTH_LONG).show();
+                        Log.d(TAG, "Debug: " + CLASS_TAG + ": " + nameMethod
+                            + ": Save User:  " + dataSdk +" "+intent.getAction()+" QR "+useQrScan);
+                        if(useQrScan) {
+                            goToMainActivity();
+                            useQrScan=false;
+
+                        }
 
                 }else{
                 Toast.makeText(getApplicationContext(),intent.getAction(),Toast.LENGTH_LONG).show();
@@ -547,8 +570,6 @@ public class LoginActivity extends AppCompatActivity {
         }
         Log.d(TAG,"DEBUG: "+CLASS_TAG+": "+nameMethod+" Send User data:  "+ messagingUser.getProperties());
         messagingUser.save(getApplicationContext());
-
-
     }
 
     public JSONArray getJsonArraySorted(JSONArray arr){

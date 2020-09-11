@@ -695,16 +695,16 @@ public class MainActivity extends AppCompatActivity {
                 }else if(intent.getAction().equals(Messaging.ACTION_SAVE_USER)&& data!=null) {
                     messagingUser =(MessagingUser) data; //you can cast this for get information
                     //for condition of save (user or device);
-                    Toast.makeText(getApplicationContext(),intent.getAction(),Toast.LENGTH_LONG).show();
+                    Toast.makeText(getApplicationContext(),intent.getAction(),Toast.LENGTH_SHORT).show();
                     shwUser(messagingUser);
                 }else if(intent.getAction().equals(Messaging.ACTION_REGISTER_DEVICE) ) {
                     messagingDevice = (MessagingDevice)data;
                     showDevice(messagingDevice);
-                    Toast.makeText(mainActivityInstance, intent.getAction(), Toast.LENGTH_LONG).show();
+                    Toast.makeText(mainActivityInstance, intent.getAction(), Toast.LENGTH_SHORT).show();
                     Log.d(TAG, "DEBUG: " + CLASS_TAG + ": " + nameMethod + ": Data Register:  " + data);
 
                 }else{
-                    Toast.makeText(getApplicationContext(),intent.getAction(),Toast.LENGTH_LONG).show();
+                    Toast.makeText(getApplicationContext(),intent.getAction(),Toast.LENGTH_SHORT).show();
                 }
 
             }else{

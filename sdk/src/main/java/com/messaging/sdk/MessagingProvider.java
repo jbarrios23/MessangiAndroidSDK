@@ -27,8 +27,8 @@ public class MessagingProvider extends ContentProvider {
         messaging = Messaging.getInstance(getContext());
         messaging.utils.showDebugLog(this,nameMethod,"onCreate provider");
         if(!messaging.messagingStorageController.isRegisterDevice()){
-            //messaging.utils.showDebugLog(this,nameMethod,"Creating Device ");
-            //messaging.createDeviceParameters();
+            messaging.utils.showDebugLog(this,nameMethod,"Creating Device ");
+            messaging.createDeviceParameters();
         }
 
 
