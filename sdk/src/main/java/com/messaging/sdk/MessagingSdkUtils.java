@@ -442,6 +442,9 @@ import java.util.List;
                 boolean provEnable=jsonObject.getBoolean(Messaging.MESSAGING_LOCATION_ENABLE);
                 showDebugLog(this,nameMethod, "locationEnable : "
                         +provEnable);
+                if(provEnable){
+                    messaging.fetchLocation(null);
+                }
                 setLocation_allowed(provEnable);
             }
             if(jsonObject.has(Messaging.MESSAGING_ANALYTICS_ENABLE)){

@@ -1,6 +1,7 @@
 package com.ogangi.Messangi.SDK.Demo;
 
 import android.annotation.SuppressLint;
+import android.app.Activity;
 import android.app.AlertDialog;
 import android.app.NotificationChannel;
 import android.app.NotificationManager;
@@ -11,6 +12,7 @@ import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.pm.ActivityInfo;
+import android.content.pm.PackageManager;
 import android.graphics.Color;
 import android.media.RingtoneManager;
 import android.net.Uri;
@@ -29,6 +31,7 @@ import android.widget.Switch;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import androidx.annotation.NonNull;
 import androidx.annotation.RequiresApi;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.app.NotificationCompat;
@@ -36,6 +39,7 @@ import androidx.localbroadcastmanager.content.LocalBroadcastManager;
 
 import com.messaging.sdk.Messaging;
 import com.messaging.sdk.MessagingDevice;
+import com.messaging.sdk.MessagingLocation;
 import com.messaging.sdk.MessagingNotification;
 import com.messaging.sdk.MessagingUser;
 
@@ -127,8 +131,10 @@ public class MainActivity extends AppCompatActivity {
         login.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                goToLogin();
+                //goToLogin();
                 //showAlertGetLogCat();
+                messaging.fetchLocation(MainActivity.this);
+
             }
         });
 
@@ -174,6 +180,15 @@ public class MainActivity extends AppCompatActivity {
                 }
             }
         });
+        //verify if GPS turn on!
+        new GpsUtils(this).turnGPSOn(new GpsUtils.onGpsListener() {
+            @Override
+            public void gpsStatus(boolean isGPSEnable) {
+                messaging.setGPS(isGPSEnable);
+                Log.d(CLASS_TAG,TAG+ " isGPS To Interface "+messaging.isGPS());
+            }
+        });
+
         //for handle notification from background
         Bundle extras=getIntent().getExtras();
         if(extras!=null){
@@ -227,6 +242,8 @@ public class MainActivity extends AppCompatActivity {
                 new IntentFilter(Messaging.ACTION_REGISTER_DEVICE));
         LocalBroadcastManager.getInstance(this).registerReceiver(mReceiver,
                 new IntentFilter(Messaging.ACTION_SAVE_USER));
+        LocalBroadcastManager.getInstance(this).registerReceiver(mReceiver,
+                new IntentFilter(Messaging.ACTION_FETCH_LOCATION));
     }
 
     @SuppressLint("SetTextI18n")
@@ -238,7 +255,6 @@ public class MainActivity extends AppCompatActivity {
         progressBar.setVisibility(View.VISIBLE);
         Messaging.fetchDevice(false,getApplicationContext());
         Log.i(TAG,"INFO: "+CLASS_TAG+": "+nameMethod+"onResume: ");
-
 
     }
 
@@ -703,6 +719,14 @@ public class MainActivity extends AppCompatActivity {
                     Toast.makeText(mainActivityInstance, intent.getAction(), Toast.LENGTH_SHORT).show();
                     Log.d(TAG, "DEBUG: " + CLASS_TAG + ": " + nameMethod + ": Data Register:  " + data);
 
+                }else if(intent.getAction().equals(Messaging.ACTION_FETCH_LOCATION) ) {
+                    MessagingLocation messagingLocation = (MessagingLocation) data;
+
+                    Toast.makeText(mainActivityInstance, intent.getAction(), Toast.LENGTH_SHORT).show();
+                    Log.d(TAG, "DEBUG: " + CLASS_TAG + ": " + nameMethod + ": Data Location Lat:  "
+                            + messagingLocation.getLatitude()+" Long: "+messagingLocation.getLongitude());
+
+
                 }else{
                     Toast.makeText(getApplicationContext(),intent.getAction(),Toast.LENGTH_SHORT).show();
                 }
@@ -723,5 +747,40 @@ public class MainActivity extends AppCompatActivity {
         }
 
     };
+    //it must implement in this activity
+    @SuppressLint("MissingPermission")
+    @Override
+    public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
+        //super.onRequestPermissionsResult(requestCode, permissions, grantResults);
+        switch (requestCode) {
+            case 1000: {
+                // If request is cancelled, the result arrays are empty.
+                if (grantResults.length > 0
+                        && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+                    messaging.fetchLocation(MainActivity.this);
+                } else {
+                    Toast.makeText(getApplicationContext(), "Permission denied", Toast.LENGTH_SHORT).show();
+                    permissionsDenied();
+                }
+                break;
+            }
+        }
+    }
+
+    private void permissionsDenied() {
+        Log.e(CLASS_TAG, TAG+" without this permission you will not have access to the device's location services");
+        Toast.makeText(getApplicationContext(), "without this permission you will not have access to the device's location services", Toast.LENGTH_LONG).show();
+    }
+
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+        if (resultCode == Activity.RESULT_OK) {
+            if (requestCode == Messaging.GPS_REQUEST) {
+                messaging.setGPS(true);  // flag maintain before get location
+                Log.d(CLASS_TAG, TAG+" is gps "+messaging.isGPS());
+            }
+        }
+    }
 
 }

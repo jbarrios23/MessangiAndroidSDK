@@ -1,21 +1,36 @@
 package com.messaging.sdk;
 
+import android.Manifest;
 import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
+import android.content.pm.PackageManager;
+import android.location.Location;
 import android.os.AsyncTask;
 import android.os.Build;
 import android.os.Bundle;
+import android.os.Handler;
+import android.os.Looper;
+import android.os.Message;
 import android.provider.Settings;
 import android.util.Log;
+import android.widget.Toast;
 
+import androidx.annotation.NonNull;
+import androidx.core.app.ActivityCompat;
 import androidx.lifecycle.Lifecycle;
 import androidx.lifecycle.LifecycleObserver;
 import androidx.lifecycle.OnLifecycleEvent;
 import androidx.lifecycle.ProcessLifecycleOwner;
 import androidx.localbroadcastmanager.content.LocalBroadcastManager;
 
+import com.google.android.gms.location.FusedLocationProviderClient;
+import com.google.android.gms.location.LocationCallback;
+import com.google.android.gms.location.LocationRequest;
+import com.google.android.gms.location.LocationResult;
+import com.google.android.gms.location.LocationServices;
+import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.firebase.messaging.FirebaseMessaging;
 
 
@@ -43,10 +58,10 @@ import java.util.Map;
 
 
 /**
- * class Messaging let stablish Instances, handle services "get" and "create device" and LifecycleObserver
+ * class Messaging let stable Instances, handle services "get" and "create device" and LifecycleObserver
  * for handle event to foreground and background.
  */
-public class Messaging implements LifecycleObserver{
+public class Messaging implements LifecycleObserver {
 
 
     private static Messaging mInstance;
@@ -81,6 +96,7 @@ public class Messaging implements LifecycleObserver{
     public static String ACTION_SAVE_USER="com.messaging.sdk.ACTION_SAVE_USER";
     public static String ACTION_GET_NOTIFICATION="com.messaging.sdk.PUSH_NOTIFICATION";
     public static String ACTION_GET_NOTIFICATION_OPENED="com.messaging.sdk.PUSH_NOTIFICATION_TO_OPEN";
+    public static String ACTION_FETCH_LOCATION="com.messaging.sdk.ACTION_FETCH_LOCATION";
 
 
     public static String INTENT_EXTRA_DATA="messaging_data";
@@ -119,12 +135,23 @@ public class Messaging implements LifecycleObserver{
     public static String MESSAGING_INVALID_DEVICE_LOCATION="INVALID_DEVICE_LOCATION";
     public static String MESSAGING_INVALID_DEVICE_LOCATION_REASON_MISSING="Missing Permission";
     public static String MESSAGING_INVALID_DEVICE_LOCATION_REASON_CONFIG="Configuration Disabled";
+    public static final int LOCATION_REQUEST = 1000;
+    public static final int GPS_REQUEST = 1001;
 
     public boolean analytics_allowed;
 
+    private double wayLatitude = 0.0;
+    private double wayLongitude = 0.0;
+    private boolean isContinue = false;
+    private boolean isGPS = false;
+    private LocationRequest locationRequest;
+    private LocationCallback locationCallback;
+    private FusedLocationProviderClient fusedLocationClient;
 
 
-    public Messaging(Context context){
+
+
+    public Messaging(final Context context){
         this.context =context;
         this.utils=new MessagingSdkUtils();
         this.messagingStorageController =new MessagingStorageController(context,this);
@@ -141,6 +168,42 @@ public class Messaging implements LifecycleObserver{
         this.identifier=0;
         this.messagingNotification =null;
         this.nameMethod="";
+        fusedLocationClient = LocationServices.getFusedLocationProviderClient(context);
+
+        locationRequest = LocationRequest.create();
+        locationRequest.setPriority(LocationRequest.PRIORITY_HIGH_ACCURACY);
+        locationRequest.setInterval(10 * 1000); // 10 seconds
+        locationRequest.setFastestInterval(5 * 1000); // 5 seconds
+
+
+
+        locationCallback=new LocationCallback(){
+            @Override
+            public void onLocationResult(LocationResult locationResult) {
+                if (locationResult == null) {
+                    return;
+                }
+                for (Location location : locationResult.getLocations()) {
+                    // Update UI with location data
+                    // ...
+
+                    if(location!=null){
+                        wayLatitude = location.getLatitude();
+                        wayLongitude = location.getLongitude();
+                        MessagingLocation messagingLocation=new MessagingLocation(location);
+                        sendEventToActivity(ACTION_FETCH_LOCATION,messagingLocation,context);
+                        if (!isContinue) {
+                        utils.showDebugLog(this,nameMethod,"CLat "+wayLatitude+" CLong "+wayLongitude);
+                        } else {
+                        utils.showDebugLog(this,nameMethod,"CLat "+wayLatitude+" CLong "+wayLongitude);
+                        }
+                        if ((!isContinue && fusedLocationClient != null)||!utils.isLocation_allowed()) {
+                            fusedLocationClient.removeLocationUpdates(locationCallback);
+                        }
+                    }
+                }
+            };
+        };
 
 
     }
@@ -188,6 +251,70 @@ public class Messaging implements LifecycleObserver{
                 //Toast.makeText(context,"Security does not match",Toast.LENGTH_LONG).show();
             }
         }
+
+    }
+
+    public void fetchLocation(Activity activity){
+        nameMethod=new Object(){}.getClass().getEnclosingMethod().getName();
+        utils.showInfoLog(this,nameMethod,"isGPS "+isGPS+" isContinue "+isContinue);
+        if (!isGPS) {
+            Toast.makeText(context, "Please turn on GPS", Toast.LENGTH_SHORT).show();
+            return;
+        }
+        isContinue = true;
+        getLastLocation(activity);
+
+    }
+
+    private void getLastLocation(Activity activity) {
+        if (ActivityCompat.checkSelfPermission(context, android.Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED
+                && ActivityCompat.checkSelfPermission(context, android.Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
+            if(activity!=null) {
+                ActivityCompat.requestPermissions(activity,
+                        new String[]{android.Manifest.permission.ACCESS_FINE_LOCATION,
+                                Manifest.permission.ACCESS_COARSE_LOCATION},
+                        LOCATION_REQUEST);
+            }
+        } else {
+            if (isContinue) {
+                Handler handler = new Handler(Looper.getMainLooper()) {
+                    @SuppressLint("MissingPermission")
+                    @Override
+                    public void handleMessage(Message inputMessage) {
+
+                    fusedLocationClient.requestLocationUpdates(locationRequest, locationCallback, null);
+
+                    }
+                };
+                handler.sendEmptyMessage(0);
+
+            } else {
+                getCurrentLocation();
+
+            }
+        }
+
+    }
+
+    @SuppressLint("MissingPermission")
+    private void getCurrentLocation() {
+        fusedLocationClient.getLastLocation()
+                .addOnSuccessListener(new OnSuccessListener<Location>() {
+                    @SuppressLint("MissingPermission")
+                    @Override
+                    public void onSuccess(Location location) {
+                        if (location != null) {
+                            wayLatitude = location.getLatitude();
+                            wayLongitude = location.getLongitude();
+                            utils.showDebugLog(this,nameMethod," Lat "+wayLatitude+" Long "+wayLongitude);
+                            MessagingLocation messagingLocation=new MessagingLocation(location);
+                            sendEventToActivity(ACTION_FETCH_LOCATION,messagingLocation,context);
+
+                        } else {
+                            fusedLocationClient.requestLocationUpdates(locationRequest, locationCallback, null);
+                        }
+                    }
+                });
 
     }
 
@@ -369,6 +496,14 @@ public class Messaging implements LifecycleObserver{
     public boolean isAnalytics_allowed() {
         analytics_allowed=utils.isAnalytics_allowed();
         return analytics_allowed;
+    }
+
+    public boolean isGPS() {
+        return isGPS;
+    }
+
+    public void setGPS(boolean GPS) {
+        isGPS = GPS;
     }
 
     /**
@@ -1121,6 +1256,8 @@ public class Messaging implements LifecycleObserver{
             }
         }
     }
+
+
 
 
 }
