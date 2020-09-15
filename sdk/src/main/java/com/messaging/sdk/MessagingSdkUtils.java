@@ -26,6 +26,7 @@ import java.util.List;
     private  boolean analytics_allowed;
     private  boolean location_allowed;
     private  boolean logging_allowed;
+    private  boolean enable_permission_automatic=false;
     public String provHost;
     private MessagingStorageController messagingStorageController;
     private MessagingDevice messagingDevice;
@@ -243,6 +244,14 @@ import java.util.List;
          //this.logging_allowed = logging_allowed;
      }
 
+     public boolean isEnable_permission_automatic() {
+         return enable_permission_automatic;
+     }
+
+     public void setEnable_permission_automatic(boolean enable_permission_automatic) {
+         this.enable_permission_automatic = enable_permission_automatic;
+     }
+
     public MessagingDevice getMessagingDevFromJson(JSONObject resp, JSONObject body, String id, String userId){
         String nameMethod=new Object(){}.getClass().getEnclosingMethod().getName();
         MessagingDevice messagingDevice =new MessagingDevice();
@@ -413,6 +422,7 @@ import java.util.List;
         showDebugLog(this,nameMethod, " messagingToken "+messagingToken);
         showDebugLog(this,nameMethod, " analytics_allowed "+analytics_allowed);
         showDebugLog(this,nameMethod, " location_allowed "+location_allowed);
+        showDebugLog(this,nameMethod, " permission_enable "+enable_permission_automatic);
     }
 
     public void saveConfigParameter(String parameter, Messaging messaging){

@@ -133,7 +133,8 @@ public class MainActivity extends AppCompatActivity {
             public void onClick(View v) {
                 //goToLogin();
                 //showAlertGetLogCat();
-                Messaging.fetchLocation(MainActivity.this,true);
+                gotoMapActivity();
+
 
             }
         });
@@ -209,6 +210,20 @@ public class MainActivity extends AppCompatActivity {
             }
 
         }
+
+        //verify permission get
+        Log.i(TAG, "INFO: " + CLASS_TAG + ": " + nameMethod + " has verify permission : "
+                + messaging.isEnable_permission_automatic());
+        if(messaging.isEnable_permission_automatic() ){
+            Messaging.requestPermissions(MainActivity.this);
+        }
+
+    }
+
+    private void gotoMapActivity() {
+        Intent intent=new Intent(MainActivity.this,MapsActivity.class);
+        startActivity(intent);
+        MainActivity.this.finish();
 
     }
 

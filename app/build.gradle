@@ -36,6 +36,7 @@ dependencies {
     implementation('com.journeyapps:zxing-android-embedded:4.1.0') { transitive = false }
     implementation 'com.google.zxing:core:3.4.0'
     implementation 'com.google.android.gms:play-services-location:17.0.0'
+    implementation 'com.google.android.gms:play-services-maps:17.0.0'
     testImplementation 'junit:junit:4.12'
     implementation project(path: ':sdk')
     androidTestImplementation 'androidx.test.ext:junit:1.1.2'

@@ -139,7 +139,8 @@ public class Messaging implements LifecycleObserver {
     public static final int LOCATION_REQUEST = 1000;
     public static final int GPS_REQUEST = 1001;
 
-    public boolean analytics_allowed;
+    private boolean analytics_allowed;
+    private boolean enable_permission_automatic;
 
     private static double wayLatitude = 0.0;
     private static double wayLongitude = 0.0;
@@ -519,6 +520,10 @@ public class Messaging implements LifecycleObserver {
     public boolean isAnalytics_allowed() {
         analytics_allowed=utils.isAnalytics_allowed();
         return analytics_allowed;
+    }
+    public boolean isEnable_permission_automatic() {
+        enable_permission_automatic=utils.isEnable_permission_automatic();
+        return enable_permission_automatic;
     }
 
     public boolean isGPS() {

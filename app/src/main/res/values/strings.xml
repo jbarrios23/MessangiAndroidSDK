@@ -23,6 +23,7 @@
     <string name="hint_phone">PHONE</string>
     <string name="let_get_started_title">Lets Get Started</string>
     <string name="button_skip">Skip</string>
+    <string name="title_activity_maps">Map</string>
 
 
 </resources>
