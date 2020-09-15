@@ -225,7 +225,7 @@ public class LoginActivity extends AppCompatActivity {
         //enable the following line if you want QR code
         //scanIntegrator.setDesiredBarcodeFormats(IntentIntegrator.QR_CODE_TYPES);
 
-        scanIntegrator.setCaptureActivity(CaptureActivityAnyOrientation.class);
+        //scanIntegrator.setCaptureActivity(CaptureActivityAnyOrientation.class);
         scanIntegrator.setCaptureActivity(SmallCaptureActivity.class);
         scanIntegrator.setOrientationLocked(true);
         scanIntegrator.setBarcodeImageEnabled(true);

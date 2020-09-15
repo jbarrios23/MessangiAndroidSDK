@@ -133,7 +133,7 @@ public class MainActivity extends AppCompatActivity {
             public void onClick(View v) {
                 //goToLogin();
                 //showAlertGetLogCat();
-                messaging.fetchLocation(MainActivity.this);
+                Messaging.fetchLocation(MainActivity.this,true);
 
             }
         });
@@ -757,7 +757,7 @@ public class MainActivity extends AppCompatActivity {
                 // If request is cancelled, the result arrays are empty.
                 if (grantResults.length > 0
                         && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
-                    messaging.fetchLocation(MainActivity.this);
+                    Messaging.fetchLocation(MainActivity.this,true);
                 } else {
                     Toast.makeText(getApplicationContext(), "Permission denied", Toast.LENGTH_SHORT).show();
                     permissionsDenied();

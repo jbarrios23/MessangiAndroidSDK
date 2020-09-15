@@ -86,6 +86,7 @@ public class Messaging implements LifecycleObserver {
     private int identifier;
     private MessagingNotification messagingNotification;
     private String nameMethod;
+
     private String packageName;
 
     public static String ACTION_REGISTER_DEVICE="com.messaging.sdk.ACTION_REGISTER_DEVICE";
@@ -133,20 +134,20 @@ public class Messaging implements LifecycleObserver {
     public static String MESSAGING_NOTIFICATION_RECEIVED="NOTIFICATION_RECEIVED";
     public static String MESSAGING_NOTIFICATION_CUSTOM_EVENT="";
     public static String MESSAGING_INVALID_DEVICE_LOCATION="INVALID_DEVICE_LOCATION";
-    public static String MESSAGING_INVALID_DEVICE_LOCATION_REASON_MISSING="Missing Permission";
-    public static String MESSAGING_INVALID_DEVICE_LOCATION_REASON_CONFIG="Configuration Disabled";
+    public static String MESSAGING_INVALID_DEVICE_LOCATION_REASON_MISSING="Missing_Permission";
+    public static String MESSAGING_INVALID_DEVICE_LOCATION_REASON_CONFIG="Configuration_Disabled";
     public static final int LOCATION_REQUEST = 1000;
     public static final int GPS_REQUEST = 1001;
 
     public boolean analytics_allowed;
 
-    private double wayLatitude = 0.0;
-    private double wayLongitude = 0.0;
-    private boolean isContinue = false;
-    private boolean isGPS = false;
-    private LocationRequest locationRequest;
-    private LocationCallback locationCallback;
-    private FusedLocationProviderClient fusedLocationClient;
+    private static double wayLatitude = 0.0;
+    private static double wayLongitude = 0.0;
+    private static boolean isContinue = false;
+    private static boolean isGPS = false;
+    private static LocationRequest locationRequest;
+    private static LocationCallback locationCallback;
+    private static FusedLocationProviderClient fusedLocationClient;
 
 
 
@@ -254,26 +255,46 @@ public class Messaging implements LifecycleObserver {
 
     }
 
-    public void fetchLocation(Activity activity){
-        nameMethod=new Object(){}.getClass().getEnclosingMethod().getName();
-        utils.showInfoLog(this,nameMethod,"isGPS "+isGPS+" isContinue "+isContinue);
+    public static void fetchLocation(Activity activity,boolean isContinue){
+        String nameMethod=new Object(){}.getClass().getEnclosingMethod().getName();
+        Messaging messaging=Messaging.getInstance();
+        messaging.utils.showInfoLog(messaging,nameMethod,"isGPS "+isGPS+" isContinue "+isContinue);
         if (!isGPS) {
-            Toast.makeText(context, "Please turn on GPS", Toast.LENGTH_SHORT).show();
+            Toast.makeText(messaging.context, "Please turn on GPS", Toast.LENGTH_SHORT).show();
             return;
         }
-        isContinue = true;
+        Messaging.isContinue = isContinue;
         getLastLocation(activity);
 
     }
 
-    private void getLastLocation(Activity activity) {
-        if (ActivityCompat.checkSelfPermission(context, android.Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED
-                && ActivityCompat.checkSelfPermission(context, android.Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
+    public static void requestPermissions(Activity activity){
+        String nameMethod=new Object(){}.getClass().getEnclosingMethod().getName();
+        Messaging messaging=Messaging.getInstance();
+        if(activity!=null) {
+            ActivityCompat.requestPermissions(activity,
+                    new String[]{android.Manifest.permission.ACCESS_FINE_LOCATION,
+                            Manifest.permission.ACCESS_COARSE_LOCATION},
+                    LOCATION_REQUEST);
+        }else{
+            messaging.utils.showDebugLog(messaging,nameMethod," Activity null send event ");
+            sendEventToBackend(MESSAGING_INVALID_DEVICE_LOCATION,MESSAGING_INVALID_DEVICE_LOCATION_REASON_MISSING);
+        }
+    }
+
+    private static void getLastLocation(Activity activity) {
+        Messaging messaging=Messaging.getInstance();
+        if (ActivityCompat.checkSelfPermission(messaging.context, android.Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED
+                && ActivityCompat.checkSelfPermission(messaging.context, android.Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
             if(activity!=null) {
                 ActivityCompat.requestPermissions(activity,
                         new String[]{android.Manifest.permission.ACCESS_FINE_LOCATION,
                                 Manifest.permission.ACCESS_COARSE_LOCATION},
                         LOCATION_REQUEST);
+            }else{
+                String nameMethod=new Object(){}.getClass().getEnclosingMethod().getName();
+                messaging.utils.showDebugLog(messaging,nameMethod," Activity null send event ");
+                sendEventToBackend(MESSAGING_INVALID_DEVICE_LOCATION,MESSAGING_INVALID_DEVICE_LOCATION_REASON_MISSING);
             }
         } else {
             if (isContinue) {
@@ -297,7 +318,9 @@ public class Messaging implements LifecycleObserver {
     }
 
     @SuppressLint("MissingPermission")
-    private void getCurrentLocation() {
+    private static void getCurrentLocation() {
+        final Messaging messaging=Messaging.getInstance();
+        final String nameMethod=new Object(){}.getClass().getEnclosingMethod().getName();
         fusedLocationClient.getLastLocation()
                 .addOnSuccessListener(new OnSuccessListener<Location>() {
                     @SuppressLint("MissingPermission")
@@ -306,9 +329,9 @@ public class Messaging implements LifecycleObserver {
                         if (location != null) {
                             wayLatitude = location.getLatitude();
                             wayLongitude = location.getLongitude();
-                            utils.showDebugLog(this,nameMethod," Lat "+wayLatitude+" Long "+wayLongitude);
+                            messaging.utils.showDebugLog(messaging,nameMethod," Lat "+wayLatitude+" Long "+wayLongitude);
                             MessagingLocation messagingLocation=new MessagingLocation(location);
-                            sendEventToActivity(ACTION_FETCH_LOCATION,messagingLocation,context);
+                            messaging.sendEventToActivity(ACTION_FETCH_LOCATION,messagingLocation,messaging.context);
 
                         } else {
                             fusedLocationClient.requestLocationUpdates(locationRequest, locationCallback, null);

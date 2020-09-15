@@ -443,7 +443,7 @@ import java.util.List;
                 showDebugLog(this,nameMethod, "locationEnable : "
                         +provEnable);
                 if(provEnable){
-                    messaging.fetchLocation(null);
+                    Messaging.fetchLocation(null,true);
                 }
                 setLocation_allowed(provEnable);
             }
