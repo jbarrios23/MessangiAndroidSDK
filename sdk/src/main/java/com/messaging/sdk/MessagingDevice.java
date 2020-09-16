@@ -207,6 +207,8 @@ public class MessagingDevice implements Serializable {
      *
      */
     public String getPushToken() {
+        Messaging messaging=Messaging.getInstance();
+        messaging.utils.showDebugLog(messaging,nameMethod,"pushToken "+pushToken);
         return pushToken;
     }
 
@@ -241,7 +243,7 @@ public class MessagingDevice implements Serializable {
         return this;
     }
     /**
-     * Method for get Leanguaje of Device
+     * Method for get Languaje of Device
      *
      */
     public String getLanguage() {
@@ -354,13 +356,13 @@ public class MessagingDevice implements Serializable {
 
         try {
             requestBody.put(Messaging.MESSAGING_PUSH_TOKEN, pushToken);
-            requestBody.put(Messaging.MESSAGING_DEVICE_TYPE, type);
-            messaging.utils.showDebugLog(this,"requestJsonBodyForUpdate ",type);
+            requestBody.put(Messaging.MESSAGING_DEVICE_TYPE, getType());
             requestBody.put(Messaging.MESSAGING_DEVICE_TAGS, jsonArray);
-            requestBody.put(Messaging.MESSAGING_DEVICE_LANGUAGE, language);
-            requestBody.put(Messaging.MESSAGING_DEVICE_MODEL, model);
-            requestBody.put(Messaging.MESSAGING_DEVICE_OS, os);
-            requestBody.put(Messaging.MESSAGING_DEVICE_SDK_VERSION, sdkVersion);
+            requestBody.put(Messaging.MESSAGING_DEVICE_LANGUAGE, getLanguage());
+            requestBody.put(Messaging.MESSAGING_DEVICE_MODEL, getModel());
+            requestBody.put(Messaging.MESSAGING_DEVICE_OS, getOs());
+            requestBody.put(Messaging.MESSAGING_DEVICE_SDK_VERSION, getSdkVersion());
+            messaging.utils.showDebugLog(this,"requestJsonBodyForUpdate Type ",getType());
 
         } catch (JSONException e) {
             e.printStackTrace();
@@ -464,7 +466,7 @@ public class MessagingDevice implements Serializable {
                     messaging.utils.showHttpResponseLog(provUrl, MessagingDevice.this,nameMethod,"Update Successful",response);
                     JSONObject resp=new JSONObject(response);
                     messagingDevice = messaging.utils.getMessagingDevFromJson(resp, jsonObject,Id,userId);
-                    messaging.messagingStorageController.saveDevice(resp,Id);
+                    messaging.messagingStorageController.saveDevice(resp,Id, jsonObject);
                     sendEventToActivity(Messaging.ACTION_SAVE_DEVICE,messagingDevice,context);
 
                 }

@@ -123,7 +123,7 @@ public class MainActivity extends AppCompatActivity {
                 progressBar.setVisibility(View.VISIBLE);
                 Messaging.fetchDevice(true,getApplicationContext());
                 Log.i(TAG,"INFO: "+CLASS_TAG+": "+nameMethod+": "+messaging.getExternalId());
-                //Messaging.fetchUser(getApplicationContext(), true);
+                Messaging.fetchUser(getApplicationContext(), true);
 
             }
         });
@@ -191,7 +191,11 @@ public class MainActivity extends AppCompatActivity {
         });
 
         //for handle notification from background
-        Bundle extras=getIntent().getExtras();
+        Bundle extras = null;
+        if(Static.extras!=null){
+        extras=Static.extras;    
+        }
+        //Bundle extras=getIntent().getExtras();
         if(extras!=null){
             isBackground=extras.getBoolean("isInBackground",false);
             Log.i(TAG, "INFO: " + CLASS_TAG + ": " + nameMethod + ": " + isBackground);
@@ -224,7 +228,6 @@ public class MainActivity extends AppCompatActivity {
         Intent intent=new Intent(MainActivity.this,MapsActivity.class);
         startActivity(intent);
         MainActivity.this.finish();
-
     }
 
     private void goToLogin() {

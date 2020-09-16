@@ -78,6 +78,7 @@ public class LoginActivity extends AppCompatActivity {
     public MessagingUser messagingUser;
     public boolean userUpdate=false;
     public boolean useQrScan=false;
+    public boolean onetimeFlag=true;
 
 
     @Override
@@ -130,21 +131,20 @@ public class LoginActivity extends AppCompatActivity {
             @Override
             public void onClick(View v) {
                 verifyHasDeviceRegister();
-                Intent intent=new Intent(LoginActivity.this,MainActivity.class);
-                startActivity(intent);
-                LoginActivity.this.finish();
+
             }
         });
+        verifyHasDeviceRegister();
 
     }
 
     private void verifyHasDeviceRegister() {
         nameMethod=new Object(){}.getClass().getEnclosingMethod().getName();
-        if(messaging.messagingStorageController.isRegisterDevice()){
+        if(messaging.isLogged()){
             Log.d(TAG,"DEBUG: "+CLASS_TAG+": "+nameMethod+"has device register: "
                     +messaging.messagingStorageController.isRegisterDevice());
-            Toast.makeText(getApplicationContext(),"has device register: "
-                    +messaging.messagingStorageController.isRegisterDevice(),Toast.LENGTH_LONG).show();
+            goToMainActivity();
+
         }else{
             Log.d(TAG,"DEBUG: "+CLASS_TAG+": "+nameMethod+"has device register: "
                     +messaging.messagingStorageController.isRegisterDevice());
@@ -518,7 +518,10 @@ public class LoginActivity extends AppCompatActivity {
                         Log.d(TAG, "Debug: " + CLASS_TAG + ": " + nameMethod
                                 + "Action:  " + intent.getAction()+" "+dataSdk+" QR "+useQrScan);
                         if(useQrScan){
-                            sendUserUpdateData(dataInputToSendUser);
+                            if(onetimeFlag) {
+                                sendUserUpdateData(dataInputToSendUser);
+                                onetimeFlag=false;
+                            }
                         }
 
                 }else if(intent.getAction().equals(Messaging.ACTION_SAVE_USER)&& dataSdk!=null) {
@@ -529,7 +532,6 @@ public class LoginActivity extends AppCompatActivity {
                         if(useQrScan) {
                             goToMainActivity();
                             useQrScan=false;
-
                         }
 
                 }else{
@@ -559,6 +561,11 @@ public class LoginActivity extends AppCompatActivity {
     private void goToMainActivity() {
         nameMethod=new Object(){}.getClass().getEnclosingMethod().getName();
         Log.d(TAG, "Debug: " + CLASS_TAG + ": " + nameMethod);
+        Bundle extras=getIntent().getExtras();
+        if(extras!=null){
+            Static.extras=extras;
+        }
+
         Intent intent=new Intent(LoginActivity.this,MainActivity.class);
         startActivity(intent);
         LoginActivity.this.finish();

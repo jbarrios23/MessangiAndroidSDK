@@ -240,11 +240,6 @@ public class MessagingNotification implements Serializable {
                     messaging.utils.showDebugLog(this,nameMethod, "has Configuration: "
                             +additionalData.get(key));
                     messaging.utils.saveConfigParameter(messagingConfiguration, messaging);
-                    messaging.utils.getMessagingHost();
-                    messaging.utils.getMessagingToken();
-                    messaging.utils.isAnalytics_allowed();
-                    messaging.utils.isLocation_allowed();
-                    messaging.utils.isLogging_allowed();
                     messaging.utils.showConfigParameter();
                 }else if(key.equals(Messaging.MESSAGING_LOGGING_ENABLE)) {
                    this.provRegisterLogs=extras.getString(key);
@@ -265,14 +260,13 @@ public class MessagingNotification implements Serializable {
                 messaging.utils.setLogging_allowed(registerLogs);
                 messaging.utils.showDebugLog(this,nameMethod, "MSGI_REGISTER_LOGS: "
                         +registerLogs);
-                messaging.utils.isLogging_allowed();
+
                 messaging.utils.showConfigParameter();
             }else{
                 this.registerLogs=true;
                 messaging.utils.setLogging_allowed(registerLogs);
                 messaging.utils.showDebugLog(this,nameMethod, "AMSGI_REGISTER_LOGS: "
                         +registerLogs);
-                messaging.utils.isLogging_allowed();
                 messaging.utils.showConfigParameter();
             }
 

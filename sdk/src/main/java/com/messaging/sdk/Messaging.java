@@ -14,10 +14,8 @@ import android.os.Handler;
 import android.os.Looper;
 import android.os.Message;
 import android.provider.Settings;
-import android.util.Log;
 import android.widget.Toast;
 
-import androidx.annotation.NonNull;
 import androidx.core.app.ActivityCompat;
 import androidx.lifecycle.Lifecycle;
 import androidx.lifecycle.LifecycleObserver;
@@ -66,7 +64,7 @@ public class Messaging implements LifecycleObserver {
 
     private static Messaging mInstance;
     private Context context;
-    public String Nameclass;
+    public String nameClass;
     public Activity activity;
     public int icon;
 
@@ -139,8 +137,6 @@ public class Messaging implements LifecycleObserver {
     public static final int LOCATION_REQUEST = 1000;
     public static final int GPS_REQUEST = 1001;
 
-    private boolean analytics_allowed;
-    private boolean enable_permission_automatic;
 
     private static double wayLatitude = 0.0;
     private static double wayLongitude = 0.0;
@@ -149,9 +145,6 @@ public class Messaging implements LifecycleObserver {
     private static LocationRequest locationRequest;
     private static LocationCallback locationCallback;
     private static FusedLocationProviderClient fusedLocationClient;
-
-
-
 
     public Messaging(final Context context){
         this.context =context;
@@ -176,8 +169,6 @@ public class Messaging implements LifecycleObserver {
         locationRequest.setPriority(LocationRequest.PRIORITY_HIGH_ACCURACY);
         locationRequest.setInterval(10 * 1000); // 10 seconds
         locationRequest.setFastestInterval(5 * 1000); // 5 seconds
-
-
 
         locationCallback=new LocationCallback(){
             @Override
@@ -435,14 +426,14 @@ public class Messaging implements LifecycleObserver {
      * Method that Get name of class principal
      */
     public String getNameClass() {
-        return Nameclass;
+        return nameClass;
     }
     /**
      * Method that Set name class
      * @param nameClass
      */
     private void setNameClass(String nameClass) {
-        Nameclass = nameClass;
+        this.nameClass = nameClass;
     }
     /**
      * Method that Set Firebase topic for use to Backend
@@ -518,12 +509,12 @@ public class Messaging implements LifecycleObserver {
     }
 
     public boolean isAnalytics_allowed() {
-        analytics_allowed=utils.isAnalytics_allowed();
-        return analytics_allowed;
+
+        return utils.isAnalytics_allowed();
     }
     public boolean isEnable_permission_automatic() {
-        enable_permission_automatic=utils.isEnable_permission_automatic();
-        return enable_permission_automatic;
+
+        return utils.isEnable_permission_automatic();
     }
 
     public boolean isGPS() {
@@ -532,6 +523,10 @@ public class Messaging implements LifecycleObserver {
 
     public void setGPS(boolean GPS) {
         isGPS = GPS;
+    }
+
+    public boolean isLogged() {
+        return messagingStorageController.isRegisterDevice();
     }
 
     /**
@@ -548,7 +543,7 @@ public class Messaging implements LifecycleObserver {
         Intent launchIntent = context.getPackageManager().getLaunchIntentForPackage(packageName);
         if (launchIntent != null) {
             try {
-                Nameclass = launchIntent.getComponent().getClassName();
+                nameClass = launchIntent.getComponent().getClassName();
             }catch (NullPointerException e){
                 e.getStackTrace();
             }
@@ -625,7 +620,7 @@ public class Messaging implements LifecycleObserver {
     private void setMessagingObserver(){
     ProcessLifecycleOwner.get().getLifecycle().addObserver(this);
     nameMethod=new Object(){}.getClass().getEnclosingMethod().getName();
-    utils.showInfoLog(this,nameMethod,"setMessagingObserver ");
+    //utils.showInfoLog(this,nameMethod,"setMessagingObserver ");
     }
 
     /**
@@ -759,7 +754,6 @@ public class Messaging implements LifecycleObserver {
             this.context=context;
             this.pushToken=pushToken;
 
-
         }
 
 
@@ -817,7 +811,7 @@ public class Messaging implements LifecycleObserver {
                     messaging.utils.showHttpResponseLog(provUrl,messaging,nameMethod,"Successful",response);
                     JSONObject resp=new JSONObject(response);
                     messaging.messagingDevice =messaging.utils.getMessagingDevFromJsonOnlyResp(resp,pushToken);
-                    messaging.messagingStorageController.saveDevice(resp, "");
+                    messaging.messagingStorageController.saveDevice(resp, "", null);
                     messaging.sendEventToActivity(ACTION_FETCH_DEVICE,messaging.messagingDevice,context);
 
                 }
@@ -927,7 +921,7 @@ public class Messaging implements LifecycleObserver {
                     JSONObject resp=new JSONObject(response);
                     nameMethod=new Object(){}.getClass().getEnclosingMethod().getName();
                     messaging.utils.showHttpResponseLog(provUrl,messaging,nameMethod,"Create Device Successful",response);
-                    messaging.messagingStorageController.saveDevice(resp, "");
+                    messaging.messagingStorageController.saveDevice(resp, "",provRequestBody);
                     messaging.messagingDevice=messaging.utils.getMessagingDevFromJson(resp,provRequestBody, "", "");
                     if(messaging.messagingStorageController.hasTokenRegister()&&
                             !messaging.messagingStorageController.isNotificationManually()){
@@ -1213,7 +1207,6 @@ public class Messaging implements LifecycleObserver {
             this.provEvent=nameEvent;
             this.reasonEvent=reason;
             this.messaging = messaging;
-
 
         }
 

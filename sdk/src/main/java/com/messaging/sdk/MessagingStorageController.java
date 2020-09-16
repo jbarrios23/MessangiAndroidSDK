@@ -87,7 +87,7 @@ public class MessagingStorageController {
      *
      */
 
-    public void saveDevice(JSONObject value, String id){
+    public void saveDevice(JSONObject value, String id, JSONObject provRequestBody){
         SharedPreferences.Editor datosuser=mSharedPreferences.edit();
         try {
             if(value.has(Messaging.MESSAGING_DEVICE_ID)){
@@ -97,28 +97,48 @@ public class MessagingStorageController {
             }
             if(value.has(Messaging.MESSAGING_PUSH_TOKEN)){
                 datosuser.putString(Messaging.MESSAGING_PUSH_TOKEN, value.getString(Messaging.MESSAGING_PUSH_TOKEN));
+            }else if(provRequestBody.has(Messaging.MESSAGING_PUSH_TOKEN)) {
+                datosuser.putString(Messaging.MESSAGING_PUSH_TOKEN, provRequestBody.getString(Messaging.MESSAGING_PUSH_TOKEN));
             }
             if(value.has(Messaging.MESSAGING_USER_ID)){
                 datosuser.putString(Messaging.MESSAGING_USER_ID, value.getString(Messaging.MESSAGING_USER_ID));
             }
             if(value.has(Messaging.MESSAGING_DEVICE_TYPE)){
                 datosuser.putString(Messaging.MESSAGING_DEVICE_TYPE, value.getString(Messaging.MESSAGING_DEVICE_TYPE));
+            }else if(provRequestBody.has(Messaging.MESSAGING_DEVICE_TYPE)){
+                datosuser.putString(Messaging.MESSAGING_DEVICE_TYPE, provRequestBody.getString(Messaging.MESSAGING_DEVICE_TYPE));
             }
             if(value.has(Messaging.MESSAGING_DEVICE_LANGUAGE)){
                 datosuser.putString(Messaging.MESSAGING_DEVICE_LANGUAGE, value.getString(Messaging.MESSAGING_DEVICE_LANGUAGE));
+            }else if(provRequestBody.has(Messaging.MESSAGING_DEVICE_LANGUAGE)){
+                datosuser.putString(Messaging.MESSAGING_DEVICE_LANGUAGE, provRequestBody.getString(Messaging.MESSAGING_DEVICE_LANGUAGE));
             }
             if(value.has(Messaging.MESSAGING_DEVICE_MODEL)){
                 datosuser.putString(Messaging.MESSAGING_DEVICE_MODEL, value.getString(Messaging.MESSAGING_DEVICE_MODEL));
             }
             if(value.has(Messaging.MESSAGING_DEVICE_OS)){
                 datosuser.putString(Messaging.MESSAGING_DEVICE_OS, value.getString(Messaging.MESSAGING_DEVICE_OS));
+            }else if(provRequestBody.has(Messaging.MESSAGING_DEVICE_OS)){
+                datosuser.putString(Messaging.MESSAGING_DEVICE_OS, provRequestBody.getString(Messaging.MESSAGING_DEVICE_OS));
             }
             if(value.has(Messaging.MESSAGING_DEVICE_SDK_VERSION)){
                 datosuser.putString(Messaging.MESSAGING_DEVICE_SDK_VERSION, value.getString(Messaging.MESSAGING_DEVICE_SDK_VERSION));
+            }else if(provRequestBody.has(Messaging.MESSAGING_DEVICE_SDK_VERSION)){
+                datosuser.putString(Messaging.MESSAGING_DEVICE_SDK_VERSION, provRequestBody.getString(Messaging.MESSAGING_DEVICE_SDK_VERSION));
             }
 
             if(value.has(Messaging.MESSAGING_DEVICE_TAGS)){
                 JSONArray jsonArray=value.getJSONArray(Messaging.MESSAGING_DEVICE_TAGS);
+                List<String> prvTag=new ArrayList<>();
+                for (int i = 0; i < jsonArray.length(); i++) {
+                    prvTag.add(jsonArray.getString(i));
+
+                }
+                Set<String> set=new HashSet<String>();
+                set.addAll(prvTag);
+                datosuser.putStringSet(Messaging.MESSAGING_DEVICE_TAGS,set);
+            }else if(provRequestBody.has(Messaging.MESSAGING_DEVICE_TAGS)){
+                JSONArray jsonArray=provRequestBody.getJSONArray(Messaging.MESSAGING_DEVICE_TAGS);
                 List<String> prvTag=new ArrayList<>();
                 for (int i = 0; i < jsonArray.length(); i++) {
                     prvTag.add(jsonArray.getString(i));
@@ -458,7 +478,7 @@ public class MessagingStorageController {
 
     public boolean isLoggingAllowed(){
         boolean result=mSharedPreferencesConfig.getBoolean("LoggingAllowed",false);
-        messaging.utils.showDebugLog(this,nameMethod,"Get LoggingAllowed from storage "+result);
+        //messaging.utils.showDebugLog(this,nameMethod,"Get LoggingAllowed from storage "+result);
         return result;
     }
 

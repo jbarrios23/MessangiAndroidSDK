@@ -14,22 +14,24 @@ import java.net.URL;
 import java.util.ArrayList;
 import java.util.List;
 
- class MessagingSdkUtils {
+class MessagingSdkUtils {
 
 
     public static String TAG="MESSAGING";
-//    private static String messaging_host;
+    //    private static String messaging_host;
 //    private static String messaging_token;
     private  String messagingHost;
     private  String messagingToken;
     private  String messagingTokenDefault;
     private  boolean analytics_allowed;
     private  boolean location_allowed;
-    private  boolean logging_allowed;
+    //private  boolean logging_allowed;
     private  boolean enable_permission_automatic=false;
     public String provHost;
     private MessagingStorageController messagingStorageController;
     private MessagingDevice messagingDevice;
+    private Context context;
+
 
     /**
      * Method init Resources system from config file
@@ -38,45 +40,21 @@ import java.util.List;
      *
      */
     public void initResourcesConfigFile(Context context, Messaging messaging){
-
+        this.context=context;
         String nameMethod=new Object(){}.getClass().getEnclosingMethod().getName();
-
+        messagingStorageController=messaging.messagingStorageController;
         try {
-
-            int key_logging_allowed = context.getResources()
-                    .getIdentifier("logging_allowed", "bool", context.getPackageName());
-            logging_allowed = context.getResources().getBoolean(key_logging_allowed);
-            showDebugLog(this,nameMethod," logging_allowed "+logging_allowed);
-
-            int key_messagi_host = context.getResources()
-                    .getIdentifier("messaging_host", "string", context.getPackageName());
-
-            messagingHost = context.getString(key_messagi_host);
-            showDebugLog(this,nameMethod," messagingHost "+messagingHost);
-
-
-            int key_messaging_app_token = context.getResources()
-                    .getIdentifier("messaging_app_token", "string", context.getPackageName());
-
-            messagingToken = context.getString(key_messaging_app_token);
-            messagingTokenDefault = context.getString(key_messaging_app_token);
-            showDebugLog(this,nameMethod, " messagingToken "+messagingToken);
-
-            int key_analytics_allowed = context.getResources()
-                    .getIdentifier("analytics_allowed", "bool", context.getPackageName());
-            analytics_allowed = context.getResources().getBoolean(key_analytics_allowed);
-            showDebugLog(this,nameMethod, " analytics_allowed "+analytics_allowed);
-
-            int key_location_allowed = context.getResources()
-                    .getIdentifier("location_allowed", "bool", context.getPackageName());
-            location_allowed = context.getResources().getBoolean(key_location_allowed);
-            showDebugLog(this,nameMethod, " location_allowed "+location_allowed);
+            showDebugLog(this,nameMethod," logging_allowed "+isLogging_allowed());
+            showDebugLog(this,nameMethod," messagingHost "+getMessagingHost());
+            showDebugLog(this,nameMethod, " messagingToken "+getMessagingToken());
+            showDebugLog(this,nameMethod, " analytics_allowed "+isAnalytics_allowed());
+            showDebugLog(this,nameMethod, " location_allowed "+isLocation_allowed());
 
         }catch (Resources.NotFoundException e){
             showErrorLog(this,nameMethod,"Hasn't config file",e.getStackTrace().toString());
         }
 
-        messagingStorageController=messaging.messagingStorageController;
+
         if(messagingStorageController.isRegisterDevice()){
             showDebugLog(this,nameMethod,"DeviceId "+messagingStorageController.getDevice().getId());
             showDebugLog(this,nameMethod,"UserId "+messagingStorageController.getDevice().getUserId());
@@ -117,7 +95,7 @@ import java.util.List;
      @param message : message to show
      */
     public  void showErrorLog(Object instance,String nameMethod,Object message,String statk_trace){
-        if(logging_allowed) {
+        if(isLogging_allowed()) {
             Log.e(TAG,"ERROR:"+instance.getClass().getSimpleName()+": "+nameMethod+": "+message+": "+statk_trace);
         }
     }
@@ -129,7 +107,7 @@ import java.util.List;
      @param message : message to show.
      */
     public  void showDebugLog(Object instance,String nameMethod,Object message){
-        if(logging_allowed){
+        if(isLogging_allowed()){
             Log.d(TAG,"DEBUG: "+instance.getClass().getSimpleName()+": "+nameMethod+": "+message);
         }
 
@@ -141,7 +119,7 @@ import java.util.List;
      @param message : message to show.
      */
     public  void showInfoLog(Object instance,String nameMethod,Object message){
-        if(logging_allowed){
+        if(isLogging_allowed()){
             Log.i(TAG,"INFO: "+instance.getClass().getSimpleName()+": "+nameMethod+": "+message);
         }
     }
@@ -153,7 +131,7 @@ import java.util.List;
      @param message : message to show.
      */
     public  void showWarningLog(Object instance,String nameMethod,Object message){
-        if(logging_allowed){
+        if(isLogging_allowed()){
             Log.w(TAG,"WARNING: "+instance.getClass().getSimpleName()+": "+nameMethod+": "+message);
         }
     }
@@ -161,132 +139,145 @@ import java.util.List;
     /**
      * Method get MessagingHost
      */
-     public  String getMessagingHost() {
-         String nameMethod=new Object(){}.getClass().getEnclosingMethod().getName();
-         if(messagingStorageController.hasMessagingHost()){
-             messagingHost=messagingStorageController.getMessagingHost();
-         }else{
-             showDebugLog(this,nameMethod,"Value default messagingHost "
-                     +messagingHost);
-         }
-         return messagingHost;
-     }
+    public  String getMessagingHost() {
+        String nameMethod=new Object(){}.getClass().getEnclosingMethod().getName();
+        if(messagingStorageController.hasMessagingHost()){
+            return messagingStorageController.getMessagingHost();
+        }else{
+            int key_messaging_host = context.getResources()
+                    .getIdentifier("messaging_host", "string", context.getPackageName());
 
-     public void setMessagingHost(String messaging_host) {
-         messagingStorageController.saveMessagingHost(messaging_host);
-         //messagingHost = messaging_host;
-     }
+            String value=context.getString(key_messaging_host);
+            return value;
+        }
+
+    }
+
+    public void setMessagingHost(String messaging_host) {
+        messagingStorageController.saveMessagingHost(messaging_host);
+        //messagingHost = messaging_host;
+    }
 
     /**
      * Method get MessagingToken
      */
-     public String getMessagingToken() {
-         String nameMethod=new Object(){}.getClass().getEnclosingMethod().getName();
-         if(messagingStorageController.hasMessagingToken()){
-             messagingToken=messagingStorageController.getMessagingToken();
-         }else{
-             showDebugLog(this,nameMethod,"Value default messagingToken "
-                     +messagingToken);
-         }
-         return messagingToken;
-     }
+    public String getMessagingToken() {
+        String nameMethod=new Object(){}.getClass().getEnclosingMethod().getName();
+        if(messagingStorageController.hasMessagingToken()){
+            return messagingStorageController.getMessagingToken();
+        }else{
+            int key_messaging_app_token = context.getResources()
+                    .getIdentifier("messaging_app_token", "string", context.getPackageName());
 
-     public void setMessagingToken(String messaging_token) {
-         messagingStorageController.saveMessagingToken(messaging_token);
-         //messagingToken = messaging_token;
-     }
+            String value=context.getString(key_messaging_app_token);
+            return value;
+        }
 
-     public  boolean isAnalytics_allowed() {
-         String nameMethod=new Object(){}.getClass().getEnclosingMethod().getName();
-         if(messagingStorageController.hasAnalyticsAllowed()==1){
-             analytics_allowed=messagingStorageController.isAnalyticsAllowed();
+    }
 
-         }else{
-             showDebugLog(this,nameMethod,"Value default analytics_allowed ");
-         }
-         return analytics_allowed;
-     }
+    public void setMessagingToken(String messaging_token) {
+        messagingStorageController.saveMessagingToken(messaging_token);
+        //messagingToken = messaging_token;
+    }
 
-     public  boolean isLocation_allowed() {
-         String nameMethod=new Object(){}.getClass().getEnclosingMethod().getName();
-         if(messagingStorageController.hasLocationAllowed()==1){
-             location_allowed=messagingStorageController.isLocationAllowed();
-         }else{
-             showDebugLog(this,nameMethod,"Value default location_allowed "
-                     +messagingToken);
-         }
-         return location_allowed;
-     }
+    public  boolean isAnalytics_allowed() {
+        String nameMethod=new Object(){}.getClass().getEnclosingMethod().getName();
+        if(messagingStorageController.hasAnalyticsAllowed()==1){
+            return messagingStorageController.isAnalyticsAllowed();
 
-     public  boolean isLogging_allowed() {
-         String nameMethod=new Object(){}.getClass().getEnclosingMethod().getName();
-         if(messagingStorageController.hasLoggingAllowed()==1){
-             logging_allowed=messagingStorageController.isLoggingAllowed();
-         }else{
-             showDebugLog(this,nameMethod,"Value default logging_allowed "
-                     +logging_allowed);
-         }
-         return logging_allowed;
-     }
+        }else{
+            int key_analytics_allowed = context.getResources()
+                    .getIdentifier("analytics_allowed", "bool", context.getPackageName());
+            boolean value= context.getResources().getBoolean(key_analytics_allowed);
+            return value;
+        }
 
-     public void setAnalytics_allowed(boolean analytics_allowed) {
-         messagingStorageController.setAnalyticsAllowed(analytics_allowed);
-         //this.analytics_allowed = analytics_allowed;
-     }
+    }
 
-     public void setLocation_allowed(boolean location_allowed) {
-         messagingStorageController.setLocationAllowed(location_allowed);
-         //this.location_allowed = location_allowed;
-     }
+    public  boolean isLocation_allowed() {
+        String nameMethod=new Object(){}.getClass().getEnclosingMethod().getName();
+        if(messagingStorageController.hasLocationAllowed()==1){
+            return messagingStorageController.isLocationAllowed();
+        }else{
+            int key_location_allowed = context.getResources()
+                    .getIdentifier("location_allowed", "bool", context.getPackageName());
+            boolean value = context.getResources().getBoolean(key_location_allowed);
+            return value;
+        }
 
-     public void setLogging_allowed(boolean logging_allowed) {
-         messagingStorageController.setLoggingAllowed(logging_allowed);
-         //this.logging_allowed = logging_allowed;
-     }
+    }
 
-     public boolean isEnable_permission_automatic() {
-         return enable_permission_automatic;
-     }
+    public  boolean isLogging_allowed() {
+        String nameMethod=new Object(){}.getClass().getEnclosingMethod().getName();
+        if(messagingStorageController.hasLoggingAllowed()==1){
+            return messagingStorageController.isLoggingAllowed();
+        }else{
+            int key_logging_allowed = context.getResources()
+                    .getIdentifier("logging_allowed", "bool", context.getPackageName());
+            boolean value=context.getResources().getBoolean(key_logging_allowed);
+            return value;
+        }
 
-     public void setEnable_permission_automatic(boolean enable_permission_automatic) {
-         this.enable_permission_automatic = enable_permission_automatic;
-     }
+    }
+
+    public void setAnalytics_allowed(boolean analytics_allowed) {
+        messagingStorageController.setAnalyticsAllowed(analytics_allowed);
+        //this.analytics_allowed = analytics_allowed;
+    }
+
+    public void setLocation_allowed(boolean location_allowed) {
+        messagingStorageController.setLocationAllowed(location_allowed);
+        //this.location_allowed = location_allowed;
+    }
+
+    public void setLogging_allowed(boolean logging_allowed) {
+        messagingStorageController.setLoggingAllowed(logging_allowed);
+        //this.logging_allowed = logging_allowed;
+    }
+
+    public boolean isEnable_permission_automatic() {
+        return enable_permission_automatic;
+    }
+
+    public void setEnable_permission_automatic(boolean enable_permission_automatic) {
+        this.enable_permission_automatic = enable_permission_automatic;
+    }
 
     public MessagingDevice getMessagingDevFromJson(JSONObject resp, JSONObject body, String id, String userId){
         String nameMethod=new Object(){}.getClass().getEnclosingMethod().getName();
         MessagingDevice messagingDevice =new MessagingDevice();
         try {
             if(resp.has(Messaging.MESSAGING_DEVICE_ID)){
-            messagingDevice.setId(resp.getString(Messaging.MESSAGING_DEVICE_ID));
+                messagingDevice.setId(resp.getString(Messaging.MESSAGING_DEVICE_ID));
             }else{
-            messagingDevice.setId(id);
+                messagingDevice.setId(id);
                 showDebugLog(this,nameMethod,"Set ID update "
                         +id);
             }
             if(body.has(Messaging.MESSAGING_PUSH_TOKEN)){
-            messagingDevice.setPushToken(body.getString(Messaging.MESSAGING_PUSH_TOKEN));
+                messagingDevice.setPushToken(body.getString(Messaging.MESSAGING_PUSH_TOKEN));
             }
             if(resp.has(Messaging.MESSAGING_USER_ID)){
-            messagingDevice.setUserId(resp.getString(Messaging.MESSAGING_USER_ID));
+                messagingDevice.setUserId(resp.getString(Messaging.MESSAGING_USER_ID));
             }else{
                 messagingDevice.setUserId(userId);
                 showDebugLog(this,nameMethod,"Set userID update "
                         +userId);
             }
             if(body.has(Messaging.MESSAGING_DEVICE_TYPE)){
-            messagingDevice.setType(body.getString(Messaging.MESSAGING_DEVICE_TYPE));
+                messagingDevice.setType(body.getString(Messaging.MESSAGING_DEVICE_TYPE));
             }
             if(body.has(Messaging.MESSAGING_DEVICE_LANGUAGE)){
-            messagingDevice.setLanguage(body.getString(Messaging.MESSAGING_DEVICE_LANGUAGE));
+                messagingDevice.setLanguage(body.getString(Messaging.MESSAGING_DEVICE_LANGUAGE));
             }
             if(body.has(Messaging.MESSAGING_DEVICE_MODEL)){
-            messagingDevice.setModel(body.getString(Messaging.MESSAGING_DEVICE_MODEL));
+                messagingDevice.setModel(body.getString(Messaging.MESSAGING_DEVICE_MODEL));
             }
             if(body.has(Messaging.MESSAGING_DEVICE_OS)){
-            messagingDevice.setOs(body.getString(Messaging.MESSAGING_DEVICE_OS));
+                messagingDevice.setOs(body.getString(Messaging.MESSAGING_DEVICE_OS));
             }
             if(body.has(Messaging.MESSAGING_DEVICE_SDK_VERSION)){
-            messagingDevice.setSdkVersion(body.getString(Messaging.MESSAGING_DEVICE_SDK_VERSION));
+                messagingDevice.setSdkVersion(body.getString(Messaging.MESSAGING_DEVICE_SDK_VERSION));
             }
             if(body.has(Messaging.MESSAGING_DEVICE_TAGS)){
                 List<String> prvTag=new ArrayList<>();
@@ -315,61 +306,61 @@ import java.util.List;
         return messagingDevice;
     }
 
-     public MessagingDevice getMessagingDevFromJsonOnlyResp(JSONObject resp, String pushToken){
-         MessagingDevice messagingDevice =new MessagingDevice();
-         try {
-             if(resp.has(Messaging.MESSAGING_DEVICE_ID)){
-                 messagingDevice.setId(resp.getString(Messaging.MESSAGING_DEVICE_ID));
-             }
-             if(resp.has(Messaging.MESSAGING_PUSH_TOKEN)){
-                 messagingDevice.setPushToken(resp.getString(Messaging.MESSAGING_PUSH_TOKEN));
-             }else{
-                 messagingDevice.setPushToken(pushToken);
-             }
-             if(resp.has(Messaging.MESSAGING_USER_ID)){
-                 messagingDevice.setUserId(resp.getString(Messaging.MESSAGING_USER_ID));
-             }
-             if(resp.has(Messaging.MESSAGING_DEVICE_TYPE)){
-                 messagingDevice.setType(resp.getString(Messaging.MESSAGING_DEVICE_TYPE));
-             }
-             if(resp.has(Messaging.MESSAGING_DEVICE_LANGUAGE)){
-                 messagingDevice.setLanguage(resp.getString(Messaging.MESSAGING_DEVICE_LANGUAGE));
-             }
-             if(resp.has(Messaging.MESSAGING_DEVICE_MODEL)){
-                 messagingDevice.setModel(resp.getString(Messaging.MESSAGING_DEVICE_MODEL));
-             }
-             if(resp.has(Messaging.MESSAGING_DEVICE_OS)){
-                 messagingDevice.setOs(resp.getString(Messaging.MESSAGING_DEVICE_OS));
-             }
-             if(resp.has(Messaging.MESSAGING_DEVICE_SDK_VERSION)){
-                 messagingDevice.setSdkVersion(resp.getString(Messaging.MESSAGING_DEVICE_SDK_VERSION));
-             }
-             if(resp.has(Messaging.MESSAGING_DEVICE_TAGS)){
-                 List<String> prvTag=new ArrayList<>();
-                 JSONArray jsonArray=resp.getJSONArray(Messaging.MESSAGING_DEVICE_TAGS);
-                 for (int i = 0; i < jsonArray.length(); i++) {
-                     prvTag.add(jsonArray.getString(i));
-                 }
-                 messagingDevice.setTags(prvTag);
-             }
-             if(resp.has(Messaging.MESSAGING_DEVICE_CREATE_AT)){
-                 messagingDevice.setCreatedAt(resp.getString(Messaging.MESSAGING_DEVICE_CREATE_AT));
-             }
-             if(resp.has(Messaging.MESSAGING_DEVICE_UPDATE_AT)){
-                 messagingDevice.setUpdatedAt(resp.getString(Messaging.MESSAGING_DEVICE_UPDATE_AT));
-             }
-             if(resp.has(Messaging.MESSAGING_DEVICE_TIMESTAMP)){
-                 messagingDevice.setTimestamp(resp.getString(Messaging.MESSAGING_DEVICE_TIMESTAMP));
-             }
-             if(resp.has(Messaging.MESSAGING_DEVICE_TRANSACTION)){
-                 messagingDevice.setTransaction(resp.getString(Messaging.MESSAGING_DEVICE_TRANSACTION));
-             }
-         } catch (JSONException e) {
-             e.printStackTrace();
-         }
+    public MessagingDevice getMessagingDevFromJsonOnlyResp(JSONObject resp, String pushToken){
+        MessagingDevice messagingDevice =new MessagingDevice();
+        try {
+            if(resp.has(Messaging.MESSAGING_DEVICE_ID)){
+                messagingDevice.setId(resp.getString(Messaging.MESSAGING_DEVICE_ID));
+            }
+            if(resp.has(Messaging.MESSAGING_PUSH_TOKEN)){
+                messagingDevice.setPushToken(resp.getString(Messaging.MESSAGING_PUSH_TOKEN));
+            }else{
+                messagingDevice.setPushToken(pushToken);
+            }
+            if(resp.has(Messaging.MESSAGING_USER_ID)){
+                messagingDevice.setUserId(resp.getString(Messaging.MESSAGING_USER_ID));
+            }
+            if(resp.has(Messaging.MESSAGING_DEVICE_TYPE)){
+                messagingDevice.setType(resp.getString(Messaging.MESSAGING_DEVICE_TYPE));
+            }
+            if(resp.has(Messaging.MESSAGING_DEVICE_LANGUAGE)){
+                messagingDevice.setLanguage(resp.getString(Messaging.MESSAGING_DEVICE_LANGUAGE));
+            }
+            if(resp.has(Messaging.MESSAGING_DEVICE_MODEL)){
+                messagingDevice.setModel(resp.getString(Messaging.MESSAGING_DEVICE_MODEL));
+            }
+            if(resp.has(Messaging.MESSAGING_DEVICE_OS)){
+                messagingDevice.setOs(resp.getString(Messaging.MESSAGING_DEVICE_OS));
+            }
+            if(resp.has(Messaging.MESSAGING_DEVICE_SDK_VERSION)){
+                messagingDevice.setSdkVersion(resp.getString(Messaging.MESSAGING_DEVICE_SDK_VERSION));
+            }
+            if(resp.has(Messaging.MESSAGING_DEVICE_TAGS)){
+                List<String> prvTag=new ArrayList<>();
+                JSONArray jsonArray=resp.getJSONArray(Messaging.MESSAGING_DEVICE_TAGS);
+                for (int i = 0; i < jsonArray.length(); i++) {
+                    prvTag.add(jsonArray.getString(i));
+                }
+                messagingDevice.setTags(prvTag);
+            }
+            if(resp.has(Messaging.MESSAGING_DEVICE_CREATE_AT)){
+                messagingDevice.setCreatedAt(resp.getString(Messaging.MESSAGING_DEVICE_CREATE_AT));
+            }
+            if(resp.has(Messaging.MESSAGING_DEVICE_UPDATE_AT)){
+                messagingDevice.setUpdatedAt(resp.getString(Messaging.MESSAGING_DEVICE_UPDATE_AT));
+            }
+            if(resp.has(Messaging.MESSAGING_DEVICE_TIMESTAMP)){
+                messagingDevice.setTimestamp(resp.getString(Messaging.MESSAGING_DEVICE_TIMESTAMP));
+            }
+            if(resp.has(Messaging.MESSAGING_DEVICE_TRANSACTION)){
+                messagingDevice.setTransaction(resp.getString(Messaging.MESSAGING_DEVICE_TRANSACTION));
+            }
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
 
-         return messagingDevice;
-     }
+        return messagingDevice;
+    }
 
     /**
      * Method Show Error log
@@ -380,8 +371,8 @@ import java.util.List;
      @param body: Body
      */
     public void showHttpRequestLog(String url_has_code,Object instance,String nameMethod,
-                                    String type,String body){
-        if(logging_allowed){
+                                   String type,String body){
+        if(isLogging_allowed()){
             Log.d(TAG,"HTTP_REQUEST: "+url_has_code.hashCode()+": "+instance.getClass().getSimpleName()+": "+ nameMethod+": "+type
                     +": "+url_has_code+": "+body);
         }
@@ -397,8 +388,8 @@ import java.util.List;
      @param response: Response.
      */
     public void showHttpResponseLog(String url_has_code,Object instance,String nameMethod,
-                                      String status,String response){
-        if(logging_allowed){
+                                    String status,String response){
+        if(isLogging_allowed()){
             Log.d(TAG,"HTTP_REQUEST: "+url_has_code.hashCode()+": "+instance.getClass().getSimpleName()+": "+ nameMethod+": "
                     +status+": "+response);
         }
@@ -407,7 +398,7 @@ import java.util.List;
 
     public boolean verifyMatchAppId(String mgsAppId){
         boolean result=false;
-        if(mgsAppId.equals(messagingTokenDefault)){
+        if(mgsAppId.equals(getMessagingToken())){
             result=true;
         }
         //Log.d(TAG,"verifyMatchAppId "+mgsAppId+" host "+messagingToken+" result "+result);
@@ -417,12 +408,12 @@ import java.util.List;
 
     public void showConfigParameter(){
         String nameMethod=new Object(){}.getClass().getEnclosingMethod().getName();
-        showDebugLog(this,nameMethod," logging_allowed "+logging_allowed);
-        showDebugLog(this,nameMethod," messagingHost "+messagingHost);
-        showDebugLog(this,nameMethod, " messagingToken "+messagingToken);
-        showDebugLog(this,nameMethod, " analytics_allowed "+analytics_allowed);
-        showDebugLog(this,nameMethod, " location_allowed "+location_allowed);
-        showDebugLog(this,nameMethod, " permission_enable "+enable_permission_automatic);
+        showDebugLog(this,nameMethod," logging_allowed "+isLogging_allowed());
+        showDebugLog(this,nameMethod," messagingHost "+getMessagingHost());
+        showDebugLog(this,nameMethod, " messagingToken "+getMessagingToken());
+        showDebugLog(this,nameMethod, " analytics_allowed "+isAnalytics_allowed());
+        showDebugLog(this,nameMethod, " location_allowed "+isLocation_allowed());
+        showDebugLog(this,nameMethod, " permission_enable "+isEnable_permission_automatic());
     }
 
     public void saveConfigParameter(String parameter, Messaging messaging){
@@ -480,38 +471,38 @@ import java.util.List;
         }
     }
 
-     public void saveConfigParameterFromApp(String token, String Host){
-         String nameMethod=new Object(){}.getClass().getEnclosingMethod().getName();
-         setMessagingToken(token);
-         setMessagingHost(Host);
-     }
+    public void saveConfigParameterFromApp(String token, String Host){
+        String nameMethod=new Object(){}.getClass().getEnclosingMethod().getName();
+        setMessagingToken(token);
+        setMessagingHost(Host);
+    }
 
-     public boolean isValidURL(String url) {
+    public boolean isValidURL(String url) {
 
-         try {
-             new URL(url).toURI();
-         } catch (MalformedURLException | URISyntaxException e) {
-             return false;
-         }
+        try {
+            new URL(url).toURI();
+        } catch (MalformedURLException | URISyntaxException e) {
+            return false;
+        }
 
-         return true;
-     }
+        return true;
+    }
 
-     public String toUpperSnakeCase(String variableName) {
-         StringBuilder builder = new StringBuilder();
-         char[] nameChars = variableName.toCharArray();
-         for (int i = 0; i < nameChars.length; i++) {
-             char ch = nameChars[i];
-             if (i != 0 && Character.isWhitespace(ch)) {
-                 builder.append('_');
-             } else if(i != 0 && Character.isUpperCase(ch)) {
-                 builder.append('_').append(ch);
+    public String toUpperSnakeCase(String variableName) {
+        StringBuilder builder = new StringBuilder();
+        char[] nameChars = variableName.toCharArray();
+        for (int i = 0; i < nameChars.length; i++) {
+            char ch = nameChars[i];
+            if (i != 0 && Character.isWhitespace(ch)) {
+                builder.append('_');
+            } else if(i != 0 && Character.isUpperCase(ch)) {
+                builder.append('_').append(ch);
 
-             } else {
-                 builder.append(Character.toUpperCase(ch));
-             }//from  w  w  w .  j  a va2 s . c o m
-         }
-         return builder.toString();
-     }
+            } else {
+                builder.append(Character.toUpperCase(ch));
+            }//from  w  w  w .  j  a va2 s . c o m
+        }
+        return builder.toString();
+    }
 
 }
