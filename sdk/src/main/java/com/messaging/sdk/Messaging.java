@@ -140,7 +140,7 @@ public class Messaging implements LifecycleObserver {
 
     private static double wayLatitude = 0.0;
     private static double wayLongitude = 0.0;
-    private static boolean isContinue = false;
+    private static boolean isContinue;
     private static boolean isGPS = false;
     private static LocationRequest locationRequest;
     private static LocationCallback locationCallback;
@@ -190,7 +190,10 @@ public class Messaging implements LifecycleObserver {
                         } else {
                         utils.showDebugLog(this,nameMethod,"CLat "+wayLatitude+" CLong "+wayLongitude);
                         }
+                        utils.showDebugLog(this,nameMethod,"update location "+utils.isLocation_allowed()
+                                +" iscontinue "+isContinue);
                         if ((!isContinue && fusedLocationClient != null)||!utils.isLocation_allowed()) {
+                            utils.showDebugLog(this,nameMethod,"removeLocationUpdates ");
                             fusedLocationClient.removeLocationUpdates(locationCallback);
                         }
                     }
@@ -508,10 +511,31 @@ public class Messaging implements LifecycleObserver {
         utils.showDebugLog(this,nameMethod,"isLogging_allowed() "+utils.isAnalytics_allowed());
     }
 
+    public String getMessagingHost() {
+
+        return utils.getMessagingHost();
+    }
+
+    public String getMessagingToken() {
+
+        return utils.getMessagingToken();
+    }
+
     public boolean isAnalytics_allowed() {
 
         return utils.isAnalytics_allowed();
     }
+
+    public boolean isLocation_allowed() {
+
+        return utils.isLocation_allowed();
+    }
+
+    public boolean isLogging_allowed() {
+
+        return utils.isLogging_allowed();
+    }
+
     public boolean isEnable_permission_automatic() {
 
         return utils.isEnable_permission_automatic();

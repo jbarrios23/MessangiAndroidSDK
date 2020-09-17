@@ -25,6 +25,7 @@ import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.CompoundButton;
 import android.widget.EditText;
+import android.widget.ImageButton;
 import android.widget.ListView;
 import android.widget.ProgressBar;
 import android.widget.Switch;
@@ -59,7 +60,8 @@ public class MainActivity extends AppCompatActivity {
     public static final String DELETE_TAG = "DELETE_TAG";
 
     public Messaging messaging;
-    public Button device,user,tags,save,login;
+    public Button device,user,tags,save;
+    private ImageButton login;
     public TextView imprime;
     public MessagingDevice messagingDevice;
     public MessagingUser messagingUser;
@@ -215,12 +217,7 @@ public class MainActivity extends AppCompatActivity {
 
         }
 
-        //verify permission get
-        Log.i(TAG, "INFO: " + CLASS_TAG + ": " + nameMethod + " has verify permission : "
-                + messaging.isEnable_permission_automatic());
-        if(messaging.isEnable_permission_automatic() ){
-            Messaging.requestPermissions(MainActivity.this);
-        }
+
 
     }
 
@@ -521,6 +518,13 @@ public class MainActivity extends AppCompatActivity {
         messagingDevArrayList.add("Timestamp: "    + messagingDevice.getTimestamp());
         messagingDevArrayList.add("Transaction: "  + messagingDevice.getTransaction());
         messagingDevArrayList.add("ExternalId: "  + messaging.getExternalId());
+        messagingDevArrayList.add("Config: ");
+        messagingDevArrayList.add("Host: "+messaging.getMessagingHost());
+        messagingDevArrayList.add("AppToken: "+messaging.getMessagingToken());
+        messagingDevArrayList.add("LocationEnable: "+messaging.isLocation_allowed());
+        messagingDevArrayList.add("AnalyticsEnable: "+messaging.isAnalytics_allowed());
+        messagingDevArrayList.add("Log Enable: "+messaging.isLogging_allowed());
+        messagingDevArrayList.add("Permission Automatic: "+messaging.isEnable_permission_automatic());
         list_device.setAdapter(messagingDevArrayAdapter);
         Messaging.fetchUser(getApplicationContext(),false);
 
@@ -718,6 +722,7 @@ public class MainActivity extends AppCompatActivity {
                 }else if(((intent.getAction().equals(Messaging.ACTION_GET_NOTIFICATION))||
                         (intent.getAction().equals(Messaging.ACTION_GET_NOTIFICATION_OPENED)))&& data!=null){
                     messagingNotification=(MessagingNotification)data;
+                    showDevice(messagingDevice);
                     showAlertNotification(messagingNotification, data);
 
                 }else if(intent.getAction().equals(Messaging.ACTION_SAVE_DEVICE)&& data!=null) {

@@ -16,6 +16,7 @@ import android.location.Location;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
+import android.widget.ImageButton;
 import android.widget.Toast;
 
 import com.google.android.gms.maps.CameraUpdate;
@@ -42,6 +43,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
     public Messaging messaging;
     private String nameMethod;
     private Marker locationMarker;
+    private ImageButton getLocation,getPermission,getLocationC;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -49,6 +51,9 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         setContentView(R.layout.activity_maps);
         setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_PORTRAIT);
         messaging=Messaging.getInstance();
+        getLocation=findViewById(R.id.button_get_location);
+        getLocationC=findViewById(R.id.button_get_location_c);
+        getPermission=findViewById(R.id.button_get_permission);
         // Obtain the SupportMapFragment and get notified when the map is ready to be used.
         SupportMapFragment mapFragment = (SupportMapFragment) getSupportFragmentManager()
                 .findFragmentById(R.id.map);
@@ -59,6 +64,42 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
             public void gpsStatus(boolean isGPSEnable) {
                 messaging.setGPS(isGPSEnable);
                 Log.d(CLASS_TAG,TAG+ " isGPS To Interface "+messaging.isGPS());
+            }
+        });
+
+        getLocation.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                if(messaging.isLocation_allowed()) {
+                    Messaging.fetchLocation(MapsActivity.this, false);
+                }else{
+                    Log.d(CLASS_TAG,TAG+ " isLocation_allowed "+messaging.isLocation_allowed());
+                }
+            }
+        });
+
+        getLocationC.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                if(messaging.isLocation_allowed()) {
+                    Messaging.fetchLocation(MapsActivity.this, true);
+                }else{
+                    Log.d(CLASS_TAG,TAG+ " isLocation_allowed "+messaging.isLocation_allowed());
+                }
+            }
+        });
+
+
+
+        getPermission.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                //verify permission get
+                Log.i(TAG, "INFO: " + CLASS_TAG + ": " + nameMethod + " has verify permission : "
+                        + messaging.isEnable_permission_automatic());
+                if(messaging.isEnable_permission_automatic() ){
+                    Messaging.requestPermissions(MapsActivity.this);
+                }
             }
         });
 
@@ -77,7 +118,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
     @Override
     protected void onResume() {
         super.onResume();
-        Messaging.fetchLocation(MapsActivity.this,true);
+
     }
 
     /**
@@ -175,7 +216,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
                 // If request is cancelled, the result arrays are empty.
                 if (grantResults.length > 0
                         && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
-                        Messaging.fetchLocation(MapsActivity.this,true);
+                        Messaging.fetchLocation(MapsActivity.this,false);
                 } else {
                     Toast.makeText(getApplicationContext(), "Permission denied", Toast.LENGTH_SHORT).show();
                     permissionsDenied();

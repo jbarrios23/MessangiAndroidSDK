@@ -135,7 +135,6 @@ public class MessagingNotification implements Serializable {
          messaging.utils.showDebugLog(this,nameMethod, "defaultSound: "+defaultSound+" vibrateTimings "+vibrateTimings);
          messaging.utils.showDebugLog(this,nameMethod, "localOnly: "+localOnly+" visibility "+visibility);
 
-
      }
 
      if(remoteMessage.getData()!=null){
@@ -164,14 +163,14 @@ public class MessagingNotification implements Serializable {
              messaging.utils.setLogging_allowed(registerLogs);
              messaging.utils.showDebugLog(this,nameMethod, "MSGI_REGISTER_LOGS: "
                      +registerLogs);
-             messaging.utils.isLogging_allowed();
+
              messaging.utils.showConfigParameter();
          }else{
              this.registerLogs=true;
              messaging.utils.setLogging_allowed(registerLogs);
              messaging.utils.showDebugLog(this,nameMethod, "AMSGI_REGISTER_LOGS: "
                      +registerLogs);
-             messaging.utils.isLogging_allowed();
+
              messaging.utils.showConfigParameter();
          }
 
@@ -181,11 +180,6 @@ public class MessagingNotification implements Serializable {
              messaging.utils.showDebugLog(this,nameMethod, "has Configuration: "
                      +additionalData.get(Messaging.MESSAGING_CONFIGURATION));
              messaging.utils.saveConfigParameter(messagingConfiguration,messaging);
-             messaging.utils.getMessagingHost();
-             messaging.utils.getMessagingToken();
-             messaging.utils.isAnalytics_allowed();
-             messaging.utils.isLocation_allowed();
-             messaging.utils.isLogging_allowed();
              messaging.utils.showConfigParameter();
 
          }
@@ -260,7 +254,6 @@ public class MessagingNotification implements Serializable {
                 messaging.utils.setLogging_allowed(registerLogs);
                 messaging.utils.showDebugLog(this,nameMethod, "MSGI_REGISTER_LOGS: "
                         +registerLogs);
-
                 messaging.utils.showConfigParameter();
             }else{
                 this.registerLogs=true;

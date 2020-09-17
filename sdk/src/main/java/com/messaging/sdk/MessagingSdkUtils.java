@@ -452,6 +452,7 @@ class MessagingSdkUtils {
                 boolean provEnable=jsonObject.getBoolean(Messaging.MESSAGING_ANALYTICS_ENABLE);
                 showDebugLog(this,nameMethod, "analyticsEnable : "
                         +provEnable);
+
                 setAnalytics_allowed(provEnable);
             }
 
