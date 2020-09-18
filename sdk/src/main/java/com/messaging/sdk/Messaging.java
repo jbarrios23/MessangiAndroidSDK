@@ -7,6 +7,8 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.location.Location;
+import android.location.LocationManager;
+import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Build;
 import android.os.Bundle;
@@ -53,6 +55,8 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
+
+import static android.content.Intent.FLAG_ACTIVITY_NEW_TASK;
 
 
 /**
@@ -511,6 +515,10 @@ public class Messaging implements LifecycleObserver {
         utils.showDebugLog(this,nameMethod,"isLogging_allowed() "+utils.isAnalytics_allowed());
     }
 
+    /**
+     * get config parameter from app
+     */
+
     public String getMessagingHost() {
 
         return utils.getMessagingHost();
@@ -548,6 +556,41 @@ public class Messaging implements LifecycleObserver {
     public void setGPS(boolean GPS) {
         isGPS = GPS;
     }
+
+    public static void turnGPSOff(){
+        String nameMethod=new Object(){}.getClass().getEnclosingMethod().getName();
+        Messaging messaging=Messaging.getInstance();
+        messaging.utils.showDebugLog(messaging,nameMethod,"GPS OFF ");
+//        LocationManager loc = (LocationManager) messaging.context.getSystemService( Context.LOCATION_SERVICE );
+//        if( loc.isProviderEnabled(android.location.LocationManager.GPS_PROVIDER ) )
+//        {
+//            Toast.makeText(messaging.context, "Please turn off GPS", Toast.LENGTH_LONG).show();
+//            Intent myIntent = new Intent( Settings.ACTION_LOCATION_SOURCE_SETTINGS );
+//            myIntent.setFlags(FLAG_ACTIVITY_NEW_TASK);
+//            messaging.context.startActivity(myIntent);
+//
+//        }
+
+        String provider = Settings.Secure.getString(messaging.context.getContentResolver(), Settings.Secure.LOCATION_PROVIDERS_ALLOWED);
+        if(provider.contains("gps")){ //if gps is enabled
+            messaging.utils.showDebugLog(messaging,nameMethod,"GPS OFF 2 ");
+            final Intent poke = new Intent();
+            poke.setClassName("com.android.settings", "com.android.settings.widget.SettingsAppWidgetProvider");
+            poke.addCategory(Intent.CATEGORY_ALTERNATIVE);
+            poke.setData(Uri.parse("3"));
+            messaging.context.sendBroadcast(poke);
+        }
+    }
+
+    public static void turnOFFUpdateLocation(){
+        String nameMethod=new Object(){}.getClass().getEnclosingMethod().getName();
+        Messaging messaging=Messaging.getInstance();
+        if(fusedLocationClient!=null) {
+            messaging.utils.showDebugLog(messaging,nameMethod,"removeLocationUpdates ");
+            fusedLocationClient.removeLocationUpdates(locationCallback);
+        }
+    }
+
 
     public boolean isLogged() {
         return messagingStorageController.isRegisterDevice();

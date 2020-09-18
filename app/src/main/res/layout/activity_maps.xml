@@ -14,7 +14,7 @@
 
         <TextView
             android:id="@+id/textView_title_map"
-            android:layout_width="match_parent"
+            android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:gravity="center"
             android:lines="2"
@@ -44,10 +44,22 @@
             android:layout_width="60dp"
             android:layout_height="wrap_content"
             android:id="@+id/button_get_permission"
-            android:layout_alignRight="@+id/textView_title_map"
+            android:layout_marginStart="15dp"
+            android:layout_toRightOf="@+id/textView_title_map"
             android:background="@drawable/ic_launcher_background"
             android:src="@android:drawable/ic_menu_manage"
-            />
+            android:layout_marginLeft="15dp" />
+
+        <ImageButton
+            android:layout_width="60dp"
+            android:layout_height="wrap_content"
+            android:id="@+id/button_turnOffLocation"
+            android:layout_marginStart="15dp"
+            android:layout_toRightOf="@+id/button_get_permission"
+            android:background="@drawable/ic_launcher_background"
+            android:src="@android:drawable/ic_lock_silent_mode_off"
+            android:layout_marginLeft="15dp"
+            tools:ignore="RtlHardcoded" />
     </RelativeLayout>
 
     <fragment

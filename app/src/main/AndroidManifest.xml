@@ -20,6 +20,8 @@
         android:name="android.permission.READ_LOGS"
         tools:ignore="ProtectedPermissions" />
 
+
+
     <application
         android:name=".MyApplication"
         android:allowBackup="false"

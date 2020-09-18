@@ -136,7 +136,7 @@ public class MainActivity extends AppCompatActivity {
                 //goToLogin();
                 //showAlertGetLogCat();
                 gotoMapActivity();
-
+                //Messaging.turnGPSOff();
 
             }
         });
@@ -183,14 +183,7 @@ public class MainActivity extends AppCompatActivity {
                 }
             }
         });
-        //verify if GPS turn on!
-        new GpsUtils(this).turnGPSOn(new GpsUtils.onGpsListener() {
-            @Override
-            public void gpsStatus(boolean isGPSEnable) {
-                messaging.setGPS(isGPSEnable);
-                Log.d(CLASS_TAG,TAG+ " isGPS To Interface "+messaging.isGPS());
-            }
-        });
+
 
         //for handle notification from background
         Bundle extras = null;
@@ -270,6 +263,14 @@ public class MainActivity extends AppCompatActivity {
         progressBar.setVisibility(View.VISIBLE);
         Messaging.fetchDevice(false,getApplicationContext());
         Log.i(TAG,"INFO: "+CLASS_TAG+": "+nameMethod+"onResume: ");
+        //verify if GPS turn on!
+        new GpsUtils(this).turnGPSOn(new GpsUtils.onGpsListener() {
+            @Override
+            public void gpsStatus(boolean isGPSEnable) {
+                messaging.setGPS(isGPSEnable);
+                Log.d(CLASS_TAG,TAG+ " isGPS To Interface "+messaging.isGPS());
+            }
+        });
 
     }
 

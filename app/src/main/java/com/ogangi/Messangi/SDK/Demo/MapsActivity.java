@@ -43,7 +43,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
     public Messaging messaging;
     private String nameMethod;
     private Marker locationMarker;
-    private ImageButton getLocation,getPermission,getLocationC;
+    private ImageButton getLocation,getPermission,getLocationC,turnOffLocationButton;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -54,18 +54,13 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         getLocation=findViewById(R.id.button_get_location);
         getLocationC=findViewById(R.id.button_get_location_c);
         getPermission=findViewById(R.id.button_get_permission);
+        turnOffLocationButton=findViewById(R.id.button_turnOffLocation);
         // Obtain the SupportMapFragment and get notified when the map is ready to be used.
         SupportMapFragment mapFragment = (SupportMapFragment) getSupportFragmentManager()
                 .findFragmentById(R.id.map);
         mapFragment.getMapAsync(this);
 
-        new GpsUtils(this).turnGPSOn(new GpsUtils.onGpsListener() {
-            @Override
-            public void gpsStatus(boolean isGPSEnable) {
-                messaging.setGPS(isGPSEnable);
-                Log.d(CLASS_TAG,TAG+ " isGPS To Interface "+messaging.isGPS());
-            }
-        });
+
 
         getLocation.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -100,6 +95,14 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
                 if(messaging.isEnable_permission_automatic() ){
                     Messaging.requestPermissions(MapsActivity.this);
                 }
+
+            }
+        });
+
+        turnOffLocationButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Messaging.turnOFFUpdateLocation();
             }
         });
 
@@ -118,6 +121,13 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
     @Override
     protected void onResume() {
         super.onResume();
+        new GpsUtils(this).turnGPSOn(new GpsUtils.onGpsListener() {
+            @Override
+            public void gpsStatus(boolean isGPSEnable) {
+                messaging.setGPS(isGPSEnable);
+                Log.d(CLASS_TAG,TAG+ " isGPS To Interface "+messaging.isGPS());
+            }
+        });
 
     }
 

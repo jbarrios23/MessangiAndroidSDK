@@ -26,7 +26,7 @@ class MessagingSdkUtils {
     private  boolean analytics_allowed;
     private  boolean location_allowed;
     //private  boolean logging_allowed;
-    private  boolean enable_permission_automatic=false;
+    private  boolean enable_permission_automatic=true;
     public String provHost;
     private MessagingStorageController messagingStorageController;
     private MessagingDevice messagingDevice;
