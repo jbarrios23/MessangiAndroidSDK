@@ -1,8 +1,14 @@
 package com.messaging.sdk;
 
 import android.content.Context;
+import android.content.Intent;
 import android.content.res.Resources;
+import android.os.Build;
 import android.util.Log;
+
+import androidx.annotation.RequiresApi;
+
+import com.google.android.gms.location.LocationRequest;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -49,6 +55,7 @@ class MessagingSdkUtils {
             showDebugLog(this,nameMethod, " messagingToken "+getMessagingToken());
             showDebugLog(this,nameMethod, " analytics_allowed "+isAnalytics_allowed());
             showDebugLog(this,nameMethod, " location_allowed "+isLocation_allowed());
+
 
         }catch (Resources.NotFoundException e){
             showErrorLog(this,nameMethod,"Hasn't config file",e.getStackTrace().toString());
@@ -416,6 +423,7 @@ class MessagingSdkUtils {
         showDebugLog(this,nameMethod, " permission_enable "+isEnable_permission_automatic());
     }
 
+    @RequiresApi(api = Build.VERSION_CODES.O)
     public void saveConfigParameter(String parameter, Messaging messaging){
         String nameMethod=new Object(){}.getClass().getEnclosingMethod().getName();
         try {
@@ -444,7 +452,25 @@ class MessagingSdkUtils {
                 showDebugLog(this,nameMethod, "locationEnable : "
                         +provEnable);
                 if(provEnable){
-                    Messaging.fetchLocation(null,true);
+                    if(Messaging.isForeground){
+                        showDebugLog(this,nameMethod, "locationEnable : "
+                                +provEnable+" is F "+Messaging.isForeground);
+                        Messaging.fetchLocation(null,true,LocationRequest.PRIORITY_HIGH_ACCURACY);
+                    }
+                    if(Messaging.isBackground){
+                        showDebugLog(this,nameMethod, "locationEnable : "
+                                +provEnable+" is b "+Messaging.isBackground);
+                        Intent intent = new Intent(context, MessagingLocationService.class);
+                        context.startForegroundService(intent);
+                    }
+
+                }else{
+                    if(Messaging.isBackground){
+                        showDebugLog(this,nameMethod, "locationEnable : "
+                                +provEnable+" is b "+Messaging.isBackground);
+                        Intent intent = new Intent(context, MessagingLocationService.class);
+                        context.stopService(intent);
+                    }
                 }
                 setLocation_allowed(provEnable);
             }

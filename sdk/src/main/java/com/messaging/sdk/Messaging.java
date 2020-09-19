@@ -18,6 +18,7 @@ import android.os.Message;
 import android.provider.Settings;
 import android.widget.Toast;
 
+import androidx.annotation.RequiresApi;
 import androidx.core.app.ActivityCompat;
 import androidx.lifecycle.Lifecycle;
 import androidx.lifecycle.LifecycleObserver;
@@ -144,11 +145,15 @@ public class Messaging implements LifecycleObserver {
 
     private static double wayLatitude = 0.0;
     private static double wayLongitude = 0.0;
+
+
     private static boolean isContinue;
     private static boolean isGPS = false;
     private static LocationRequest locationRequest;
     private static LocationCallback locationCallback;
     private static FusedLocationProviderClient fusedLocationClient;
+    public static boolean isForeground = false;
+    public static boolean isBackground = false;
 
     public Messaging(final Context context){
         this.context =context;
@@ -169,11 +174,8 @@ public class Messaging implements LifecycleObserver {
         this.nameMethod="";
         fusedLocationClient = LocationServices.getFusedLocationProviderClient(context);
 
-        locationRequest = LocationRequest.create();
-        locationRequest.setPriority(LocationRequest.PRIORITY_HIGH_ACCURACY);
-        locationRequest.setInterval(10 * 1000); // 10 seconds
-        locationRequest.setFastestInterval(5 * 1000); // 5 seconds
-
+        Messaging.setLocationRequestWithPriority(LocationRequest.PRIORITY_NO_POWER);
+        utils.showDebugLog(this,nameMethod,"Priority "+Messaging.getLocationRequestPriority());
         locationCallback=new LocationCallback(){
             @Override
             public void onLocationResult(LocationResult locationResult) {
@@ -251,18 +253,72 @@ public class Messaging implements LifecycleObserver {
                 //Toast.makeText(context,"Security does not match",Toast.LENGTH_LONG).show();
             }
         }
+        isForeground=true;
+        isBackground=false;
 
     }
 
-    public static void fetchLocation(Activity activity,boolean isContinue){
+    public static LocationRequest setLocationRequestWithPriority(int priority){
+        locationRequest = LocationRequest.create();
+        switch (priority){
+
+            case LocationRequest.PRIORITY_BALANCED_POWER_ACCURACY:
+                locationRequest.setPriority(LocationRequest.PRIORITY_BALANCED_POWER_ACCURACY);
+                locationRequest.setInterval(10 * 60 * 1000);
+                locationRequest.setMaxWaitTime(60 * 60 * 1000);
+            break;
+            case LocationRequest.PRIORITY_HIGH_ACCURACY:
+                locationRequest.setPriority(LocationRequest.PRIORITY_HIGH_ACCURACY);
+                locationRequest.setInterval(10 * 1000); // 10 seconds
+                locationRequest.setFastestInterval(5 * 1000); // 5 seconds
+
+            break;
+            case LocationRequest.PRIORITY_LOW_POWER:
+                locationRequest.setPriority(LocationRequest.PRIORITY_LOW_POWER);
+                locationRequest.setInterval(10 * 60 * 1000);
+                locationRequest.setMaxWaitTime(60 * 60 * 1000);
+
+            break;
+            case LocationRequest.PRIORITY_NO_POWER:
+                locationRequest.setPriority(LocationRequest.PRIORITY_NO_POWER);
+                locationRequest.setInterval(15 * 60 * 1000);
+                locationRequest.setFastestInterval(2 * 60 * 1000);
+        break;
+        }
+
+        return locationRequest;
+    }
+
+    public static String getLocationRequestPriority(){
+        String result = "";
+        if(locationRequest!=null){
+            if(locationRequest.getPriority()==100){
+                result="PRIORITY_HIGH_ACCURACY";
+            }else if(locationRequest.getPriority()==102){
+                result="PRIORITY_BALANCED_POWER_ACCURACY";
+            }else if(locationRequest.getPriority()==104){
+                result="PRIORITY_LOW_POWER";
+            }else if(locationRequest.getPriority()==105){
+                result="PRIORITY_NO_POWER";
+            }
+            return result ;
+        }
+        return result;
+    }
+
+    public static void fetchLocation(Activity activity,boolean isContinue,int priority){
+
         String nameMethod=new Object(){}.getClass().getEnclosingMethod().getName();
         Messaging messaging=Messaging.getInstance();
         messaging.utils.showInfoLog(messaging,nameMethod,"isGPS "+isGPS+" isContinue "+isContinue);
+
         if (!isGPS) {
             Toast.makeText(messaging.context, "Please turn on GPS", Toast.LENGTH_SHORT).show();
             return;
         }
         Messaging.isContinue = isContinue;
+        Messaging.setLocationRequestWithPriority(priority);
+        messaging.utils.showDebugLog(messaging,nameMethod,"Priority "+Messaging.getLocationRequestPriority());
         getLastLocation(activity);
 
     }
@@ -381,10 +437,26 @@ public class Messaging implements LifecycleObserver {
      * Method that initializes OnLifecycleEvent
      * EnterBackground
      */
+    @RequiresApi(api = Build.VERSION_CODES.O)
     @OnLifecycleEvent(Lifecycle.Event.ON_STOP)
     public void onEnterBackground() {
         nameMethod=new Object(){}.getClass().getEnclosingMethod().getName();
-        utils.showDebugLog(this,nameMethod,"Background");
+        utils.showDebugLog(this,nameMethod,"Background ");
+        utils.showDebugLog(this,nameMethod,"isLocation_allowed() "+isLocation_allowed());
+        isBackground=true;
+        isForeground=false;
+//        if(isLocation_allowed()) {
+//            Intent intent = new Intent(context, MessagingLocationService.class);
+//            context.startForegroundService(intent);
+//        }else{
+//            utils.showDebugLog(this,nameMethod,"isLocation_allowed() "+isLocation_allowed());
+//        }
+
+    }
+
+    public void stopServiceLocation(){
+        Intent intent = new Intent(context, MessagingLocationService.class);
+        context.stopService(intent);
     }
 
 
@@ -555,6 +627,13 @@ public class Messaging implements LifecycleObserver {
 
     public void setGPS(boolean GPS) {
         isGPS = GPS;
+    }
+    public static boolean isIsContinue() {
+        return isContinue;
+    }
+
+    public static void setIsContinue(boolean isContinue) {
+        Messaging.isContinue = isContinue;
     }
 
     public static void turnGPSOff(){

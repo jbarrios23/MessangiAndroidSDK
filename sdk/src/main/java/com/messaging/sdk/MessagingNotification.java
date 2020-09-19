@@ -163,7 +163,6 @@ public class MessagingNotification implements Serializable {
              messaging.utils.setLogging_allowed(registerLogs);
              messaging.utils.showDebugLog(this,nameMethod, "MSGI_REGISTER_LOGS: "
                      +registerLogs);
-
              messaging.utils.showConfigParameter();
          }else{
              this.registerLogs=true;

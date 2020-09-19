@@ -1,36 +1,38 @@
+<?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
     package="com.messaging.sdk">
 
+    <permission
+        android:name="${applicationId}.permission.pushReceive"
+        android:protectionLevel="signature" />
+
+    <uses-permission android:name="android.permission.INTERNET" />
+    <uses-permission android:name="com.google.android.c2dm.permission.RECEIVE" /> <!-- To request foreground location access, declare one of these permissions. -->
+    <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION" />
+    <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />
+    <uses-permission android:name="android.permission.ACCESS_BACKGROUND_LOCATION" />
+    <uses-permission android:name="android.permission.FOREGROUND_SERVICE" />
+
     <application>
-
-
+        <service
+            android:name=".MessagingLocationService"
+            android:enabled="true"
+            android:exported="true"></service>
 
         <provider
+            android:name=".MessagingProvider"
             android:authorities="${applicationId}.MessagingProvider"
-            android:name="com.messaging.sdk.MessagingProvider"
             android:exported="false" />
 
         <service
-            android:name="com.messaging.sdk.MessagingService"
+            android:name=".MessagingService"
             android:permission="com.google.android.c2dm.permission.SEND">
             <intent-filter>
                 <action android:name="com.google.firebase.MESSAGING_EVENT" />
                 <action android:name="com.google.android.c2dm.intent.RECEIVE" />
             </intent-filter>
         </service>
-
     </application>
-    <permission
-        android:name="${applicationId}.permission.pushReceive"
-        android:protectionLevel="signature" />
-
-    <uses-permission android:name="android.permission.INTERNET" />
-    <uses-permission android:name="com.google.android.c2dm.permission.RECEIVE"/>
-    <!-- To request foreground location access, declare one of these permissions. -->
-    <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION" />
-    <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />
-    <uses-permission android:name="android.permission.ACCESS_BACKGROUND_LOCATION" />
-
 
 </manifest>

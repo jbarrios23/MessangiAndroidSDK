@@ -19,6 +19,7 @@ import android.view.View;
 import android.widget.ImageButton;
 import android.widget.Toast;
 
+import com.google.android.gms.location.LocationRequest;
 import com.google.android.gms.maps.CameraUpdate;
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
@@ -66,7 +67,9 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
             @Override
             public void onClick(View v) {
                 if(messaging.isLocation_allowed()) {
-                    Messaging.fetchLocation(MapsActivity.this, false);
+
+                    Messaging.fetchLocation(MapsActivity.this, false,LocationRequest.PRIORITY_BALANCED_POWER_ACCURACY);
+                    Log.d(CLASS_TAG,TAG+ " Priority "+Messaging.getLocationRequestPriority());
                 }else{
                     Log.d(CLASS_TAG,TAG+ " isLocation_allowed "+messaging.isLocation_allowed());
                 }
@@ -77,7 +80,8 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
             @Override
             public void onClick(View v) {
                 if(messaging.isLocation_allowed()) {
-                    Messaging.fetchLocation(MapsActivity.this, true);
+                    Messaging.fetchLocation(MapsActivity.this, true,LocationRequest.PRIORITY_NO_POWER);
+                    Log.d(CLASS_TAG,TAG+ " Priority "+Messaging.getLocationRequestPriority());
                 }else{
                     Log.d(CLASS_TAG,TAG+ " isLocation_allowed "+messaging.isLocation_allowed());
                 }
@@ -106,6 +110,15 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
             }
         });
 
+        new GpsUtils(this).turnGPSOn(new GpsUtils.onGpsListener() {
+            @Override
+            public void gpsStatus(boolean isGPSEnable) {
+                Log.d(CLASS_TAG,TAG+ " isGPS To Interface one "+isGPSEnable);
+                messaging.setGPS(isGPSEnable);
+                Log.d(CLASS_TAG,TAG+ " isGPS To Interface two "+messaging.isGPS());
+            }
+        });
+
     }
 
     @Override
@@ -121,13 +134,8 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
     @Override
     protected void onResume() {
         super.onResume();
-        new GpsUtils(this).turnGPSOn(new GpsUtils.onGpsListener() {
-            @Override
-            public void gpsStatus(boolean isGPSEnable) {
-                messaging.setGPS(isGPSEnable);
-                Log.d(CLASS_TAG,TAG+ " isGPS To Interface "+messaging.isGPS());
-            }
-        });
+        Log.d(CLASS_TAG,TAG+ " Resume "+messaging.isGPS());
+
 
     }
 
@@ -226,7 +234,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
                 // If request is cancelled, the result arrays are empty.
                 if (grantResults.length > 0
                         && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
-                        Messaging.fetchLocation(MapsActivity.this,false);
+                        Messaging.fetchLocation(MapsActivity.this,false,LocationRequest.PRIORITY_LOW_POWER);
                 } else {
                     Toast.makeText(getApplicationContext(), "Permission denied", Toast.LENGTH_SHORT).show();
                     permissionsDenied();

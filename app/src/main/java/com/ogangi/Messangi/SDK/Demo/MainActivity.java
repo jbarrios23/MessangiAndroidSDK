@@ -38,6 +38,7 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.app.NotificationCompat;
 import androidx.localbroadcastmanager.content.LocalBroadcastManager;
 
+import com.google.android.gms.location.LocationRequest;
 import com.messaging.sdk.Messaging;
 import com.messaging.sdk.MessagingDevice;
 import com.messaging.sdk.MessagingLocation;
@@ -135,8 +136,9 @@ public class MainActivity extends AppCompatActivity {
             public void onClick(View v) {
                 //goToLogin();
                 //showAlertGetLogCat();
-                gotoMapActivity();
+                //gotoMapActivity();
                 //Messaging.turnGPSOff();
+                stopService();
 
             }
         });
@@ -214,6 +216,10 @@ public class MainActivity extends AppCompatActivity {
 
     }
 
+    private void stopService() {
+       messaging.stopServiceLocation();
+    }
+
     private void gotoMapActivity() {
         Intent intent=new Intent(MainActivity.this,MapsActivity.class);
         startActivity(intent);
@@ -264,13 +270,13 @@ public class MainActivity extends AppCompatActivity {
         Messaging.fetchDevice(false,getApplicationContext());
         Log.i(TAG,"INFO: "+CLASS_TAG+": "+nameMethod+"onResume: ");
         //verify if GPS turn on!
-        new GpsUtils(this).turnGPSOn(new GpsUtils.onGpsListener() {
-            @Override
-            public void gpsStatus(boolean isGPSEnable) {
-                messaging.setGPS(isGPSEnable);
-                Log.d(CLASS_TAG,TAG+ " isGPS To Interface "+messaging.isGPS());
-            }
-        });
+//        new GpsUtils(this).turnGPSOn(new GpsUtils.onGpsListener() {
+//            @Override
+//            public void gpsStatus(boolean isGPSEnable) {
+//                messaging.setGPS(isGPSEnable);
+//                Log.d(CLASS_TAG,TAG+ " isGPS To Interface "+messaging.isGPS());
+//            }
+//        });
 
     }
 
@@ -781,7 +787,7 @@ public class MainActivity extends AppCompatActivity {
                 // If request is cancelled, the result arrays are empty.
                 if (grantResults.length > 0
                         && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
-                    Messaging.fetchLocation(MainActivity.this,true);
+                    Messaging.fetchLocation(MainActivity.this,true, LocationRequest.PRIORITY_BALANCED_POWER_ACCURACY);
                 } else {
                     Toast.makeText(getApplicationContext(), "Permission denied", Toast.LENGTH_SHORT).show();
                     permissionsDenied();
