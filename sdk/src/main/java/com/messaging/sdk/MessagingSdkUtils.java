@@ -456,13 +456,18 @@ class MessagingSdkUtils {
                         showDebugLog(this,nameMethod, "locationEnable : "
                                 +provEnable+" is F "+Messaging.isForeground);
                         Messaging.fetchLocation(null,true,LocationRequest.PRIORITY_HIGH_ACCURACY);
-                    }
-                    if(Messaging.isBackground){
+                    }else{
                         showDebugLog(this,nameMethod, "locationEnable : "
                                 +provEnable+" is b "+Messaging.isBackground);
                         Intent intent = new Intent(context, MessagingLocationService.class);
                         context.startForegroundService(intent);
                     }
+//                    if(Messaging.isBackground){
+//                        showDebugLog(this,nameMethod, "locationEnable : "
+//                                +provEnable+" is b "+Messaging.isBackground);
+//                        Intent intent = new Intent(context, MessagingLocationService.class);
+//                        context.startForegroundService(intent);
+//                    }
 
                 }else{
                     if(Messaging.isBackground){

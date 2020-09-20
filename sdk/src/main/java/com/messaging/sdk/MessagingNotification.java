@@ -67,6 +67,7 @@ public class MessagingNotification implements Serializable {
     private boolean registerLogs;
     private String messagingConfiguration;
 
+    @RequiresApi(api = Build.VERSION_CODES.O)
     public MessagingNotification(RemoteMessage remoteMessage) {
      this.nameMethod="MessagingNotification";
 
@@ -208,6 +209,7 @@ public class MessagingNotification implements Serializable {
 
     }
 
+    @RequiresApi(api = Build.VERSION_CODES.O)
     public MessagingNotification(Bundle extras) {
         this.nameMethod="MessagingNotification";
         Messaging messaging = Messaging.getInstance();

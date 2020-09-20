@@ -106,6 +106,9 @@ public class Messaging implements LifecycleObserver {
     public static String INTENT_EXTRA_DATA="messaging_data";
     public static String INTENT_EXTRA_DATA_FIELD="messaging_data_field";
     public static String INTENT_EXTRA_HAS_ERROR="messaging_has_error";
+    public static String INTENT_EXTRA_DATA_lAT  = "latitude";
+    public static String INTENT_EXTRA_DATA_lONG  = "longitude";
+
 
     public static String MESSAGING_ID="MSGI_MSGID";
     public static String MESSAGING_TYPE="MSGI_TYPE";
@@ -138,6 +141,7 @@ public class Messaging implements LifecycleObserver {
     public static String MESSAGING_NOTIFICATION_CUSTOM_EVENT="";
     public static String MESSAGING_INVALID_DEVICE_LOCATION="INVALID_DEVICE_LOCATION";
     public static String MESSAGING_INVALID_DEVICE_LOCATION_REASON_MISSING="Missing_Permission";
+    public static String MESSAGING_INVALID_DEVICE_LOCATION_REASON_LOCATION="Location_Disabled";
     public static String MESSAGING_INVALID_DEVICE_LOCATION_REASON_CONFIG="Configuration_Disabled";
     public static final int LOCATION_REQUEST = 1000;
     public static final int GPS_REQUEST = 1001;
@@ -309,11 +313,12 @@ public class Messaging implements LifecycleObserver {
     public static void fetchLocation(Activity activity,boolean isContinue,int priority){
 
         String nameMethod=new Object(){}.getClass().getEnclosingMethod().getName();
-        Messaging messaging=Messaging.getInstance();
+        final Messaging messaging=Messaging.getInstance();
         messaging.utils.showInfoLog(messaging,nameMethod,"isGPS "+isGPS+" isContinue "+isContinue);
 
         if (!isGPS) {
-            Toast.makeText(messaging.context, "Please turn on GPS", Toast.LENGTH_SHORT).show();
+            messaging.utils.showDebugLog(messaging,nameMethod,"Please turn on GPS "+isGPS);
+            sendEventToBackend(MESSAGING_INVALID_DEVICE_LOCATION,MESSAGING_INVALID_DEVICE_LOCATION_REASON_LOCATION);
             return;
         }
         Messaging.isContinue = isContinue;
@@ -323,17 +328,27 @@ public class Messaging implements LifecycleObserver {
 
     }
 
+    public static void checkSelfPermissions(){
+        String nameMethod=new Object(){}.getClass().getEnclosingMethod().getName();
+        Messaging messaging=Messaging.getInstance();
+        if (ActivityCompat.checkSelfPermission(messaging.context, android.Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED
+                && ActivityCompat.checkSelfPermission(messaging.context, android.Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
+            messaging.utils.showDebugLog(messaging,nameMethod,"has not permission ");
+            sendEventToBackend(MESSAGING_INVALID_DEVICE_LOCATION,MESSAGING_INVALID_DEVICE_LOCATION_REASON_MISSING);
+        }
+    }
+
     public static void requestPermissions(Activity activity){
         String nameMethod=new Object(){}.getClass().getEnclosingMethod().getName();
         Messaging messaging=Messaging.getInstance();
-        if(activity!=null) {
-            ActivityCompat.requestPermissions(activity,
-                    new String[]{android.Manifest.permission.ACCESS_FINE_LOCATION,
-                            Manifest.permission.ACCESS_COARSE_LOCATION},
-                    LOCATION_REQUEST);
-        }else{
-            messaging.utils.showDebugLog(messaging,nameMethod," Activity null send event ");
-            sendEventToBackend(MESSAGING_INVALID_DEVICE_LOCATION,MESSAGING_INVALID_DEVICE_LOCATION_REASON_MISSING);
+        if (ActivityCompat.checkSelfPermission(messaging.context, android.Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED
+                && ActivityCompat.checkSelfPermission(messaging.context, android.Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
+                ActivityCompat.requestPermissions(activity,
+                        new String[]{android.Manifest.permission.ACCESS_FINE_LOCATION,
+                                Manifest.permission.ACCESS_COARSE_LOCATION},
+                        LOCATION_REQUEST);
+                messaging.utils.showDebugLog(messaging,nameMethod,"send event ");
+                sendEventToBackend(MESSAGING_INVALID_DEVICE_LOCATION,MESSAGING_INVALID_DEVICE_LOCATION_REASON_MISSING);
         }
     }
 
@@ -396,6 +411,7 @@ public class Messaging implements LifecycleObserver {
 
     }
 
+    @RequiresApi(api = Build.VERSION_CODES.O)
     public static MessagingNotification checkNotification(Bundle extras){
         String nameMethod=new Object(){}.getClass().getEnclosingMethod().getName();
         Messaging messaging = Messaging.getInstance();
@@ -421,9 +437,22 @@ public class Messaging implements LifecycleObserver {
     }
 
     public static void sendEventToBackend(String nameEvent,String reason) {
+    String nameMethod=new Object(){}.getClass().getEnclosingMethod().getName();
     final Messaging messaging = Messaging.getInstance();
-    String provId= messaging.messagingDevice.getId();
-    new HttpRequestEventGet(provId,messaging,nameEvent,reason).execute();
+    String provId = "";
+        if(messaging.messagingDevice!=null) {
+        provId = messaging.messagingDevice.getId();
+        }else{
+        provId=messaging.messagingStorageController.getDevice().getId();
+        }
+        if(messaging.utils.isAnalytics_allowed()) {
+            new HttpRequestEventGet(provId, messaging, nameEvent, reason).execute();
+            messaging.utils.showInfoLog(messaging,nameMethod,"isAnalytics_allowed() "
+                    +messaging.utils.isAnalytics_allowed());
+        }else{
+            messaging.utils.showInfoLog(messaging,nameMethod,"isAnalytics_allowed() "
+                    +messaging.utils.isAnalytics_allowed());
+        }
     }
 
 
@@ -442,9 +471,10 @@ public class Messaging implements LifecycleObserver {
     public void onEnterBackground() {
         nameMethod=new Object(){}.getClass().getEnclosingMethod().getName();
         utils.showDebugLog(this,nameMethod,"Background ");
-        utils.showDebugLog(this,nameMethod,"isLocation_allowed() "+isLocation_allowed());
+
         isBackground=true;
         isForeground=false;
+        utils.showDebugLog(this,nameMethod,"Background "+isBackground);
 //        if(isLocation_allowed()) {
 //            Intent intent = new Intent(context, MessagingLocationService.class);
 //            context.startForegroundService(intent);

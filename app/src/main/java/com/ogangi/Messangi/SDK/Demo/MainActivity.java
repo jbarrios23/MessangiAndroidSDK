@@ -136,9 +136,10 @@ public class MainActivity extends AppCompatActivity {
             public void onClick(View v) {
                 //goToLogin();
                 //showAlertGetLogCat();
-                //gotoMapActivity();
+                gotoMapActivity();
                 //Messaging.turnGPSOff();
-                stopService();
+                //Messaging.sendEventCustomToBackend("notificationPush");
+                //stopService();
 
             }
         });
@@ -233,7 +234,7 @@ public class MainActivity extends AppCompatActivity {
         MainActivity.this.finish();
         messaging.showAnalyticAllowedState();
         Log.i(TAG, "INFO: " + CLASS_TAG + ": " + nameMethod + " isAnalytics_allowed: " + messaging.isAnalytics_allowed());
-        //Messaging.sendEventCustomToBackend("notificationPush");
+
 
     }
 

@@ -11,6 +11,7 @@ import android.app.Service;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.location.Location;
+import android.location.LocationManager;
 import android.os.Build;
 import android.os.Handler;
 import android.os.IBinder;
@@ -44,7 +45,7 @@ public class MessagingLocationService extends Service {
     private Timer mTimer = null;
     private long notify_interval = 5000;
     private static boolean isContinue;
-    private static boolean isGPS = true;
+    private static boolean isGPS ;
 
 
     public MessagingLocationService() {
@@ -72,6 +73,13 @@ public class MessagingLocationService extends Service {
 //        locationRequest=setLocationRequestWithPriority(LocationRequest.PRIORITY_HIGH_ACCURACY);
         messaging.utils.showDebugLog(this,nameMethod,"Priority "+getLocationRequestPriority());
 
+        LocationManager locationManager = (LocationManager) getSystemService(LOCATION_SERVICE);
+
+        if (locationManager.isProviderEnabled(LocationManager.GPS_PROVIDER)){
+            isGPS=true;
+        }else{
+            isGPS=false;
+        }
 
 
         locationCallback=new LocationCallback(){
@@ -88,8 +96,8 @@ public class MessagingLocationService extends Service {
                         nameMethod="onLocationResult Service";
                         wayLatitude = location.getLatitude();
                         wayLongitude = location.getLongitude();
-                        MessagingLocation messagingLocation=new MessagingLocation(location);
-                        //sendGlobalEventToActivity(Messaging.ACTION_FETCH_LOCATION,messagingLocation);
+                        //MessagingLocation messagingLocation=new MessagingLocation(location);
+                        sendGlobalEventToActivity(Messaging.ACTION_FETCH_LOCATION,wayLatitude,wayLongitude);
                         if (!Messaging.isIsContinue()) {
                             messaging.utils.showDebugLog(this,nameMethod," CLat "+wayLatitude+" CLong "+wayLongitude);
                         } else {
@@ -157,7 +165,9 @@ public class MessagingLocationService extends Service {
         messaging.utils.showInfoLog(this,nameMethod,"isGPS "+isGPS+" isContinue "+isContinue);
 
         if (!isGPS) {
-            Toast.makeText(getApplicationContext(), "Please turn on GPS", Toast.LENGTH_SHORT).show();
+            messaging.utils.showDebugLog(this,nameMethod,"Please turn on GPS "+isGPS);
+            Messaging.sendEventToBackend(Messaging.MESSAGING_INVALID_DEVICE_LOCATION,Messaging.MESSAGING_INVALID_DEVICE_LOCATION_REASON_LOCATION);
+            stopSelf();
             return;
         }
         this.isContinue = isContinue;
@@ -190,8 +200,8 @@ public class MessagingLocationService extends Service {
                             wayLatitude = location.getLatitude();
                             wayLongitude = location.getLongitude();
                             messaging.utils.showDebugLog(messaging,nameMethod," Lat "+wayLatitude+" Long "+wayLongitude);
-                            MessagingLocation messagingLocation=new MessagingLocation(location);
-                            //sendGlobalEventToActivity(Messaging.ACTION_FETCH_LOCATION,messagingLocation);
+                            //MessagingLocation messagingLocation=new MessagingLocation(location);
+                            sendGlobalEventToActivity(Messaging.ACTION_FETCH_LOCATION,wayLatitude,wayLongitude);
 
                         } else {
                             fusedLocationClient.requestLocationUpdates(locationRequest, locationCallback, null);
@@ -203,17 +213,19 @@ public class MessagingLocationService extends Service {
 
     /**
      * Method that send GlobalEventToActivity (Ej: messagingNotification) registered to Activity
-     @param something: Object Serializable for send to activity (Ej messagingNotification).
+     @param latitude: 0.00.
+     @param longitude: 0.00.
      */
-    public void sendGlobalEventToActivity(String action, Serializable something) {
+    public void sendGlobalEventToActivity(String action, double latitude,double longitude) {
 
         this.nameMethod=new Object(){}.getClass().getEnclosingMethod().getName();
         messaging.utils.showDebugLog(this,nameMethod, ""+action
-                +"  "+something.toString());
+                +"  "+latitude+" "+longitude);
         Intent intent=new Intent(action);
-        intent.putExtra(Messaging.INTENT_EXTRA_DATA,something);
-        intent.putExtra(Messaging.INTENT_EXTRA_HAS_ERROR,something==null);
-        getApplicationContext().sendBroadcast(intent,getApplicationContext().getPackageName()+".permission.pushReceive");
+        intent.putExtra(Messaging.INTENT_EXTRA_DATA_lAT,latitude);
+        intent.putExtra(Messaging.INTENT_EXTRA_DATA_lONG,longitude);
+        intent.putExtra(Messaging.INTENT_EXTRA_HAS_ERROR,(latitude==0.0 || longitude==0.0));
+        sendBroadcast(intent,getPackageName()+".permission.pushReceive");
     }
 
     public LocationRequest setLocationRequestWithPriority(int priority){
@@ -267,6 +279,7 @@ public class MessagingLocationService extends Service {
     @Override
     public void onDestroy() {
         super.onDestroy();
+        nameMethod="onDestroy";
         if(fusedLocationClient!=null){
             fusedLocationClient.removeLocationUpdates(locationCallback);
         }

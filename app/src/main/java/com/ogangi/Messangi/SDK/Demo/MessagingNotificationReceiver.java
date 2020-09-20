@@ -12,6 +12,7 @@ import androidx.localbroadcastmanager.content.LocalBroadcastManager;
 
 import com.messaging.sdk.Messaging;
 import com.messaging.sdk.MessagingDevice;
+import com.messaging.sdk.MessagingLocation;
 import com.messaging.sdk.MessagingNotification;
 import com.messaging.sdk.MessagingUser;
 
@@ -27,6 +28,7 @@ public class MessagingNotificationReceiver extends BroadcastReceiver {
     public static String TAG="MESSAGING";
     private String nameMethod;
     private MessagingNotification messagingNotification;
+    private double wayLatitude, wayLongitude;
 
     @Override
     public void onReceive(Context context, Intent intent) {
@@ -38,12 +40,21 @@ public class MessagingNotificationReceiver extends BroadcastReceiver {
             String action=intent.getAction();
             Serializable data = intent.getSerializableExtra(Messaging.INTENT_EXTRA_DATA);
 
+
              if(intent.getAction().equals(Messaging.ACTION_GET_NOTIFICATION)&& data!=null){
                 Log.d(TAG,"DEBUG: "+CLASS_TAG+": "+nameMethod+": DATA:  "+ data);
                  handleDataNotification(data, intent, context, action);
 
 
-            } else {
+            }else if(intent.getAction().equals(Messaging.ACTION_FETCH_LOCATION)){
+                 wayLatitude = intent.getDoubleExtra(Messaging.INTENT_EXTRA_DATA_lAT,0.00);
+                 wayLongitude = intent.getDoubleExtra(Messaging.INTENT_EXTRA_DATA_lONG,0.00);
+                 Toast.makeText(context, intent.getAction(), Toast.LENGTH_SHORT).show();
+                 Log.d(TAG, "DEBUG: " + CLASS_TAG + ": " + nameMethod + ": Data Location Lat:  "
+                             + wayLatitude
+                             +" Long: "+wayLongitude);
+
+             }else{
 
                 Toast.makeText(context,intent.getAction(),Toast.LENGTH_LONG).show();
 

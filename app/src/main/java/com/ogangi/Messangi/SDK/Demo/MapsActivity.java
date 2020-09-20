@@ -107,6 +107,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
             @Override
             public void onClick(View v) {
                 Messaging.turnOFFUpdateLocation();
+                stopService();
             }
         });
 
@@ -119,6 +120,9 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
             }
         });
 
+    }
+    private void stopService() {
+        messaging.stopServiceLocation();
     }
 
     @Override

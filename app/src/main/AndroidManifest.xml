@@ -67,6 +67,7 @@
             tools:ignore="Instantiatable">
             <intent-filter>
                 <action android:name="com.messaging.sdk.PUSH_NOTIFICATION" />
+                <action android:name="com.messaging.sdk.ACTION_FETCH_LOCATION" />
             </intent-filter>
         </receiver>
 
