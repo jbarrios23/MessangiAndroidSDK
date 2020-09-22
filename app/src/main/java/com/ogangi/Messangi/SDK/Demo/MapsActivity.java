@@ -130,7 +130,6 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         super.onStart();
         nameMethod=new Object(){}.getClass().getEnclosingMethod().getName();
         Log.d(TAG,"DEBUG: "+CLASS_TAG+": "+nameMethod+": register LocalBroadcastReceiver");
-
         LocalBroadcastManager.getInstance(this).registerReceiver(mReceiver,
                 new IntentFilter(Messaging.ACTION_FETCH_LOCATION));
     }

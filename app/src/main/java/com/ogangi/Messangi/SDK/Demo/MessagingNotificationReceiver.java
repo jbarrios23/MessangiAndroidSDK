@@ -4,6 +4,7 @@ import android.app.ActivityManager;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
+import android.location.Location;
 import android.util.Log;
 import android.view.View;
 import android.widget.Toast;
@@ -21,6 +22,8 @@ import org.json.JSONObject;
 
 import java.io.Serializable;
 import java.util.Map;
+
+import static android.content.Context.LOCATION_SERVICE;
 
 public class MessagingNotificationReceiver extends BroadcastReceiver {
 
@@ -53,6 +56,12 @@ public class MessagingNotificationReceiver extends BroadcastReceiver {
                  Log.d(TAG, "DEBUG: " + CLASS_TAG + ": " + nameMethod + ": Data Location Lat:  "
                              + wayLatitude
                              +" Long: "+wayLongitude);
+                 Location location=new Location(LOCATION_SERVICE);
+                 location.setLatitude(wayLatitude);
+                 location.setLongitude(wayLongitude);
+                 MessagingLocation messagingLocation=new MessagingLocation(location);
+                 sendEventToActivity(Messaging.ACTION_FETCH_LOCATION,messagingLocation,context);
+
 
              }else{
 

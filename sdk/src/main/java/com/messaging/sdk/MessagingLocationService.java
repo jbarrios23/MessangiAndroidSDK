@@ -118,11 +118,12 @@ public class MessagingLocationService extends Service {
     @Override
     public int onStartCommand(Intent intent, int flags, int startId) {
         this.nameMethod="onStartCommand";
-        messaging.utils.showDebugLog(MessagingLocationService.this,nameMethod,"");
+        messaging.utils.showDebugLog(MessagingLocationService.this,nameMethod,""+messaging.getNameClass());
         createNotificationChannel();
+        String classNameProv="com.ogangi.Messangi.SDK.Demo.MapsActivity";
         Intent notificationIntent = null;
         try {
-            notificationIntent = new Intent(this, Class.forName(messaging.getNameClass()));
+            notificationIntent = new Intent(this, Class.forName(classNameProv));
             PendingIntent pendingIntent = PendingIntent.getActivity(this,
                     0, notificationIntent, 0);
             Notification notification = new NotificationCompat.Builder(this, CHANNEL_ID)
