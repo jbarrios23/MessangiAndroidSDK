@@ -2,6 +2,7 @@ package com.messaging.sdk;
 
 import android.content.Context;
 import android.content.SharedPreferences;
+import android.location.Location;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -480,6 +481,69 @@ public class MessagingStorageController {
         boolean result=mSharedPreferencesConfig.getBoolean("LoggingAllowed",false);
         //messaging.utils.showDebugLog(this,nameMethod,"Get LoggingAllowed from storage "+result);
         return result;
+    }
+
+    /**
+     * Method save token
+     * @param location: last location received
+     */
+    public void saveCurrentLocation(Location location){
+        nameMethod=new Object(){}.getClass().getEnclosingMethod().getName();
+        SharedPreferences.Editor datosuser=mSharedPreferences.edit();
+        if(location==null){
+            datosuser.remove(Messaging.LOCATION_LAT);
+            datosuser.remove(Messaging.LOCATION_LON);
+            datosuser.remove(Messaging.LOCATION_PROVIDER);
+        }else{
+            datosuser.putString(Messaging.LOCATION_LAT,String.valueOf(location.getLatitude()));
+            datosuser.putString(Messaging.LOCATION_LON,String.valueOf(location.getLongitude()));
+            datosuser.putString(Messaging.LOCATION_PROVIDER,String.valueOf(location.getProvider()));
+        }
+
+        datosuser.apply();
+        messaging.utils.showDebugLog(this,nameMethod,"Last location Saved");
+
+    }
+    /**
+     * Method hasTokenRegister lets Know if token is registered in local storage
+     *
+     */
+    public boolean hasLastLocation(){
+        nameMethod=new Object(){}.getClass().getEnclosingMethod().getName();
+        boolean hasToken = false;
+        String token=mSharedPreferences.getString(Messaging.LOCATION_LAT,"");
+        if(token.length()>0){
+            hasToken=true;
+
+        }
+        //messaging.utils.showDebugLog(this,nameMethod,"Token Push from storage controller");
+        return hasToken;
+    }
+    /**
+     * Method get token registered in local storage
+     *
+     */
+    public Location getLastLocationSaved(){
+        nameMethod=new Object(){}.getClass().getEnclosingMethod().getName();
+        String lat=mSharedPreferences.getString(Messaging.LOCATION_LAT,"");
+        String lon=mSharedPreferences.getString(Messaging.LOCATION_LON,"");
+        Location location=null;
+        if(!lat.equals("")&&!lon.equals("")){
+            String provider=mSharedPreferences.getString(Messaging.LOCATION_PROVIDER,"");
+            location=new Location(provider);
+            location.setLatitude(Double.parseDouble(lat));
+            location.setLongitude(Double.parseDouble(lon));
+        }
+
+        messaging.utils.showDebugLog(this,nameMethod,"getLastLocation from storage");
+        return location;
+    }
+
+    public void deletelocation(){
+        mSharedPreferences=context.getSharedPreferences("StorageCallback", 0);
+        SharedPreferences.Editor editorlogin = mSharedPreferences.edit();
+        editorlogin.clear();
+        editorlogin.commit();
     }
 
 

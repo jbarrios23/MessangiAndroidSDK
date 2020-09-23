@@ -20,6 +20,8 @@ import java.net.URL;
 import java.util.ArrayList;
 import java.util.List;
 
+import static com.messaging.sdk.Messaging.MessagingLocationPriority.PRIORITY_HIGH_ACCURACY;
+
 class MessagingSdkUtils {
 
 
@@ -455,7 +457,7 @@ class MessagingSdkUtils {
                     if(Messaging.isForeground){
                         showDebugLog(this,nameMethod, "locationEnable : "
                                 +provEnable+" is F "+Messaging.isForeground);
-                        Messaging.fetchLocation(null,true,LocationRequest.PRIORITY_HIGH_ACCURACY);
+                        Messaging.fetchLocation(null,true,PRIORITY_HIGH_ACCURACY);
                     }else{
                         showDebugLog(this,nameMethod, "locationEnable : "
                                 +provEnable+" is b "+Messaging.isBackground);
@@ -473,8 +475,9 @@ class MessagingSdkUtils {
                     if(Messaging.isBackground){
                         showDebugLog(this,nameMethod, "locationEnable : "
                                 +provEnable+" is b "+Messaging.isBackground);
-                        Intent intent = new Intent(context, MessagingLocationService.class);
-                        context.stopService(intent);
+                        Messaging.turnOFFUpdateLocation();
+                        messaging.stopServiceLocation();
+
                     }
                 }
                 setLocation_allowed(provEnable);

@@ -36,6 +36,11 @@ import com.messaging.sdk.MessagingUser;
 
 import java.io.Serializable;
 
+import static com.messaging.sdk.Messaging.MessagingLocationPriority.PRIORITY_BALANCED_POWER_ACCURACY;
+import static com.messaging.sdk.Messaging.MessagingLocationPriority.PRIORITY_HIGH_ACCURACY;
+import static com.messaging.sdk.Messaging.MessagingLocationPriority.PRIORITY_LOW_POWER;
+import static com.messaging.sdk.Messaging.MessagingLocationPriority.PRIORITY_NO_POWER;
+
 public class MapsActivity extends FragmentActivity implements OnMapReadyCallback {
 
     public static String CLASS_TAG=MapsActivity.class.getSimpleName();
@@ -67,8 +72,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
             @Override
             public void onClick(View v) {
                 if(messaging.isLocation_allowed()) {
-
-                    Messaging.fetchLocation(MapsActivity.this, false,LocationRequest.PRIORITY_BALANCED_POWER_ACCURACY);
+                    Messaging.fetchLocation(MapsActivity.this, false,PRIORITY_BALANCED_POWER_ACCURACY);
                     Log.d(CLASS_TAG,TAG+ " Priority "+Messaging.getLocationRequestPriority());
                 }else{
                     Log.d(CLASS_TAG,TAG+ " isLocation_allowed "+messaging.isLocation_allowed());
@@ -80,7 +84,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
             @Override
             public void onClick(View v) {
                 if(messaging.isLocation_allowed()) {
-                    Messaging.fetchLocation(MapsActivity.this, true,LocationRequest.PRIORITY_NO_POWER);
+                    Messaging.fetchLocation(MapsActivity.this, true,PRIORITY_HIGH_ACCURACY);
                     Log.d(CLASS_TAG,TAG+ " Priority "+Messaging.getLocationRequestPriority());
                 }else{
                     Log.d(CLASS_TAG,TAG+ " isLocation_allowed "+messaging.isLocation_allowed());
@@ -206,10 +210,19 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
                 Serializable data=intent.getSerializableExtra(Messaging.INTENT_EXTRA_DATA);
 
                 if(intent.getAction().equals(Messaging.ACTION_FETCH_LOCATION) ) {
-                    MessagingLocation messagingLocation = (MessagingLocation) data;
-                    Toast.makeText(getApplicationContext(), intent.getAction(), Toast.LENGTH_SHORT).show();
-                    Log.d(TAG, "DEBUG: " + CLASS_TAG + ": " + nameMethod + ": Data Location Lat:  "
-                            + messagingLocation.getLatitude()+" Long: "+messagingLocation.getLongitude());
+                    MessagingLocation messagingLocation;
+                    if(Messaging.getLastLocation()!=null){
+                    messagingLocation=new MessagingLocation(Messaging.getLastLocation());
+                        Log.d(TAG, "DEBUG: " + CLASS_TAG + ": " + nameMethod + ": Data Location from storage Lat:  "
+                                + messagingLocation.getLatitude()+" Long: "+messagingLocation.getLongitude());
+
+                    }else{
+                        messagingLocation = (MessagingLocation) data;
+                        Toast.makeText(getApplicationContext(), intent.getAction(), Toast.LENGTH_SHORT).show();
+                        Log.d(TAG, "DEBUG: " + CLASS_TAG + ": " + nameMethod + ": Data Location Lat:  "
+                                + messagingLocation.getLatitude()+" Long: "+messagingLocation.getLongitude());
+                    }
+
                     writeActualLocation(messagingLocation.getLocation());
 
 
@@ -237,7 +250,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
                 // If request is cancelled, the result arrays are empty.
                 if (grantResults.length > 0
                         && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
-                        Messaging.fetchLocation(MapsActivity.this,false,LocationRequest.PRIORITY_LOW_POWER);
+                        Messaging.fetchLocation(MapsActivity.this,false,PRIORITY_LOW_POWER);
                 } else {
                     Toast.makeText(getApplicationContext(), "Permission denied", Toast.LENGTH_SHORT).show();
                     permissionsDenied();

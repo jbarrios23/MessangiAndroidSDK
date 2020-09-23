@@ -22,6 +22,8 @@ import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
 import com.messaging.sdk.Messaging;
 
+import static com.messaging.sdk.Messaging.MessagingLocationPriority.PRIORITY_LOW_POWER;
+
 public class GpsUtils {
     public static String TAG=GpsUtils.class.getSimpleName();
     public static String CLASS_TAG="MESSAGING";
@@ -41,7 +43,7 @@ public class GpsUtils {
         locationRequest.setInterval(10 * 1000);
         locationRequest.setFastestInterval(2 * 1000);*/
         //String nameMethod=new Object(){}.getClass().getEnclosingMethod().getName();
-        locationRequest=Messaging.setLocationRequestWithPriority(LocationRequest.PRIORITY_LOW_POWER);
+        locationRequest=Messaging.setLocationRequestWithPriority(PRIORITY_LOW_POWER);
         Log.i(TAG,"INFO: "+CLASS_TAG+": "+"GpsUtils"+": "+Messaging.getLocationRequestPriority());
         LocationSettingsRequest.Builder builder = new LocationSettingsRequest.Builder()
                 .addLocationRequest(locationRequest);

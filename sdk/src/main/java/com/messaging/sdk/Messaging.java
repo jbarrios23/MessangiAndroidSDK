@@ -145,6 +145,9 @@ public class Messaging implements LifecycleObserver {
     public static String MESSAGING_INVALID_DEVICE_LOCATION_REASON_CONFIG="Configuration_Disabled";
     public static final int LOCATION_REQUEST = 1000;
     public static final int GPS_REQUEST = 1001;
+    public static String LOCATION_LAT="LOCATION_LAT";
+    public static String LOCATION_LON="LOCATION_LON";
+    public static String LOCATION_PROVIDER="LOCATION_PROVIDER";
 
 
     private static double wayLatitude = 0.0;
@@ -158,6 +161,22 @@ public class Messaging implements LifecycleObserver {
     private static FusedLocationProviderClient fusedLocationClient;
     public static boolean isForeground = false;
     public static boolean isBackground = false;
+    public  enum MessagingLocationPriority{
+        PRIORITY_HIGH_ACCURACY(LocationRequest.PRIORITY_HIGH_ACCURACY),
+        PRIORITY_BALANCED_POWER_ACCURACY(LocationRequest.PRIORITY_BALANCED_POWER_ACCURACY),
+        PRIORITY_LOW_POWER(LocationRequest.PRIORITY_LOW_POWER),
+        PRIORITY_NO_POWER(LocationRequest.PRIORITY_NO_POWER);
+
+        private int priority;
+        private  MessagingLocationPriority(int priority){
+            this.priority=priority;
+
+        }
+        public int getPriority() {
+            return priority;
+        }
+
+    }
 
     public Messaging(final Context context){
         this.context =context;
@@ -177,8 +196,7 @@ public class Messaging implements LifecycleObserver {
         this.messagingNotification =null;
         this.nameMethod="";
         fusedLocationClient = LocationServices.getFusedLocationProviderClient(context);
-
-        Messaging.setLocationRequestWithPriority(LocationRequest.PRIORITY_NO_POWER);
+        Messaging.setLocationRequestWithPriority(MessagingLocationPriority.PRIORITY_NO_POWER);
         utils.showDebugLog(this,nameMethod,"Priority "+Messaging.getLocationRequestPriority());
         locationCallback=new LocationCallback(){
             @Override
@@ -194,11 +212,14 @@ public class Messaging implements LifecycleObserver {
                         wayLatitude = location.getLatitude();
                         wayLongitude = location.getLongitude();
                         MessagingLocation messagingLocation=new MessagingLocation(location);
-                        sendEventToActivity(ACTION_FETCH_LOCATION,messagingLocation,context);
+                        Messaging.saveLastLocationInStorage(location);
+                        //sendEventToActivity(ACTION_FETCH_LOCATION,messagingLocation,context);
+                        //sendGlobalEventToActivity(ACTION_FETCH_LOCATION,messagingLocation);
+                        sendGlobalLocationToActivity(ACTION_FETCH_LOCATION,wayLatitude,wayLongitude);
                         if (!isContinue) {
-                        utils.showDebugLog(this,nameMethod,"CLat "+wayLatitude+" CLong "+wayLongitude);
+                        utils.showDebugLog(this,"Messaging","CLat "+wayLatitude+" CLong "+wayLongitude);
                         } else {
-                        utils.showDebugLog(this,nameMethod,"CLat "+wayLatitude+" CLong "+wayLongitude);
+                        utils.showDebugLog(this,"Messaging","NCLat "+wayLatitude+" NCLong "+wayLongitude);
                         }
                         utils.showDebugLog(this,nameMethod,"update location "+utils.isLocation_allowed()
                                 +" iscontinue "+isContinue);
@@ -262,29 +283,31 @@ public class Messaging implements LifecycleObserver {
 
     }
 
-    public static LocationRequest setLocationRequestWithPriority(int priority){
-        locationRequest = LocationRequest.create();
+    public static LocationRequest setLocationRequestWithPriority(MessagingLocationPriority priority){
+        if(locationRequest==null) {
+            locationRequest = LocationRequest.create();
+        }
         switch (priority){
 
-            case LocationRequest.PRIORITY_BALANCED_POWER_ACCURACY:
-                locationRequest.setPriority(LocationRequest.PRIORITY_BALANCED_POWER_ACCURACY);
+            case PRIORITY_BALANCED_POWER_ACCURACY:
+                locationRequest.setPriority(priority.getPriority());
                 locationRequest.setInterval(10 * 60 * 1000);
                 locationRequest.setMaxWaitTime(60 * 60 * 1000);
             break;
-            case LocationRequest.PRIORITY_HIGH_ACCURACY:
-                locationRequest.setPriority(LocationRequest.PRIORITY_HIGH_ACCURACY);
+            case PRIORITY_HIGH_ACCURACY:
+                locationRequest.setPriority(priority.getPriority());
                 locationRequest.setInterval(10 * 1000); // 10 seconds
                 locationRequest.setFastestInterval(5 * 1000); // 5 seconds
 
             break;
-            case LocationRequest.PRIORITY_LOW_POWER:
-                locationRequest.setPriority(LocationRequest.PRIORITY_LOW_POWER);
+            case PRIORITY_LOW_POWER:
+                locationRequest.setPriority(priority.getPriority());
                 locationRequest.setInterval(10 * 60 * 1000);
                 locationRequest.setMaxWaitTime(60 * 60 * 1000);
 
             break;
-            case LocationRequest.PRIORITY_NO_POWER:
-                locationRequest.setPriority(LocationRequest.PRIORITY_NO_POWER);
+            case PRIORITY_NO_POWER:
+                locationRequest.setPriority(priority.getPriority());
                 locationRequest.setInterval(15 * 60 * 1000);
                 locationRequest.setFastestInterval(2 * 60 * 1000);
         break;
@@ -296,13 +319,13 @@ public class Messaging implements LifecycleObserver {
     public static String getLocationRequestPriority(){
         String result = "";
         if(locationRequest!=null){
-            if(locationRequest.getPriority()==100){
+            if(locationRequest.getPriority()==MessagingLocationPriority.PRIORITY_HIGH_ACCURACY.getPriority()){
                 result="PRIORITY_HIGH_ACCURACY";
-            }else if(locationRequest.getPriority()==102){
+            }else if(locationRequest.getPriority()==MessagingLocationPriority.PRIORITY_BALANCED_POWER_ACCURACY.getPriority()){
                 result="PRIORITY_BALANCED_POWER_ACCURACY";
-            }else if(locationRequest.getPriority()==104){
+            }else if(locationRequest.getPriority()==MessagingLocationPriority.PRIORITY_LOW_POWER.getPriority()){
                 result="PRIORITY_LOW_POWER";
-            }else if(locationRequest.getPriority()==105){
+            }else if(locationRequest.getPriority()==MessagingLocationPriority.PRIORITY_NO_POWER.getPriority()){
                 result="PRIORITY_NO_POWER";
             }
             return result ;
@@ -310,7 +333,7 @@ public class Messaging implements LifecycleObserver {
         return result;
     }
 
-    public static void fetchLocation(Activity activity,boolean isContinue,int priority){
+    public static void fetchLocation(Activity activity,boolean isContinue,MessagingLocationPriority priority){
 
         String nameMethod=new Object(){}.getClass().getEnclosingMethod().getName();
         final Messaging messaging=Messaging.getInstance();
@@ -319,6 +342,7 @@ public class Messaging implements LifecycleObserver {
         if (!isGPS) {
             messaging.utils.showDebugLog(messaging,nameMethod,"Please turn on GPS "+isGPS);
             sendEventToBackend(MESSAGING_INVALID_DEVICE_LOCATION,MESSAGING_INVALID_DEVICE_LOCATION_REASON_LOCATION);
+            messaging.stopServiceLocation();
             return;
         }
         Messaging.isContinue = isContinue;
@@ -401,8 +425,10 @@ public class Messaging implements LifecycleObserver {
                             wayLongitude = location.getLongitude();
                             messaging.utils.showDebugLog(messaging,nameMethod," Lat "+wayLatitude+" Long "+wayLongitude);
                             MessagingLocation messagingLocation=new MessagingLocation(location);
-                            messaging.sendEventToActivity(ACTION_FETCH_LOCATION,messagingLocation,messaging.context);
-
+                            Messaging.saveLastLocationInStorage(location);
+                            //messaging.sendEventToActivity(ACTION_FETCH_LOCATION,messagingLocation,messaging.context);
+                            //messaging.sendGlobalEventToActivity(ACTION_FETCH_LOCATION,messagingLocation);
+                            messaging.sendGlobalLocationToActivity(ACTION_FETCH_LOCATION,wayLatitude,wayLongitude);
                         } else {
                             fusedLocationClient.requestLocationUpdates(locationRequest, locationCallback, null);
                         }
@@ -471,7 +497,6 @@ public class Messaging implements LifecycleObserver {
     public void onEnterBackground() {
         nameMethod=new Object(){}.getClass().getEnclosingMethod().getName();
         utils.showDebugLog(this,nameMethod,"Background ");
-
         isBackground=true;
         isForeground=false;
         utils.showDebugLog(this,nameMethod,"Background "+isBackground);
@@ -481,7 +506,6 @@ public class Messaging implements LifecycleObserver {
 //        }else{
 //            utils.showDebugLog(this,nameMethod,"isLocation_allowed() "+isLocation_allowed());
 //        }
-
     }
 
     public void stopServiceLocation(){
@@ -700,6 +724,21 @@ public class Messaging implements LifecycleObserver {
         }
     }
 
+    public static void saveLastLocationInStorage(Location location){
+        Messaging messaging=Messaging.getInstance();
+        messaging.messagingStorageController.saveCurrentLocation(location);
+    }
+
+    public static Location getLastLocation(){
+        Messaging messaging=Messaging.getInstance();
+        if(messaging.messagingStorageController.hasLastLocation()){
+            return messaging.messagingStorageController.getLastLocationSaved();
+        }else{
+            return null;
+        }
+
+    }
+
 
     public boolean isLogged() {
         return messagingStorageController.isRegisterDevice();
@@ -880,6 +919,23 @@ public class Messaging implements LifecycleObserver {
         intent.putExtra(Messaging.INTENT_EXTRA_DATA,something);
         intent.putExtra(Messaging.INTENT_EXTRA_HAS_ERROR,something==null);
         context.sendBroadcast(intent,context.getPackageName()+".permission.pushReceive");
+    }
+
+    /**
+     * Method that send GlobalEventToActivity (Ej: messagingNotification) registered to Activity
+     @param latitude: 0.00.
+     @param longitude: 0.00.
+     */
+    public void sendGlobalLocationToActivity(String action, double latitude,double longitude) {
+
+        this.nameMethod=new Object(){}.getClass().getEnclosingMethod().getName();
+        utils.showDebugLog(this,nameMethod, ""+action
+                +"  "+latitude+" "+longitude);
+        Intent intent=new Intent(action);
+        intent.putExtra(Messaging.INTENT_EXTRA_DATA_lAT,latitude);
+        intent.putExtra(Messaging.INTENT_EXTRA_DATA_lONG,longitude);
+        intent.putExtra(Messaging.INTENT_EXTRA_HAS_ERROR,(latitude==0.0 || longitude==0.0));
+        context.sendBroadcast(intent,getPackageName()+".permission.pushReceive");
     }
 
 

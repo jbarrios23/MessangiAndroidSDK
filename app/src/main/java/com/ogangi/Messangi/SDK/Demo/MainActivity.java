@@ -55,6 +55,8 @@ import java.util.ArrayList;
 import java.util.Map;
 import java.util.Random;
 
+import static com.messaging.sdk.Messaging.MessagingLocationPriority.PRIORITY_BALANCED_POWER_ACCURACY;
+
 public class MainActivity extends AppCompatActivity {
     public static String CLASS_TAG=MainActivity.class.getSimpleName();
     public static String TAG="MESSAGING";
@@ -788,7 +790,7 @@ public class MainActivity extends AppCompatActivity {
                 // If request is cancelled, the result arrays are empty.
                 if (grantResults.length > 0
                         && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
-                    Messaging.fetchLocation(MainActivity.this,true, LocationRequest.PRIORITY_BALANCED_POWER_ACCURACY);
+                    Messaging.fetchLocation(MainActivity.this,true, PRIORITY_BALANCED_POWER_ACCURACY);
                 } else {
                     Toast.makeText(getApplicationContext(), "Permission denied", Toast.LENGTH_SHORT).show();
                     permissionsDenied();

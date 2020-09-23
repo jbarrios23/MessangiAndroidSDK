@@ -42,25 +42,35 @@ public class MessagingNotificationReceiver extends BroadcastReceiver {
         if (!hasError ) {
             String action=intent.getAction();
             Serializable data = intent.getSerializableExtra(Messaging.INTENT_EXTRA_DATA);
-
-
+            //optional code to determinate if app is Background or not
+            ActivityManager.RunningAppProcessInfo myProcess = new ActivityManager.RunningAppProcessInfo();
+            ActivityManager.getMyMemoryState(myProcess);
+            boolean isInBackground = myProcess.importance != ActivityManager.RunningAppProcessInfo.IMPORTANCE_FOREGROUND;
+            Log.d(TAG,"DEBUG: "+CLASS_TAG+": "+nameMethod+": isInBackground:  "+ isInBackground);
              if(intent.getAction().equals(Messaging.ACTION_GET_NOTIFICATION)&& data!=null){
                 Log.d(TAG,"DEBUG: "+CLASS_TAG+": "+nameMethod+": DATA:  "+ data);
-                 handleDataNotification(data, intent, context, action);
+
+                 handleDataNotification(data, intent, context, action,isInBackground);
 
 
             }else if(intent.getAction().equals(Messaging.ACTION_FETCH_LOCATION)){
                  wayLatitude = intent.getDoubleExtra(Messaging.INTENT_EXTRA_DATA_lAT,0.00);
                  wayLongitude = intent.getDoubleExtra(Messaging.INTENT_EXTRA_DATA_lONG,0.00);
+
                  Toast.makeText(context, intent.getAction(), Toast.LENGTH_SHORT).show();
-                 Log.d(TAG, "DEBUG: " + CLASS_TAG + ": " + nameMethod + ": Data Location Lat:  "
-                             + wayLatitude
-                             +" Long: "+wayLongitude);
+
                  Location location=new Location(LOCATION_SERVICE);
                  location.setLatitude(wayLatitude);
                  location.setLongitude(wayLongitude);
                  MessagingLocation messagingLocation=new MessagingLocation(location);
-                 sendEventToActivity(Messaging.ACTION_FETCH_LOCATION,messagingLocation,context);
+                 if(isInBackground){
+                     Log.d(TAG, "DEBUG: " + CLASS_TAG + ": " + nameMethod + ": Data Location Lat:  "
+                             + wayLatitude
+                             +" Long: "+wayLongitude);
+                 }else{
+                     sendEventToActivity(Messaging.ACTION_FETCH_LOCATION,messagingLocation,context);
+                 }
+
 
 
              }else{
@@ -76,13 +86,9 @@ public class MessagingNotificationReceiver extends BroadcastReceiver {
 
     }
 
-    private void handleDataNotification(Serializable data, Intent intent, Context context, String action) {
+    private void handleDataNotification(Serializable data, Intent intent, Context context, String action, boolean isInBackground) {
 
-        //optional code to determinate if app is Background or not
-        ActivityManager.RunningAppProcessInfo myProcess = new ActivityManager.RunningAppProcessInfo();
-        ActivityManager.getMyMemoryState(myProcess);
-        boolean isInBackground = myProcess.importance != ActivityManager.RunningAppProcessInfo.IMPORTANCE_FOREGROUND;
-        Log.d(TAG,"DEBUG: "+CLASS_TAG+": "+nameMethod+": isInBackground:  "+ isInBackground);
+
         if(isInBackground){
             intent.putExtra(Messaging.INTENT_EXTRA_DATA,data);
             intent.putExtra("isInBackground",isInBackground);
