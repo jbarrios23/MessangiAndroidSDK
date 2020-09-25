@@ -116,6 +116,7 @@ public class Messaging implements LifecycleObserver {
     public static String MESSAGING_BODY="MSGI_BODY";
     public static String MESSAGING_APP_ID="MSGI_APPID";
     public static String MESSAGING_CONFIGURATION="MSGI_CONFIGURATION";
+    public static String MESSAGING_GEO_PUSH="MSGI_GEOPUSH";
     public static String MESSAGING_APP_TOKEN="appToken";
     public static String MESSAGING_LOCATION_ENABLE="locationEnable";
     public static String MESSAGING_ANALYTICS_ENABLE="analyticsEnable";

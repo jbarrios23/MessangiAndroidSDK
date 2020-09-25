@@ -88,13 +88,13 @@ public class MessagingNotificationReceiver extends BroadcastReceiver {
 
     private void handleDataNotification(Serializable data, Intent intent, Context context, String action, boolean isInBackground) {
 
-
         if(isInBackground){
             intent.putExtra(Messaging.INTENT_EXTRA_DATA,data);
             intent.putExtra("isInBackground",isInBackground);
             intent.setClassName(context.getPackageName(), context.getPackageName()+".MainActivity");
             //intent.setClassName(context.getPackageName(), context.getPackageName()+".LoginActivity");
             intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+            intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
             context.startActivity(intent);
         }else{
             sendEventToActivity(action,data,context);

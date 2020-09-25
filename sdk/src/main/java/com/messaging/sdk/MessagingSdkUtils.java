@@ -3,6 +3,7 @@ package com.messaging.sdk;
 import android.content.Context;
 import android.content.Intent;
 import android.content.res.Resources;
+import android.location.Location;
 import android.os.Build;
 import android.util.Log;
 
@@ -20,6 +21,7 @@ import java.net.URL;
 import java.util.ArrayList;
 import java.util.List;
 
+import static android.content.Context.LOCATION_SERVICE;
 import static com.messaging.sdk.Messaging.MessagingLocationPriority.PRIORITY_HIGH_ACCURACY;
 
 class MessagingSdkUtils {
@@ -538,6 +540,45 @@ class MessagingSdkUtils {
             }//from  w  w  w .  j  a va2 s . c o m
         }
         return builder.toString();
+    }
+
+    public boolean verifyIsValidGeoPush(JSONObject jsonObject, Messaging messaging){
+        String nameMethod=new Object(){}.getClass().getEnclosingMethod().getName();
+        boolean result=false;
+        if(jsonObject.has("longitude") && jsonObject.has("latitude")
+                && jsonObject.has("radius")){
+            try {
+                double provLongitude=jsonObject.getDouble("longitude");
+                double provLatitude=jsonObject.getDouble("latitude");
+                double provRadius=jsonObject.getInt("radius");
+                Location location=new Location(LOCATION_SERVICE);
+                location.setLatitude(provLatitude);
+                location.setLongitude(provLongitude);
+                showDebugLog(this,nameMethod,"GeoPush location lat: "+provLatitude
+                        +" Long: "+provLongitude);
+                if(messaging.messagingStorageController.hasLastLocation()){
+                    Location lastLocation=messaging.messagingStorageController.getLastLocationSaved();
+                    showDebugLog(this,nameMethod,"last location lat: "+lastLocation.getLatitude()
+                            +" Long: "+lastLocation.getLongitude());
+                    showDebugLog(this,nameMethod,"distance calculate "+lastLocation.distanceTo(location)
+                            +" Radius "+provRadius);
+                    if(lastLocation.distanceTo(location)<=provRadius){
+                        result=true;
+                    }
+
+                }else{
+                    result=false;
+                }
+
+            } catch (JSONException e) {
+                e.printStackTrace();
+                showErrorLog(this,nameMethod,"Error "+e.getStackTrace(),"");
+                result=false;
+            }
+
+        }
+        //Log.d(TAG,"verifyMatchAppId "+mgsAppId+" host "+messagingToken+" result "+result);
+        return result;
     }
 
 }

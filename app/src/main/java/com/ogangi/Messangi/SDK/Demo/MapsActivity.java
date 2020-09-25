@@ -6,8 +6,10 @@ import androidx.localbroadcastmanager.content.LocalBroadcastManager;
 
 import android.annotation.SuppressLint;
 import android.app.Activity;
+import android.app.AlertDialog;
 import android.content.BroadcastReceiver;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.pm.ActivityInfo;
@@ -16,7 +18,9 @@ import android.location.Location;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
+import android.widget.ArrayAdapter;
 import android.widget.ImageButton;
+import android.widget.ListView;
 import android.widget.Toast;
 
 import com.google.android.gms.location.LocationRequest;
@@ -35,6 +39,8 @@ import com.messaging.sdk.MessagingNotification;
 import com.messaging.sdk.MessagingUser;
 
 import java.io.Serializable;
+import java.util.ArrayList;
+import java.util.Map;
 
 import static com.messaging.sdk.Messaging.MessagingLocationPriority.PRIORITY_BALANCED_POWER_ACCURACY;
 import static com.messaging.sdk.Messaging.MessagingLocationPriority.PRIORITY_HIGH_ACCURACY;
@@ -49,6 +55,9 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
     public Messaging messaging;
     private String nameMethod;
     private Marker locationMarker;
+    MessagingNotification messagingNotification;
+    public boolean onetimeFlag=true;
+    public MessagingLocation messagingLocation;
     private ImageButton getLocation,getPermission,getLocationC,turnOffLocationButton;
 
     @Override
@@ -136,6 +145,8 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         Log.d(TAG,"DEBUG: "+CLASS_TAG+": "+nameMethod+": register LocalBroadcastReceiver");
         LocalBroadcastManager.getInstance(this).registerReceiver(mReceiver,
                 new IntentFilter(Messaging.ACTION_FETCH_LOCATION));
+        LocalBroadcastManager.getInstance(this).registerReceiver(mReceiver,
+                new IntentFilter(Messaging.ACTION_GET_NOTIFICATION));
     }
 
     @Override
@@ -210,31 +221,32 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
                 Serializable data=intent.getSerializableExtra(Messaging.INTENT_EXTRA_DATA);
 
                 if(intent.getAction().equals(Messaging.ACTION_FETCH_LOCATION) ) {
-                    MessagingLocation messagingLocation;
-                    if(Messaging.getLastLocation()!=null){
-                    messagingLocation=new MessagingLocation(Messaging.getLastLocation());
+
+                    if(Messaging.getLastLocation()!=null) {
+                        messagingLocation = new MessagingLocation(Messaging.getLastLocation());
                         Log.d(TAG, "DEBUG: " + CLASS_TAG + ": " + nameMethod + ": Data Location from storage Lat:  "
-                                + messagingLocation.getLatitude()+" Long: "+messagingLocation.getLongitude());
+                                + messagingLocation.getLatitude() + " Long: " + messagingLocation.getLongitude());
 
                     }else{
                         messagingLocation = (MessagingLocation) data;
                         Toast.makeText(getApplicationContext(), intent.getAction(), Toast.LENGTH_SHORT).show();
                         Log.d(TAG, "DEBUG: " + CLASS_TAG + ": " + nameMethod + ": Data Location Lat:  "
                                 + messagingLocation.getLatitude()+" Long: "+messagingLocation.getLongitude());
+
                     }
-
                     writeActualLocation(messagingLocation.getLocation());
+                    }else if(((intent.getAction().equals(Messaging.ACTION_GET_NOTIFICATION))||
+                            (intent.getAction().equals(Messaging.ACTION_GET_NOTIFICATION_OPENED)))&& data!=null) {
+                        messagingNotification = (MessagingNotification) data;
+                        showAlertNotification(messagingNotification, data);
 
-
+                    }else{
+                    Toast.makeText(getApplicationContext(),intent.getAction(),Toast.LENGTH_SHORT).show();
+                    }
                 }else{
                     Toast.makeText(getApplicationContext(),intent.getAction(),Toast.LENGTH_SHORT).show();
                 }
 
-            }else{
-
-                Toast.makeText(getApplicationContext(),"An error occurred on action "
-                        +intent.getAction(),Toast.LENGTH_LONG).show();
-            }
 
         }
 
@@ -274,5 +286,81 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
                 Log.d(CLASS_TAG, TAG+" is gps "+messaging.isGPS());
             }
         }
+    }
+
+    @SuppressLint("SetTextI18n")
+    private void showAlertNotification(MessagingNotification messagingNotification, Serializable data) {
+        // create an alert builder
+        AlertDialog.Builder builder = new AlertDialog.Builder(this);
+        builder.setTitle("Notification");
+        // set the custom layout
+        //final View customLayout = getLayoutInflater().inflate(R.layout.custom_notification_layout, null);
+        final View customLayout = getLayoutInflater().inflate(R.layout.notification_layout, null);
+        builder.setView(customLayout);
+        //TextView data=customLayout.findViewById(R.id.data_noti);
+        ArrayList<String> messangiData = new ArrayList<>();
+        ArrayAdapter<String> messangiDataArrayAdapter;
+        ListView listView=customLayout.findViewById(R.id.list_data_noti);
+        //optional code
+//        if(messagingNotification.getClickAction()!=null && data!=null){
+//            String clickAction=messagingNotification.getClickAction();
+//            if(onetimeFlag) {
+//                launchNotification(clickAction, getApplicationContext(), data);
+//                onetimeFlag=false;
+//            }
+//        }
+        //optional code
+//        if(messagingNotification.getDeepUriLink()!=null && data!=null){
+//            String deepUriLink=messagingNotification.getDeepUriLink();
+//            if(onetimeFlag) {
+//                launchBrowser(deepUriLink, this, data);
+//                onetimeFlag=false;
+//            }
+//        }
+        if(messagingNotification!=null){
+            messangiData.add("Title: "           + messagingNotification.getTitle());
+            messangiData.add("Body: "           + messagingNotification.getBody());
+            messangiData.add("ClickAction: "           + messagingNotification.getClickAction());
+            messangiData.add("DeepUriLink: "           + messagingNotification.getDeepUriLink());
+            messangiData.add("MessageId: "           + messagingNotification.getNotificationId());
+            messangiData.add("Silent: "           + messagingNotification.isSilent());
+            messangiData.add("Type: "           + messagingNotification.getType());
+            if(messagingNotification.getAdditionalData()!=null){
+                for (Map.Entry entry : messagingNotification.getAdditionalData().entrySet()) {
+                    if(!entry.getKey().equals("profile")){
+                        messangiData.add(entry.getKey() + ": " + entry.getValue());
+                    }
+                }
+            }
+            messangiDataArrayAdapter = new ArrayAdapter<>(this, R.layout.item_device, R.id.Texview_value, messangiData);
+            listView.setAdapter(messangiDataArrayAdapter);
+        }
+
+
+
+        // add a button
+        builder.setPositiveButton("Ok", new DialogInterface.OnClickListener() {
+            @SuppressLint("SetTextI18n")
+            @Override
+            public void onClick(DialogInterface dialog, int which) {
+                // send data from the AlertDialog to the Activity
+                onetimeFlag=true;
+                dialog.dismiss();
+            }
+        });
+
+        builder.setNegativeButton("Close", new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialog, int which) {
+                onetimeFlag=true;
+                dialog.cancel();
+
+
+            }
+        });
+        // create and show the alert dialog
+        AlertDialog dialog = builder.create();
+        dialog.show();
+
     }
 }

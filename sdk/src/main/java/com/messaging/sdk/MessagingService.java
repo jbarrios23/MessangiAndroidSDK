@@ -69,7 +69,12 @@ public class MessagingService extends FirebaseMessagingService  {
             Messaging.sendEventToBackend(Messaging.MESSAGING_NOTIFICATION_RECEIVED,"");
         }
         if(messagingNotification.isMatchAppId()) {
-            messaging.sendGlobalEventToActivity(Messaging.ACTION_GET_NOTIFICATION, messagingNotification);
+            if(messagingNotification.isGeoPush()) {
+                messaging.utils.showDebugLog(this,nameMethod,"GEO_PUSH process");
+                messaging.sendGlobalEventToActivity(Messaging.ACTION_GET_NOTIFICATION, messagingNotification);
+            }else{
+                messaging.utils.showDebugLog(this,nameMethod,"GEO_PUSH not process");
+            }
         }else{
             messaging.utils.showDebugLog(this,nameMethod,"Security does not match");
         }

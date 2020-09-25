@@ -193,9 +193,13 @@ public class MainActivity extends AppCompatActivity {
         //for handle notification from background
         Bundle extras = null;
         if(Static.extras!=null){
+        Log.i(TAG, "INFO: " + CLASS_TAG + ": " + nameMethod + ": " + Static.extras);
         extras=Static.extras;    
+        }else{
+            extras=getIntent().getExtras();
+            Log.i(TAG, "INFO: " + CLASS_TAG + ": " + nameMethod + ": " + extras);
         }
-        //Bundle extras=getIntent().getExtras();
+
         if(extras!=null){
             isBackground=extras.getBoolean("isInBackground",false);
             Log.i(TAG, "INFO: " + CLASS_TAG + ": " + nameMethod + ": " + isBackground);
@@ -267,11 +271,12 @@ public class MainActivity extends AppCompatActivity {
     @Override
     protected void onResume() {
         super.onResume();
+        nameMethod=new Object(){}.getClass().getEnclosingMethod().getName();
         messagingDevArrayList.clear();
         messagingUserDeviceArrayList.clear();
         progressBar.setVisibility(View.VISIBLE);
         Messaging.fetchDevice(false,getApplicationContext());
-        Log.i(TAG,"INFO: "+CLASS_TAG+": "+nameMethod+"onResume: ");
+        Log.i(TAG,"INFO: "+CLASS_TAG+": "+nameMethod+": ");
         //verify if GPS turn on!
 //        new GpsUtils(this).turnGPSOn(new GpsUtils.onGpsListener() {
 //            @Override

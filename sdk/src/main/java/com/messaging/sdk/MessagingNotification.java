@@ -9,6 +9,9 @@ import androidx.annotation.RequiresApi;
 
 import com.google.firebase.messaging.RemoteMessage;
 
+import org.json.JSONException;
+import org.json.JSONObject;
+
 import java.io.Serializable;
 import java.util.Arrays;
 import java.util.HashMap;
@@ -63,6 +66,7 @@ public class MessagingNotification implements Serializable {
     private int visibility;
     private String msgAppId="";
     private boolean matchAppId;
+    private boolean isGeoPush;
     private String provRegisterLogs;
     private boolean registerLogs;
     private String messagingConfiguration;
@@ -184,6 +188,22 @@ public class MessagingNotification implements Serializable {
 
          }
 
+         if(additionalData.get(Messaging.MESSAGING_GEO_PUSH)!=null &&
+                 !additionalData.get(Messaging.MESSAGING_GEO_PUSH).isEmpty()) {
+             try {
+                 JSONObject data=new JSONObject(additionalData.get(Messaging.MESSAGING_GEO_PUSH));
+                 this.isGeoPush = messaging.utils.verifyIsValidGeoPush(data,messaging);
+                 messaging.utils.showDebugLog(this,nameMethod, "MSGI_GEOPUSH: "
+                         +isGeoPush);
+             } catch (JSONException e) {
+                 e.printStackTrace();
+             }
+
+         }else{
+             this.isGeoPush=true;
+         }
+
+
          messaging.utils.showDebugLog(this,nameMethod, "additionalData: "+additionalData);
 
 
@@ -238,8 +258,20 @@ public class MessagingNotification implements Serializable {
                     messaging.utils.showConfigParameter();
                 }else if(key.equals(Messaging.MESSAGING_LOGGING_ENABLE)) {
                    this.provRegisterLogs=extras.getString(key);
+                }else if(key.equals(Messaging.MESSAGING_GEO_PUSH)){
+                    try {
+                        JSONObject data=new JSONObject(additionalData.get(key));
+                        this.isGeoPush = messaging.utils.verifyIsValidGeoPush(data,messaging);
+                        messaging.utils.showDebugLog(this,nameMethod, "MSGI_GEOPUSH: "
+                                +isGeoPush);
+                    } catch (JSONException e) {
+                        e.printStackTrace();
+                    }
+                }else{
+                    this.isGeoPush=true;
                 }
             }
+
             if(msgAppId!=null && msgAppId!="") {
                 this.matchAppId=messaging.utils.verifyMatchAppId(msgAppId);
                 messaging.utils.showDebugLog(this,nameMethod, "MSGI_APPID: "+msgAppId+" Verify: "+matchAppId);
@@ -403,6 +435,10 @@ public class MessagingNotification implements Serializable {
 
     public boolean isMatchAppId() {
         return matchAppId;
+    }
+
+    public boolean isGeoPush() {
+        return isGeoPush;
     }
 
     public void writeToParcel (Parcel out, int flags){
