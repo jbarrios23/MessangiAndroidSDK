@@ -2,74 +2,137 @@
 <LinearLayout android:layout_width="match_parent"
     android:layout_height="match_parent"
     xmlns:tools="http://schemas.android.com/tools"
+    android:layout_gravity="center"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     tools:ignore="ScrollViewCount"
-    xmlns:android="http://schemas.android.com/apk/res/android"
-    android:orientation="vertical">
+    xmlns:android="http://schemas.android.com/apk/res/android">
 
-    <LinearLayout
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:padding="15dp"
-        android:orientation="horizontal"
-        android:gravity="center">
-
-        <TextView
-            android:id="@+id/textView_title_map"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:gravity="center"
-            android:lines="2"
-            android:layout_marginRight="10dp"
-            android:text="@string/app_name"
-            android:textSize="12sp" />
-
-        <ImageButton
-            android:layout_width="50dp"
-            android:layout_height="wrap_content"
-            android:id="@+id/button_get_location"
-            android:background="@drawable/ic_launcher_background"
-            android:src="@android:drawable/ic_menu_mylocation"
-            />
-
-        <ImageButton
-            android:layout_width="50dp"
-            android:layout_height="wrap_content"
-            android:id="@+id/button_get_location_c"
-            android:layout_marginStart="5dp"
-            android:layout_toRightOf="@+id/button_get_location"
-            android:background="@drawable/ic_launcher_background"
-            android:src="@android:drawable/ic_menu_myplaces"
-            android:layout_marginLeft="5dp" />
-
-        <ImageButton
-            android:layout_width="50dp"
-            android:layout_height="wrap_content"
-            android:id="@+id/button_get_permission"
-            android:layout_marginStart="15dp"
-            android:layout_toRightOf="@+id/textView_title_map"
-            android:background="@drawable/ic_launcher_background"
-            android:src="@android:drawable/ic_menu_manage"
-            android:layout_marginLeft="15dp" />
-
-        <ImageButton
-            android:layout_width="50dp"
-            android:layout_height="wrap_content"
-            android:id="@+id/button_turnOffLocation"
-            android:layout_marginStart="15dp"
-            android:layout_toRightOf="@+id/button_get_permission"
-            android:background="@drawable/ic_launcher_background"
-            android:src="@android:drawable/ic_lock_silent_mode_off"
-            android:layout_marginLeft="15dp"
-            tools:ignore="RtlHardcoded" />
-    </LinearLayout>
-
-    <fragment
-        android:id="@+id/map"
-        android:name="com.google.android.gms.maps.SupportMapFragment"
+    <RelativeLayout
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        tools:context=".MapsActivity" />
+        android:layout_gravity="center"
+        android:gravity="center"
+        >
+        <TextView
+            android:id="@+id/textView_imprimir"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:lines="2"
+            android:gravity="center"
+            android:text="@string/title"
+            android:textSize="15sp"
+            />
+
+        <!--gravity of the Switch-->
+
+        <Switch
+            android:id="@+id/simpleSwitch"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_below="@+id/textView_imprimir"
+            android:layout_marginTop="2dp"
+            android:layout_centerHorizontal="true"
+            android:background="@color/greyColor"
+            android:checked="true"
+            android:visibility="gone"
+            android:drawableStart="@android:drawable/ic_menu_view"
+            android:drawableLeft="@android:drawable/ic_menu_view"
+            android:gravity="center"
+            tools:ignore="UseSwitchCompatOrMaterialXml" />
+
+
+        <TextView
+            android:id="@+id/textView"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:background="@color/greyColor"
+            android:gravity="center"
+            android:layout_below="@+id/simpleSwitch"
+            android:lines="2"
+            android:text="@string/title_activity_maps"
+            android:textColor="@color/whiteColor"
+            android:textSize="10sp"
+            />
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_below="@+id/textView"
+            android:background="@color/greyColor"
+            android:gravity="center_horizontal"
+            android:id="@+id/botones"
+            android:orientation="horizontal">
+
+            <Button
+                android:id="@+id/button_get_location"
+                android:layout_width="85dp"
+                android:layout_height="40dp"
+                android:textSize="10sp"
+                android:background="@color/greyColor"
+                android:drawableStart="@android:drawable/ic_menu_mylocation"
+                android:text="Location"
+                android:textAllCaps="false"
+                android:textColor="@color/whiteColor"
+                android:drawableLeft="@android:drawable/ic_menu_mylocation" />
+
+            <Button
+                android:id="@+id/button_get_location_c"
+                android:layout_width="80dp"
+                android:layout_height="40dp"
+                android:layout_marginStart="30dp"
+                android:layout_marginLeft="30dp"
+                android:background="@color/greyColor"
+                android:drawableStart="@android:drawable/ic_menu_myplaces"
+                android:textSize="10sp"
+                android:text="C-Loc"
+                android:textAllCaps="false"
+                android:textColor="@color/whiteColor"
+                android:drawableLeft="@android:drawable/ic_menu_myplaces" />
+
+            <Button
+                android:id="@+id/button_get_permission"
+                android:layout_width="80dp"
+                android:layout_height="40dp"
+                android:background="@color/greyColor"
+                android:drawableStart="@android:drawable/ic_menu_manage"
+                android:drawableLeft="@android:drawable/ic_menu_manage"
+                android:text="Perm"
+                android:textAllCaps="false"
+                android:textSize="10sp"
+                android:textColor="@color/whiteColor" />
+
+
+
+            <Button
+                android:id="@+id/button_turnOffLocation"
+                android:layout_width="80dp"
+                android:layout_height="40dp"
+                android:layout_marginStart="30dp"
+                android:layout_marginLeft="30dp"
+                android:background="@color/greyColor"
+                android:textColor="@color/whiteColor"
+                android:drawableStart="@android:drawable/ic_menu_compass"
+                android:drawableLeft="@android:drawable/ic_lock_silent_mode_off"
+                android:text="TOL"
+                android:textSize="11sp"/>
+
+
+        </LinearLayout>
+
+        <fragment
+            android:id="@+id/map"
+            android:name="com.google.android.gms.maps.SupportMapFragment"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:layout_below="@+id/botones"
+            tools:context=".MapsActivity" />
+
+
+    </RelativeLayout>
 </LinearLayout>
+
+
+
 
 
 

@@ -19,6 +19,7 @@ import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
 import android.widget.ArrayAdapter;
+import android.widget.Button;
 import android.widget.ImageButton;
 import android.widget.ListView;
 import android.widget.Toast;
@@ -58,7 +59,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
     MessagingNotification messagingNotification;
     public boolean onetimeFlag=true;
     public MessagingLocation messagingLocation;
-    private ImageButton getLocation,getPermission,getLocationC,turnOffLocationButton;
+    private Button getLocation,getPermission,getLocationC,turnOffLocationButton;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
