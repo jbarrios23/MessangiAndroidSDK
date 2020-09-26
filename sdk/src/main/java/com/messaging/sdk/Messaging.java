@@ -16,6 +16,7 @@ import android.os.Handler;
 import android.os.Looper;
 import android.os.Message;
 import android.provider.Settings;
+import android.util.Log;
 import android.widget.Toast;
 
 import androidx.annotation.RequiresApi;
@@ -89,6 +90,8 @@ public class Messaging implements LifecycleObserver {
     private int identifier;
     private MessagingNotification messagingNotification;
     private String nameMethod;
+    private String prvTokenApp;
+    private String provHostApp;
 
     private String packageName;
 
@@ -162,6 +165,39 @@ public class Messaging implements LifecycleObserver {
     private static FusedLocationProviderClient fusedLocationClient;
     public static boolean isForeground = false;
     public static boolean isBackground = false;
+
+    public void setConfiguration(String scanContent) {
+         nameMethod=new Object(){}.getClass().getEnclosingMethod().getName();
+         utils.showDebugLog(this,nameMethod, "scanContent: " +scanContent);
+         String[] prvHandlerMessage=scanContent.split(":%:");
+         prvTokenApp=prvHandlerMessage[0];
+         provHostApp=prvHandlerMessage[1];
+
+        utils.showDebugLog(this,nameMethod, "Token: " +prvTokenApp+" Host "+provHostApp);
+        Messaging.fetchFields(context,prvTokenApp,provHostApp);
+
+    }
+
+    public void reloadSdkParameter(){
+        setConfigParameterFromApp(prvTokenApp,provHostApp);
+        if(messagingStorageController.isRegisterDevice()){
+            messagingStorageController.saveDevice(null,null,null);
+            messagingStorageController.saveUserByDevice(null);
+            messagingDevice=null;
+            messagingUser=null;
+        }
+       createDeviceParameters();
+    }
+
+    public void sendUserUpdateData(HashMap<String, String> dataInputToSendUser){
+        for (Map.Entry<String, String> entry : dataInputToSendUser.entrySet()) {
+            messagingUser.addProperty(entry.getKey(),entry.getValue());
+        }
+
+        messagingUser.save(context);
+
+    }
+
     public  enum MessagingLocationPriority{
         PRIORITY_HIGH_ACCURACY(LocationRequest.PRIORITY_HIGH_ACCURACY),
         PRIORITY_BALANCED_POWER_ACCURACY(LocationRequest.PRIORITY_BALANCED_POWER_ACCURACY),
@@ -632,9 +668,11 @@ public class Messaging implements LifecycleObserver {
         this.os = os;
     }
 
-    public void setConfigParameterFromApp(String token, String Host){
+    void setConfigParameterFromApp(String token, String Host){
         utils.saveConfigParameterFromApp(token,Host);
     }
+
+
 
     public void showAnalyticAllowedState(){
         nameMethod=new Object(){}.getClass().getEnclosingMethod().getName();
@@ -1155,7 +1193,7 @@ public class Messaging implements LifecycleObserver {
                     nameMethod=new Object(){}.getClass().getEnclosingMethod().getName();
                     messaging.utils.showHttpResponseLog(provUrl,messaging,nameMethod,"Create Device Successful",response);
                     messaging.messagingStorageController.saveDevice(resp, "",provRequestBody);
-                    messaging.messagingDevice=messaging.utils.getMessagingDevFromJson(resp,provRequestBody, "", "");
+                    messaging.messagingDevice=messaging.utils.getMessagingDevFromJson(resp,provRequestBody, "");
                     if(messaging.messagingStorageController.hasTokenRegister()&&
                             !messaging.messagingStorageController.isNotificationManually()){
                         String token= messaging.messagingStorageController.getToken();

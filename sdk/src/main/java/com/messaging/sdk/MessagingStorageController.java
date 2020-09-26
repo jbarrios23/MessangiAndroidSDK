@@ -91,76 +91,80 @@ public class MessagingStorageController {
     public void saveDevice(JSONObject value, String id, JSONObject provRequestBody){
         SharedPreferences.Editor datosuser=mSharedPreferences.edit();
         try {
-            if(value.has(Messaging.MESSAGING_DEVICE_ID)){
-                datosuser.putString(Messaging.MESSAGING_DEVICE_ID, value.getString(Messaging.MESSAGING_DEVICE_ID));
+            if(value!=null && id!=null && provRequestBody!=null) {
+                if (value.has(Messaging.MESSAGING_DEVICE_ID)) {
+                    datosuser.putString(Messaging.MESSAGING_DEVICE_ID, value.getString(Messaging.MESSAGING_DEVICE_ID));
+                } else {
+                    datosuser.putString(Messaging.MESSAGING_DEVICE_ID, id);
+                }
+                if (value.has(Messaging.MESSAGING_PUSH_TOKEN)) {
+                    datosuser.putString(Messaging.MESSAGING_PUSH_TOKEN, value.getString(Messaging.MESSAGING_PUSH_TOKEN));
+                } else if (provRequestBody.has(Messaging.MESSAGING_PUSH_TOKEN)) {
+                    datosuser.putString(Messaging.MESSAGING_PUSH_TOKEN, provRequestBody.getString(Messaging.MESSAGING_PUSH_TOKEN));
+                }
+
+                if (value.has(Messaging.MESSAGING_DEVICE_TYPE)) {
+                    datosuser.putString(Messaging.MESSAGING_DEVICE_TYPE, value.getString(Messaging.MESSAGING_DEVICE_TYPE));
+                } else if (provRequestBody.has(Messaging.MESSAGING_DEVICE_TYPE)) {
+                    datosuser.putString(Messaging.MESSAGING_DEVICE_TYPE, provRequestBody.getString(Messaging.MESSAGING_DEVICE_TYPE));
+                }
+                if (value.has(Messaging.MESSAGING_DEVICE_LANGUAGE)) {
+                    datosuser.putString(Messaging.MESSAGING_DEVICE_LANGUAGE, value.getString(Messaging.MESSAGING_DEVICE_LANGUAGE));
+                } else if (provRequestBody.has(Messaging.MESSAGING_DEVICE_LANGUAGE)) {
+                    datosuser.putString(Messaging.MESSAGING_DEVICE_LANGUAGE, provRequestBody.getString(Messaging.MESSAGING_DEVICE_LANGUAGE));
+                }
+                if (value.has(Messaging.MESSAGING_DEVICE_MODEL)) {
+                    datosuser.putString(Messaging.MESSAGING_DEVICE_MODEL, value.getString(Messaging.MESSAGING_DEVICE_MODEL));
+                }else if(provRequestBody.has(Messaging.MESSAGING_DEVICE_MODEL)){
+                    datosuser.putString(Messaging.MESSAGING_DEVICE_MODEL, provRequestBody.getString(Messaging.MESSAGING_DEVICE_MODEL));
+                }
+                if (value.has(Messaging.MESSAGING_DEVICE_OS)) {
+                    datosuser.putString(Messaging.MESSAGING_DEVICE_OS, value.getString(Messaging.MESSAGING_DEVICE_OS));
+                } else if (provRequestBody.has(Messaging.MESSAGING_DEVICE_OS)) {
+                    datosuser.putString(Messaging.MESSAGING_DEVICE_OS, provRequestBody.getString(Messaging.MESSAGING_DEVICE_OS));
+                }
+                if (value.has(Messaging.MESSAGING_DEVICE_SDK_VERSION)) {
+                    datosuser.putString(Messaging.MESSAGING_DEVICE_SDK_VERSION, value.getString(Messaging.MESSAGING_DEVICE_SDK_VERSION));
+                } else if (provRequestBody.has(Messaging.MESSAGING_DEVICE_SDK_VERSION)) {
+                    datosuser.putString(Messaging.MESSAGING_DEVICE_SDK_VERSION, provRequestBody.getString(Messaging.MESSAGING_DEVICE_SDK_VERSION));
+                }
+
+                if (value.has(Messaging.MESSAGING_DEVICE_TAGS)) {
+                    JSONArray jsonArray = value.getJSONArray(Messaging.MESSAGING_DEVICE_TAGS);
+                    List<String> prvTag = new ArrayList<>();
+                    for (int i = 0; i < jsonArray.length(); i++) {
+                        prvTag.add(jsonArray.getString(i));
+
+                    }
+                    Set<String> set = new HashSet<String>();
+                    set.addAll(prvTag);
+                    datosuser.putStringSet(Messaging.MESSAGING_DEVICE_TAGS, set);
+                } else if (provRequestBody.has(Messaging.MESSAGING_DEVICE_TAGS)) {
+                    JSONArray jsonArray = provRequestBody.getJSONArray(Messaging.MESSAGING_DEVICE_TAGS);
+                    List<String> prvTag = new ArrayList<>();
+                    for (int i = 0; i < jsonArray.length(); i++) {
+                        prvTag.add(jsonArray.getString(i));
+
+                    }
+                    Set<String> set = new HashSet<String>();
+                    set.addAll(prvTag);
+                    datosuser.putStringSet(Messaging.MESSAGING_DEVICE_TAGS, set);
+                }
+
+                if (value.has(Messaging.MESSAGING_DEVICE_CREATE_AT)) {
+                    datosuser.putString(Messaging.MESSAGING_DEVICE_CREATE_AT, value.getString(Messaging.MESSAGING_DEVICE_CREATE_AT));
+                }
+                if (value.has(Messaging.MESSAGING_DEVICE_UPDATE_AT)) {
+                    datosuser.putString(Messaging.MESSAGING_DEVICE_UPDATE_AT, value.getString(Messaging.MESSAGING_DEVICE_UPDATE_AT));
+                }
+                if (value.has(Messaging.MESSAGING_DEVICE_TIMESTAMP)) {
+                    datosuser.putString(Messaging.MESSAGING_DEVICE_TIMESTAMP, value.getString(Messaging.MESSAGING_DEVICE_TIMESTAMP));
+                }
+                if (value.has(Messaging.MESSAGING_DEVICE_TRANSACTION)) {
+                    datosuser.putString(Messaging.MESSAGING_DEVICE_TRANSACTION, value.getString(Messaging.MESSAGING_DEVICE_TRANSACTION));
+                }
             }else{
-                datosuser.putString(Messaging.MESSAGING_DEVICE_ID, id);
-            }
-            if(value.has(Messaging.MESSAGING_PUSH_TOKEN)){
-                datosuser.putString(Messaging.MESSAGING_PUSH_TOKEN, value.getString(Messaging.MESSAGING_PUSH_TOKEN));
-            }else if(provRequestBody.has(Messaging.MESSAGING_PUSH_TOKEN)) {
-                datosuser.putString(Messaging.MESSAGING_PUSH_TOKEN, provRequestBody.getString(Messaging.MESSAGING_PUSH_TOKEN));
-            }
-            if(value.has(Messaging.MESSAGING_USER_ID)){
-                datosuser.putString(Messaging.MESSAGING_USER_ID, value.getString(Messaging.MESSAGING_USER_ID));
-            }
-            if(value.has(Messaging.MESSAGING_DEVICE_TYPE)){
-                datosuser.putString(Messaging.MESSAGING_DEVICE_TYPE, value.getString(Messaging.MESSAGING_DEVICE_TYPE));
-            }else if(provRequestBody.has(Messaging.MESSAGING_DEVICE_TYPE)){
-                datosuser.putString(Messaging.MESSAGING_DEVICE_TYPE, provRequestBody.getString(Messaging.MESSAGING_DEVICE_TYPE));
-            }
-            if(value.has(Messaging.MESSAGING_DEVICE_LANGUAGE)){
-                datosuser.putString(Messaging.MESSAGING_DEVICE_LANGUAGE, value.getString(Messaging.MESSAGING_DEVICE_LANGUAGE));
-            }else if(provRequestBody.has(Messaging.MESSAGING_DEVICE_LANGUAGE)){
-                datosuser.putString(Messaging.MESSAGING_DEVICE_LANGUAGE, provRequestBody.getString(Messaging.MESSAGING_DEVICE_LANGUAGE));
-            }
-            if(value.has(Messaging.MESSAGING_DEVICE_MODEL)){
-                datosuser.putString(Messaging.MESSAGING_DEVICE_MODEL, value.getString(Messaging.MESSAGING_DEVICE_MODEL));
-            }
-            if(value.has(Messaging.MESSAGING_DEVICE_OS)){
-                datosuser.putString(Messaging.MESSAGING_DEVICE_OS, value.getString(Messaging.MESSAGING_DEVICE_OS));
-            }else if(provRequestBody.has(Messaging.MESSAGING_DEVICE_OS)){
-                datosuser.putString(Messaging.MESSAGING_DEVICE_OS, provRequestBody.getString(Messaging.MESSAGING_DEVICE_OS));
-            }
-            if(value.has(Messaging.MESSAGING_DEVICE_SDK_VERSION)){
-                datosuser.putString(Messaging.MESSAGING_DEVICE_SDK_VERSION, value.getString(Messaging.MESSAGING_DEVICE_SDK_VERSION));
-            }else if(provRequestBody.has(Messaging.MESSAGING_DEVICE_SDK_VERSION)){
-                datosuser.putString(Messaging.MESSAGING_DEVICE_SDK_VERSION, provRequestBody.getString(Messaging.MESSAGING_DEVICE_SDK_VERSION));
-            }
-
-            if(value.has(Messaging.MESSAGING_DEVICE_TAGS)){
-                JSONArray jsonArray=value.getJSONArray(Messaging.MESSAGING_DEVICE_TAGS);
-                List<String> prvTag=new ArrayList<>();
-                for (int i = 0; i < jsonArray.length(); i++) {
-                    prvTag.add(jsonArray.getString(i));
-
-                }
-                Set<String> set=new HashSet<String>();
-                set.addAll(prvTag);
-                datosuser.putStringSet(Messaging.MESSAGING_DEVICE_TAGS,set);
-            }else if(provRequestBody.has(Messaging.MESSAGING_DEVICE_TAGS)){
-                JSONArray jsonArray=provRequestBody.getJSONArray(Messaging.MESSAGING_DEVICE_TAGS);
-                List<String> prvTag=new ArrayList<>();
-                for (int i = 0; i < jsonArray.length(); i++) {
-                    prvTag.add(jsonArray.getString(i));
-
-                }
-                Set<String> set=new HashSet<String>();
-                set.addAll(prvTag);
-                datosuser.putStringSet(Messaging.MESSAGING_DEVICE_TAGS,set);
-            }
-
-            if(value.has(Messaging.MESSAGING_DEVICE_CREATE_AT)){
-                datosuser.putString(Messaging.MESSAGING_DEVICE_CREATE_AT, value.getString(Messaging.MESSAGING_DEVICE_CREATE_AT));
-            }
-            if(value.has(Messaging.MESSAGING_DEVICE_UPDATE_AT)){
-                datosuser.putString(Messaging.MESSAGING_DEVICE_UPDATE_AT, value.getString(Messaging.MESSAGING_DEVICE_UPDATE_AT));
-            }
-            if(value.has(Messaging.MESSAGING_DEVICE_TIMESTAMP)){
-                datosuser.putString(Messaging.MESSAGING_DEVICE_TIMESTAMP, value.getString(Messaging.MESSAGING_DEVICE_TIMESTAMP));
-            }
-            if(value.has(Messaging.MESSAGING_DEVICE_TRANSACTION)){
-                datosuser.putString(Messaging.MESSAGING_DEVICE_TRANSACTION, value.getString(Messaging.MESSAGING_DEVICE_TRANSACTION));
+                datosuser.putString(Messaging.MESSAGING_DEVICE_ID, "");
             }
 
             datosuser.apply();
@@ -195,7 +199,6 @@ public class MessagingStorageController {
 
         String id=mSharedPreferences.getString("id","");
         String pushToken=mSharedPreferences.getString("pushToken","");
-        String userId=mSharedPreferences.getString("userId","");
         String type=mSharedPreferences.getString("type","");
         String language=mSharedPreferences.getString("language","");
         String model=mSharedPreferences.getString("model","");
@@ -210,7 +213,6 @@ public class MessagingStorageController {
         MessagingDevice messagingDevice =new MessagingDevice();
         messagingDevice.setId(id);
         messagingDevice.setPushToken(pushToken);
-        messagingDevice.setUserId(userId);
         messagingDevice.setType(type);
         messagingDevice.setLanguage(language);
         messagingDevice.setModel(model);
@@ -229,11 +231,12 @@ public class MessagingStorageController {
         return messagingDevice;
     }
 
-    public void deleteDeviceTags(){
+    public void deleteDevice(){
         mSharedPreferences=context.getSharedPreferences("StorageCallback", 0);
         SharedPreferences.Editor editorlogin = mSharedPreferences.edit();
         editorlogin.clear();
         editorlogin.commit();
+        messaging.utils.showDebugLog(this,nameMethod,"delete Device from Local Storage ");
     }
 
     /**
@@ -243,9 +246,13 @@ public class MessagingStorageController {
     public void saveUserByDevice(Map<String,String> inputMap){
         nameMethod=new Object(){}.getClass().getEnclosingMethod().getName();
         SharedPreferences.Editor datosuser=mSharedPreferences.edit();
-        JSONObject jsonObject = new JSONObject(inputMap);
-        String jsonString = jsonObject.toString();
-        datosuser.putString("MessagingUser",jsonString);
+        if(inputMap!=null) {
+            JSONObject jsonObject = new JSONObject(inputMap);
+            String jsonString = jsonObject.toString();
+            datosuser.putString("MessagingUser", jsonString);
+        }else{
+            datosuser.putString("MessagingUser", "");
+        }
         datosuser.apply();
         messaging.utils.showDebugLog(this,nameMethod,"User Saved in Storage Controller ");
 

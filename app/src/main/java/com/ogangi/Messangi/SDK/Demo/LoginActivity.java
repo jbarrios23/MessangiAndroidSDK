@@ -343,13 +343,7 @@ public class LoginActivity extends AppCompatActivity {
         Log.i(TAG, "INFO: " + CLASS_TAG + ": " + nameMethod + "update config: "
                 + prvTokenApp+"  "+provHostApp);
         userUpdate=provUserUpdate;
-        messaging.setConfigParameterFromApp(prvTokenApp,provHostApp);
-        Log.i(TAG, "INFO: " + CLASS_TAG + ": " + nameMethod + "Creating Device: "
-                + userUpdate);
-        messaging.createDeviceParameters();
-        Log.i(TAG, "INFO: " + CLASS_TAG + ": " + nameMethod + "userUpdate: "
-                + userUpdate);
-
+        messaging.reloadSdkParameter();
     }
 
 
@@ -423,14 +417,11 @@ public class LoginActivity extends AppCompatActivity {
 
             Log.d(TAG, "INFO: " + CLASS_TAG + ": " + nameMethod + ": " + scanContent + "    type:" + scanFormat);
             if(!scanContent.equals("")&& !scanContent.isEmpty()){
-                String[] prvHandlerMessage=scanContent.split(":%:");
-                prvTokenApp=prvHandlerMessage[0];
-                provHostApp=prvHandlerMessage[1];
-                Log.d(TAG, "INFO: " + CLASS_TAG + ": " + nameMethod
-                        + "Token: " +prvTokenApp+" Host "+provHostApp);
+                messaging.setConfiguration(scanContent);
                 progressBar.setVisibility(View.VISIBLE);
                 useQrScan=true;
-                Messaging.fetchFields(getApplicationContext(),prvTokenApp,provHostApp);
+
+
             }else{
                 Toast.makeText(getApplicationContext(),"Cancelled",Toast.LENGTH_LONG).show();
                 useQrScan=false;
@@ -519,7 +510,7 @@ public class LoginActivity extends AppCompatActivity {
                                 + "Action:  " + intent.getAction()+" "+dataSdk+" QR "+useQrScan);
                         if(useQrScan){
                             if(onetimeFlag) {
-                                sendUserUpdateData(dataInputToSendUser);
+                                messaging.sendUserUpdateData(dataInputToSendUser);
                                 onetimeFlag=false;
                             }
                         }
@@ -572,11 +563,7 @@ public class LoginActivity extends AppCompatActivity {
     }
 
     private void sendUserUpdateData(HashMap<String, String> dataInputToSendUser) {
-        for (Map.Entry<String, String> entry : dataInputToSendUser.entrySet()) {
-            messagingUser.addProperty(entry.getKey(),entry.getValue());
-        }
-        Log.d(TAG,"DEBUG: "+CLASS_TAG+": "+nameMethod+" Send User data:  "+ messagingUser.getProperties());
-        messagingUser.save(getApplicationContext());
+
     }
 
     public JSONArray getJsonArraySorted(JSONArray arr){

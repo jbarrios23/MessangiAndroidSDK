@@ -501,47 +501,49 @@ public class MainActivity extends AppCompatActivity {
         Log.d(TAG,"DEBUG: "+CLASS_TAG+": "+nameMethod+": Tags selection final was "+ messagingDevice.getTags());
     }
 
-    private void shwUser(MessagingUser messagingUser) {
+
+
+    private void showData() {
+        messagingDevArrayList.clear();
+        if(messagingDevice!=null) {
+            Log.d(TAG, "DEBUG: " + CLASS_TAG + ": " + nameMethod + ": Device:  " + messagingDevice.getId());
+            messagingDevArrayList.add("Id: " + messagingDevice.getId());
+            messagingDevArrayList.add("pushToken: " + messagingDevice.getPushToken());
+            messagingDevArrayList.add("Type: " + messagingDevice.getType());
+            messagingDevArrayList.add("Language: " + messagingDevice.getLanguage());
+            messagingDevArrayList.add("Model: " + messagingDevice.getModel());
+            messagingDevArrayList.add("Os: " + messagingDevice.getOs());
+            messagingDevArrayList.add("SdkVersion: " + messagingDevice.getSdkVersion());
+            messagingDevArrayList.add("Tags: " + messagingDevice.getTags());
+            messagingDevArrayList.add("Timestamp: " + messagingDevice.getTimestamp());
+            messagingDevArrayList.add("Transaction: " + messagingDevice.getTransaction());
+            messagingDevArrayList.add("ExternalId: " + messaging.getExternalId());
+            messagingDevArrayList.add("Config: ");
+            messagingDevArrayList.add("Host: " + messaging.getMessagingHost());
+            messagingDevArrayList.add("AppToken: " + messaging.getMessagingToken());
+            messagingDevArrayList.add("LocationEnable: " + messaging.isLocation_allowed());
+            messagingDevArrayList.add("AnalyticsEnable: " + messaging.isAnalytics_allowed());
+            messagingDevArrayList.add("Log Enable: " + messaging.isLogging_allowed());
+            messagingDevArrayList.add("Permission Automatic: " + messaging.isEnable_permission_automatic());
+            list_device.setAdapter(messagingDevArrayAdapter);
+        }
         messagingUserDeviceArrayList.clear();
-        Log.d(TAG,"DEBUG: "+CLASS_TAG+": "+nameMethod+" User:  "+ messagingUser.getProperties());
+        if(messagingUser!=null){
 
-        if(messagingUser.getProperties().size()>0){
-            Map<String,String> result= messagingUser.getProperties();
-            for (Map.Entry<String, String> entry : result.entrySet()) {
-                messagingUserDeviceArrayList.add(entry.getKey()+": "+entry.getValue());
+            Log.d(TAG,"DEBUG: "+CLASS_TAG+": "+nameMethod+" User:  "+ messagingUser.getProperties());
+
+            if(messagingUser.getProperties().size()>0){
+                Map<String,String> result= messagingUser.getProperties();
+                for (Map.Entry<String, String> entry : result.entrySet()) {
+                    messagingUserDeviceArrayList.add(entry.getKey()+": "+entry.getValue());
+                }
+
+
             }
-            //messagingUserDeviceArrayList.add("devices: "+ this.messagingUser.getDevices());
 
+            list_user.setAdapter(messagingUserDeviceArrayAdapter);
         }
 
-        list_user.setAdapter(messagingUserDeviceArrayAdapter);
-    }
-
-    private void showDevice(MessagingDevice messagingDevice) {
-        messagingDevArrayList.clear();
-
-        Log.d(TAG,"DEBUG: "+CLASS_TAG+": "+nameMethod+": Device:  "+ messagingDevice.getId());
-        messagingDevArrayList.add("Id: "           + messagingDevice.getId());
-        messagingDevArrayList.add("pushToken: "    + messagingDevice.getPushToken());
-        messagingDevArrayList.add("UserId: "       + messagingDevice.getUserId());
-        messagingDevArrayList.add("Type: "         + messagingDevice.getType());
-        messagingDevArrayList.add("Language: "     + messagingDevice.getLanguage());
-        messagingDevArrayList.add("Model: "        + messagingDevice.getModel());
-        messagingDevArrayList.add("Os: "           + messagingDevice.getOs());
-        messagingDevArrayList.add("SdkVersion: "   + messagingDevice.getSdkVersion());
-        messagingDevArrayList.add("Tags: "         + messagingDevice.getTags());
-        messagingDevArrayList.add("Timestamp: "    + messagingDevice.getTimestamp());
-        messagingDevArrayList.add("Transaction: "  + messagingDevice.getTransaction());
-        messagingDevArrayList.add("ExternalId: "  + messaging.getExternalId());
-        messagingDevArrayList.add("Config: ");
-        messagingDevArrayList.add("Host: "+messaging.getMessagingHost());
-        messagingDevArrayList.add("AppToken: "+messaging.getMessagingToken());
-        messagingDevArrayList.add("LocationEnable: "+messaging.isLocation_allowed());
-        messagingDevArrayList.add("AnalyticsEnable: "+messaging.isAnalytics_allowed());
-        messagingDevArrayList.add("Log Enable: "+messaging.isLogging_allowed());
-        messagingDevArrayList.add("Permission Automatic: "+messaging.isEnable_permission_automatic());
-        list_device.setAdapter(messagingDevArrayAdapter);
-        Messaging.fetchUser(getApplicationContext(),false);
 
     }
     @SuppressLint("SetTextI18n")
@@ -728,32 +730,37 @@ public class MainActivity extends AppCompatActivity {
                 Serializable data=intent.getSerializableExtra(Messaging.INTENT_EXTRA_DATA);
                 if(intent.getAction().equals(Messaging.ACTION_FETCH_DEVICE)&& data!=null){
                     messagingDevice = (MessagingDevice) data;
-                    showDevice(messagingDevice);
+                    showData();
+                    Log.d(TAG,"DEBUG: "+CLASS_TAG+": "+nameMethod+": primer fetchUser :  ");
+                    Messaging.fetchUser(getApplicationContext(),false);
 
                 }else if(intent.getAction().equals(Messaging.ACTION_FETCH_USER)&& data!=null){
                     messagingUser =(MessagingUser) data;
-                    shwUser(messagingUser);
+                    Log.d(TAG,"DEBUG: "+CLASS_TAG+": "+nameMethod+": messagingUser :  "
+                            +messagingUser.getProperties());
+                    showData();
 
                 }else if(((intent.getAction().equals(Messaging.ACTION_GET_NOTIFICATION))||
                         (intent.getAction().equals(Messaging.ACTION_GET_NOTIFICATION_OPENED)))&& data!=null){
                     messagingNotification=(MessagingNotification)data;
-                    showDevice(messagingDevice);
+                    showData();
                     showAlertNotification(messagingNotification, data);
 
                 }else if(intent.getAction().equals(Messaging.ACTION_SAVE_DEVICE)&& data!=null) {
                     messagingDevice = (MessagingDevice) data; //you can cast this for get information
                     //for condition of save (user or device);
                     Toast.makeText(getApplicationContext(),intent.getAction(),Toast.LENGTH_LONG).show();
-                    showDevice(messagingDevice);
+                    showData();
 
                 }else if(intent.getAction().equals(Messaging.ACTION_SAVE_USER)&& data!=null) {
                     messagingUser =(MessagingUser) data; //you can cast this for get information
                     //for condition of save (user or device);
                     Toast.makeText(getApplicationContext(),intent.getAction(),Toast.LENGTH_SHORT).show();
-                    shwUser(messagingUser);
+                    showData();
+
                 }else if(intent.getAction().equals(Messaging.ACTION_REGISTER_DEVICE) ) {
                     messagingDevice = (MessagingDevice)data;
-                    showDevice(messagingDevice);
+                    showData();
                     Toast.makeText(mainActivityInstance, intent.getAction(), Toast.LENGTH_SHORT).show();
                     Log.d(TAG, "DEBUG: " + CLASS_TAG + ": " + nameMethod + ": Data Register:  " + data);
 
