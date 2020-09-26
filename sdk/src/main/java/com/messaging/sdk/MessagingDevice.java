@@ -35,7 +35,6 @@ import java.util.Map;
 public class MessagingDevice implements Serializable {
     private String id;
     private String pushToken;
-    protected String userId;
     private String type;
     private String language;
     private String model;
@@ -70,7 +69,7 @@ public class MessagingDevice implements Serializable {
     public void save(final Context context){
         nameMethod=new Object(){}.getClass().getEnclosingMethod().getName();
         JSONObject requestUpdateBody=requestJsonBodyForUpdate(pushToken);
-        new HTTPReqTaskPut(id,requestUpdateBody,context,userId).execute();
+        new HTTPReqTaskPut(id,requestUpdateBody,context).execute();
 
     }
 
@@ -216,19 +215,7 @@ public class MessagingDevice implements Serializable {
         this.pushToken = pushToken;
     }
 
-    /**
-     * Method for get User Id
-     *
-     */
-    public String getUserId() {
-        return userId;
-    }
 
-    MessagingDevice setUserId(String userId) {
-        this.userId = userId;
-
-        return this;
-    }
 
     /**
      * Method for get Type of Device
@@ -394,14 +381,14 @@ public class MessagingDevice implements Serializable {
         private Context context;
         private String provUrl;
         private MessagingDevice messagingDevice;
-        private String userId;
 
-        public HTTPReqTaskPut(String id, JSONObject gsonObject, Context context, String userId) {
+
+        public HTTPReqTaskPut(String id, JSONObject gsonObject, Context context) {
             this.jsonObject=gsonObject;
             this.Id=id;
             this.context=context;
             this.messaging = Messaging.getInstance(this.context);
-            this.userId=userId;
+
 
         }
 
@@ -465,7 +452,7 @@ public class MessagingDevice implements Serializable {
                     nameMethod=new Object(){}.getClass().getEnclosingMethod().getName();
                     messaging.utils.showHttpResponseLog(provUrl, MessagingDevice.this,nameMethod,"Update Successful",response);
                     JSONObject resp=new JSONObject(response);
-                    messagingDevice = messaging.utils.getMessagingDevFromJson(resp, jsonObject,Id,userId);
+                    messagingDevice = messaging.utils.getMessagingDevFromJson(resp, jsonObject,Id);
                     messaging.messagingStorageController.saveDevice(resp,Id, jsonObject);
                     sendEventToActivity(Messaging.ACTION_SAVE_DEVICE,messagingDevice,context);
 

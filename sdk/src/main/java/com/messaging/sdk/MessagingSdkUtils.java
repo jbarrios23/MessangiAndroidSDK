@@ -68,11 +68,11 @@ class MessagingSdkUtils {
 
         if(messagingStorageController.isRegisterDevice()){
             showDebugLog(this,nameMethod,"DeviceId "+messagingStorageController.getDevice().getId());
-            showDebugLog(this,nameMethod,"UserId "+messagingStorageController.getDevice().getUserId());
+
 
         }else{
             showDebugLog(this,nameMethod,"DeviceId "+"does not have deviceId yet");
-            showDebugLog(this,nameMethod,"UserId "+"does not have UserId yet");
+
 
         }
         if(messagingStorageController.hasTokenRegister()){
@@ -254,7 +254,7 @@ class MessagingSdkUtils {
         this.enable_permission_automatic = enable_permission_automatic;
     }
 
-    public MessagingDevice getMessagingDevFromJson(JSONObject resp, JSONObject body, String id, String userId){
+    public MessagingDevice getMessagingDevFromJson(JSONObject resp, JSONObject body, String id){
         String nameMethod=new Object(){}.getClass().getEnclosingMethod().getName();
         MessagingDevice messagingDevice =new MessagingDevice();
         try {
@@ -268,13 +268,7 @@ class MessagingSdkUtils {
             if(body.has(Messaging.MESSAGING_PUSH_TOKEN)){
                 messagingDevice.setPushToken(body.getString(Messaging.MESSAGING_PUSH_TOKEN));
             }
-            if(resp.has(Messaging.MESSAGING_USER_ID)){
-                messagingDevice.setUserId(resp.getString(Messaging.MESSAGING_USER_ID));
-            }else{
-                messagingDevice.setUserId(userId);
-                showDebugLog(this,nameMethod,"Set userID update "
-                        +userId);
-            }
+
             if(body.has(Messaging.MESSAGING_DEVICE_TYPE)){
                 messagingDevice.setType(body.getString(Messaging.MESSAGING_DEVICE_TYPE));
             }
@@ -328,9 +322,7 @@ class MessagingSdkUtils {
             }else{
                 messagingDevice.setPushToken(pushToken);
             }
-            if(resp.has(Messaging.MESSAGING_USER_ID)){
-                messagingDevice.setUserId(resp.getString(Messaging.MESSAGING_USER_ID));
-            }
+
             if(resp.has(Messaging.MESSAGING_DEVICE_TYPE)){
                 messagingDevice.setType(resp.getString(Messaging.MESSAGING_DEVICE_TYPE));
             }

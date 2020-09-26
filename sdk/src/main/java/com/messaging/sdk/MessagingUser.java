@@ -39,7 +39,7 @@ public class MessagingUser implements Serializable {
     protected String id;
 
     private String nameMethod;
-    MessagingUser messagingUser;
+
 
     /**
      * direct access to the singleton instance defined in Messaging
@@ -334,8 +334,8 @@ public class MessagingUser implements Serializable {
 //                    JSONObject data=resp.getJSONObject("subscriber").getJSONObject("data");
                     Map<String, String> resultMap=toMap(jsonObject);
                     messaging.messagingStorageController.saveUserByDevice(resultMap);
-                    messagingUser = MessagingUser.parseData(resultMap);
-                    sendEventToActivity(Messaging.ACTION_SAVE_USER,messagingUser, context);
+                    messaging.messagingUser = MessagingUser.parseData(resultMap);
+                    sendEventToActivity(Messaging.ACTION_SAVE_USER,messaging.messagingUser, context);
 
                 }
             }catch (NullPointerException e){
