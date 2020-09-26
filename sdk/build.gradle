@@ -9,7 +9,7 @@ android {
         minSdkVersion 16
         targetSdkVersion 29
         versionCode 1
-        versionName "0.13.0"
+        versionName "0.14.0-beta"
 
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
         consumerProguardFiles 'consumer-rules.pro'
@@ -40,7 +40,7 @@ uploadArchives {
                 authentication(userName: "sdk_manager", password: "4ndr01d")
                 pom.groupId = "com.messaging.sdk"
                 pom.artifactId = "core"
-                pom.version = '0.13.0'
+                pom.version = '0.14.0-beta'
             }
         }
     }

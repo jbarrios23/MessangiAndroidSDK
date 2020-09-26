@@ -5,6 +5,7 @@ import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
+import android.content.SharedPreferences;
 import android.content.pm.ActivityInfo;
 import android.os.Bundle;
 import android.os.Handler;
@@ -22,6 +23,7 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.appcompat.widget.Toolbar;
 import androidx.localbroadcastmanager.content.LocalBroadcastManager;
 
 import com.google.zxing.integration.android.IntentIntegrator;
@@ -84,11 +86,8 @@ public class LoginActivity extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        getWindow().requestFeature(Window.FEATURE_ACTION_BAR);
-        getSupportActionBar().hide();
         setContentView(R.layout.activity_login);
-        setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_PORTRAIT);
-        nameMethod=new Object(){}.getClass().getEnclosingMethod().getName();
+        nameMethod = new Object(){}.getClass().getEnclosingMethod().getName();
         button_get_started=findViewById(R.id.button);
         skip=findViewById(R.id.button_skip);
         scan_title=findViewById(R.id.textView_scan);
@@ -96,8 +95,7 @@ public class LoginActivity extends AppCompatActivity {
         linearLayout=findViewById(R.id.linearLayoutData);
         progressBar=findViewById(R.id.progressBar);
         messaging=Messaging.getInstance(this);
-        //messagingUser=MessagingUser.getInstance();
-        messagingUser=new MessagingUser();
+        messagingUser = new MessagingUser();
 
         button_get_started.setText(getResources().getText(R.string.get_started));
         imageView.setVisibility(View.VISIBLE);
@@ -106,11 +104,9 @@ public class LoginActivity extends AppCompatActivity {
             @Override
             public void onClick(View v) {
                 if(button_get_started.getText().equals(getResources().getText(R.string.get_finish))){
-                    //LoginActivity.this.finish();
                     showLinearData();
                 }else{
                     if(button_get_started.getText().equals(getResources().getText(R.string.get_continue))){
-
                         getDataFromEditText();
                     }else{
                         callScanQr();
@@ -120,44 +116,37 @@ public class LoginActivity extends AppCompatActivity {
                         imageView.setVisibility(View.GONE);
                         Log.i(TAG, "INFO: " + CLASS_TAG + ": " + nameMethod + ": " + button_get_started.getText());
                     }
-
                 }
-
-
             }
         });
 
         skip.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                verifyHasDeviceRegister();
-
+                goToMainActivity();
             }
         });
-        verifyHasDeviceRegister();
 
+        verifyHasDeviceRegister();
     }
 
     private void verifyHasDeviceRegister() {
-        nameMethod=new Object(){}.getClass().getEnclosingMethod().getName();
-        if(messaging.isLogged()){
-            Log.d(TAG,"DEBUG: "+CLASS_TAG+": "+nameMethod+"has device register: "
-                    +messaging.messagingStorageController.isRegisterDevice());
-            goToMainActivity();
-
-        }else{
-            Log.d(TAG,"DEBUG: "+CLASS_TAG+": "+nameMethod+"has device register: "
-                    +messaging.messagingStorageController.isRegisterDevice());
+        if(true) {
+            // Cableado para el demo
+            // goToMainActivity();
         }
-
-
+        SharedPreferences sharedPreferences = getApplicationContext().getSharedPreferences("MESSAGING_LOGIN", Context.MODE_PRIVATE);
+        nameMethod = new Object(){}.getClass().getEnclosingMethod().getName();
+        if(sharedPreferences.getBoolean("IS_LOGGED", false)){
+            Log.d(TAG,"DEBUG: " + CLASS_TAG + ": " + nameMethod + "has device register: " + messaging.messagingStorageController.isRegisterDevice());
+            goToMainActivity();
+        }else{
+            Log.d(TAG,"DEBUG: " + CLASS_TAG + ": " + nameMethod + "has device register: " + messaging.messagingStorageController.isRegisterDevice());
+        }
     }
 
-
-    private void addEditTextDynamically(LinearLayout mParentLayout,
-                                        ArrayList<HashMap<String, String>> myList){
-
-        for (int i=0;i<myList.size();i++){
+    private void addEditTextDynamically(LinearLayout mParentLayout, ArrayList<HashMap<String, String>> myList){
+        for (int i=0;i<myList.size();i++) {
             editText = new EditText(mParentLayout.getContext());
             LinearLayout.LayoutParams lp=new LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.WRAP_CONTENT);
             lp.setMargins(20,20,0,30);
@@ -201,17 +190,12 @@ public class LoginActivity extends AppCompatActivity {
     @Override
     protected void onStart() {
         super.onStart();
-        nameMethod=new Object(){}.getClass().getEnclosingMethod().getName();
-        Log.d(TAG,"DEBUG: "+CLASS_TAG+": "+nameMethod+": register LocalBroadcastReceiver");
-        LocalBroadcastManager.getInstance(this).registerReceiver(mReceiver,
-                new IntentFilter(Messaging.ACTION_FETCH_FIELDS));
-        LocalBroadcastManager.getInstance(this).registerReceiver(mReceiver,
-                new IntentFilter(Messaging.ACTION_REGISTER_DEVICE));
-        LocalBroadcastManager.getInstance(this).registerReceiver(mReceiver,
-                new IntentFilter(Messaging.ACTION_FETCH_USER));
-        LocalBroadcastManager.getInstance(this).registerReceiver(mReceiver,
-                new IntentFilter(Messaging.ACTION_SAVE_USER));
-
+        nameMethod = new Object(){}.getClass().getEnclosingMethod().getName();
+        Log.d(TAG,"DEBUG: " + CLASS_TAG + ": " + nameMethod + ": register LocalBroadcastReceiver");
+        LocalBroadcastManager.getInstance(this).registerReceiver(mReceiver, new IntentFilter(Messaging.ACTION_FETCH_FIELDS));
+        LocalBroadcastManager.getInstance(this).registerReceiver(mReceiver, new IntentFilter(Messaging.ACTION_REGISTER_DEVICE));
+        LocalBroadcastManager.getInstance(this).registerReceiver(mReceiver, new IntentFilter(Messaging.ACTION_FETCH_USER));
+        LocalBroadcastManager.getInstance(this).registerReceiver(mReceiver, new IntentFilter(Messaging.ACTION_SAVE_USER));
     }
 
     private void callScanQr() {
@@ -230,128 +214,124 @@ public class LoginActivity extends AppCompatActivity {
         scanIntegrator.setOrientationLocked(true);
         scanIntegrator.setBarcodeImageEnabled(true);
         scanIntegrator.initiateScan();
-        Log.d(TAG,"DEBUG: "+CLASS_TAG+": "+nameMethod+"ScanQr State: "
-                +useQrScan);
+        Log.d(TAG,"DEBUG: " + CLASS_TAG + ": " + nameMethod + "ScanQr State: " + useQrScan);
     }
 
     @SuppressLint("ResourceType")
     private void getDataFromEditText() {
-    nameMethod=new Object(){}.getClass().getEnclosingMethod().getName();
-    myListResult=getInputArrayFromEditTexts(linearLayout);
-    listField=new ArrayList<>();
-    listTypes=new ArrayList<>();
-    Log.i(TAG, "INFO: " + CLASS_TAG + ": " + nameMethod + ": " + Arrays.toString(myListResult));
-    for(int i=0;i<dataInputList.size();i++){
-        for (Map.Entry<String, String> entry : dataInputList.get(i).entrySet()) {
+        nameMethod=new Object(){}.getClass().getEnclosingMethod().getName();
+        myListResult=getInputArrayFromEditTexts(linearLayout);
+        listField=new ArrayList<>();
+        listTypes=new ArrayList<>();
+        Log.i(TAG, "INFO: " + CLASS_TAG + ": " + nameMethod + ": " + Arrays.toString(myListResult));
 
-            if(entry.getKey().equals("field")){
-                listField.add(entry.getValue());
+        for(int i=0;i<dataInputList.size();i++){
+            for (Map.Entry<String, String> entry : dataInputList.get(i).entrySet()) {
+
+                if(entry.getKey().equals("field")){
+                    listField.add(entry.getValue());
+                }
+                if(entry.getKey().equals("name")){
+                    listField.add(entry.getValue());
+                }
+                if(entry.getKey().equals("type")){
+                    listTypes.add(entry.getValue());
+                }
             }
-            if(entry.getKey().equals("name")){
-                listField.add(entry.getValue());
-            }
-            if(entry.getKey().equals("type")){
-                listTypes.add(entry.getValue());
-            }
+
         }
 
-    }
-        Log.i(TAG, "INFO: " + CLASS_TAG + " Fields : " + nameMethod + ": "
-            + Arrays.toString(new List[]{listField}));
-        Log.i(TAG, "INFO: " + CLASS_TAG + " Types : " + nameMethod + ": "
-                + Arrays.toString(new List[]{listTypes}));
-            dataInputToSendUser=new HashMap<String, String>();
-            for(int i=0;i<myListResult.length;i++){
-                dataInputToSendUser.put(listField.get(i),myListResult[i]);
-                if(listTypes.get(i).equals("STRING")) {
+        Log.i(TAG, "INFO: " + CLASS_TAG + " Fields : " + nameMethod + ": " + Arrays.toString(new List[]{listField}));
+        Log.i(TAG, "INFO: " + CLASS_TAG + " Types : " + nameMethod + ": " + Arrays.toString(new List[]{listTypes}));
+        dataInputToSendUser=new HashMap<String, String>();
 
-                    if (Utils.isNullOrEmpty(myListResult[i])) {
-                        Log.i(TAG, "INFO: " + CLASS_TAG + ": " + nameMethod + " this field can not be blank: "
-                                + listField.get(i));
-                        Toast.makeText(getApplicationContext(), " this field can not be blank: "
-                                + listField.get(i), Toast.LENGTH_LONG).show();
+        for(int i=0;i<myListResult.length;i++){
+            dataInputToSendUser.put(listField.get(i),myListResult[i]);
+
+            if(listTypes.get(i).equals("STRING")) {
+
+                if (Utils.isNullOrEmpty(myListResult[i])) {
+                    Log.i(TAG, "INFO: " + CLASS_TAG + ": " + nameMethod + " this field can not be blank: " + listField.get(i));
+                    Toast.makeText(getApplicationContext(), " this field can not be blank: " + listField.get(i), Toast.LENGTH_LONG).show();
+                    flagError = false;
+                    break;
+                } else {
+                    flagError = true;
+                }
+
+                if (listField.get(i).equals("email")) {
+
+                    if (!Utils.isValidMail(myListResult[i])) {
+                        Log.i(TAG, "INFO: " + CLASS_TAG + ": " + nameMethod + " It is not a valid email: "
+                                + myListResult[i]);
+                        Toast.makeText(getApplicationContext(), " It is not a valid email: "
+                                + myListResult[i], Toast.LENGTH_LONG).show();
+                        flagError = false;
+                        break;
+                    } else {
+                        flagError = true;
+                    }
+                }
+
+                if (listTypes.get(i).equals("DATE")) {
+
+                    if (!Utils.checkDateFormat(myListResult[i])) {
+                        Log.i(TAG, "INFO: " + CLASS_TAG + ": " + nameMethod + " Format date is not valid: "
+                                + myListResult[i]);
+                        Toast.makeText(getApplicationContext(), " Format date is not valid: "
+                                + myListResult[i], Toast.LENGTH_LONG).show();
                         flagError = false;
                         break;
                     } else {
                         flagError = true;
                     }
 
-                    if (listField.get(i).equals("email")) {
-
-                        if (!Utils.isValidMail(myListResult[i])) {
-                            Log.i(TAG, "INFO: " + CLASS_TAG + ": " + nameMethod + " It is not a valid email: "
-                                    + myListResult[i]);
-                            Toast.makeText(getApplicationContext(), " It is not a valid email: "
-                                    + myListResult[i], Toast.LENGTH_LONG).show();
-                            flagError = false;
-                            break;
-                        } else {
-                            flagError = true;
-                        }
-                    }
-
-                    if (listTypes.get(i).equals("DATE")) {
-
-                        if (!Utils.checkDateFormat(myListResult[i])) {
-                            Log.i(TAG, "INFO: " + CLASS_TAG + ": " + nameMethod + " Format date is not valid: "
-                                    + myListResult[i]);
-                            Toast.makeText(getApplicationContext(), " Format date is not valid: "
-                                    + myListResult[i], Toast.LENGTH_LONG).show();
-                            flagError = false;
-                            break;
-                        } else {
-                            flagError = true;
-                        }
-
-                    }
                 }
-                if(listTypes.get(i).equals("NUMBER")){
+            }
 
-                    if(!Utils.isNumeric(myListResult[i])){
-                        Log.i(TAG, "INFO: " + CLASS_TAG + ": " + nameMethod + " this number does not have a valid format: "
+            if(listTypes.get(i).equals("NUMBER")) {
+
+                if(!Utils.isNumeric(myListResult[i])){
+                    Log.i(TAG, "INFO: " + CLASS_TAG + ": " + nameMethod + " this number does not have a valid format: "
+                            + myListResult[i]);
+                    Toast.makeText(getApplicationContext()," this number does not have a valid format: "
+                            + myListResult[i],Toast.LENGTH_LONG).show();
+                    flagError=false;
+                    break;
+                }else{
+                    flagError=true;
+                }
+                if(listField.get(i).equals("phone")){
+
+                    if(!Utils.isValidPhoneNumber(myListResult[i])){
+                        Log.i(TAG, "INFO: " + CLASS_TAG + ": " + nameMethod + " It is not a valid phone number: "
                                 + myListResult[i]);
-                        Toast.makeText(getApplicationContext()," this number does not have a valid format: "
+                        Toast.makeText(getApplicationContext()," It is not a valid phone number: "
                                 + myListResult[i],Toast.LENGTH_LONG).show();
                         flagError=false;
                         break;
                     }else{
                         flagError=true;
                     }
-                    if(listField.get(i).equals("phone")){
-
-                        if(!Utils.isValidPhoneNumber(myListResult[i])){
-                            Log.i(TAG, "INFO: " + CLASS_TAG + ": " + nameMethod + " It is not a valid phone number: "
-                                    + myListResult[i]);
-                            Toast.makeText(getApplicationContext()," It is not a valid phone number: "
-                                    + myListResult[i],Toast.LENGTH_LONG).show();
-                            flagError=false;
-                            break;
-                        }else{
-                            flagError=true;
-                        }
-                    }
                 }
             }
-            if(flagError){
-                //order: update config, create device and user, update user
-                Log.i(TAG, "INFO: " + CLASS_TAG + ": " + nameMethod + "def: " + dataInputToSendUser);
-                reloadSdkParameter(true);
-            }
+        }
+
+        if(flagError){
+            //order: update config, create device and user, update user
+            Log.i(TAG, "INFO: " + CLASS_TAG + ": " + nameMethod + "def: " + dataInputToSendUser);
+            reloadSdkParameter(true);
+        }
     }
 
     private void reloadSdkParameter(boolean provUserUpdate) {
-        Log.i(TAG, "INFO: " + CLASS_TAG + ": " + nameMethod + "update config: "
-                + prvTokenApp+"  "+provHostApp);
+        Log.i(TAG, "INFO: " + CLASS_TAG + ": " + nameMethod + "update config: " + prvTokenApp+"  "+provHostApp);
         userUpdate=provUserUpdate;
         messaging.setConfigParameterFromApp(prvTokenApp,provHostApp);
-        Log.i(TAG, "INFO: " + CLASS_TAG + ": " + nameMethod + "Creating Device: "
-                + userUpdate);
+        Log.i(TAG, "INFO: " + CLASS_TAG + ": " + nameMethod + "Creating Device: " + userUpdate);
         messaging.createDeviceParameters();
-        Log.i(TAG, "INFO: " + CLASS_TAG + ": " + nameMethod + "userUpdate: "
-                + userUpdate);
-
+        Log.i(TAG, "INFO: " + CLASS_TAG + ": " + nameMethod + "userUpdate: " + userUpdate);
     }
-
 
     private String[] getInputArrayFromEditTexts(LinearLayout mParentLayout){
         String[] inputArray = new String [mParentLayout.getChildCount()];
@@ -362,8 +342,6 @@ public class LoginActivity extends AppCompatActivity {
         }
         return inputArray;
     }
-
-
 
     public void showLinearData() {
         if(button_get_started.getText().equals(getResources().getText(R.string.get_continue))){
@@ -397,7 +375,6 @@ public class LoginActivity extends AppCompatActivity {
             }
             Log.i(TAG, "INFO: " + CLASS_TAG + ": " + nameMethod + ": " + button_get_started.getText());
         }
-
     }
 
     @Override
@@ -445,14 +422,14 @@ public class LoginActivity extends AppCompatActivity {
 
     }
 
-    private BroadcastReceiver mReceiver=new BroadcastReceiver() {
+    private BroadcastReceiver mReceiver = new BroadcastReceiver() {
         @Override
         public void onReceive(Context context, Intent intent) {
             nameMethod=new Object(){}.getClass().getEnclosingMethod().getName();
 
             boolean hasError=intent.getBooleanExtra(Messaging.INTENT_EXTRA_HAS_ERROR,true);
             Log.d(TAG,"ERROR: "+CLASS_TAG+": "+nameMethod+": Has error:  "+ hasError);
-            if (!hasError ) {
+            if (!hasError) {
                 Serializable dataSdk=intent.getSerializableExtra(Messaging.INTENT_EXTRA_DATA);
                 String data=intent.getStringExtra(Messaging.INTENT_EXTRA_DATA_FIELD);
                 if(intent.getAction().equals(Messaging.ACTION_FETCH_FIELDS) && data!=null){
@@ -543,7 +520,7 @@ public class LoginActivity extends AppCompatActivity {
                     }
                 }
 
-            }else{
+            } else {
                 Log.e(TAG,"DEBUG: "+CLASS_TAG+": "+nameMethod+": An error occurred on action:  "
                         + intent.getAction());
                 Toast.makeText(getApplicationContext(),"An error occurred on action "
@@ -555,18 +532,19 @@ public class LoginActivity extends AppCompatActivity {
             }
 
         }
-
     };
 
     private void goToMainActivity() {
         nameMethod=new Object(){}.getClass().getEnclosingMethod().getName();
         Log.d(TAG, "Debug: " + CLASS_TAG + ": " + nameMethod);
-        Bundle extras=getIntent().getExtras();
-        if(extras!=null){
-            Static.extras=extras;
+        Bundle extras = getIntent().getExtras();
+        if(extras != null) {
+            Static.extras = extras;
         }
+        SharedPreferences sharedPreferences = getApplicationContext().getSharedPreferences("MESSAGING_LOGIN", Context.MODE_PRIVATE);
+        sharedPreferences.edit().putBoolean("IS_LOGGED", true).apply();
 
-        Intent intent=new Intent(LoginActivity.this,MainActivity.class);
+        Intent intent = new Intent(LoginActivity.this, MainActivity.class);
         startActivity(intent);
         LoginActivity.this.finish();
     }

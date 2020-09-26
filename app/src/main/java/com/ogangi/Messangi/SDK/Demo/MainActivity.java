@@ -11,6 +11,7 @@ import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.IntentFilter;
+import android.content.SharedPreferences;
 import android.content.pm.ActivityInfo;
 import android.content.pm.PackageManager;
 import android.graphics.Color;
@@ -19,6 +20,8 @@ import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
 import android.util.Log;
+import android.view.Menu;
+import android.view.MenuItem;
 import android.view.View;
 import android.view.Window;
 import android.widget.ArrayAdapter;
@@ -35,6 +38,7 @@ import android.widget.Toast;
 import androidx.annotation.NonNull;
 import androidx.annotation.RequiresApi;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.appcompat.widget.Toolbar;
 import androidx.core.app.NotificationCompat;
 import androidx.localbroadcastmanager.content.LocalBroadcastManager;
 
@@ -77,7 +81,6 @@ public class MainActivity extends AppCompatActivity {
     public ArrayList<String> messagingUserDeviceArrayList;
     public ArrayAdapter messagingUserDeviceArrayAdapter;
     public ProgressBar progressBar;
-    public TextView title;
     //public Button pressButton;
     MessagingNotification messagingNotification;
     private String nameMethod;
@@ -89,15 +92,18 @@ public class MainActivity extends AppCompatActivity {
     public Map<String,String> additionalData;
     public boolean isBackground;
 
+    MenuItem menuOff;
+    MenuItem menuOn;
+
     @SuppressLint("NewApi")
     @RequiresApi(api = Build.VERSION_CODES.JELLY_BEAN_MR2)
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        getWindow().requestFeature(Window.FEATURE_ACTION_BAR);
-        getSupportActionBar().hide();
         setContentView(R.layout.activity_main);
-        setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_PORTRAIT);
+        Toolbar toolbar = findViewById(R.id.toolbar);
+        setSupportActionBar(toolbar);
+
         mainActivityInstance=this;
         nameMethod=new Object(){}.getClass().getEnclosingMethod().getName();
         //messaging = Messaging.getInstance(this);
@@ -105,20 +111,18 @@ public class MainActivity extends AppCompatActivity {
 
         list_device = findViewById(R.id.lista_device);
         list_user = findViewById(R.id.lista_user);
-        title = findViewById(R.id.textView_imprimir);
+
         device = findViewById(R.id.device);
         user = findViewById(R.id.user);
         tags = findViewById(R.id.tag);
         save = findViewById(R.id.save);
-        login=findViewById(R.id.button_list);
-        //pressButton=findViewById(R.id.button_lista);
+
         progressBar = findViewById(R.id.progressBar);
-        Switch simpleSwitch = findViewById(R.id.simpleSwitch);
+
         messagingDevArrayList = new ArrayList<>();
         messagingUserDeviceArrayList = new ArrayList<>();
         messagingDevArrayAdapter = new ArrayAdapter<>(this, R.layout.item_device, R.id.Texview_value, messagingDevArrayList);
         messagingUserDeviceArrayAdapter = new ArrayAdapter<>(this, R.layout.item_device, R.id.Texview_value, messagingUserDeviceArrayList);
-        title.setText(getResources().getString(R.string.title) );
 
         device.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -129,19 +133,6 @@ public class MainActivity extends AppCompatActivity {
                 Messaging.fetchDevice(true,getApplicationContext());
                 Log.i(TAG,"INFO: "+CLASS_TAG+": "+nameMethod+": "+messaging.getExternalId());
                 Messaging.fetchUser(getApplicationContext(), true);
-
-            }
-        });
-
-        login.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                //goToLogin();
-                //showAlertGetLogCat();
-                gotoMapActivity();
-                //Messaging.turnGPSOff();
-                //Messaging.sendEventCustomToBackend("notificationPush");
-                //stopService();
 
             }
         });
@@ -172,24 +163,6 @@ public class MainActivity extends AppCompatActivity {
             }
         });
 
-        simpleSwitch.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
-            @Override
-            public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
-                if (isChecked) {
-
-                    Toast.makeText(getApplicationContext(), "Enable Notification Push", Toast.LENGTH_LONG).show();
-                    messagingDevice.setStatusNotificationPush(isChecked, getApplicationContext());
-                    progressBar.setVisibility(View.VISIBLE);
-                } else {
-
-                    Toast.makeText(getApplicationContext(), "Disable Notification Push", Toast.LENGTH_LONG).show();
-                    messagingDevice.setStatusNotificationPush(isChecked, getApplicationContext());
-                    progressBar.setVisibility(View.VISIBLE);
-                }
-            }
-        });
-
-
         //for handle notification from background
         Bundle extras = null;
         if(Static.extras!=null){
@@ -207,8 +180,6 @@ public class MainActivity extends AppCompatActivity {
                 Serializable data = extras.getSerializable(Messaging.INTENT_EXTRA_DATA);
                 messagingNotification=(MessagingNotification)data;
                 showAlertNotification(messagingNotification, data);
-
-
             }else{
                 //to process notification from background mode
                 MessagingNotification notification=Messaging.checkNotification(extras);
@@ -216,11 +187,50 @@ public class MainActivity extends AppCompatActivity {
                 Log.i(TAG, "INFO: " + CLASS_TAG + ": " + nameMethod + ": " + notification.equals(notification));
                 Log.i(TAG, "INFO: " + CLASS_TAG + ": " + nameMethod + ": " + notification.hashCode());
             }
+        }
+    }
 
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        getMenuInflater().inflate(R.menu.menu_main, menu);
+
+        menu.findItem(R.id.action_visibility).setIcon(R.drawable.ic_baseline_visibility_24);
+        if(true) {
+            // Cableado para el demo
+            // menu.findItem(R.id.action_location).setVisible(false);
+            // menu.findItem(R.id.action_logout).setVisible(false);
         }
 
+        return true;
+    }
 
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        int id = item.getItemId();
 
+        switch (id){
+            case R.id.action_visibility:
+                if(messagingDevice.isEnableNotificationPush()) {
+                    Toast.makeText(getApplicationContext(), "Disable Notification Push", Toast.LENGTH_LONG).show();
+                    messagingDevice.setStatusNotificationPush(false, getApplicationContext());
+                    progressBar.setVisibility(View.VISIBLE);
+                    item.setIcon(R.drawable.ic_baseline_visibility_off_24);
+                } else {
+                    Toast.makeText(getApplicationContext(), "Enable Notification Push", Toast.LENGTH_LONG).show();
+                    messagingDevice.setStatusNotificationPush(true, getApplicationContext());
+                    progressBar.setVisibility(View.VISIBLE);
+                    item.setIcon(R.drawable.ic_baseline_visibility_24);
+                }
+                return true;
+            case R.id.action_location:
+                gotoMapActivity();
+                return true;
+            case R.id.action_logout:
+                goToLogin();
+                return true;
+        }
+
+        return super.onOptionsItemSelected(item);
     }
 
     private void stopService() {
@@ -234,14 +244,14 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private void goToLogin() {
-     nameMethod=new Object(){}.getClass().getEnclosingMethod().getName();
+        SharedPreferences sharedPreferences = getApplicationContext().getSharedPreferences("MESSAGING_LOGIN", Context.MODE_PRIVATE);
+        sharedPreferences.edit().putBoolean("IS_LOGGED", false).apply();
+        nameMethod=new Object(){}.getClass().getEnclosingMethod().getName();
         Intent intent=new Intent(MainActivity.this,LoginActivity.class);
         startActivity(intent);
-        MainActivity.this.finish();
         messaging.showAnalyticAllowedState();
         Log.i(TAG, "INFO: " + CLASS_TAG + ": " + nameMethod + " isAnalytics_allowed: " + messaging.isAnalytics_allowed());
-
-
+        MainActivity.this.finish();
     }
 
     @Override
@@ -708,7 +718,6 @@ public class MainActivity extends AppCompatActivity {
     }
 
 
-
     @Override
     protected void onDestroy() {
         nameMethod=new Object(){}.getClass().getEnclosingMethod().getName();
@@ -724,64 +733,56 @@ public class MainActivity extends AppCompatActivity {
 
             boolean hasError=intent.getBooleanExtra(Messaging.INTENT_EXTRA_HAS_ERROR,true);
             Log.d(TAG,"DEBUG: "+CLASS_TAG+": "+nameMethod+": Has error:  "+ hasError);
-            if (!hasError ) {
+            if (!hasError) {
                 Serializable data=intent.getSerializableExtra(Messaging.INTENT_EXTRA_DATA);
                 if(intent.getAction().equals(Messaging.ACTION_FETCH_DEVICE)&& data!=null){
                     messagingDevice = (MessagingDevice) data;
                     showDevice(messagingDevice);
-
                 }else if(intent.getAction().equals(Messaging.ACTION_FETCH_USER)&& data!=null){
-                    messagingUser =(MessagingUser) data;
+                    messagingUser= (MessagingUser) data;
                     shwUser(messagingUser);
-
                 }else if(((intent.getAction().equals(Messaging.ACTION_GET_NOTIFICATION))||
                         (intent.getAction().equals(Messaging.ACTION_GET_NOTIFICATION_OPENED)))&& data!=null){
-                    messagingNotification=(MessagingNotification)data;
+                    messagingNotification= (MessagingNotification)data;
                     showDevice(messagingDevice);
                     showAlertNotification(messagingNotification, data);
-
-                }else if(intent.getAction().equals(Messaging.ACTION_SAVE_DEVICE)&& data!=null) {
+                }else if(intent.getAction().equals(Messaging.ACTION_SAVE_DEVICE) && data!=null) {
                     messagingDevice = (MessagingDevice) data; //you can cast this for get information
                     //for condition of save (user or device);
-                    Toast.makeText(getApplicationContext(),intent.getAction(),Toast.LENGTH_LONG).show();
+                    String text = getResources().getString(getResources().getIdentifier(intent.getAction(), "string", getPackageName()));
+                    Toast.makeText(getApplicationContext(), text, Toast.LENGTH_LONG).show();
                     showDevice(messagingDevice);
 
-                }else if(intent.getAction().equals(Messaging.ACTION_SAVE_USER)&& data!=null) {
+                }else if(intent.getAction().equals(Messaging.ACTION_SAVE_USER) && data!=null) {
                     messagingUser =(MessagingUser) data; //you can cast this for get information
-                    //for condition of save (user or device);
-                    Toast.makeText(getApplicationContext(),intent.getAction(),Toast.LENGTH_SHORT).show();
+                    String text = getResources().getString(getResources().getIdentifier(intent.getAction(), "string", getPackageName()));
+                    Toast.makeText(getApplicationContext(), text, Toast.LENGTH_LONG).show();
                     shwUser(messagingUser);
                 }else if(intent.getAction().equals(Messaging.ACTION_REGISTER_DEVICE) ) {
                     messagingDevice = (MessagingDevice)data;
                     showDevice(messagingDevice);
-                    Toast.makeText(mainActivityInstance, intent.getAction(), Toast.LENGTH_SHORT).show();
+                    String text = getResources().getString(getResources().getIdentifier(intent.getAction(), "string", getPackageName()));
+                    Toast.makeText(getApplicationContext(), text, Toast.LENGTH_LONG).show();
                     Log.d(TAG, "DEBUG: " + CLASS_TAG + ": " + nameMethod + ": Data Register:  " + data);
-
                 }else if(intent.getAction().equals(Messaging.ACTION_FETCH_LOCATION) ) {
                     MessagingLocation messagingLocation = (MessagingLocation) data;
-
-                    Toast.makeText(mainActivityInstance, intent.getAction(), Toast.LENGTH_SHORT).show();
+                    String text = getResources().getString(getResources().getIdentifier(intent.getAction(), "string", getPackageName()));
+                    Toast.makeText(getApplicationContext(), text, Toast.LENGTH_LONG).show();
                     Log.d(TAG, "DEBUG: " + CLASS_TAG + ": " + nameMethod + ": Data Location Lat:  "
                             + messagingLocation.getLatitude()+" Long: "+messagingLocation.getLongitude());
-
-
                 }else{
-                    Toast.makeText(getApplicationContext(),intent.getAction(),Toast.LENGTH_SHORT).show();
+                    String text = getResources().getString(getResources().getIdentifier(intent.getAction(), "string", getPackageName()));
+                    Toast.makeText(getApplicationContext(), text, Toast.LENGTH_LONG).show();
                 }
-
             }else{
-
-                Toast.makeText(getApplicationContext(),"An error occurred on action "
-                        +intent.getAction(),Toast.LENGTH_LONG).show();
+                Toast.makeText(getApplicationContext(),"An error occurred on action " + intent.getAction(),Toast.LENGTH_LONG).show();
                 if(progressBar.isShown()){
                     progressBar.setVisibility(View.GONE);
                 }
-
             }
             if(progressBar.isShown()){
                 progressBar.setVisibility(View.GONE);
             }
-
         }
 
     };

@@ -25,5 +25,14 @@
     <string name="button_skip">Skip</string>
     <string name="title_activity_maps">Map</string>
 
+    <string name="com.messaging.sdk.ACTION_FETCH_DEVICE"> Device Loaded </string>
+    <string name="com.messaging.sdk.ACTION_REGISTER_DEVICE"> Device Registered </string>
+    <string name="com.messaging.sdk.ACTION_FETCH_FIELDS"> Fields Loaded </string>
+    <string name="com.messaging.sdk.ACTION_SAVE_DEVICE"> Device Saved </string>
+    <string name="com.messaging.sdk.ACTION_FETCH_USER"> User Loaded </string>
+    <string name="com.messaging.sdk.ACTION_SAVE_USER"> User Saved </string>
+    <string name="com.messaging.sdk.PUSH_NOTIFICATION"> Push Notification </string>
+    <string name="com.messaging.sdk.PUSH_NOTIFICATION_TO_OPE"> Notification Open </string>_OPEN";
+    <string name="com.messaging.sdk.ACTION_FETCH_LOCATION"> Location Loaded </string>
 
 </resources>
