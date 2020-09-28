@@ -1,15 +1,11 @@
 package com.messaging.sdk;
 
 import android.os.Build;
-import android.util.Log;
-import android.widget.Toast;
 
 import androidx.annotation.RequiresApi;
 
 import com.google.firebase.messaging.FirebaseMessagingService;
 import com.google.firebase.messaging.RemoteMessage;
-
-import java.io.Serializable;
 
 /**
  * class MessagingService let handle notification push using FirebaseMessagingService .
@@ -69,7 +65,7 @@ public class MessagingService extends FirebaseMessagingService  {
             Messaging.sendEventToBackend(Messaging.MESSAGING_NOTIFICATION_RECEIVED,"");
         }
         if(messagingNotification.isMatchAppId()) {
-            if(messagingNotification.isGeoPush()) {
+            if(messagingNotification.isRenderNotification()) {
                 messaging.utils.showDebugLog(this,nameMethod,"GEO_PUSH process");
                 messaging.sendGlobalEventToActivity(Messaging.ACTION_GET_NOTIFICATION, messagingNotification);
             }else{

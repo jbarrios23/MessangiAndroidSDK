@@ -556,7 +556,7 @@ class MessagingSdkUtils {
                             +" Radius "+provRadius);
                     if(lastLocation.distanceTo(location)<=provRadius){
                         result=true;
-                    }
+                }
 
                 }else{
                     result=false;

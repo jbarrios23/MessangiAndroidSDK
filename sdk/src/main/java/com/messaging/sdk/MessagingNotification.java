@@ -66,7 +66,7 @@ public class MessagingNotification implements Serializable {
     private int visibility;
     private String msgAppId="";
     private boolean matchAppId;
-    private boolean isGeoPush;
+    private boolean renderNotification;
     private String provRegisterLogs;
     private boolean registerLogs;
     private String messagingConfiguration;
@@ -192,15 +192,15 @@ public class MessagingNotification implements Serializable {
                  !additionalData.get(Messaging.MESSAGING_GEO_PUSH).isEmpty()) {
              try {
                  JSONObject data=new JSONObject(additionalData.get(Messaging.MESSAGING_GEO_PUSH));
-                 this.isGeoPush = messaging.utils.verifyIsValidGeoPush(data,messaging);
+                 this.renderNotification = messaging.utils.verifyIsValidGeoPush(data,messaging);
                  messaging.utils.showDebugLog(this,nameMethod, "MSGI_GEOPUSH: "
-                         +isGeoPush);
+                         + renderNotification);
              } catch (JSONException e) {
                  e.printStackTrace();
              }
 
          }else{
-             this.isGeoPush=true;
+             this.renderNotification =true;
          }
 
 
@@ -261,14 +261,14 @@ public class MessagingNotification implements Serializable {
                 }else if(key.equals(Messaging.MESSAGING_GEO_PUSH)){
                     try {
                         JSONObject data=new JSONObject(additionalData.get(key));
-                        this.isGeoPush = messaging.utils.verifyIsValidGeoPush(data,messaging);
+                        this.renderNotification = messaging.utils.verifyIsValidGeoPush(data,messaging);
                         messaging.utils.showDebugLog(this,nameMethod, "MSGI_GEOPUSH: "
-                                +isGeoPush);
+                                + renderNotification);
                     } catch (JSONException e) {
                         e.printStackTrace();
                     }
                 }else{
-                    this.isGeoPush=true;
+                    this.renderNotification =true;
                 }
             }
 
@@ -437,8 +437,8 @@ public class MessagingNotification implements Serializable {
         return matchAppId;
     }
 
-    public boolean isGeoPush() {
-        return isGeoPush;
+    public boolean isRenderNotification() {
+        return renderNotification;
     }
 
     public void writeToParcel (Parcel out, int flags){

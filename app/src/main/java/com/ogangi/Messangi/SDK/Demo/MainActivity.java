@@ -242,7 +242,7 @@ public class MainActivity extends AppCompatActivity {
     private void gotoMapActivity() {
         Intent intent=new Intent(MainActivity.this,MapsActivity.class);
         startActivity(intent);
-        MainActivity.this.finish();
+        //MainActivity.this.finish();
     }
 
     private void goToLogin() {
