@@ -28,6 +28,7 @@ import androidx.lifecycle.ProcessLifecycleOwner;
 import androidx.localbroadcastmanager.content.LocalBroadcastManager;
 
 import com.google.android.gms.location.FusedLocationProviderClient;
+import com.google.android.gms.location.Geofence;
 import com.google.android.gms.location.LocationCallback;
 import com.google.android.gms.location.LocationRequest;
 import com.google.android.gms.location.LocationResult;
@@ -198,7 +199,7 @@ public class Messaging implements LifecycleObserver {
 
     }
 
-    public  enum MessagingLocationPriority{
+    public enum MessagingLocationPriority{
         PRIORITY_HIGH_ACCURACY(LocationRequest.PRIORITY_HIGH_ACCURACY),
         PRIORITY_BALANCED_POWER_ACCURACY(LocationRequest.PRIORITY_BALANCED_POWER_ACCURACY),
         PRIORITY_LOW_POWER(LocationRequest.PRIORITY_LOW_POWER),
@@ -212,6 +213,24 @@ public class Messaging implements LifecycleObserver {
         public int getPriority() {
             return priority;
         }
+
+    }
+
+    public enum MessagingGeoFenceTrigger{
+        ENTER(Geofence.GEOFENCE_TRANSITION_ENTER),
+        EXIT(Geofence.GEOFENCE_TRANSITION_EXIT),
+        BOTH(Geofence.GEOFENCE_TRANSITION_DWELL);
+        //BOTH(Geofence.GEOFENCE_TRANSITION_ENTER | Geofence.GEOFENCE_TRANSITION_EXIT);
+
+        private int trigger;
+        private  MessagingGeoFenceTrigger(int trigger){
+            this.trigger=trigger;
+
+        }
+        public int getTrigger() {
+            return trigger;
+        }
+
 
     }
 

@@ -1,6 +1,6 @@
 <resources>
     <string name="messaging_host" translatable="false" templateMergeStrategy="preserve">https://elastic.messangi.me/aemon/v2</string>
-    <string name="messaging_app_token" translatable="false">5f6e4e44cc91af00265aa532</string>
+    <string name="messaging_app_token" translatable="false">5f45392de1d3a000262a215a</string>
     <bool name="analytics_allowed">false</bool>
     <bool name="location_allowed">true</bool>
     <bool name="logging_allowed">true</bool>
