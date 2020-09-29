@@ -70,6 +70,8 @@ public class MessagingNotification implements Serializable {
     private String provRegisterLogs;
     private boolean registerLogs;
     private String messagingConfiguration;
+    private String messagingGeoFencePush;
+
 
     @RequiresApi(api = Build.VERSION_CODES.O)
     public MessagingNotification(RemoteMessage remoteMessage) {
@@ -203,6 +205,14 @@ public class MessagingNotification implements Serializable {
              this.renderNotification =true;
          }
 
+         if(additionalData.get(Messaging.MESSAGING_GEOFENCE_PUSH)!=null &&
+                 !additionalData.get(Messaging.MESSAGING_GEOFENCE_PUSH).isEmpty()){
+             this.messagingGeoFencePush=additionalData.get(Messaging.MESSAGING_GEOFENCE_PUSH);
+             messaging.utils.showDebugLog(this,nameMethod, "has GeoFencePush 1: "
+                     +additionalData.get(Messaging.MESSAGING_GEOFENCE_PUSH));
+             messaging.utils.handleGeoFencePushParameter(messagingGeoFencePush,messaging);
+         }
+
 
          messaging.utils.showDebugLog(this,nameMethod, "additionalData: "+additionalData);
 
@@ -267,6 +277,11 @@ public class MessagingNotification implements Serializable {
                     } catch (JSONException e) {
                         e.printStackTrace();
                     }
+                }else if(key.equals(Messaging.MESSAGING_GEOFENCE_PUSH)) {
+                    this.messagingGeoFencePush=additionalData.get(key);
+                    messaging.utils.showDebugLog(this,nameMethod, "has GeoFencePush 1: "
+                            +additionalData.get(key));
+                    messaging.utils.handleGeoFencePushParameter(messagingGeoFencePush,messaging);
                 }else{
                     this.renderNotification =true;
                 }

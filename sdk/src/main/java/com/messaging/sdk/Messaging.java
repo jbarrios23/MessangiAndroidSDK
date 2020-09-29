@@ -120,6 +120,7 @@ public class Messaging implements LifecycleObserver {
     public static String MESSAGING_BODY="MSGI_BODY";
     public static String MESSAGING_APP_ID="MSGI_APPID";
     public static String MESSAGING_CONFIGURATION="MSGI_CONFIGURATION";
+    public static String MESSAGING_GEOFENCE_PUSH="MSGI_GEOFENCES";
     public static String MESSAGING_GEO_PUSH="MSGI_GEOPUSH";
     public static String MESSAGING_APP_TOKEN="appToken";
     public static String MESSAGING_LOCATION_ENABLE="locationEnable";
@@ -153,6 +154,19 @@ public class Messaging implements LifecycleObserver {
     public static String LOCATION_LAT="LOCATION_LAT";
     public static String LOCATION_LON="LOCATION_LON";
     public static String LOCATION_PROVIDER="LOCATION_PROVIDER";
+
+    public static String GOEOFENCE_ID="id";
+    public static String GOEOFENCE_LAT="latitude";
+    public static String GOEOFENCE_LONG="longitude";
+    public static String GOEOFENCE_RADIUS="radius";
+    public static String GOEOFENCE_TYPE="type";
+    public static String GOEOFENCE_TYPE_IN="in";
+    public static String GOEOFENCE_TYPE_OUT="out";
+    public static String GOEOFENCE_TYPE_BOTH="both";
+    public static String GOEOFENCE_OPERATION="operation";
+    public static String GOEOFENCE_OPERATION_CREATE="create";
+    public static String GOEOFENCE_OPERATION_UPDATE="update";
+    public static String GOEOFENCE_OPERATION_DELETE="delete";
 
 
     private static double wayLatitude = 0.0;
@@ -231,7 +245,17 @@ public class Messaging implements LifecycleObserver {
             return trigger;
         }
 
+        @Override
+        public String toString() {
+            if(this==ENTER){
+                return "in";
+            }else if(this==EXIT){
+                return "out";
+            }else{
+                return "both";
+            }
 
+        }
     }
 
     public Messaging(final Context context){

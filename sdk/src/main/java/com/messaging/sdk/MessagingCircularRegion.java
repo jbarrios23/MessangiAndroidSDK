@@ -41,8 +41,15 @@ public class MessagingCircularRegion extends MessagingGeofence {
             return this;
         }
 
-        public MessagingCircularRegion.Builder setMessagingGeoFenceTrigger(Messaging.MessagingGeoFenceTrigger messagingGeoFenceTrigger) {
-            prepare().messagingGeoFenceTrigger = messagingGeoFenceTrigger;
+        public MessagingCircularRegion.Builder setMessagingGeoFenceTrigger(String trigger) {
+            if(trigger.equals(Messaging.GOEOFENCE_TYPE_IN)){
+                prepare().messagingGeoFenceTrigger = Messaging.MessagingGeoFenceTrigger.ENTER;
+            }else if(trigger.equals(Messaging.GOEOFENCE_TYPE_OUT)){
+                prepare().messagingGeoFenceTrigger = Messaging.MessagingGeoFenceTrigger.EXIT;
+            }else{
+                prepare().messagingGeoFenceTrigger = Messaging.MessagingGeoFenceTrigger.BOTH;
+            }
+
             return this;
         }
 
@@ -81,5 +88,17 @@ public class MessagingCircularRegion extends MessagingGeofence {
             return prov;
         }
 
+    }
+
+    @Override
+    public String toString() {
+        return "MessagingCircularRegion{" +
+                "latitude=" + latitude +
+                ", longitud=" + longitud +
+                ", radius=" + radius +
+                ", id='" + id + '\'' +
+                ", messagingGeoFenceTrigger=" + messagingGeoFenceTrigger +
+                ", expiration=" + expiration +
+                '}';
     }
 }
