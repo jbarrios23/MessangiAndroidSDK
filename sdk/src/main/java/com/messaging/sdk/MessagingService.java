@@ -62,7 +62,7 @@ public class MessagingService extends FirebaseMessagingService  {
         MessagingNotification messagingNotification=new MessagingNotification(remoteMessage);
         messaging.utils.showDebugLog(this,nameMethod,"is silent: "+messagingNotification.isSilent());
         if(messagingNotification.isSilent()){
-            Messaging.sendEventToBackend(Messaging.MESSAGING_NOTIFICATION_RECEIVED,"");
+            Messaging.sendEventToBackend(Messaging.MESSAGING_NOTIFICATION_RECEIVED,"","","");
         }
         if(messagingNotification.isMatchAppId()) {
             if(messagingNotification.isRenderNotification()) {

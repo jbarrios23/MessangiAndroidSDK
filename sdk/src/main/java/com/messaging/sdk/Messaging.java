@@ -7,7 +7,6 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.location.Location;
-import android.location.LocationManager;
 import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Build;
@@ -16,8 +15,6 @@ import android.os.Handler;
 import android.os.Looper;
 import android.os.Message;
 import android.provider.Settings;
-import android.util.Log;
-import android.widget.Toast;
 
 import androidx.annotation.RequiresApi;
 import androidx.core.app.ActivityCompat;
@@ -58,8 +55,6 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
-
-import static android.content.Intent.FLAG_ACTIVITY_NEW_TASK;
 
 
 /**
@@ -233,8 +228,7 @@ public class Messaging implements LifecycleObserver {
     public enum MessagingGeoFenceTrigger{
         ENTER(Geofence.GEOFENCE_TRANSITION_ENTER),
         EXIT(Geofence.GEOFENCE_TRANSITION_EXIT),
-        BOTH(Geofence.GEOFENCE_TRANSITION_DWELL);
-        //BOTH(Geofence.GEOFENCE_TRANSITION_ENTER | Geofence.GEOFENCE_TRANSITION_EXIT);
+        BOTH(Geofence.GEOFENCE_TRANSITION_ENTER | Geofence.GEOFENCE_TRANSITION_EXIT);
 
         private int trigger;
         private  MessagingGeoFenceTrigger(int trigger){
@@ -421,7 +415,7 @@ public class Messaging implements LifecycleObserver {
 
         if (!isGPS) {
             messaging.utils.showDebugLog(messaging,nameMethod,"Please turn on GPS "+isGPS);
-            sendEventToBackend(MESSAGING_INVALID_DEVICE_LOCATION,MESSAGING_INVALID_DEVICE_LOCATION_REASON_LOCATION);
+            sendEventToBackend(MESSAGING_INVALID_DEVICE_LOCATION,MESSAGING_INVALID_DEVICE_LOCATION_REASON_LOCATION,"","");
             messaging.stopServiceLocation();
             return;
         }
@@ -438,7 +432,7 @@ public class Messaging implements LifecycleObserver {
         if (ActivityCompat.checkSelfPermission(messaging.context, android.Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED
                 && ActivityCompat.checkSelfPermission(messaging.context, android.Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
             messaging.utils.showDebugLog(messaging,nameMethod,"has not permission ");
-            sendEventToBackend(MESSAGING_INVALID_DEVICE_LOCATION,MESSAGING_INVALID_DEVICE_LOCATION_REASON_MISSING);
+            sendEventToBackend(MESSAGING_INVALID_DEVICE_LOCATION,MESSAGING_INVALID_DEVICE_LOCATION_REASON_MISSING,"","");
         }
     }
 
@@ -452,7 +446,7 @@ public class Messaging implements LifecycleObserver {
                                 Manifest.permission.ACCESS_COARSE_LOCATION},
                         LOCATION_REQUEST);
                 messaging.utils.showDebugLog(messaging,nameMethod,"send event ");
-                sendEventToBackend(MESSAGING_INVALID_DEVICE_LOCATION,MESSAGING_INVALID_DEVICE_LOCATION_REASON_MISSING);
+                sendEventToBackend(MESSAGING_INVALID_DEVICE_LOCATION,MESSAGING_INVALID_DEVICE_LOCATION_REASON_MISSING,"","");
         }
     }
 
@@ -468,7 +462,7 @@ public class Messaging implements LifecycleObserver {
             }else{
                 String nameMethod=new Object(){}.getClass().getEnclosingMethod().getName();
                 messaging.utils.showDebugLog(messaging,nameMethod," Activity null send event ");
-                sendEventToBackend(MESSAGING_INVALID_DEVICE_LOCATION,MESSAGING_INVALID_DEVICE_LOCATION_REASON_MISSING);
+                sendEventToBackend(MESSAGING_INVALID_DEVICE_LOCATION,MESSAGING_INVALID_DEVICE_LOCATION_REASON_MISSING,"","");
             }
         } else {
             if (isContinue) {
@@ -525,7 +519,7 @@ public class Messaging implements LifecycleObserver {
         messaging.utils.showInfoLog(messaging,nameMethod,"notification "+notification.toString());
         if(notification!=null) {
             messaging.utils.showInfoLog(messaging,nameMethod,"The Activity was opened as a consequence of a notification");
-            sendEventToBackend(Messaging.MESSAGING_NOTIFICATION_OPEN,"");
+            sendEventToBackend(Messaging.MESSAGING_NOTIFICATION_OPEN,"","","");
         }else {
             messaging.utils.showInfoLog(messaging,nameMethod,"intent.extra does not contain a notification");
         }
@@ -539,10 +533,10 @@ public class Messaging implements LifecycleObserver {
             MESSAGING_NOTIFICATION_CUSTOM_EVENT=messaging.utils.toUpperSnakeCase(snakeCases);
             messaging.utils.showInfoLog(messaging,nameMethod,
                     "MESSAGING_NOTIFICATION_CUSTOM_EVENT "+MESSAGING_NOTIFICATION_CUSTOM_EVENT);
-            sendEventToBackend(MESSAGING_NOTIFICATION_CUSTOM_EVENT,"");
+            sendEventToBackend(MESSAGING_NOTIFICATION_CUSTOM_EVENT,"","","");
     }
 
-    public static void sendEventToBackend(String nameEvent,String reason) {
+    public static void sendEventToBackend(String nameEvent,String reason,String typeAction,String geofenceId) {
     String nameMethod=new Object(){}.getClass().getEnclosingMethod().getName();
     final Messaging messaging = Messaging.getInstance();
     String provId = "";
@@ -552,7 +546,7 @@ public class Messaging implements LifecycleObserver {
         provId=messaging.messagingStorageController.getDevice().getId();
         }
         if(messaging.utils.isAnalytics_allowed()) {
-            new HttpRequestEventGet(provId, messaging, nameEvent, reason).execute();
+            new HttpRequestEventGet(provId, messaging, nameEvent, reason,typeAction,geofenceId).execute();
             messaging.utils.showInfoLog(messaging,nameMethod,"isAnalytics_allowed() "
                     +messaging.utils.isAnalytics_allowed());
         }else{
@@ -1510,16 +1504,21 @@ public class Messaging implements LifecycleObserver {
         private String provUrl;
         private String reasonEvent;
         private String server_response;
+        private String typeAction;
+        private String geofenceId;
         private Messaging messaging;
         @SuppressLint("StaticFieldLeak")
         private Context context;
 
 
 
-        public HttpRequestEventGet(String deviceId, Messaging messaging, String nameEvent, String reason) {
+        public HttpRequestEventGet(String deviceId, Messaging messaging, String nameEvent, String reason,
+                                   String typeAction, String geofenceId) {
             this.provDeviceId=deviceId;
             this.provEvent=nameEvent;
             this.reasonEvent=reason;
+            this.typeAction=typeAction;
+            this.geofenceId=geofenceId;
             this.messaging = messaging;
 
         }
@@ -1536,6 +1535,8 @@ public class Messaging implements LifecycleObserver {
                 String param = "Bearer " + authToken;
                 if(!reasonEvent.equals("") && !reasonEvent.isEmpty()){
                     provUrl = messaging.utils.getMessagingHost()+"/devices/"+provDeviceId+"/event/"+provEvent+"?reason="+reasonEvent;
+                }else if(!typeAction.equals("") && !geofenceId.equals("")){
+                    provUrl = messaging.utils.getMessagingHost()+"/devices/"+provDeviceId+"/region/"+typeAction+"/"+geofenceId;
                 }else{
                     provUrl = messaging.utils.getMessagingHost()+"/devices/"+provDeviceId+"/event/"+provEvent;
                 }

@@ -252,6 +252,7 @@ public class MainActivity extends AppCompatActivity {
         Intent intent=new Intent(MainActivity.this,LoginActivity.class);
         startActivity(intent);
         messaging.showAnalyticAllowedState();
+
         Log.i(TAG, "INFO: " + CLASS_TAG + ": " + nameMethod + " isAnalytics_allowed: " + messaging.isAnalytics_allowed());
         MainActivity.this.finish();
     }
