@@ -240,9 +240,11 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private void gotoMapActivity() {
-        Intent intent=new Intent(MainActivity.this,MapsActivity.class);
-        startActivity(intent);
+//        Intent intent=new Intent(MainActivity.this,MapsActivity.class);
+//        startActivity(intent);
         //MainActivity.this.finish();
+        //Messaging.sendEventToBackend("","","out","5f486b13d11caa00268f0581");
+        Messaging.fetchGeofence();
     }
 
     private void goToLogin() {

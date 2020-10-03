@@ -645,4 +645,28 @@ class MessagingSdkUtils {
         }
 
     }
+
+    public void processGeofenceList(String response) {
+        String nameMethod=new Object(){}.getClass().getEnclosingMethod().getName();
+        MessagingCircularRegion.Builder builder= new MessagingCircularRegion.Builder();
+        ArrayList<MessagingCircularRegion> messagingCircularRegionArrayList=new ArrayList<>();
+        try {
+            JSONObject jsonObject=new JSONObject(response);
+            JSONArray jsonArray=jsonObject.getJSONArray("geofences");
+            showDebugLog(this,nameMethod,jsonArray.toString());
+            for(int i=0;i<jsonArray.length();i++){
+            JSONObject temp=jsonArray.getJSONObject(i);
+            MessagingCircularRegion geofence=builder.setId(temp.getString(Messaging.GOEOFENCE_ID))
+                        .setLatitude(temp.getDouble(Messaging.GOEOFENCE_LAT))
+                        .setLongitud(temp.getDouble(Messaging.GOEOFENCE_LONG))
+                        .setRadius(temp.getInt(Messaging.GOEOFENCE_RADIUS))
+                        .setMessagingGeoFenceTrigger(temp.getString(Messaging.GOEOFENCE_TYPE))
+                        .build();
+            messagingCircularRegionArrayList.add(geofence);
+            }
+            showDebugLog(this,nameMethod,messagingCircularRegionArrayList.toString());
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
+    }
 }

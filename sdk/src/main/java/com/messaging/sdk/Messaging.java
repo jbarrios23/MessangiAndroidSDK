@@ -3,6 +3,7 @@ package com.messaging.sdk;
 import android.Manifest;
 import android.annotation.SuppressLint;
 import android.app.Activity;
+import android.app.PendingIntent;
 import android.content.Context;
 import android.content.Intent;
 import android.content.pm.PackageManager;
@@ -176,37 +177,10 @@ public class Messaging implements LifecycleObserver {
     public static boolean isForeground = false;
     public static boolean isBackground = false;
 
-    public void setConfiguration(String scanContent) {
-         nameMethod=new Object(){}.getClass().getEnclosingMethod().getName();
-         utils.showDebugLog(this,nameMethod, "scanContent: " +scanContent);
-         String[] prvHandlerMessage=scanContent.split(":%:");
-         prvTokenApp=prvHandlerMessage[0];
-         provHostApp=prvHandlerMessage[1];
+    private  PendingIntent geoFencePendingIntent;
+    private  final int GEOFENCE_REQ_CODE = 0;
 
-        utils.showDebugLog(this,nameMethod, "Token: " +prvTokenApp+" Host "+provHostApp);
-        Messaging.fetchFields(context,prvTokenApp,provHostApp);
 
-    }
-
-    public void reloadSdkParameter(){
-        setConfigParameterFromApp(prvTokenApp,provHostApp);
-        if(messagingStorageController.isRegisterDevice()){
-            messagingStorageController.saveDevice(null,null,null);
-            messagingStorageController.saveUserByDevice(null);
-            messagingDevice=null;
-            messagingUser=null;
-        }
-       createDeviceParameters();
-    }
-
-    public void sendUserUpdateData(HashMap<String, String> dataInputToSendUser){
-        for (Map.Entry<String, String> entry : dataInputToSendUser.entrySet()) {
-            messagingUser.addProperty(entry.getKey(),entry.getValue());
-        }
-
-        messagingUser.save(context);
-
-    }
 
     public enum MessagingLocationPriority{
         PRIORITY_HIGH_ACCURACY(LocationRequest.PRIORITY_HIGH_ACCURACY),
@@ -354,6 +328,38 @@ public class Messaging implements LifecycleObserver {
         }
         isForeground=true;
         isBackground=false;
+
+    }
+
+    public void setConfiguration(String scanContent) {
+        nameMethod=new Object(){}.getClass().getEnclosingMethod().getName();
+        utils.showDebugLog(this,nameMethod, "scanContent: " +scanContent);
+        String[] prvHandlerMessage=scanContent.split(":%:");
+        prvTokenApp=prvHandlerMessage[0];
+        provHostApp=prvHandlerMessage[1];
+
+        utils.showDebugLog(this,nameMethod, "Token: " +prvTokenApp+" Host "+provHostApp);
+        Messaging.fetchFields(context,prvTokenApp,provHostApp);
+
+    }
+
+    public void reloadSdkParameter(){
+        setConfigParameterFromApp(prvTokenApp,provHostApp);
+        if(messagingStorageController.isRegisterDevice()){
+            messagingStorageController.saveDevice(null,null,null);
+            messagingStorageController.saveUserByDevice(null);
+            messagingDevice=null;
+            messagingUser=null;
+        }
+        createDeviceParameters();
+    }
+
+    public void sendUserUpdateData(HashMap<String, String> dataInputToSendUser){
+        for (Map.Entry<String, String> entry : dataInputToSendUser.entrySet()) {
+            messagingUser.addProperty(entry.getKey(),entry.getValue());
+        }
+
+        messagingUser.save(context);
 
     }
 
@@ -553,6 +559,19 @@ public class Messaging implements LifecycleObserver {
             messaging.utils.showInfoLog(messaging,nameMethod,"isAnalytics_allowed() "
                     +messaging.utils.isAnalytics_allowed());
         }
+    }
+
+    public static void fetchGeofence() {
+        String nameMethod=new Object(){}.getClass().getEnclosingMethod().getName();
+        final Messaging messaging = Messaging.getInstance();
+        String provId = "";
+        if(messaging.messagingDevice!=null) {
+            provId = messaging.messagingDevice.getId();
+        }else{
+            provId=messaging.messagingStorageController.getDevice().getId();
+        }
+        new HttpRequestEventGet(provId, messaging, "", "","","").execute();
+
     }
 
 
@@ -1533,12 +1552,14 @@ public class Messaging implements LifecycleObserver {
                 nameMethod = new Object() {
                 }.getClass().getEnclosingMethod().getName();
                 String param = "Bearer " + authToken;
-                if(!reasonEvent.equals("") && !reasonEvent.isEmpty()){
+                if((!reasonEvent.equals("") && !reasonEvent.isEmpty()) && (!provEvent.isEmpty() && !provEvent.equals(""))){
                     provUrl = messaging.utils.getMessagingHost()+"/devices/"+provDeviceId+"/event/"+provEvent+"?reason="+reasonEvent;
                 }else if(!typeAction.equals("") && !geofenceId.equals("")){
                     provUrl = messaging.utils.getMessagingHost()+"/devices/"+provDeviceId+"/region/"+typeAction+"/"+geofenceId;
-                }else{
+                }else if(!provEvent.equals("") && !provEvent.isEmpty()){
                     provUrl = messaging.utils.getMessagingHost()+"/devices/"+provDeviceId+"/event/"+provEvent;
+                }else{
+                    provUrl = messaging.utils.getMessagingHost()+"/devices/"+provDeviceId+"/region/";
                 }
 
                 messaging.utils.showHttpRequestLog(provUrl, messaging,nameMethod,"GET","");
@@ -1583,7 +1604,11 @@ public class Messaging implements LifecycleObserver {
                 if (!response.equals("")) {
                     nameMethod = new Object() {}.getClass().getEnclosingMethod().getName();
                     messaging.utils.showHttpResponseLog(provUrl,this,nameMethod,"Get Event Successful ",response);
-
+                    if(provEvent.equals("") && reasonEvent.equals("") && geofenceId.equals("") && typeAction.equals("") ){
+                    messaging.utils.showHttpResponseLog(provUrl,this,nameMethod,
+                            "Get GeoFences and process ",response);
+                    messaging.utils.processGeofenceList(response);
+                    }
                 }
             } catch (NullPointerException e) {
                 e.printStackTrace();
@@ -1593,7 +1618,16 @@ public class Messaging implements LifecycleObserver {
         }
     }
 
+    public PendingIntent createGeofencePendingIntent(String action) {
+        if ( geoFencePendingIntent != null ){
+            return geoFencePendingIntent;
+        }
+        Intent intent = new Intent(action);
+        geoFencePendingIntent=PendingIntent.getBroadcast(
+                context, GEOFENCE_REQ_CODE, intent, PendingIntent.FLAG_UPDATE_CURRENT );
 
+        return geoFencePendingIntent;
+    }
 
 
 }

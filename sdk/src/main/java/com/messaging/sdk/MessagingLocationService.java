@@ -92,7 +92,7 @@ public class MessagingLocationService extends Service {
                     0, notificationIntent, 0);
             Notification notification = new NotificationCompat.Builder(this, CHANNEL_ID)
                     .setContentTitle("Messaging SDK")
-                    .setContentText("ServiceLocation on ")
+                    .setContentText("Demo location on ")
                     .setSmallIcon(R.mipmap.ic_launcher_round)
                     .setContentIntent(pendingIntent)
                     .build();
