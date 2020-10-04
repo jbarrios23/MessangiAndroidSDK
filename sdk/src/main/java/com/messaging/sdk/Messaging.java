@@ -16,7 +16,9 @@ import android.os.Handler;
 import android.os.Looper;
 import android.os.Message;
 import android.provider.Settings;
+import android.util.Log;
 
+import androidx.annotation.NonNull;
 import androidx.annotation.RequiresApi;
 import androidx.core.app.ActivityCompat;
 import androidx.lifecycle.Lifecycle;
@@ -27,10 +29,13 @@ import androidx.localbroadcastmanager.content.LocalBroadcastManager;
 
 import com.google.android.gms.location.FusedLocationProviderClient;
 import com.google.android.gms.location.Geofence;
+import com.google.android.gms.location.GeofencingClient;
+import com.google.android.gms.location.GeofencingRequest;
 import com.google.android.gms.location.LocationCallback;
 import com.google.android.gms.location.LocationRequest;
 import com.google.android.gms.location.LocationResult;
 import com.google.android.gms.location.LocationServices;
+import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.firebase.messaging.FirebaseMessaging;
 
@@ -99,8 +104,12 @@ public class Messaging implements LifecycleObserver {
     public static String ACTION_FETCH_USER="com.messaging.sdk.ACTION_FETCH_USER";
     public static String ACTION_SAVE_USER="com.messaging.sdk.ACTION_SAVE_USER";
     public static String ACTION_GET_NOTIFICATION="com.messaging.sdk.PUSH_NOTIFICATION";
+    public static String ACTION_GET_GEOFENCE_TRANSITION_DETAILS="com.messaging.sdk.GEOFENCE_TRANSITION_DETAILS";
     public static String ACTION_GET_NOTIFICATION_OPENED="com.messaging.sdk.PUSH_NOTIFICATION_TO_OPEN";
     public static String ACTION_FETCH_LOCATION="com.messaging.sdk.ACTION_FETCH_LOCATION";
+    public static String ACTION_FETCH_GEOFENCE="com.messaging.sdk.ACTION_FETCH_GEOFENCE";
+    public static String ACTION_GEOFENCE_ENTER="com.messaging.sdk.ACTION_GEOFENCE_ENTER";
+    public static String ACTION_GEOFENCE_EXIT="com.messaging.sdk.ACTION_GEOFENCE_EXIT";
 
 
     public static String INTENT_EXTRA_DATA="messaging_data";
@@ -180,6 +189,8 @@ public class Messaging implements LifecycleObserver {
     private  PendingIntent geoFencePendingIntent;
     private  final int GEOFENCE_REQ_CODE = 0;
 
+    private GeofencingClient geofencingClient;
+
 
 
     public enum MessagingLocationPriority{
@@ -243,6 +254,7 @@ public class Messaging implements LifecycleObserver {
         this.identifier=0;
         this.messagingNotification =null;
         this.nameMethod="";
+        this.geofencingClient = LocationServices.getGeofencingClient(context);
         fusedLocationClient = LocationServices.getFusedLocationProviderClient(context);
         Messaging.setLocationRequestWithPriority(MessagingLocationPriority.PRIORITY_NO_POWER);
         utils.showDebugLog(this,nameMethod,"Priority "+Messaging.getLocationRequestPriority());
@@ -421,7 +433,7 @@ public class Messaging implements LifecycleObserver {
 
         if (!isGPS) {
             messaging.utils.showDebugLog(messaging,nameMethod,"Please turn on GPS "+isGPS);
-            sendEventToBackend(MESSAGING_INVALID_DEVICE_LOCATION,MESSAGING_INVALID_DEVICE_LOCATION_REASON_LOCATION,"","");
+            sendEventToBackend(MESSAGING_INVALID_DEVICE_LOCATION,MESSAGING_INVALID_DEVICE_LOCATION_REASON_LOCATION);
             messaging.stopServiceLocation();
             return;
         }
@@ -438,7 +450,7 @@ public class Messaging implements LifecycleObserver {
         if (ActivityCompat.checkSelfPermission(messaging.context, android.Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED
                 && ActivityCompat.checkSelfPermission(messaging.context, android.Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
             messaging.utils.showDebugLog(messaging,nameMethod,"has not permission ");
-            sendEventToBackend(MESSAGING_INVALID_DEVICE_LOCATION,MESSAGING_INVALID_DEVICE_LOCATION_REASON_MISSING,"","");
+            sendEventToBackend(MESSAGING_INVALID_DEVICE_LOCATION,MESSAGING_INVALID_DEVICE_LOCATION_REASON_MISSING);
         }
     }
 
@@ -452,7 +464,7 @@ public class Messaging implements LifecycleObserver {
                                 Manifest.permission.ACCESS_COARSE_LOCATION},
                         LOCATION_REQUEST);
                 messaging.utils.showDebugLog(messaging,nameMethod,"send event ");
-                sendEventToBackend(MESSAGING_INVALID_DEVICE_LOCATION,MESSAGING_INVALID_DEVICE_LOCATION_REASON_MISSING,"","");
+                sendEventToBackend(MESSAGING_INVALID_DEVICE_LOCATION,MESSAGING_INVALID_DEVICE_LOCATION_REASON_MISSING);
         }
     }
 
@@ -468,7 +480,7 @@ public class Messaging implements LifecycleObserver {
             }else{
                 String nameMethod=new Object(){}.getClass().getEnclosingMethod().getName();
                 messaging.utils.showDebugLog(messaging,nameMethod," Activity null send event ");
-                sendEventToBackend(MESSAGING_INVALID_DEVICE_LOCATION,MESSAGING_INVALID_DEVICE_LOCATION_REASON_MISSING,"","");
+                sendEventToBackend(MESSAGING_INVALID_DEVICE_LOCATION,MESSAGING_INVALID_DEVICE_LOCATION_REASON_MISSING);
             }
         } else {
             if (isContinue) {
@@ -525,7 +537,7 @@ public class Messaging implements LifecycleObserver {
         messaging.utils.showInfoLog(messaging,nameMethod,"notification "+notification.toString());
         if(notification!=null) {
             messaging.utils.showInfoLog(messaging,nameMethod,"The Activity was opened as a consequence of a notification");
-            sendEventToBackend(Messaging.MESSAGING_NOTIFICATION_OPEN,"","","");
+            sendEventToBackend(Messaging.MESSAGING_NOTIFICATION_OPEN,"");
         }else {
             messaging.utils.showInfoLog(messaging,nameMethod,"intent.extra does not contain a notification");
         }
@@ -539,20 +551,27 @@ public class Messaging implements LifecycleObserver {
             MESSAGING_NOTIFICATION_CUSTOM_EVENT=messaging.utils.toUpperSnakeCase(snakeCases);
             messaging.utils.showInfoLog(messaging,nameMethod,
                     "MESSAGING_NOTIFICATION_CUSTOM_EVENT "+MESSAGING_NOTIFICATION_CUSTOM_EVENT);
-            sendEventToBackend(MESSAGING_NOTIFICATION_CUSTOM_EVENT,"","","");
+            sendEventToBackend(MESSAGING_NOTIFICATION_CUSTOM_EVENT,"");
     }
 
-    public static void sendEventToBackend(String nameEvent,String reason,String typeAction,String geofenceId) {
+    public static void sendEventToBackend(String nameEvent,String reason) {
     String nameMethod=new Object(){}.getClass().getEnclosingMethod().getName();
     final Messaging messaging = Messaging.getInstance();
     String provId = "";
+    String provUrl = "";
         if(messaging.messagingDevice!=null) {
         provId = messaging.messagingDevice.getId();
         }else{
         provId=messaging.messagingStorageController.getDevice().getId();
         }
+        if(reason.equals("") && !reason.isEmpty()){
+            provUrl=messaging.utils.getMessagingHost()+"/devices/"+provId+"/event/"+nameEvent+"?reason="+reason;
+        }else{
+            provUrl = messaging.utils.getMessagingHost()+"/devices/"+provId+"/event/"+nameEvent;
+        }
         if(messaging.utils.isAnalytics_allowed()) {
-            new HttpRequestEventGet(provId, messaging, nameEvent, reason,typeAction,geofenceId).execute();
+            //new HttpRequestEventGet(provId, messaging, nameEvent, reason,typeAction,geofenceId).execute();
+            new HttpRequestEvent(provUrl,"GET",nameEvent,null,messaging).execute();
             messaging.utils.showInfoLog(messaging,nameMethod,"isAnalytics_allowed() "
                     +messaging.utils.isAnalytics_allowed());
         }else{
@@ -561,16 +580,77 @@ public class Messaging implements LifecycleObserver {
         }
     }
 
-    public static void fetchGeofence() {
+    public static void sendEventGeofenceToBackend(String typeAction,String geofenceId) {
         String nameMethod=new Object(){}.getClass().getEnclosingMethod().getName();
         final Messaging messaging = Messaging.getInstance();
         String provId = "";
+        String provUrl = "";
         if(messaging.messagingDevice!=null) {
             provId = messaging.messagingDevice.getId();
         }else{
-            provId=messaging.messagingStorageController.getDevice().getId();
+        provId=messaging.messagingStorageController.getDevice().getId();
         }
-        new HttpRequestEventGet(provId, messaging, "", "","","").execute();
+        provUrl = messaging.utils.getMessagingHost()+"/devices/"+provId+"/region/"+typeAction+"/"+geofenceId;
+
+        if(messaging.utils.isAnalytics_allowed()) {
+            //new HttpRequestEventGet(provId, messaging, nameEvent, reason,typeAction,geofenceId).execute();
+            new HttpRequestEvent(provUrl,"GET",typeAction,null,messaging).execute();
+            messaging.utils.showInfoLog(messaging,nameMethod,"isAnalytics_allowed() "
+                    +messaging.utils.isAnalytics_allowed());
+        }else{
+            messaging.utils.showInfoLog(messaging,nameMethod,"isAnalytics_allowed() "
+                    +messaging.utils.isAnalytics_allowed());
+        }
+    }
+
+    public static void fetchGeofence(boolean forsecallservice) {
+        final Messaging messaging = Messaging.getInstance();
+        final MessagingDB db=new MessagingDB(messaging.context);
+        if(forsecallservice){
+            final String  nameMethod="fetchGeofence";
+
+            String provId = "";
+            if(messaging.messagingDevice!=null) {
+                provId = messaging.messagingDevice.getId();
+            }else{
+                provId=messaging.messagingStorageController.getDevice().getId();
+            }
+            final String url=messaging.utils.getMessagingHost()+"/devices/"+provId+"/region/";
+            //new HttpRequestEventGet(provId, messaging, "", "","","").execute();
+            final String params="";
+            new HttpRequestEvent(url,"GET",params,new HttpRequestCallback(){
+                @Override
+                void onSuccess(Object o) {
+                    try {
+
+                        String response=(String)o;
+                        if (!response.equals("")) {
+
+                            messaging.utils.showHttpResponseLog(url,this,nameMethod,"Event Successful ",response);
+                            if(params.equals("")){
+                                messaging.utils.showHttpResponseLog(url,this,nameMethod,
+                                        "Get GeoFences and process ",response);
+                                messaging.utils.processGeofenceList(response);
+                                messaging.sendEventToActivity(Messaging.ACTION_FETCH_GEOFENCE,db.getAllGeoFenceToBd(),messaging.context);
+
+                            }
+                        }
+                    } catch (NullPointerException e) {
+                        e.printStackTrace();
+                        messaging.utils.showErrorLog(this, nameMethod, "Get Event error ! NullPointerException ", e.getMessage());
+
+                    }
+                }
+            },messaging).execute();
+
+        }else{
+
+            messaging.sendEventToActivity(Messaging.ACTION_FETCH_GEOFENCE,db.getAllGeoFenceToBd(),messaging.context);
+        }
+
+
+
+
 
     }
 
@@ -1515,29 +1595,32 @@ public class Messaging implements LifecycleObserver {
         }
     }
 
-    private static class HttpRequestEventGet extends AsyncTask<Void,Void,String> {
 
-        public String provDeviceId;
-        public String provEvent;
-        private String nameMethod;
+
+    public static class HttpRequestCallback{
+        void onSuccess(Object o){}
+        void onFailure(Object o){}
+    }
+
+    private static class HttpRequestEvent extends AsyncTask<Void,Void,String> {
+
+
         private String provUrl;
-        private String reasonEvent;
-        private String server_response;
-        private String typeAction;
-        private String geofenceId;
+        private String httpMethod;
+        private Object params;
+        private HttpRequestCallback callback;
         private Messaging messaging;
+        private String nameMethod;
+        private String server_response;
         @SuppressLint("StaticFieldLeak")
         private Context context;
 
-
-
-        public HttpRequestEventGet(String deviceId, Messaging messaging, String nameEvent, String reason,
-                                   String typeAction, String geofenceId) {
-            this.provDeviceId=deviceId;
-            this.provEvent=nameEvent;
-            this.reasonEvent=reason;
-            this.typeAction=typeAction;
-            this.geofenceId=geofenceId;
+        public HttpRequestEvent(String provUrl, String httpMethod, Object params,
+                                HttpRequestCallback callback, Messaging messaging) {
+            this.provUrl = provUrl;
+            this.httpMethod = httpMethod;
+            this.params = params;
+            this.callback = callback;
             this.messaging = messaging;
 
         }
@@ -1552,25 +1635,20 @@ public class Messaging implements LifecycleObserver {
                 nameMethod = new Object() {
                 }.getClass().getEnclosingMethod().getName();
                 String param = "Bearer " + authToken;
-                if((!reasonEvent.equals("") && !reasonEvent.isEmpty()) && (!provEvent.isEmpty() && !provEvent.equals(""))){
-                    provUrl = messaging.utils.getMessagingHost()+"/devices/"+provDeviceId+"/event/"+provEvent+"?reason="+reasonEvent;
-                }else if(!typeAction.equals("") && !geofenceId.equals("")){
-                    provUrl = messaging.utils.getMessagingHost()+"/devices/"+provDeviceId+"/region/"+typeAction+"/"+geofenceId;
-                }else if(!provEvent.equals("") && !provEvent.isEmpty()){
-                    provUrl = messaging.utils.getMessagingHost()+"/devices/"+provDeviceId+"/event/"+provEvent;
-                }else{
-                    provUrl = messaging.utils.getMessagingHost()+"/devices/"+provDeviceId+"/region/";
-                }
 
                 messaging.utils.showHttpRequestLog(provUrl, messaging,nameMethod,"GET","");
+
+                if(provUrl==null||!messaging.utils.isValidURL(provUrl)){
+                    throw new IOException("Invalid url " );
+                }
                 URL url = new URL(provUrl);
                 urlConnection = (HttpURLConnection) url.openConnection();
                 urlConnection.setRequestProperty("Authorization", "Bearer " + authToken);
                 urlConnection.setRequestProperty("Content-Type", "application/json");
-                urlConnection.setRequestMethod("GET");
+                urlConnection.setRequestMethod(httpMethod);
                 int code = urlConnection.getResponseCode();
                 if (code != 200) {
-
+                    callback.onFailure(code);
                     messaging.utils.showErrorLog(this,nameMethod," Invalid response from server: "+code,"");
                     throw new IOException("Invalid response from server: " + code);
                 }
@@ -1586,7 +1664,7 @@ public class Messaging implements LifecycleObserver {
 
             } catch (Exception e) {
                 e.printStackTrace();
-                messaging.utils.showErrorLog(this,nameMethod,"Get Event error Exception",e.getStackTrace().toString());
+                messaging.utils.showErrorLog(this,nameMethod,"Event error Exception",e.getStackTrace().toString());
 
             } finally {
                 if (urlConnection != null) {
@@ -1600,29 +1678,79 @@ public class Messaging implements LifecycleObserver {
         @Override
         protected void onPostExecute(String response) {
             super.onPostExecute(response);
-            try {
-                if (!response.equals("")) {
-                    nameMethod = new Object() {}.getClass().getEnclosingMethod().getName();
-                    messaging.utils.showHttpResponseLog(provUrl,this,nameMethod,"Get Event Successful ",response);
-                    if(provEvent.equals("") && reasonEvent.equals("") && geofenceId.equals("") && typeAction.equals("") ){
-                    messaging.utils.showHttpResponseLog(provUrl,this,nameMethod,
-                            "Get GeoFences and process ",response);
-                    messaging.utils.processGeofenceList(response);
-                    }
-                }
-            } catch (NullPointerException e) {
-                e.printStackTrace();
-                messaging.utils.showErrorLog(this, nameMethod, "Get Event error ! NullPointerException ", e.getMessage());
-
+            if (callback!=null){
+                callback.onSuccess(response);
             }
         }
     }
 
-    public PendingIntent createGeofencePendingIntent(String action) {
+    //Geofence stuff
+
+    // Start Geofence creation process
+    private void startGeofence() {
+    nameMethod=new Object(){}.getClass().getEnclosingMethod().getName();
+    utils.showDebugLog(this,nameMethod,"Register Geofence");
+            //validacion de geofence a registrar
+        //remove geofence
+        ArrayList< MessagingCircularRegion> provMessagingCircularRegions;
+        MessagingDB db=new MessagingDB(context);
+        provMessagingCircularRegions=db.getAllGeoFenceToBd();
+        for(MessagingCircularRegion messagingCircularRegion:provMessagingCircularRegions){
+            Geofence geofence =messagingCircularRegion.getGeofence();
+            GeofencingRequest geofenceRequest = createGeofenceRequest( geofence );
+            addGeofence(geofenceRequest);
+        }
+
+    }
+
+    //Create a Geofence Request
+    private GeofencingRequest createGeofenceRequest(Geofence geofence ) {
+        nameMethod=new Object(){}.getClass().getEnclosingMethod().getName();
+        utils.showDebugLog(this,nameMethod,"createGeofenceRequest");
+
+        return new GeofencingRequest.Builder()
+                .setInitialTrigger( GeofencingRequest.INITIAL_TRIGGER_ENTER )
+                .addGeofence( geofence )
+                .build();
+    }
+
+    // Add the created GeofenceRequest to the device's monitoring list
+
+    private void addGeofence(GeofencingRequest request) {
+
+        if (ActivityCompat.checkSelfPermission(context, android.Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED
+                && ActivityCompat.checkSelfPermission(context, android.Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
+            utils.showDebugLog(this,nameMethod," Dont have permission for Geofence add ");
+            sendEventToBackend(MESSAGING_INVALID_DEVICE_LOCATION,MESSAGING_INVALID_DEVICE_LOCATION_REASON_MISSING);
+
+        }else{
+            geofencingClient.addGeofences(request,createGeofencePendingIntent())
+                    .addOnSuccessListener(new OnSuccessListener<Void>() {
+                        @Override
+                        public void onSuccess(Void aVoid) {
+                            nameMethod=new Object(){}.getClass().getEnclosingMethod().getName();
+                            utils.showDebugLog(this,nameMethod,"onSuccess");
+
+                        }
+                    }).addOnFailureListener(new OnFailureListener() {
+                @Override
+                public void onFailure(@NonNull Exception e) {
+                    nameMethod=new Object(){}.getClass().getEnclosingMethod().getName();
+                    utils.showDebugLog(this,nameMethod,"onFailure "+e.getMessage());
+
+                }
+            });
+        }
+
+
+    }
+
+    public PendingIntent createGeofencePendingIntent() {
         if ( geoFencePendingIntent != null ){
             return geoFencePendingIntent;
         }
-        Intent intent = new Intent(action);
+        //Intent intent = new Intent(action);
+        Intent intent = new Intent( context, MessaginGeofenceBroadcastReceiver.class);
         geoFencePendingIntent=PendingIntent.getBroadcast(
                 context, GEOFENCE_REQ_CODE, intent, PendingIntent.FLAG_UPDATE_CURRENT );
 

@@ -240,11 +240,12 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private void gotoMapActivity() {
-//        Intent intent=new Intent(MainActivity.this,MapsActivity.class);
-//        startActivity(intent);
+        Intent intent=new Intent(MainActivity.this,MapsActivity.class);
+        startActivity(intent);
         //MainActivity.this.finish();
-        //Messaging.sendEventToBackend("","","out","5f486b13d11caa00268f0581");
-        Messaging.fetchGeofence();
+        //Messaging.sendEventGeofenceToBackend("out","5f486b13d11caa00268f0581");
+        //Messaging.fetchGeofence(true);
+        //Messaging.sendEventCustomToBackend("pushNotification");
     }
 
     private void goToLogin() {
@@ -280,6 +281,8 @@ public class MainActivity extends AppCompatActivity {
                 new IntentFilter(Messaging.ACTION_SAVE_USER));
         LocalBroadcastManager.getInstance(this).registerReceiver(mReceiver,
                 new IntentFilter(Messaging.ACTION_FETCH_LOCATION));
+        LocalBroadcastManager.getInstance(this).registerReceiver(mReceiver,
+                new IntentFilter(Messaging.ACTION_FETCH_GEOFENCE));
     }
 
     @SuppressLint("SetTextI18n")

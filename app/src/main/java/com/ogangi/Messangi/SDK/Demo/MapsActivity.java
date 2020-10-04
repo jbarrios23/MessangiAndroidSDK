@@ -34,6 +34,7 @@ import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
 import com.messaging.sdk.Messaging;
+import com.messaging.sdk.MessagingCircularRegion;
 import com.messaging.sdk.MessagingDevice;
 import com.messaging.sdk.MessagingLocation;
 import com.messaging.sdk.MessagingNotification;
@@ -57,6 +58,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
     private String nameMethod;
     private Marker locationMarker;
     MessagingNotification messagingNotification;
+    ArrayList<MessagingCircularRegion> messagingCircularRegions;
     public boolean onetimeFlag=true;
     public MessagingLocation messagingLocation;
     private Button getLocation,getPermission,getLocationC,turnOffLocationButton;
@@ -148,6 +150,8 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
                 new IntentFilter(Messaging.ACTION_FETCH_LOCATION));
         LocalBroadcastManager.getInstance(this).registerReceiver(mReceiver,
                 new IntentFilter(Messaging.ACTION_GET_NOTIFICATION));
+        LocalBroadcastManager.getInstance(this).registerReceiver(mReceiver,
+                new IntentFilter(Messaging.ACTION_FETCH_GEOFENCE));
     }
 
     @Override
@@ -240,6 +244,11 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
                             (intent.getAction().equals(Messaging.ACTION_GET_NOTIFICATION_OPENED)))&& data!=null) {
                         messagingNotification = (MessagingNotification) data;
                         showAlertNotification(messagingNotification, data);
+
+                    }else if(intent.getAction().equals(Messaging.ACTION_FETCH_GEOFENCE) && data!=null) {
+
+                    messagingCircularRegions = (ArrayList<MessagingCircularRegion>) data;
+
 
                     }else{
                     Toast.makeText(getApplicationContext(),intent.getAction(),Toast.LENGTH_SHORT).show();

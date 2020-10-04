@@ -6,14 +6,13 @@ import android.util.Log;
 
 import com.google.android.gms.location.Geofence;
 
-public class MessagingGeofence implements MessagingRegion {
+import java.io.Serializable;
+
+public class MessagingGeofence implements MessagingRegion, Serializable {
 
     protected String id;
     protected Messaging.MessagingGeoFenceTrigger messagingGeoFenceTrigger;
     protected int expiration;
-    private PendingIntent geoFencePendingIntent;
-    private final int GEOFENCE_REQ_CODE = 0;
-
 
 
     @Override

@@ -68,6 +68,8 @@
             <intent-filter>
                 <action android:name="com.messaging.sdk.PUSH_NOTIFICATION" />
                 <action android:name="com.messaging.sdk.ACTION_FETCH_LOCATION" />
+                <action android:name="com.messaging.sdk.ACTION_GEOFENCE_ENTER" />
+                <action android:name="com.messaging.sdk.ACTION_GEOFENCE_EXIT" />
             </intent-filter>
         </receiver>
 

@@ -169,6 +169,20 @@ public class MessagingDB extends SQLiteOpenHelper {
             messaging.utils.showErrorLog(this,nameMethod,"error delete data","");
         }
     }
+    public void deleteAll(){
+        Messaging messaging=Messaging.getInstance();
+        String nameMethod=new Object(){}.getClass().getEnclosingMethod().getName();
+        SQLiteDatabase db = this.getWritableDatabase();
+
+        try{
+            db.delete(MESSAGING_TABLA_GEOFENCE,null,null);
+            db.close();
+
+            messaging.utils.showDebugLog(this,nameMethod,"Delete all data");
+        }catch(Exception ex){
+            messaging.utils.showErrorLog(this,nameMethod,"error delete data","");
+        }
+    }
 
 
 }

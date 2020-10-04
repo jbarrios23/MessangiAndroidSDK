@@ -2,11 +2,15 @@ package com.messaging.sdk;
 
 import com.google.android.gms.location.Geofence;
 
-public class MessagingCircularRegion extends MessagingGeofence {
+import java.io.Serializable;
+
+public class MessagingCircularRegion extends MessagingGeofence implements Serializable {
 
     private double latitude;
     private double longitud;
     private int radius;
+
+
 
 
     @Override
