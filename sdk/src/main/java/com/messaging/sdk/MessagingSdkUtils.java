@@ -676,4 +676,42 @@ class MessagingSdkUtils {
             e.printStackTrace();
         }
     }
+
+    public void handleGeoFencePushParameterSinc(String messagingGeoFencePushSinc, Messaging messaging) {
+        String nameMethod="handleGeoFencePushParameterSinc";
+        try {
+            //JSONArray jsonArray=new JSONArray(messagingGeoFencePushSinc);
+            JSONObject jsonArray=new JSONObject(messagingGeoFencePushSinc);
+            showDebugLog(this,nameMethod,"Sinc"
+                    +jsonArray.toString());
+            showDebugLog(this, nameMethod, "state : "
+                    + " is F " + Messaging.isForeground);
+            showDebugLog(this, nameMethod, "state : "
+                    + " is B " + Messaging.isBackground);
+
+//            if(Messaging.isForeground) {
+//                showDebugLog(this, nameMethod, "Sinc Enable call service : "
+//                        + " is F " + Messaging.isForeground);
+//            }else if(Messaging.isBackground){
+//                Messaging.flagSinc=true;
+//                showDebugLog(this, nameMethod, "Sinc Enable call service : "
+//                        + " is B " + Messaging.isBackground+" sinc flag "+Messaging.flagSinc);
+//            }
+            if(Messaging.isForeground) {
+                showDebugLog(this, nameMethod, "Sinc Enable call service : "
+                        + " is F " + Messaging.isForeground);
+                //launch fetch gofence
+            }else {
+                Messaging.flagSinc=true;
+                Messaging.isBackground=true;
+                showDebugLog(this, nameMethod, "Sinc Enable call service : "
+                        + " is B " + Messaging.isBackground+" sinc flag "+Messaging.flagSinc);
+                messaging.messagingStorageController.setSincAllowed(Messaging.flagSinc);
+            }
+
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
+
+    }
 }

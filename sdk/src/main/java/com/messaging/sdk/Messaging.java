@@ -126,6 +126,7 @@ public class Messaging implements LifecycleObserver {
     public static String MESSAGING_APP_ID="MSGI_APPID";
     public static String MESSAGING_CONFIGURATION="MSGI_CONFIGURATION";
     public static String MESSAGING_GEOFENCE_PUSH="MSGI_GEOFENCES";
+    public static String MESSAGING_GEOFENCE_SINC="MSGI_GEOFENCES_SINC";
     public static String MESSAGING_GEO_PUSH="MSGI_GEOPUSH";
     public static String MESSAGING_APP_TOKEN="appToken";
     public static String MESSAGING_LOCATION_ENABLE="locationEnable";
@@ -183,8 +184,11 @@ public class Messaging implements LifecycleObserver {
     private static LocationRequest locationRequest;
     private static LocationCallback locationCallback;
     private static FusedLocationProviderClient fusedLocationClient;
-    public static boolean isForeground = false;
-    public static boolean isBackground = false;
+//    public static boolean isForeground = false;
+//    public static boolean isBackground = false;
+    public static boolean isForeground;
+    public static boolean isBackground;
+    public static boolean flagSinc = false;
 
     private  PendingIntent geoFencePendingIntent;
     private  final int GEOFENCE_REQ_CODE = 0;
@@ -340,7 +344,35 @@ public class Messaging implements LifecycleObserver {
         }
         isForeground=true;
         isBackground=false;
+//        if(flagSinc){
+//            utils.showInfoLog(this,nameMethod,"Sinc Enable call service "+flagSinc);
+//            //launch fetch gofence
+//            flagSinc=false;
+//        }
 
+        if(messagingStorageController.hasSincAllowed()==1){
+            if(messagingStorageController.isSincAllowed()){
+                utils.showInfoLog(this,nameMethod,"Sinc Enable F call service "+flagSinc);
+                //launch fetch gofence
+                flagSinc=false;
+                messagingStorageController.setSincAllowed(flagSinc);
+            }
+
+        }
+
+    }
+    /**
+     * Method that initializes OnLifecycleEvent
+     * EnterBackground
+     */
+    @RequiresApi(api = Build.VERSION_CODES.O)
+    @OnLifecycleEvent(Lifecycle.Event.ON_STOP)
+    public void onEnterBackground() {
+        nameMethod=new Object(){}.getClass().getEnclosingMethod().getName();
+        utils.showDebugLog(this,nameMethod,"Background ");
+        isBackground=true;
+        isForeground=false;
+        utils.showDebugLog(this,nameMethod,"Background "+isBackground);
     }
 
     public void setConfiguration(String scanContent) {
@@ -661,25 +693,7 @@ public class Messaging implements LifecycleObserver {
 
 
 
-    /**
-     * Method that initializes OnLifecycleEvent
-     * EnterBackground
-     */
-    @RequiresApi(api = Build.VERSION_CODES.O)
-    @OnLifecycleEvent(Lifecycle.Event.ON_STOP)
-    public void onEnterBackground() {
-        nameMethod=new Object(){}.getClass().getEnclosingMethod().getName();
-        utils.showDebugLog(this,nameMethod,"Background ");
-        isBackground=true;
-        isForeground=false;
-        utils.showDebugLog(this,nameMethod,"Background "+isBackground);
-//        if(isLocation_allowed()) {
-//            Intent intent = new Intent(context, MessagingLocationService.class);
-//            context.startForegroundService(intent);
-//        }else{
-//            utils.showDebugLog(this,nameMethod,"isLocation_allowed() "+isLocation_allowed());
-//        }
-    }
+
 
     public void stopServiceLocation(){
         Intent intent = new Intent(context, MessagingLocationService.class);

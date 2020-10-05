@@ -553,6 +553,36 @@ public class MessagingStorageController {
         editorlogin.commit();
     }
 
+    /**
+     * Method setAnalyticsAllowed
+     * @param enable : enable
+     */
+    public void setSincAllowed(boolean enable){
+        nameMethod=new Object(){}.getClass().getEnclosingMethod().getName();
+        SharedPreferences.Editor data=mSharedPreferencesConfig.edit();
+        data.putBoolean("SincAllowed",enable);
+        data.putInt("SincAllowedInt",1);
+        data.apply();
+        messaging.utils.showDebugLog(this,nameMethod,"Set SincAllowed "+enable);
+
+    }
+    /**
+     * Method hasTokenRegister lets Know if messagingHost is registered in local storage
+     *
+     */
+    public int hasSincAllowed(){
+        nameMethod=new Object(){}.getClass().getEnclosingMethod().getName();
+        int token=mSharedPreferencesConfig.getInt("SincAllowedInt",0);
+        //messaging.utils.showDebugLog(this,nameMethod,"has AnalyticsAllowed "+token);
+        return token;
+    }
+
+    public boolean isSincAllowed(){
+        boolean result=mSharedPreferencesConfig.getBoolean("SincAllowed",false);
+        messaging.utils.showDebugLog(this,nameMethod,"Get SincAllowed from storage "+result);
+        return result ;
+    }
+
 
 
 }

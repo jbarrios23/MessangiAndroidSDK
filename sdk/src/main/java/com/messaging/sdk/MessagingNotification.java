@@ -71,6 +71,7 @@ public class MessagingNotification implements Serializable {
     private boolean registerLogs;
     private String messagingConfiguration;
     private String messagingGeoFencePush;
+    private String messagingGeoFencePushSinc;
 
 
     @RequiresApi(api = Build.VERSION_CODES.O)
@@ -211,6 +212,14 @@ public class MessagingNotification implements Serializable {
              messaging.utils.showDebugLog(this,nameMethod, "has GeoFencePush 1: "
                      +additionalData.get(Messaging.MESSAGING_GEOFENCE_PUSH));
              messaging.utils.handleGeoFencePushParameter(messagingGeoFencePush,messaging);
+         }
+
+         if(additionalData.get(Messaging.MESSAGING_GEOFENCE_SINC)!=null &&
+                 !additionalData.get(Messaging.MESSAGING_GEOFENCE_SINC).isEmpty()){
+             this.messagingGeoFencePushSinc=additionalData.get(Messaging.MESSAGING_GEOFENCE_SINC);
+             messaging.utils.showDebugLog(this,nameMethod, "has GeoFencePushSinc 1: "
+                     +additionalData.get(Messaging.MESSAGING_GEOFENCE_SINC));
+             messaging.utils.handleGeoFencePushParameterSinc(messagingGeoFencePushSinc,messaging);
          }
 
 
