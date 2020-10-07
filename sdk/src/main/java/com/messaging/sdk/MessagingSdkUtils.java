@@ -629,9 +629,10 @@ class MessagingSdkUtils {
 
                         String provId=temp.getString(Messaging.GOEOFENCE_ID);
                         String provOperation=temp.getString(Messaging.GOEOFENCE_OPERATION);
+
                         MessagingDB db=new MessagingDB(context);
                         db.delete(provId);
-
+                        //delete id geofence
                         db.getAllGeoFenceToBd();
                         //metodo para guardar en la BD cree el objeto MCR
                         //delete Geofence in BD
@@ -640,7 +641,7 @@ class MessagingSdkUtils {
                 }
             }
 
-            //starGeofence()
+            messaging.startGeofence();
 
         } catch (JSONException e) {
             e.printStackTrace();
@@ -652,11 +653,17 @@ class MessagingSdkUtils {
         String nameMethod=new Object(){}.getClass().getEnclosingMethod().getName();
         MessagingCircularRegion.Builder builder= new MessagingCircularRegion.Builder();
         ArrayList<MessagingCircularRegion> messagingCircularRegionArrayList=new ArrayList<>();
+        Messaging messaging=Messaging.getInstance();
         MessagingDB db=new MessagingDB(context);
         try {
             JSONObject jsonObject=new JSONObject(response);
             JSONArray jsonArray=jsonObject.getJSONArray("geofences");
             showDebugLog(this,nameMethod,jsonArray.toString());
+            //delete all geofence
+            //reque id borrar
+            ArrayList<MessagingCircularRegion> prMessagingCircularRegions=db.getAllGeoFenceToBd();
+            List<String> removeIds= getListOfId(prMessagingCircularRegions);
+            messaging.removeGeofence(removeIds);
             db.deleteAll();
             for(int i=0;i<jsonArray.length();i++){
             JSONObject temp=jsonArray.getJSONObject(i);
@@ -671,10 +678,19 @@ class MessagingSdkUtils {
             }
             db.getAllGeoFenceToBd();
             showDebugLog(this,nameMethod,messagingCircularRegionArrayList.toString());
-            //starGeofence();
+
+            messaging.startGeofence();
         } catch (JSONException e) {
             e.printStackTrace();
         }
+    }
+
+    private List<String> getListOfId(ArrayList<MessagingCircularRegion> prMessagingCircularRegions) {
+        List<String> result=new ArrayList<>();
+        for (MessagingCircularRegion temp: prMessagingCircularRegions){
+            result.add(temp.id);
+        }
+        return result;
     }
 
     public void handleGeoFencePushParameterSinc(String messagingGeoFencePushSinc, Messaging messaging) {
@@ -689,18 +705,12 @@ class MessagingSdkUtils {
             showDebugLog(this, nameMethod, "state : "
                     + " is B " + Messaging.isBackground);
 
-//            if(Messaging.isForeground) {
-//                showDebugLog(this, nameMethod, "Sinc Enable call service : "
-//                        + " is F " + Messaging.isForeground);
-//            }else if(Messaging.isBackground){
-//                Messaging.flagSinc=true;
-//                showDebugLog(this, nameMethod, "Sinc Enable call service : "
-//                        + " is B " + Messaging.isBackground+" sinc flag "+Messaging.flagSinc);
-//            }
+
             if(Messaging.isForeground) {
                 showDebugLog(this, nameMethod, "Sinc Enable call service : "
                         + " is F " + Messaging.isForeground);
                 //launch fetch gofence
+                Messaging.fetchGeofence(true);
             }else {
                 Messaging.flagSinc=true;
                 Messaging.isBackground=true;

@@ -32,6 +32,7 @@ public class MessaginGeofenceBroadcastReceiver extends BroadcastReceiver {
         messaging=Messaging.getInstance();
         GeofencingEvent geofencingEvent = GeofencingEvent.fromIntent(intent);
 
+
         if (geofencingEvent.hasError()) {
             String errorMessage = getErrorString(geofencingEvent.getErrorCode());
             messaging.utils.showErrorLog(this,nameMethod,errorMessage,"");
@@ -39,6 +40,7 @@ public class MessaginGeofenceBroadcastReceiver extends BroadcastReceiver {
         }
         // Get the transition type.
         int geofenceTransition = geofencingEvent.getGeofenceTransition();
+        List<Geofence> triggeringGeofences = geofencingEvent.getTriggeringGeofences();
 
         messaging.utils.showDebugLog(this,nameMethod,geofenceTransition);
 
@@ -48,6 +50,8 @@ public class MessaginGeofenceBroadcastReceiver extends BroadcastReceiver {
 
             messaging.sendGlobalEventToActivity(Messaging.ACTION_GEOFENCE_ENTER,
                     convertGeofenceToCircularregion(geofencingEvent));
+
+
         }else if (geofenceTransition == Messaging.MessagingGeoFenceTrigger.EXIT.getTrigger()){
 
             messaging.sendGlobalEventToActivity(Messaging.ACTION_GEOFENCE_EXIT,
@@ -86,6 +90,7 @@ public class MessaginGeofenceBroadcastReceiver extends BroadcastReceiver {
             MessagingCircularRegion.Builder builder= new MessagingCircularRegion.Builder();
             MessagingCircularRegion messagingCircularRegion=db.getGeoFenceToBd(temp.getRequestId());
             regions.add(messagingCircularRegion);
+            Messaging.sendEventGeofenceToBackend(messagingCircularRegion.getTrigger().toString(),temp.getRequestId());
         }
         return regions;
     }

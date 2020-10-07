@@ -12,6 +12,7 @@ import android.widget.Toast;
 import androidx.localbroadcastmanager.content.LocalBroadcastManager;
 
 import com.messaging.sdk.Messaging;
+import com.messaging.sdk.MessagingCircularRegion;
 import com.messaging.sdk.MessagingDevice;
 import com.messaging.sdk.MessagingLocation;
 import com.messaging.sdk.MessagingNotification;
@@ -21,6 +22,7 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.io.Serializable;
+import java.util.ArrayList;
 import java.util.Map;
 
 import static android.content.Context.LOCATION_SERVICE;
@@ -32,7 +34,7 @@ public class MessagingNotificationReceiver extends BroadcastReceiver {
     private String nameMethod;
     private MessagingNotification messagingNotification;
     private double wayLatitude, wayLongitude;
-
+    private ArrayList<MessagingCircularRegion> messagingCircularRegions;
     @Override
     public void onReceive(Context context, Intent intent) {
         // TODO: This method is called when the BroadcastReceiver is receiving
@@ -71,6 +73,18 @@ public class MessagingNotificationReceiver extends BroadcastReceiver {
                      sendEventToActivity(Messaging.ACTION_FETCH_LOCATION,messagingLocation,context);
                  }
 
+
+
+             }else if(intent.getAction().equals(Messaging.ACTION_GEOFENCE_ENTER)
+                     ||intent.getAction().equals(Messaging.ACTION_GEOFENCE_EXIT)){
+                  messagingCircularRegions=(ArrayList<MessagingCircularRegion>)data;
+                 if(isInBackground){
+                     Log.d(TAG, "DEBUG: " + CLASS_TAG + ": " + nameMethod + ": Data Geofence:  "
+                             + messagingCircularRegions);
+                 }else{
+                     sendEventToActivity(Messaging.ACTION_FETCH_GEOFENCE,messagingCircularRegions,context);
+                 }
+                 Toast.makeText(context, intent.getAction(), Toast.LENGTH_SHORT).show();
 
 
              }else{
