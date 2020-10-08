@@ -252,6 +252,14 @@ public class MessagingUser implements Serializable {
         return "";
     }
 
+    @Override
+    public String toString() {
+        return "MessagingUser{" +
+                ", id:'" + id + '\'' +
+                ", properties:" + properties +
+                '}';
+    }
+
     private class HTTPReqTaskPutUserByDevice extends AsyncTask<Void,Void,String> {
 
         private String deviceId;

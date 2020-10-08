@@ -371,7 +371,6 @@ public class MessagingDevice implements Serializable {
         LocalBroadcastManager.getInstance(context).sendBroadcast(intent);
     }
 
-
     private class HTTPReqTaskPut extends AsyncTask<Void,Void,String> {
 
         private JSONObject jsonObject;
@@ -507,10 +506,20 @@ public class MessagingDevice implements Serializable {
         return list;
     }
 
-    @NonNull
     @Override
     public String toString() {
-        return "device: "+id+" "+tags;
+        return "MessagingDevice {" +
+                "id:'" + id + '\'' +
+                ", pushToken:'" + pushToken + '\'' +
+                ", type:'" + type + '\'' +
+                ", language:'" + language + '\'' +
+                ", model:'" + model + '\'' +
+                ", os:'" + os + '\'' +
+                ", sdkVersion:'" + sdkVersion + '\'' +
+                ", tags:" + tags +
+                ", createdAt:'" + createdAt + '\'' +
+                ", updatedAt:'" + updatedAt + '\'' +
+                '}';
     }
 
 }

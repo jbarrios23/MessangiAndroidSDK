@@ -7,22 +7,6 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent">
 
-    <ProgressBar
-        android:id="@+id/progressBar"
-        style="?android:attr/progressBarStyle"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:indeterminate="true"
-        android:indeterminateTint="@color/greyColor"
-        android:indeterminateTintMode="src_atop"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintBottom_toBottomOf="parent"
-        android:progress="25"
-        android:visibility="gone"
-        tools:visibility="visible" />
-
     <com.google.android.material.appbar.AppBarLayout
         android:id="@+id/appbar"
         android:layout_width="0dp"
@@ -56,6 +40,7 @@
 
     <LinearLayout
         android:id="@+id/botones"
+        android:visibility="gone"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
         android:background="@color/greyColor"
@@ -67,33 +52,35 @@
 
         <Button
             android:id="@+id/device"
-            android:layout_weight="1"
+            style="@style/Widget.AppCompat.Button.Borderless"
             android:layout_width="0dp"
-            android:layout_height="48dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
             android:background="@color/greyColor"
             android:drawableStart="@android:drawable/ic_menu_directions"
             android:drawableLeft="@android:drawable/ic_menu_directions"
-            android:text="Device"
+            android:text="Reload"
             android:textColor="@color/whiteColor"
-            android:textSize="11sp" />
+            android:textSize="12sp" />
 
         <Button
             android:id="@+id/user"
-            android:layout_weight="1"
             android:layout_width="0dp"
-            android:layout_height="48dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
             android:background="@color/greyColor"
             android:drawableStart="@android:drawable/ic_dialog_map"
             android:drawableLeft="@android:drawable/ic_dialog_map"
-            android:text="User"
+            android:text="Add User Info"
             android:textColor="@color/whiteColor"
             android:textSize="12sp" />
 
         <Button
             android:id="@+id/tag"
+            android:visibility="gone"
             android:layout_weight="1"
             android:layout_width="0dp"
-            android:layout_height="48dp"
+            android:layout_height="wrap_content"
             android:background="@color/greyColor"
             android:drawableStart="@android:drawable/ic_menu_today"
             android:drawableLeft="@android:drawable/ic_menu_today"
@@ -104,9 +91,10 @@
 
         <Button
             android:id="@+id/save"
+            android:visibility="gone"
             android:layout_weight="1"
             android:layout_width="0dp"
-            android:layout_height="48dp"
+            android:layout_height="wrap_content"
             android:background="@color/greyColor"
             android:drawableStart="@android:drawable/ic_menu_save"
             android:drawableLeft="@android:drawable/ic_menu_save"
@@ -161,11 +149,40 @@
         android:id="@+id/lista_user"
         android:layout_width="0dp"
         android:layout_height="0dp"
-        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintBottom_toTopOf="@id/bottom_navigation"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@id/textView_two"
-        tools:listitem="@layout/item_device" />
+        tools:listitem="@layout/item_device" >
+
+    </ListView>
+
+    <com.google.android.material.bottomnavigation.BottomNavigationView
+        android:id="@+id/bottom_navigation"
+        style="@style/Widget.MaterialComponents.BottomNavigationView.Colored"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:menu="@menu/bottom_navigation_menu"
+        app:layout_constraintTop_toBottomOf="@id/lista_user"/>
+
+    <ProgressBar
+        android:id="@+id/progressBar"
+        style="?android:attr/progressBarStyleLarge"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:indeterminate="true"
+        android:indeterminateTint="@color/greyColor"
+        android:indeterminateTintMode="src_atop"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintBottom_toBottomOf="parent"
+        android:progress="25"
+        android:visibility="gone"
+        tools:visibility="visible" />
 
 
 </androidx.constraintlayout.widget.ConstraintLayout>

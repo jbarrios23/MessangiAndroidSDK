@@ -51,7 +51,7 @@
             android:name=".MapsActivity"
             android:label="@string/title_activity_maps"></activity>
         <activity android:name=".scanqr.SmallCaptureActivity" />
-        <activity android:name=".LoginActivity">
+        <activity android:name="com.ogangi.Messangi.SDK.Demo.LoginActivity">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
 

@@ -131,10 +131,6 @@ public class LoginActivity extends AppCompatActivity {
     }
 
     private void verifyHasDeviceRegister() {
-        if(true) {
-            // Cableado para el demo
-            // goToMainActivity();
-        }
         SharedPreferences sharedPreferences = getApplicationContext().getSharedPreferences("MESSAGING_LOGIN", Context.MODE_PRIVATE);
         nameMethod = new Object(){}.getClass().getEnclosingMethod().getName();
         if(sharedPreferences.getBoolean("IS_LOGGED", false)){
@@ -478,8 +474,7 @@ public class LoginActivity extends AppCompatActivity {
                 }else if(intent.getAction().equals(Messaging.ACTION_REGISTER_DEVICE)&& dataSdk!=null) {
                     MessagingDevice messagingDevice = (MessagingDevice) dataSdk;
                     Toast.makeText(getApplicationContext(), intent.getAction(), Toast.LENGTH_LONG).show();
-                    Log.d(TAG, "Debug: " + CLASS_TAG + ": " + nameMethod + ": Data Register:  " + dataSdk
-                            +" userUpdate "+userUpdate);
+                    Log.d(TAG, "Debug: " + CLASS_TAG + ": " + nameMethod + ": Data Register:  " + dataSdk +" userUpdate " + userUpdate);
                     if (userUpdate) {
                     Messaging.fetchUser(getApplicationContext(), true);
                     } else {
@@ -491,10 +486,9 @@ public class LoginActivity extends AppCompatActivity {
                     }
 
                 }else if(intent.getAction().equals(Messaging.ACTION_FETCH_USER)&& dataSdk!=null) {
-                        messagingUser =(MessagingUser) dataSdk;
+                        messagingUser = (MessagingUser) dataSdk;
                         Toast.makeText(getApplicationContext(),intent.getAction(),Toast.LENGTH_LONG).show();
-                        Log.d(TAG, "Debug: " + CLASS_TAG + ": " + nameMethod
-                                + "Action:  " + intent.getAction()+" "+dataSdk+" QR "+useQrScan);
+                        Log.d(TAG, "Debug: " + CLASS_TAG + ": " + nameMethod + "Action:  " + intent.getAction()+" "+dataSdk+" QR "+useQrScan);
                         if(useQrScan){
                             if(onetimeFlag) {
                                 // sendUserUpdateData(dataInputToSendUser);
@@ -504,10 +498,9 @@ public class LoginActivity extends AppCompatActivity {
                         }
 
                 }else if(intent.getAction().equals(Messaging.ACTION_SAVE_USER)&& dataSdk!=null) {
-                        messagingUser =(MessagingUser) dataSdk;
+                        messagingUser = (MessagingUser) dataSdk;
                         Toast.makeText(getApplicationContext(),intent.getAction(),Toast.LENGTH_LONG).show();
-                        Log.d(TAG, "Debug: " + CLASS_TAG + ": " + nameMethod
-                            + ": Save User:  " + dataSdk +" "+intent.getAction()+" QR "+useQrScan);
+                        Log.d(TAG, "Debug: " + CLASS_TAG + ": " + nameMethod + ": Save User:  " + dataSdk +" "+intent.getAction()+" QR "+useQrScan);
                         if(useQrScan) {
                             goToMainActivity();
                             useQrScan=false;
