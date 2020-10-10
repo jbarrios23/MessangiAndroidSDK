@@ -7,7 +7,7 @@ public interface MessagingRegion {
 
     String getId();
     Messaging.MessagingGeoFenceTrigger getTrigger();
-    int getExpiration();
+    long getExpiration();
     Geofence getGeofence();
 
 }

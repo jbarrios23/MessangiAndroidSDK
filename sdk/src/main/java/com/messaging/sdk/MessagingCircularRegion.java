@@ -9,6 +9,7 @@ public class MessagingCircularRegion extends MessagingGeofence implements Serial
     private double latitude;
     private double longitud;
     private int radius;
+    private static final long GEO_DURATION = 60 * 60 * 1000;
 
 
 
@@ -57,7 +58,7 @@ public class MessagingCircularRegion extends MessagingGeofence implements Serial
             return this;
         }
 
-        public MessagingCircularRegion.Builder setExpiration(int expiration) {
+        public MessagingCircularRegion.Builder setExpiration(long expiration) {
             prepare().expiration = expiration;
             return this;
         }

@@ -10,6 +10,14 @@
          location permissions for the "MyLocation" functionality.
     -->
     <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />
+    <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION" />
+    <uses-permission android:name="android.permission.ACCESS_BACKGROUND_LOCATION" />
+    <uses-permission android:name="android.permission.FOREGROUND_SERVICE" />
+
+    <uses-permission-sdk-23 android:name="android.permission.ACCESS_FINE_LOCATION" />
+    <uses-permission-sdk-23 android:name="android.permission.ACCESS_COARSE_LOCATION" />
+    <uses-permission-sdk-23 android:name="android.permission.ACCESS_BACKGROUND_LOCATION" />
+    <uses-permission-sdk-23 android:name="android.permission.FOREGROUND_SERVICE" />
 
     <permission
         android:name="${applicationId}.permission.pushReceive"
@@ -58,6 +66,13 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
+
+        <receiver
+            android:name="com.messaging.sdk.MessaginGeofenceBroadcastReceiver"
+            android:enabled="true"
+            android:permission="${applicationId}.permission.pushReceive"
+            android:exported="true">
+        </receiver>
 
         <receiver
             android:name=".MessagingNotificationReceiver"

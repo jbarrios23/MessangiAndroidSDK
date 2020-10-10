@@ -24,6 +24,7 @@ public class MessagingDB extends SQLiteOpenHelper {
     Messaging.GOEOFENCE_LAT + " DOUBLE, " +
     Messaging.GOEOFENCE_LONG + " DOUBLE," +
     Messaging.GOEOFENCE_RADIUS + " INTEGER," +
+    Messaging.GOEOFENCE_EXPIRATION + " INTEGER," +
     Messaging.GOEOFENCE_TYPE + " TEXT)";
 
     public MessagingDB(@Nullable Context context) {
@@ -54,6 +55,7 @@ public class MessagingDB extends SQLiteOpenHelper {
         values.put(Messaging.GOEOFENCE_LONG, messagingCircularRegion.getLongitud());
         values.put(Messaging.GOEOFENCE_RADIUS, messagingCircularRegion.getRadius());
         values.put(Messaging.GOEOFENCE_TYPE, messagingCircularRegion.getTrigger().toString());
+        values.put(Messaging.GOEOFENCE_EXPIRATION, messagingCircularRegion.getExpiration());
         db.insert(MESSAGING_TABLA_GEOFENCE, null,values);
         db.close();
         Messaging messaging=Messaging.getInstance();
@@ -66,7 +68,8 @@ public class MessagingDB extends SQLiteOpenHelper {
         SQLiteDatabase db = this.getReadableDatabase();
         String[] projection = {MESSAGING_COLUMNA_ID, Messaging.GOEOFENCE_ID,
                 Messaging.GOEOFENCE_LAT,Messaging.GOEOFENCE_LONG,
-                Messaging.GOEOFENCE_RADIUS,Messaging.GOEOFENCE_TYPE};
+                Messaging.GOEOFENCE_RADIUS,Messaging.GOEOFENCE_TYPE,
+                Messaging.GOEOFENCE_EXPIRATION};
 
         Cursor cursor =
                 db.query(MESSAGING_TABLA_GEOFENCE,
@@ -89,6 +92,7 @@ public class MessagingDB extends SQLiteOpenHelper {
                .setLongitud(cursor.getDouble(3))
                .setRadius(cursor.getInt(4))
                .setMessagingGeoFenceTrigger(cursor.getString(5))
+               .setExpiration(cursor.getInt(6))
                .build();
 
 
@@ -102,7 +106,8 @@ public class MessagingDB extends SQLiteOpenHelper {
         ArrayList<MessagingCircularRegion> result = new ArrayList<>();
         String[] projection = {MESSAGING_COLUMNA_ID, Messaging.GOEOFENCE_ID,
                 Messaging.GOEOFENCE_LAT, Messaging.GOEOFENCE_LONG,
-                Messaging.GOEOFENCE_RADIUS, Messaging.GOEOFENCE_TYPE};
+                Messaging.GOEOFENCE_RADIUS, Messaging.GOEOFENCE_TYPE,
+                Messaging.GOEOFENCE_EXPIRATION};
 
         Cursor cursor =
                 db.query(MESSAGING_TABLA_GEOFENCE,
@@ -121,6 +126,7 @@ public class MessagingDB extends SQLiteOpenHelper {
                     .setLongitud(cursor.getDouble(3))
                     .setRadius(cursor.getInt(4))
                     .setMessagingGeoFenceTrigger(cursor.getString(5))
+                    .setExpiration(cursor.getInt(6))
                     .build();
             result.add(messagingCircularRegion);
         }
@@ -140,6 +146,7 @@ public class MessagingDB extends SQLiteOpenHelper {
         values.put(Messaging.GOEOFENCE_LONG, messagingCircularRegion.getLongitud());
         values.put(Messaging.GOEOFENCE_RADIUS, messagingCircularRegion.getRadius());
         values.put(Messaging.GOEOFENCE_TYPE, messagingCircularRegion.getTrigger().toString());
+        values.put(Messaging.GOEOFENCE_EXPIRATION, messagingCircularRegion.getExpiration());
 
         int i = db.update(MESSAGING_TABLA_GEOFENCE,
                 values,

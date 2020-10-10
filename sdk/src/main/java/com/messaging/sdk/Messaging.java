@@ -126,7 +126,7 @@ public class Messaging implements LifecycleObserver {
     public static String INTENT_EXTRA_DATA_lONG  = "longitude";
 
 
-    public static String MESSAGING_ID="MSGI_MSGID";
+    public static String MESSAGING_ID="MSGI_ID";
     public static String MESSAGING_TYPE="MSGI_TYPE";
     public static String MESSAGING_TITLE="MSGI_TITLE";
     public static String MESSAGING_BODY="MSGI_BODY";
@@ -173,6 +173,7 @@ public class Messaging implements LifecycleObserver {
     public static String GOEOFENCE_LONG="longitude";
     public static String GOEOFENCE_RADIUS="radius";
     public static String GOEOFENCE_TYPE="type";
+    public static String GOEOFENCE_EXPIRATION="expiration";
     public static String GOEOFENCE_TYPE_IN="in";
     public static String GOEOFENCE_TYPE_OUT="out";
     public static String GOEOFENCE_TYPE_BOTH="both";
@@ -180,6 +181,7 @@ public class Messaging implements LifecycleObserver {
     public static String GOEOFENCE_OPERATION_CREATE="create";
     public static String GOEOFENCE_OPERATION_UPDATE="update";
     public static String GOEOFENCE_OPERATION_DELETE="delete";
+    public static long NEVER_EXPIRE = Geofence.NEVER_EXPIRE;
 
 
     private static double wayLatitude = 0.0;
@@ -265,7 +267,7 @@ public class Messaging implements LifecycleObserver {
         this.identifier=0;
         this.messagingNotification =null;
         this.nameMethod="";
-        this.geofencingClient = LocationServices.getGeofencingClient(context);
+        this.geofencingClient = LocationServices.getGeofencingClient(this.context);
         fusedLocationClient = LocationServices.getFusedLocationProviderClient(context);
         Messaging.setLocationRequestWithPriority(MessagingLocationPriority.PRIORITY_NO_POWER);
         utils.showDebugLog(this,nameMethod,"Priority "+Messaging.getLocationRequestPriority());
@@ -278,7 +280,7 @@ public class Messaging implements LifecycleObserver {
                 for (Location location : locationResult.getLocations()) {
                     // Update UI with location data
                     // ...
-
+                    utils.showDebugLog(this,"Messaging","locationResult");
                     if(location!=null){
                         wayLatitude = location.getLatitude();
                         wayLongitude = location.getLongitude();
@@ -428,8 +430,11 @@ public class Messaging implements LifecycleObserver {
             break;
             case PRIORITY_HIGH_ACCURACY:
                 locationRequest.setPriority(priority.getPriority());
-                locationRequest.setInterval(10 * 1000); // 10 seconds
-                locationRequest.setFastestInterval(5 * 1000); // 5 seconds
+//                locationRequest.setInterval(10 * 1000); // 10 seconds
+//                locationRequest.setFastestInterval(5 * 1000); // 5 seconds
+                locationRequest.setInterval(1000); // 10 seconds
+                locationRequest.setFastestInterval(900); // 5 seconds
+
 
             break;
             case PRIORITY_LOW_POWER:
@@ -508,27 +513,31 @@ public class Messaging implements LifecycleObserver {
         }
     }
 
+    @SuppressLint("InlinedApi")
     private static void getLastLocation(Activity activity) {
-        Messaging messaging=Messaging.getInstance();
+        final String nameMethod=new Object(){}.getClass().getEnclosingMethod().getName();
+        final Messaging messaging=Messaging.getInstance();
         if (ActivityCompat.checkSelfPermission(messaging.context, android.Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED
                 && ActivityCompat.checkSelfPermission(messaging.context, android.Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
             if(activity!=null) {
                 ActivityCompat.requestPermissions(activity,
                         new String[]{android.Manifest.permission.ACCESS_FINE_LOCATION,
-                                Manifest.permission.ACCESS_COARSE_LOCATION},
+                                Manifest.permission.ACCESS_COARSE_LOCATION,
+                                Manifest.permission.ACCESS_BACKGROUND_LOCATION},
                         LOCATION_REQUEST);
             }else{
-                String nameMethod=new Object(){}.getClass().getEnclosingMethod().getName();
+
                 messaging.utils.showDebugLog(messaging,nameMethod," Activity null send event ");
                 sendEventToBackend(MESSAGING_INVALID_DEVICE_LOCATION,MESSAGING_INVALID_DEVICE_LOCATION_REASON_MISSING);
             }
         } else {
             if (isContinue) {
+
                 Handler handler = new Handler(Looper.getMainLooper()) {
                     @SuppressLint("MissingPermission")
                     @Override
                     public void handleMessage(Message inputMessage) {
-
+                    messaging.utils.showDebugLog(messaging,nameMethod," Continue Location on ");
                     fusedLocationClient.requestLocationUpdates(locationRequest, locationCallback, null);
 
                     }
@@ -661,8 +670,8 @@ public class Messaging implements LifecycleObserver {
     public static void fetchGeofence(boolean forsecallservice) {
         final Messaging messaging = Messaging.getInstance();
         final MessagingDB db=new MessagingDB(messaging.context);
+        final String  nameMethod="fetchGeofence";
         if(forsecallservice){
-            final String  nameMethod="fetchGeofence";
 
             String provId = "";
             if(messaging.messagingDevice!=null) {
@@ -670,7 +679,7 @@ public class Messaging implements LifecycleObserver {
             }else{
                 provId=messaging.messagingStorageController.getDevice().getId();
             }
-            final String url=messaging.utils.getMessagingHost()+"/devices/"+provId+"/region/";
+            final String url=messaging.utils.getMessagingHost()+"/devices/"+provId+"/region";
             //new HttpRequestEventGet(provId, messaging, "", "","","").execute();
             final String params="";
             new HttpRequestEvent(url,"GET",params,new HttpRequestCallback(){
@@ -699,8 +708,11 @@ public class Messaging implements LifecycleObserver {
             },messaging).execute();
 
         }else{
-
-            messaging.sendEventToActivity(Messaging.ACTION_FETCH_GEOFENCE,db.getAllGeoFenceToBd(),messaging.context);
+            if(db.getAllGeoFenceToBd().size()>0) {
+                messaging.sendEventToActivity(Messaging.ACTION_FETCH_GEOFENCE, db.getAllGeoFenceToBd(), messaging.context);
+            }else{
+                messaging.utils.showErrorLog(messaging, nameMethod, "No data to send ", "");
+            }
         }
 
 
@@ -1187,7 +1199,6 @@ public class Messaging implements LifecycleObserver {
         private String provUrl;
         private Messaging messaging;
         private String nameMethod;
-        @SuppressLint("StaticFieldLeak")
         private Context context;
         private String pushToken;
 
@@ -1208,6 +1219,7 @@ public class Messaging implements LifecycleObserver {
             try {
 
                 String authToken= messaging.utils.getMessagingToken();
+                messaging.utils.showDebugLog(this,nameMethod,"Bearer "+authToken);
                 nameMethod=new Object(){}.getClass().getEnclosingMethod().getName();
                 String param ="Bearer "+authToken;
                 provUrl= messaging.utils.getMessagingHost()+"/devices/"+provIdDevice;
@@ -1332,6 +1344,7 @@ public class Messaging implements LifecycleObserver {
                 BufferedWriter writer = new BufferedWriter(new OutputStreamWriter(
                         out, "UTF-8"));
                 writer.write(postData.toString());
+                //writer.write(String.valueOf(postData));
                 writer.flush();
 
                 int code = urlConnection.getResponseCode();
@@ -1685,8 +1698,8 @@ public class Messaging implements LifecycleObserver {
                 urlConnection.setRequestMethod(httpMethod);
                 int code = urlConnection.getResponseCode();
                 if (code != 200) {
-                    callback.onFailure(code);
                     messaging.utils.showErrorLog(this,nameMethod," Invalid response from server: "+code,"");
+                    callback.onFailure(code);
                     throw new IOException("Invalid response from server: " + code);
                 }
 
@@ -1722,6 +1735,13 @@ public class Messaging implements LifecycleObserver {
     }
 
     //Geofence stuff
+
+    public static void deteAllBD(){
+        Messaging messaging=Messaging.getInstance();
+        MessagingDB db=new MessagingDB(messaging.context);
+        db.deleteAll();
+
+    }
 
     // Start Geofence creation process
     void startGeofence() {
@@ -1762,6 +1782,7 @@ public class Messaging implements LifecycleObserver {
         List<Geofence> geofencesToAdd = new ArrayList<>();
         for(MessagingCircularRegion messagingCircularRegion:provMessagingCircularRegions){
             Geofence geofence =messagingCircularRegion.getGeofence();
+            messaging.utils.showDebugLog(messaging,nameMethod,"GF For "+geofence.toString());
             geofencesToAdd.add(geofence);
             if(geofencesToAdd.size()==20){
             break;
@@ -1777,7 +1798,7 @@ public class Messaging implements LifecycleObserver {
 
     GeofencingRequest createGeofenceRequest(List<Geofence> geofences ) {
         nameMethod=new Object(){}.getClass().getEnclosingMethod().getName();
-        utils.showDebugLog(this,nameMethod,"createGeofenceRequest");
+        utils.showDebugLog(this,nameMethod,"createGeofenceRequest "+geofences.toString());
 
         return new GeofencingRequest.Builder()
                 .setInitialTrigger( GeofencingRequest.INITIAL_TRIGGER_ENTER )
@@ -1801,14 +1822,15 @@ public class Messaging implements LifecycleObserver {
                         @Override
                         public void onSuccess(Void aVoid) {
                             nameMethod=new Object(){}.getClass().getEnclosingMethod().getName();
-                            utils.showDebugLog(this,nameMethod,"onSuccess");
+                            utils.showDebugLog(this,nameMethod," Add Geofence ");
+
 
                         }
                     }).addOnFailureListener(new OnFailureListener() {
                 @Override
                 public void onFailure(@NonNull Exception e) {
                     nameMethod=new Object(){}.getClass().getEnclosingMethod().getName();
-                    utils.showDebugLog(this,nameMethod,"onFailure "+e.getMessage());
+                    utils.showErrorLog(this,nameMethod," Add Geofence "+e.getMessage(),"");
 
                 }
             });
@@ -1839,13 +1861,14 @@ public class Messaging implements LifecycleObserver {
     }
 
     void removeGeofence(List<String> listIds){
-
+        nameMethod="removeGeofence";
+        utils.showDebugLog(this,nameMethod,"removeGeofence "+listIds.toString());
         geofencingClient.removeGeofences(listIds)
                 .addOnSuccessListener(new OnSuccessListener<Void>() {
                     @Override
                     public void onSuccess(Void aVoid) {
                         nameMethod=new Object(){}.getClass().getEnclosingMethod().getName();
-                        utils.showDebugLog(this,nameMethod,"onSuccess");
+                        utils.showDebugLog(this,nameMethod,"onSuccess removeGeofence ");
                     }
                 })
                 .addOnFailureListener(new OnFailureListener() {
@@ -1854,19 +1877,20 @@ public class Messaging implements LifecycleObserver {
                         // Failed to remove geofences
                         // ...
                         nameMethod=new Object(){}.getClass().getEnclosingMethod().getName();
-                        utils.showDebugLog(this,nameMethod,"onFailure "+e.getMessage());
+                        utils.showDebugLog(this,nameMethod,"onFailure removeGeofence "+e.getMessage());
                     }
                 });
 
     }
 
     PendingIntent createGeofencePendingIntent() {
+        nameMethod="createGeofencePendingIntent";
         if ( geoFencePendingIntent != null ){
             return geoFencePendingIntent;
         }
         //Intent intent = new Intent(action);
-        Intent intent = new Intent( context, MessaginGeofenceBroadcastReceiver.class);
-
+        Intent intent = new Intent(context, MessaginGeofenceBroadcastReceiver.class);
+        utils.showDebugLog(this,nameMethod,"Intent "+intent);
         geoFencePendingIntent=PendingIntent.getBroadcast(
                 context, GEOFENCE_REQ_CODE, intent, PendingIntent.FLAG_UPDATE_CURRENT );
 

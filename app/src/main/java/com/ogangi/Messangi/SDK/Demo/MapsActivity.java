@@ -14,6 +14,7 @@ import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.pm.ActivityInfo;
 import android.content.pm.PackageManager;
+import android.graphics.Color;
 import android.location.Location;
 import android.os.Bundle;
 import android.util.Log;
@@ -30,6 +31,9 @@ import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.OnMapReadyCallback;
 import com.google.android.gms.maps.SupportMapFragment;
+import com.google.android.gms.maps.model.BitmapDescriptorFactory;
+import com.google.android.gms.maps.model.Circle;
+import com.google.android.gms.maps.model.CircleOptions;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
@@ -62,6 +66,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
     public boolean onetimeFlag=true;
     public MessagingLocation messagingLocation;
     private Button getLocation,getPermission,getLocationC,turnOffLocationButton;
+    private Circle geoFenceLimits;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -112,9 +117,10 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
                 //verify permission get
                 Log.i(TAG, "INFO: " + CLASS_TAG + ": " + nameMethod + " has verify permission : "
                         + messaging.isEnable_permission_automatic());
-                if(messaging.isEnable_permission_automatic() ){
-                    Messaging.requestPermissions(MapsActivity.this);
-                }
+//                if(messaging.isEnable_permission_automatic() ){
+//                    Messaging.requestPermissions(MapsActivity.this);
+//                }
+                Messaging.fetchGeofence(false);
 
             }
         });
@@ -124,6 +130,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
             public void onClick(View v) {
                 Messaging.turnOFFUpdateLocation();
                 stopService();
+               // Messaging.deteAllBD();
             }
         });
 
@@ -160,6 +167,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         Log.d(CLASS_TAG,TAG+ " Resume "+messaging.isGPS());
 
 
+
     }
 
     /**
@@ -194,8 +202,8 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
                 .title(title);
         if ( mMap!=null ) {
             // Remove the anterior marker
-//            if ( locationMarker != null )
-//                locationMarker.remove();
+            if ( locationMarker != null )
+                locationMarker.remove();
             locationMarker = mMap.addMarker(markerOptions);
             float zoom = 15f;
             CameraUpdate cameraUpdate = CameraUpdateFactory.newLatLngZoom(latLng, zoom);
@@ -213,6 +221,43 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         Log.d(TAG,"DEBUG: "+CLASS_TAG+": "+nameMethod+": unregister LocalBroadcastReceiver");
         LocalBroadcastManager.getInstance(this).unregisterReceiver(mReceiver);
         super.onDestroy();
+    }
+
+    private Marker geoFenceMarker;
+    // Create a marker for the geofence creation
+    private void markerForGeofence(LatLng latLng,int radius) {
+        Log.i(CLASS_TAG, "markerForGeofence("+latLng+")");
+        String title = latLng.latitude + ", " + latLng.longitude;
+        // Define marker options
+        MarkerOptions markerOptions = new MarkerOptions()
+                .position(latLng)
+                .icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_ORANGE))
+                .title(title);
+        if ( mMap!=null ) {
+            // Remove last geoFenceMarker
+            if (geoFenceMarker != null)
+                geoFenceMarker.remove();
+
+            geoFenceMarker = mMap.addMarker(markerOptions);
+            drawGeofence(radius);
+
+
+        }
+
+    }
+
+    private void drawGeofence(int radius) {
+        Log.d(CLASS_TAG, "drawGeofence()");
+
+        if ( geoFenceLimits != null )
+            geoFenceLimits.remove();
+
+        CircleOptions circleOptions = new CircleOptions()
+                .center( geoFenceMarker.getPosition())
+                .strokeColor(Color.argb(50, 70,70,70))
+                .fillColor( Color.argb(100, 150,150,150) )
+                .radius( radius );
+        geoFenceLimits = mMap.addCircle( circleOptions );
     }
 
     private BroadcastReceiver mReceiver=new BroadcastReceiver() {
@@ -243,11 +288,15 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
                     }else if(((intent.getAction().equals(Messaging.ACTION_GET_NOTIFICATION))||
                             (intent.getAction().equals(Messaging.ACTION_GET_NOTIFICATION_OPENED)))&& data!=null) {
                         messagingNotification = (MessagingNotification) data;
-                        showAlertNotification(messagingNotification, data);
+                        //showAlertNotification(messagingNotification, data);
 
                     }else if(intent.getAction().equals(Messaging.ACTION_FETCH_GEOFENCE) && data!=null) {
 
                     messagingCircularRegions = (ArrayList<MessagingCircularRegion>) data;
+                    for(MessagingCircularRegion temp:messagingCircularRegions){
+                        LatLng prov=new LatLng(temp.getLatitude(),temp.getLongitud());
+                        markerForGeofence(prov,temp.getRadius());
+                    }
 
 
                     }else{

@@ -7,6 +7,8 @@
         android:name="${applicationId}.permission.pushReceive"
         android:protectionLevel="signature" />
 
+
+
     <uses-permission android:name="android.permission.INTERNET" />
     <uses-permission android:name="com.google.android.c2dm.permission.RECEIVE" /> <!-- To request foreground location access, declare one of these permissions. -->
     <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION" />
@@ -14,11 +16,13 @@
     <uses-permission android:name="android.permission.ACCESS_BACKGROUND_LOCATION" />
     <uses-permission android:name="android.permission.FOREGROUND_SERVICE" />
 
+    <uses-permission-sdk-23 android:name="android.permission.ACCESS_FINE_LOCATION" />
+    <uses-permission-sdk-23 android:name="android.permission.ACCESS_COARSE_LOCATION" />
+    <uses-permission-sdk-23 android:name="android.permission.ACCESS_BACKGROUND_LOCATION" />
+    <uses-permission-sdk-23 android:name="android.permission.FOREGROUND_SERVICE" />
+
     <application>
-        <receiver
-            android:name=".MessaginGeofenceBroadcastReceiver"
-            android:enabled="true"
-            android:exported="true"></receiver>
+
 
         <service
             android:name=".MessagingLocationService"

@@ -12,7 +12,7 @@ public class MessagingGeofence implements MessagingRegion, Serializable {
 
     protected String id;
     protected Messaging.MessagingGeoFenceTrigger messagingGeoFenceTrigger;
-    protected int expiration;
+    protected long expiration;
 
 
     @Override
@@ -26,7 +26,7 @@ public class MessagingGeofence implements MessagingRegion, Serializable {
     }
 
     @Override
-    public int getExpiration() {
+    public long getExpiration() {
         return expiration;
     }
 
