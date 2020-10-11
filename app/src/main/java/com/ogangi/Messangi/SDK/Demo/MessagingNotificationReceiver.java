@@ -71,6 +71,9 @@ public class MessagingNotificationReceiver extends BroadcastReceiver {
                              +" Long: "+wayLongitude);
                  }else{
                      sendEventToActivity(Messaging.ACTION_FETCH_LOCATION,messagingLocation,context);
+                     Log.d(TAG, "DEBUG: " + CLASS_TAG + ": " + nameMethod + ": Data Location Lat:  "
+                             + wayLatitude
+                             +" Long: "+wayLongitude);
                  }
 
 
@@ -83,6 +86,8 @@ public class MessagingNotificationReceiver extends BroadcastReceiver {
                              + messagingCircularRegions);
                  }else{
                  sendEventToActivity(Messaging.ACTION_FETCH_GEOFENCE,messagingCircularRegions,context);
+                 Log.d(TAG, "DEBUG: " + CLASS_TAG + ": " + nameMethod + ": Data Geofence:  "
+                             + messagingCircularRegions);
                  }
                  Toast.makeText(context, intent.getAction(), Toast.LENGTH_SHORT).show();
 

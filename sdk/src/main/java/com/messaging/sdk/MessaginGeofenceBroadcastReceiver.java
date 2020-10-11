@@ -28,7 +28,7 @@ public class MessaginGeofenceBroadcastReceiver extends BroadcastReceiver {
         db=new MessagingDB(context);
         nameMethod="onReceive";
         messaging=Messaging.getInstance();
-        messaging.utils.showDebugLog(this,nameMethod,"MessaginGeofenceBroadcastReceiver");
+        messaging.utils.showDebugLog(this,nameMethod,"MessaginGeofenceBroadcastReceiver "+intent.getExtras().toString());
 
         nameMethod = new Object() {}.getClass().getEnclosingMethod().getName();
 
@@ -44,7 +44,7 @@ public class MessaginGeofenceBroadcastReceiver extends BroadcastReceiver {
         int geofenceTransition = geofencingEvent.getGeofenceTransition();
         List<Geofence> triggeringGeofences = geofencingEvent.getTriggeringGeofences();
 
-        messaging.utils.showDebugLog(this,nameMethod,geofenceTransition);
+        messaging.utils.showDebugLog(this,nameMethod,geofenceTransition+" "+triggeringGeofences.toString());
         messaging.utils.showDebugLog(this,nameMethod,"example: "+Messaging.MessagingGeoFenceTrigger.ENTER.getTrigger());
         messaging.utils.showDebugLog(this,nameMethod,"example: "+Messaging.MessagingGeoFenceTrigger.EXIT.getTrigger());
 
@@ -89,14 +89,29 @@ public class MessaginGeofenceBroadcastReceiver extends BroadcastReceiver {
     }
 
     private ArrayList<MessagingCircularRegion> convertGeofenceToCircularregion(GeofencingEvent geofencingEvent) {
+        nameMethod="convertGeofenceToCircularregion";
         ArrayList<MessagingCircularRegion> regions = new ArrayList<>();
-        for(Geofence temp:geofencingEvent.getTriggeringGeofences()){
-            MessagingCircularRegion.Builder builder= new MessagingCircularRegion.Builder();
-            MessagingCircularRegion messagingCircularRegion=db.getGeoFenceToBd(temp.getRequestId());
-            regions.add(messagingCircularRegion);
-            Messaging.sendEventGeofenceToBackend(messagingCircularRegion.getTrigger().toString(),temp.getRequestId());
-        }
-        return regions;
+
+            for(Geofence temp:geofencingEvent.getTriggeringGeofences()){
+                MessagingCircularRegion.Builder builder= new MessagingCircularRegion.Builder();
+                messaging.utils.showDebugLog(this,nameMethod,"IDs "+temp.getRequestId());
+                if(db.getGeoFenceToBd(temp.getRequestId())!=null) {
+                    MessagingCircularRegion messagingCircularRegion = db.getGeoFenceToBd(temp.getRequestId());
+                    regions.add(messagingCircularRegion);
+                    String prvStatus="";
+                    if (geofencingEvent.getGeofenceTransition() == Messaging.MessagingGeoFenceTrigger.ENTER.getTrigger() )
+                        prvStatus = "in";
+                    else if ( geofencingEvent.getGeofenceTransition() == Messaging.MessagingGeoFenceTrigger.EXIT.getTrigger() )
+                        prvStatus = "out";
+                    Messaging.sendEventGeofenceToBackend(prvStatus, temp.getRequestId());
+                }else{
+                    messaging.utils.showDebugLog(this,nameMethod,"dont send ");
+                    break;
+                }
+            }
+            return regions;
+
+
     }
 
     private void sendNotification(String geofenceTransitionDetails, Context context) {

@@ -458,6 +458,7 @@ class MessagingSdkUtils {
                                 +provEnable+" is b "+Messaging.isBackground);
                         Intent intent = new Intent(context, MessagingLocationService.class);
                         context.startForegroundService(intent);
+
                     }
 //                    if(Messaging.isBackground){
 //                        showDebugLog(this,nameMethod, "locationEnable : "
@@ -739,7 +740,6 @@ class MessagingSdkUtils {
             }
             db.getAllGeoFenceToBd();
             showDebugLog(this,nameMethod,messagingCircularRegionArrayList.toString());
-
             messaging.startGeofence();
         } catch (JSONException e) {
             e.printStackTrace();
@@ -768,7 +768,6 @@ class MessagingSdkUtils {
                     + " is F " + Messaging.isForeground);
             showDebugLog(this, nameMethod, "state : "
                     + " is B " + Messaging.isBackground);
-
 
             if(Messaging.isForeground) {
                 showDebugLog(this, nameMethod, "Sinc Enable call service : "

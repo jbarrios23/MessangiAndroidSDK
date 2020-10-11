@@ -82,23 +82,27 @@ public class MessagingDB extends SQLiteOpenHelper {
                         null);
 
 
-        if (cursor != null) {
+        if (cursor != null && cursor.getCount()>0) {
             cursor.moveToFirst();
+
+            MessagingCircularRegion.Builder builder= new MessagingCircularRegion.Builder();
+            MessagingCircularRegion messagingCircularRegion=builder.setId(cursor.getString(1))
+                    .setLatitude(cursor.getDouble(2))
+                    .setLongitud(cursor.getDouble(3))
+                    .setRadius(cursor.getInt(4))
+                    .setMessagingGeoFenceTrigger(cursor.getString(5))
+                    .setExpiration(cursor.getInt(6))
+                    .build();
+
+            return messagingCircularRegion;
         }
 
-        MessagingCircularRegion.Builder builder= new MessagingCircularRegion.Builder();
-        MessagingCircularRegion messagingCircularRegion=builder.setId(cursor.getString(1))
-               .setLatitude(cursor.getDouble(2))
-               .setLongitud(cursor.getDouble(3))
-               .setRadius(cursor.getInt(4))
-               .setMessagingGeoFenceTrigger(cursor.getString(5))
-               .setExpiration(cursor.getInt(6))
-               .build();
+
 
 
         db.close();
 
-        return messagingCircularRegion;
+        return null;
     }
 
     public ArrayList< MessagingCircularRegion> getAllGeoFenceToBd() {

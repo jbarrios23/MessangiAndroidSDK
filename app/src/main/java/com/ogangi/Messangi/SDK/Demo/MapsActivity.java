@@ -23,6 +23,7 @@ import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.ImageButton;
 import android.widget.ListView;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import com.google.android.gms.location.LocationRequest;
@@ -43,6 +44,8 @@ import com.messaging.sdk.MessagingDevice;
 import com.messaging.sdk.MessagingLocation;
 import com.messaging.sdk.MessagingNotification;
 import com.messaging.sdk.MessagingUser;
+
+import org.w3c.dom.Text;
 
 import java.io.Serializable;
 import java.util.ArrayList;
@@ -67,6 +70,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
     public MessagingLocation messagingLocation;
     private Button getLocation,getPermission,getLocationC,turnOffLocationButton;
     private Circle geoFenceLimits;
+    public TextView textView;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -78,6 +82,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         getLocationC=findViewById(R.id.button_get_location_c);
         getPermission=findViewById(R.id.button_get_permission);
         turnOffLocationButton=findViewById(R.id.button_turnOffLocation);
+        textView=findViewById(R.id.textView);
         // Obtain the SupportMapFragment and get notified when the map is ready to be used.
         SupportMapFragment mapFragment = (SupportMapFragment) getSupportFragmentManager()
                 .findFragmentById(R.id.map);
@@ -130,7 +135,14 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
             public void onClick(View v) {
                 Messaging.turnOFFUpdateLocation();
                 stopService();
-               // Messaging.deteAllBD();
+
+            }
+        });
+
+        textView.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                 Messaging.deteAllBD();
             }
         });
 
@@ -293,7 +305,11 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
                     }else if(intent.getAction().equals(Messaging.ACTION_FETCH_GEOFENCE) && data!=null) {
 
                     messagingCircularRegions = (ArrayList<MessagingCircularRegion>) data;
+
                     for(MessagingCircularRegion temp:messagingCircularRegions){
+                        Log.d(TAG, "DEBUG: " + CLASS_TAG + ": " + nameMethod + ": Data Location Lat:  "
+                                + temp.getLatitude()+" Long: "+temp.getLongitud()+" radius "+temp.getRadius()
+                                +" trigger "+temp.getTrigger());
                         LatLng prov=new LatLng(temp.getLatitude(),temp.getLongitud());
                         markerForGeofence(prov,temp.getRadius());
                     }

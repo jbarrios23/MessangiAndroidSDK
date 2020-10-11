@@ -105,112 +105,61 @@ public class Messaging implements LifecycleObserver {
     private String packageName;
 
 
-    public static String ACTION_REGISTER_DEVICE="com.messaging.sdk.ACTION_REGISTER_DEVICE";
-    public static String ACTION_FETCH_DEVICE="com.messaging.sdk.ACTION_FETCH_DEVICE";
-    public static String ACTION_FETCH_FIELDS="com.messaging.sdk.ACTION_FETCH_FIELDS";
-    public static String ACTION_SAVE_DEVICE="com.messaging.sdk.ACTION_SAVE_DEVICE";
-    public static String ACTION_FETCH_USER="com.messaging.sdk.ACTION_FETCH_USER";
-    public static String ACTION_SAVE_USER="com.messaging.sdk.ACTION_SAVE_USER";
-    public static String ACTION_GET_NOTIFICATION="com.messaging.sdk.PUSH_NOTIFICATION";
-    public static String ACTION_GET_GEOFENCE_TRANSITION_DETAILS="com.messaging.sdk.GEOFENCE_TRANSITION_DETAILS";
-    public static String ACTION_GET_NOTIFICATION_OPENED="com.messaging.sdk.PUSH_NOTIFICATION_TO_OPEN";
-    public static String ACTION_FETCH_LOCATION="com.messaging.sdk.ACTION_FETCH_LOCATION";
-    public static String ACTION_FETCH_GEOFENCE="com.messaging.sdk.ACTION_FETCH_GEOFENCE";
-    public static String ACTION_GEOFENCE_ENTER="com.messaging.sdk.ACTION_GEOFENCE_ENTER";
-    public static String ACTION_GEOFENCE_EXIT="com.messaging.sdk.ACTION_GEOFENCE_EXIT";
+    public static final String ACTION_REGISTER_DEVICE="com.messaging.sdk.ACTION_REGISTER_DEVICE";
+    public static final String ACTION_FETCH_DEVICE="com.messaging.sdk.ACTION_FETCH_DEVICE";
+    public static final String ACTION_FETCH_FIELDS="com.messaging.sdk.ACTION_FETCH_FIELDS";
+    public static final String ACTION_SAVE_DEVICE="com.messaging.sdk.ACTION_SAVE_DEVICE";
+    public static final String ACTION_FETCH_USER="com.messaging.sdk.ACTION_FETCH_USER";
+    public static final String ACTION_SAVE_USER="com.messaging.sdk.ACTION_SAVE_USER";
+    public static final String ACTION_GET_NOTIFICATION="com.messaging.sdk.PUSH_NOTIFICATION";
+    public static final String ACTION_GET_GEOFENCE_TRANSITION_DETAILS="com.messaging.sdk.GEOFENCE_TRANSITION_DETAILS";
+    public static final String ACTION_GET_NOTIFICATION_OPENED="com.messaging.sdk.PUSH_NOTIFICATION_TO_OPEN";
+    public static final String ACTION_FETCH_LOCATION="com.messaging.sdk.ACTION_FETCH_LOCATION";
+    public static final String ACTION_FETCH_GEOFENCE="com.messaging.sdk.ACTION_FETCH_GEOFENCE";
+    public static final String ACTION_GEOFENCE_ENTER="com.messaging.sdk.ACTION_GEOFENCE_ENTER";
+    public static final String ACTION_GEOFENCE_EXIT="com.messaging.sdk.ACTION_GEOFENCE_EXIT";
 
 
-    public static String INTENT_EXTRA_DATA="messaging_data";
-    public static String INTENT_EXTRA_DATA_FIELD="messaging_data_field";
-    public static String INTENT_EXTRA_HAS_ERROR="messaging_has_error";
-    public static String INTENT_EXTRA_DATA_lAT  = "latitude";
-    public static String INTENT_EXTRA_DATA_lONG  = "longitude";
+    public static final String INTENT_EXTRA_DATA="messaging_data";
+    public static final String INTENT_EXTRA_DATA_FIELD="messaging_data_field";
+    public static final String INTENT_EXTRA_HAS_ERROR="messaging_has_error";
+    public static final String INTENT_EXTRA_DATA_lAT  = "latitude";
+    public static final String INTENT_EXTRA_DATA_lONG  = "longitude";
 
 
-    public static String MESSAGING_ID="MSGI_ID";
-    public static String MESSAGING_TYPE="MSGI_TYPE";
-    public static String MESSAGING_TITLE="MSGI_TITLE";
-    public static String MESSAGING_BODY="MSGI_BODY";
-    public static String MESSAGING_APP_ID="MSGI_APPID";
-    public static String MESSAGING_CONFIGURATION="MSGI_CONFIGURATION";
-    public static String MESSAGING_GEOFENCE_PUSH="MSGI_GEOFENCES";
-    public static String MESSAGING_GEOFENCE_SINC="MSGI_GEOFENCES_SINC";
-    public static String MESSAGING_GEO_PUSH="MSGI_GEOPUSH";
-    public static String MESSAGING_APP_TOKEN="appToken";
-    public static String MESSAGING_LOCATION_ENABLE="locationEnable";
-    public static String MESSAGING_ANALYTICS_ENABLE="analyticsEnable";
-    public static String MESSAGING_LOGGING_ENABLE="MSGI_REGISTER_LOGS";
-    public static String MESSAGING_APP_HOST="host";
+    public static final String MESSAGING_ID="MSGI_ID";
+    public static final String MESSAGING_TYPE="MSGI_TYPE";
+    public static final String MESSAGING_TITLE="MSGI_TITLE";
+    public static final String MESSAGING_BODY="MSGI_BODY";
+    public static final String MESSAGING_APP_ID="MSGI_APPID";
+    public static final String MESSAGING_CONFIGURATION="MSGI_CONFIGURATION";
+    public static final String MESSAGING_GEOFENCE_PUSH="MSGI_GEOFENCES";
+    public static final String MESSAGING_GEOFENCE_SINC="MSGI_GEOFENCES_SINC";
+    public static final String MESSAGING_GEO_PUSH="MSGI_GEOPUSH";
+    public static final String MESSAGING_APP_TOKEN="appToken";
+    public static final String MESSAGING_LOCATION_ENABLE="locationEnable";
+    public static final String MESSAGING_ANALYTICS_ENABLE="analyticsEnable";
+    public static final String MESSAGING_LOGGING_ENABLE="MSGI_REGISTER_LOGS";
+    public static final String MESSAGING_APP_HOST="host";
 
-    public static String MESSAGING_DEVICE_ID="id";
-    public static String MESSAGING_USER_ID="userId";
-    public static String MESSAGING_PUSH_TOKEN="pushToken";
-    public static String MESSAGING_DEVICE_TYPE="type";
-    public static String MESSAGING_DEVICE_LANGUAGE="language";
-    public static String MESSAGING_DEVICE_MODEL="model";
-    public static String MESSAGING_DEVICE_OS="os";
-    public static String MESSAGING_DEVICE_SDK_VERSION="sdkVersion";
-    public static String MESSAGING_DEVICE_TAGS="tags";
-    public static String MESSAGING_DEVICE_CREATE_AT="createAt";
-    public static String MESSAGING_DEVICE_UPDATE_AT="updateAt";
-    public static String MESSAGING_DEVICE_TIMESTAMP="timestamp";
-    public static String MESSAGING_DEVICE_TRANSACTION="transaction";
+    public static final String MESSAGING_DEVICE_ID="id";
+    public static final String MESSAGING_USER_ID="userId";
+    public static final String MESSAGING_PUSH_TOKEN="pushToken";
+    public static final String MESSAGING_DEVICE_TYPE="type";
+    public static final String MESSAGING_DEVICE_LANGUAGE="language";
+    public static final String MESSAGING_DEVICE_MODEL="model";
+    public static final String MESSAGING_DEVICE_OS="os";
+    public static final String MESSAGING_DEVICE_SDK_VERSION="sdkVersion";
+    public static final String MESSAGING_DEVICE_TAGS="tags";
+    public static final String MESSAGING_DEVICE_CREATE_AT="createAt";
+    public static final String MESSAGING_DEVICE_UPDATE_AT="updateAt";
+    public static final String MESSAGING_DEVICE_TIMESTAMP="timestamp";
+    public static final String MESSAGING_DEVICE_TRANSACTION="transaction";
 
-    public static String MESSAGING_NOTIFICATION_OPEN="NOTIFICATION_OPEN";
-    public static String MESSAGING_NOTIFICATION_RECEIVED="NOTIFICATION_RECEIVED";
+    public static final String MESSAGING_NOTIFICATION_OPEN="NOTIFICATION_OPEN";
+    public static final String MESSAGING_NOTIFICATION_RECEIVED="NOTIFICATION_RECEIVED";
 
-//    public static final String ACTION_REGISTER_DEVICE="com.messaging.sdk.ACTION_REGISTER_DEVICE";
-//    public static final String ACTION_FETCH_DEVICE="com.messaging.sdk.ACTION_FETCH_DEVICE";
-//    public static final String ACTION_FETCH_FIELDS="com.messaging.sdk.ACTION_FETCH_FIELDS";
-//    public static final String ACTION_SAVE_DEVICE="com.messaging.sdk.ACTION_SAVE_DEVICE";
-//    public static final String ACTION_FETCH_USER="com.messaging.sdk.ACTION_FETCH_USER";
-//    public static final String ACTION_SAVE_USER="com.messaging.sdk.ACTION_SAVE_USER";
-//    public static final String ACTION_GET_NOTIFICATION="com.messaging.sdk.PUSH_NOTIFICATION";
-//    public static final String ACTION_GET_NOTIFICATION_OPENED="com.messaging.sdk.PUSH_NOTIFICATION_TO_OPEN";
-//    public static final String ACTION_GET_GEOFENCE_TRANSITION_DETAILS="com.messaging.sdk.GEOFENCE_TRANSITION_DETAILS";
-//    public static final String ACTION_FETCH_LOCATION="com.messaging.sdk.ACTION_FETCH_LOCATION";
-//    public static final String ACTION_FETCH_GEOFENCE="com.messaging.sdk.ACTION_FETCH_GEOFENCE";
-//    public static final String ACTION_GEOFENCE_ENTER="com.messaging.sdk.ACTION_GEOFENCE_ENTER";
-//    public static final String ACTION_GEOFENCE_EXIT="com.messaging.sdk.ACTION_GEOFENCE_EXIT";
-//
-//    public static final String INTENT_EXTRA_DATA="messaging_data";
-//    public static final String INTENT_EXTRA_DATA_FIELD="messaging_data_field";
-//    public static final String INTENT_EXTRA_HAS_ERROR="messaging_has_error";
-//    public static final String INTENT_EXTRA_DATA_lAT  = "latitude";
-//    public static final String INTENT_EXTRA_DATA_lONG  = "longitude";
-//
-//
-//    public static final String MESSAGING_ID="MSGI_MSGID";
-//    public static final String MESSAGING_TYPE="MSGI_TYPE";
-//    public static final String MESSAGING_TITLE="MSGI_TITLE";
-//    public static final String MESSAGING_BODY="MSGI_BODY";
-//    public static final String MESSAGING_APP_ID="MSGI_APPID";
-//    public static final String MESSAGING_CONFIGURATION="MSGI_CONFIGURATION";
-//    public static final String MESSAGING_GEOFENCE_PUSH="MSGI_GEOFENCES";
-//    public static final String MESSAGING_GEOFENCE_SINC="MSGI_GEOFENCES_SINC";
-//    public static final String MESSAGING_GEO_PUSH="MSGI_GEOPUSH";
-//    public static final String MESSAGING_APP_TOKEN="appToken";
-//    public static final String MESSAGING_LOCATION_ENABLE="locationEnable";
-//    public static final String MESSAGING_ANALYTICS_ENABLE="analyticsEnable";
-//    public static final String MESSAGING_LOGGING_ENABLE="MSGI_REGISTER_LOGS";
-//    public static final String MESSAGING_APP_HOST="host";
-//
-//    public static final String MESSAGING_DEVICE_ID="id";
-//    public static final String MESSAGING_USER_ID="userId";
-//    public static final String MESSAGING_PUSH_TOKEN="pushToken";
-//    public static final String MESSAGING_DEVICE_TYPE="type";
-//    public static final String MESSAGING_DEVICE_LANGUAGE="language";
-//    public static final String MESSAGING_DEVICE_MODEL="model";
-//    public static final String MESSAGING_DEVICE_OS="os";
-//    public static final String MESSAGING_DEVICE_SDK_VERSION="sdkVersion";
-//    public static final String MESSAGING_DEVICE_TAGS="tags";
-//    public static final String MESSAGING_DEVICE_CREATE_AT="createAt";
-//    public static final String MESSAGING_DEVICE_UPDATE_AT="updateAt";
-//    public static final String MESSAGING_DEVICE_TIMESTAMP="timestamp";
-//    public static final String MESSAGING_DEVICE_TRANSACTION="transaction";
-//
-//    public static final String MESSAGING_NOTIFICATION_OPEN="NOTIFICATION_OPEN";
-//    public static final String MESSAGING_NOTIFICATION_RECEIVED="NOTIFICATION_RECEIVED";
+
 
     public static String MESSAGING_NOTIFICATION_CUSTOM_EVENT="";
     public static final String MESSAGING_INVALID_DEVICE_LOCATION="INVALID_DEVICE_LOCATION";
@@ -220,41 +169,26 @@ public class Messaging implements LifecycleObserver {
     public static final int LOCATION_REQUEST = 1000;
     public static final int GPS_REQUEST = 1001;
 
-    public static String LOCATION_LAT="LOCATION_LAT";
-    public static String LOCATION_LON="LOCATION_LON";
-    public static String LOCATION_PROVIDER="LOCATION_PROVIDER";
+    public static final String LOCATION_LAT="LOCATION_LAT";
+    public static final String LOCATION_LON="LOCATION_LON";
+    public static final String LOCATION_PROVIDER="LOCATION_PROVIDER";
 
-    public static String GOEOFENCE_ID="id";
-    public static String GOEOFENCE_LAT="latitude";
-    public static String GOEOFENCE_LONG="longitude";
-    public static String GOEOFENCE_RADIUS="radius";
-    public static String GOEOFENCE_TYPE="type";
-    public static String GOEOFENCE_EXPIRATION="expiration";
-    public static String GOEOFENCE_TYPE_IN="in";
-    public static String GOEOFENCE_TYPE_OUT="out";
-    public static String GOEOFENCE_TYPE_BOTH="both";
-    public static String GOEOFENCE_OPERATION="operation";
-    public static String GOEOFENCE_OPERATION_CREATE="create";
-    public static String GOEOFENCE_OPERATION_UPDATE="update";
-    public static String GOEOFENCE_OPERATION_DELETE="delete";
-    public static long NEVER_EXPIRE = Geofence.NEVER_EXPIRE;
+    public static final String GOEOFENCE_ID="id";
+    public static final String GOEOFENCE_LAT="latitude";
+    public static final String GOEOFENCE_LONG="longitude";
+    public static final String GOEOFENCE_RADIUS="radius";
+    public static final String GOEOFENCE_TYPE="type";
+    public static final String GOEOFENCE_EXPIRATION="expiration";
+    public static final String GOEOFENCE_TYPE_IN="in";
+    public static final String GOEOFENCE_TYPE_OUT="out";
+    public static final String GOEOFENCE_TYPE_BOTH="both";
+    public static final String GOEOFENCE_OPERATION="operation";
+    public static final String GOEOFENCE_OPERATION_CREATE="create";
+    public static final String GOEOFENCE_OPERATION_UPDATE="update";
+    public static final String GOEOFENCE_OPERATION_DELETE="delete";
+    public static final long NEVER_EXPIRE = Geofence.NEVER_EXPIRE;
 
-//    public static final String LOCATION_LAT="LOCATION_LAT";
-//    public static final String LOCATION_LON="LOCATION_LON";
-//    public static final String LOCATION_PROVIDER="LOCATION_PROVIDER";
-//
-//    public static final String GOEOFENCE_ID="id";
-//    public static final String GOEOFENCE_LAT="latitude";
-//    public static final String GOEOFENCE_LONG="longitude";
-//    public static final String GOEOFENCE_RADIUS="radius";
-//    public static final String GOEOFENCE_TYPE="type";
-//    public static final String GOEOFENCE_TYPE_IN="in";
-//    public static final String GOEOFENCE_TYPE_OUT="out";
-//    public static final String GOEOFENCE_TYPE_BOTH="both";
-//    public static final String GOEOFENCE_OPERATION="operation";
-//    public static final String GOEOFENCE_OPERATION_CREATE="create";
-//    public static final String GOEOFENCE_OPERATION_UPDATE="update";
-//    public static final String GOEOFENCE_OPERATION_DELETE="delete";
+
 
 
 
@@ -349,6 +283,7 @@ public class Messaging implements LifecycleObserver {
             @Override
             public void onLocationResult(LocationResult locationResult) {
                 if (locationResult == null) {
+                    utils.showDebugLog(this,"Messaging","locationResult==null "+locationResult.getLastLocation().toString());
                     return;
                 }
                 for (Location location : locationResult.getLocations()) {
@@ -375,6 +310,7 @@ public class Messaging implements LifecycleObserver {
                             fusedLocationClient.removeLocationUpdates(locationCallback);
                         }
                     }
+
                 }
             };
         };
@@ -578,10 +514,11 @@ public class Messaging implements LifecycleObserver {
         Messaging messaging=Messaging.getInstance();
         if (ActivityCompat.checkSelfPermission(messaging.context, android.Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED
                 && ActivityCompat.checkSelfPermission(messaging.context, android.Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
-                ActivityCompat.requestPermissions(activity,
-                        new String[]{android.Manifest.permission.ACCESS_FINE_LOCATION,
-                                Manifest.permission.ACCESS_COARSE_LOCATION},
-                        LOCATION_REQUEST);
+            ActivityCompat.requestPermissions(activity,
+                    new String[]{android.Manifest.permission.ACCESS_FINE_LOCATION,
+                            Manifest.permission.ACCESS_COARSE_LOCATION,
+                            Manifest.permission.ACCESS_BACKGROUND_LOCATION},
+                    LOCATION_REQUEST);
                 messaging.utils.showDebugLog(messaging,nameMethod,"send event ");
                 sendEventToBackend(MESSAGING_INVALID_DEVICE_LOCATION,MESSAGING_INVALID_DEVICE_LOCATION_REASON_MISSING);
         }
@@ -612,7 +549,7 @@ public class Messaging implements LifecycleObserver {
                     @Override
                     public void handleMessage(Message inputMessage) {
                     messaging.utils.showDebugLog(messaging,nameMethod," Continue Location on ");
-                    fusedLocationClient.requestLocationUpdates(locationRequest, locationCallback, null);
+                    fusedLocationClient.requestLocationUpdates(locationRequest, locationCallback,null);
 
                     }
                 };
@@ -645,6 +582,7 @@ public class Messaging implements LifecycleObserver {
                             //messaging.sendGlobalEventToActivity(ACTION_FETCH_LOCATION,messagingLocation);
                             messaging.sendGlobalLocationToActivity(ACTION_FETCH_LOCATION,wayLatitude,wayLongitude);
                         } else {
+                            messaging.utils.showDebugLog(messaging,nameMethod,"requestLocationUpdates "+location.toString());
                             fusedLocationClient.requestLocationUpdates(locationRequest, locationCallback, null);
                         }
                     }
@@ -766,8 +704,7 @@ public class Messaging implements LifecycleObserver {
 
                             messaging.utils.showHttpResponseLog(url,this,nameMethod,"Event Successful ",response);
                             if(params.equals("")){
-                                messaging.utils.showHttpResponseLog(url,this,nameMethod,
-                                        "Get GeoFences and process ",response);
+                                messaging.utils.showDebugLog(this,nameMethod,"Get GeoFences and process "+response);
                                 messaging.utils.processGeofenceList(response);
                                 messaging.sendEventToActivity(Messaging.ACTION_FETCH_GEOFENCE,db.getAllGeoFenceToBd(),messaging.context);
 
@@ -1814,6 +1751,7 @@ public class Messaging implements LifecycleObserver {
         Messaging messaging=Messaging.getInstance();
         MessagingDB db=new MessagingDB(messaging.context);
         db.deleteAll();
+        db.getAllGeoFenceToBd();
 
     }
 

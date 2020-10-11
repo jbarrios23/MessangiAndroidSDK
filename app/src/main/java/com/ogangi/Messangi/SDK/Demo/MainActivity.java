@@ -766,39 +766,55 @@ public class MainActivity extends AppCompatActivity {
                 }
                 String alertMessage = getResources().getString(getResources().getIdentifier(intent.getAction(), "string", getPackageName()));
                 Toast.makeText(getApplicationContext(), alertMessage, Toast.LENGTH_LONG).show();
-//                switch (intent.getAction()){
-//                    case Messaging.ACTION_REGISTER_DEVICE:
-//                    case Messaging.ACTION_FETCH_DEVICE:
-//                    case Messaging.ACTION_SAVE_DEVICE:
-//                        messagingDevice = (MessagingDevice) data;
-//                        Log.d(TAG,"DEBUG: " + CLASS_TAG + ": " + nameMethod + ": messagingDevice :  " + messagingDevice.toString());
-//                        showData();
-//                        // Aca se hace el fetch user porque para obtener el usuario es necesario tener el device primero
-//                        if(messagingUser == null){
-//                            Messaging.fetchUser(getApplicationContext(),false);
-//                        }
-//                        break;
-//
-//                    case Messaging.ACTION_FETCH_USER:
-//                    case Messaging.ACTION_SAVE_USER:
-//                        messagingUser = (MessagingUser) data;
-//                        Log.d(TAG,"DEBUG: " + CLASS_TAG + ": " + nameMethod + ": messagingUser :  " + messagingUser.toString());
-//                        showData();
-//                        break;
-//
-//
-//                    case Messaging.ACTION_GET_NOTIFICATION:
-//                    case Messaging.ACTION_GET_NOTIFICATION_OPENED:
-//                        messagingNotification = (MessagingNotification) data;
-//                        showAlertNotification(messagingNotification, data);
-//                        break;
-//                    case Messaging.ACTION_FETCH_LOCATION:
-//                        MessagingLocation messagingLocation = (MessagingLocation) data;
-//                        Log.d(TAG, "DEBUG: " + CLASS_TAG + ": " + nameMethod + ": Data Location Lat:  " + messagingLocation.getLatitude()+" Long: "+messagingLocation.getLongitude());
-//                        break;
-//                    default:
-//                        break;
-//                }
+                switch (intent.getAction()){
+                    case Messaging.ACTION_REGISTER_DEVICE:
+                        messagingDevice = (MessagingDevice) data;
+                        Log.d(TAG,"DEBUG: " + CLASS_TAG + ": " + nameMethod + ": messagingDevice :  " + messagingDevice.toString());
+                        showData();
+                    break;
+                    case Messaging.ACTION_FETCH_DEVICE:
+                        messagingDevice = (MessagingDevice) data;
+                        if(messagingUser == null){
+                            Messaging.fetchUser(getApplicationContext(),false);
+                        }
+                        Log.d(TAG,"DEBUG: " + CLASS_TAG + ": " + nameMethod + ": messagingDevice :  " + messagingDevice.toString());
+                        showData();
+                    break;
+                    case Messaging.ACTION_SAVE_DEVICE:
+                        messagingDevice = (MessagingDevice) data;
+                        Log.d(TAG,"DEBUG: " + CLASS_TAG + ": " + nameMethod + ": messagingDevice :  " + messagingDevice.toString());
+                        showData();
+                        // Aca se hace el fetch user porque para obtener el usuario es necesario tener el device primero
+                        if(messagingUser == null){
+                            Messaging.fetchUser(getApplicationContext(),false);
+                        }
+                        break;
+
+                    case Messaging.ACTION_FETCH_USER:
+                        messagingUser = (MessagingUser) data;
+                        Log.d(TAG,"DEBUG: " + CLASS_TAG + ": " + nameMethod + ": messagingUser :  " + messagingUser.toString());
+                        showData();
+                        break;
+                    case Messaging.ACTION_SAVE_USER:
+                        messagingUser = (MessagingUser) data;
+                        Log.d(TAG,"DEBUG: " + CLASS_TAG + ": " + nameMethod + ": messagingUser :  " + messagingUser.toString());
+                        showData();
+                        break;
+                    case Messaging.ACTION_GET_NOTIFICATION:
+                        messagingNotification = (MessagingNotification) data;
+                        showAlertNotification(messagingNotification, data);
+                        break;
+                    case Messaging.ACTION_GET_NOTIFICATION_OPENED:
+                        messagingNotification = (MessagingNotification) data;
+                        showAlertNotification(messagingNotification, data);
+                        break;
+                    case Messaging.ACTION_FETCH_LOCATION:
+                        MessagingLocation messagingLocation = (MessagingLocation) data;
+                        Log.d(TAG, "DEBUG: " + CLASS_TAG + ": " + nameMethod + ": Data Location Lat:  " + messagingLocation.getLatitude()+" Long: "+messagingLocation.getLongitude());
+                        break;
+                    default:
+                        break;
+                }
             } else {
                 Toast.makeText(getApplicationContext(),"An error occurred on action " + intent.getAction(),Toast.LENGTH_LONG).show();
                 if(progressBar.isShown()){
