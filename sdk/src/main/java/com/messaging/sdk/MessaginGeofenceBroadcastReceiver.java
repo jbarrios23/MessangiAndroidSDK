@@ -69,9 +69,6 @@ public class MessaginGeofenceBroadcastReceiver extends BroadcastReceiver {
             // multiple geofences.
             //List<Geofence> triggeringGeofences = geofencingEvent.getTriggeringGeofences();
 
-
-
-
             // Get the transition details as a String.
             String geofenceTransitionDetails = getGeofenceTransitionDetails(
                     this,

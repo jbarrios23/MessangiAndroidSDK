@@ -575,6 +575,7 @@ public class MainActivity extends AppCompatActivity {
             messagingDevArrayList.add("AnalyticsEnable: " + messaging.isAnalytics_allowed());
             messagingDevArrayList.add("Log Enable: " + messaging.isLogging_allowed());
             messagingDevArrayList.add("Permission Automatic: " + messaging.isEnable_permission_automatic());
+            messagingDevArrayList.add("Enable Background location: " + Messaging.enableLocationBackground);
             list_device.setAdapter(messagingDevArrayAdapter);
         }
         if(messagingUser!=null){
@@ -745,6 +746,7 @@ public class MainActivity extends AppCompatActivity {
         nameMethod=new Object(){}.getClass().getEnclosingMethod().getName();
         Log.d(TAG,"DEBUG: "+CLASS_TAG+": "+nameMethod+": unregister LocalBroadcastReceiver");
         LocalBroadcastManager.getInstance(this).unregisterReceiver(mReceiver);
+        Messaging.enableLocationBackground=true;
         super.onDestroy();
     }
 

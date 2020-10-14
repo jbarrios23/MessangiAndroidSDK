@@ -211,6 +211,7 @@ public class Messaging implements LifecycleObserver {
     private  final int GEOFENCE_REQ_CODE = 0;
 
     private GeofencingClient geofencingClient;
+    public static boolean enableLocationBackground=false;
 
 
 
@@ -279,6 +280,7 @@ public class Messaging implements LifecycleObserver {
         fusedLocationClient = LocationServices.getFusedLocationProviderClient(context);
         Messaging.setLocationRequestWithPriority(MessagingLocationPriority.PRIORITY_NO_POWER);
         utils.showDebugLog(this,nameMethod,"Priority "+Messaging.getLocationRequestPriority());
+
         locationCallback=new LocationCallback(){
             @Override
             public void onLocationResult(LocationResult locationResult) {
@@ -380,6 +382,8 @@ public class Messaging implements LifecycleObserver {
 
         }
 
+        stopServiceLocation();
+
     }
     /**
      * Method that initializes OnLifecycleEvent
@@ -393,6 +397,12 @@ public class Messaging implements LifecycleObserver {
         isBackground=true;
         isForeground=false;
         utils.showDebugLog(this,nameMethod,"Background "+isBackground);
+        //si la bandera de location activa y (lectura continua de localizacion || Geofence)
+        if(utils.isLocation_allowed() && enableLocationBackground){
+            Intent intent = new Intent(context, MessagingLocationService.class);
+            context.startForegroundService(intent);
+        }
+
     }
 
     public void setConfiguration(String scanContent) {
@@ -551,6 +561,7 @@ public class Messaging implements LifecycleObserver {
                     messaging.utils.showDebugLog(messaging,nameMethod," Continue Location on ");
                     fusedLocationClient.requestLocationUpdates(locationRequest, locationCallback,null);
 
+
                     }
                 };
                 handler.sendEmptyMessage(0);
@@ -582,7 +593,7 @@ public class Messaging implements LifecycleObserver {
                             //messaging.sendGlobalEventToActivity(ACTION_FETCH_LOCATION,messagingLocation);
                             messaging.sendGlobalLocationToActivity(ACTION_FETCH_LOCATION,wayLatitude,wayLongitude);
                         } else {
-                            messaging.utils.showDebugLog(messaging,nameMethod,"requestLocationUpdates "+location.toString());
+                            messaging.utils.showDebugLog(messaging,nameMethod,"requestLocationUpdates ");
                             fusedLocationClient.requestLocationUpdates(locationRequest, locationCallback, null);
                         }
                     }
@@ -1796,7 +1807,7 @@ public class Messaging implements LifecycleObserver {
             Geofence geofence =messagingCircularRegion.getGeofence();
             messaging.utils.showDebugLog(messaging,nameMethod,"GF For "+geofence.toString());
             geofencesToAdd.add(geofence);
-            if(geofencesToAdd.size()==20){
+            if(geofencesToAdd.size()==100){
             break;
             }
 

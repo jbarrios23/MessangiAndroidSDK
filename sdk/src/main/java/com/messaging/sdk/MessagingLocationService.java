@@ -83,29 +83,29 @@ public class MessagingLocationService extends Service {
     public int onStartCommand(Intent intent, int flags, int startId) {
         this.nameMethod="onStartCommand";
         messaging.utils.showDebugLog(MessagingLocationService.this,nameMethod,""+messaging.getNameClass());
-        createNotificationChannel();
-        String classNameProv="com.ogangi.Messangi.SDK.Demo.MapsActivity";
-        Intent notificationIntent = null;
-        try {
-            notificationIntent = new Intent(this, Class.forName(classNameProv));
-            PendingIntent pendingIntent = PendingIntent.getActivity(this,
-                    0, notificationIntent, 0);
-            Notification notification = new NotificationCompat.Builder(this, CHANNEL_ID)
-                    .setContentTitle("Messaging SDK")
-                    .setContentText("Demo location on ")
-                    .setSmallIcon(R.mipmap.ic_launcher_round)
-                    .setContentIntent(pendingIntent)
-                    .build();
-            startForeground(1, notification);
-        } catch (ClassNotFoundException e) {
-            e.printStackTrace();
-        }catch (NullPointerException e){
-        e.printStackTrace();
-
-        notificationIntent = new Intent("android.intent.action.MAIN");
-    }
+//        createNotificationChannel();
+//        String classNameProv="com.ogangi.Messangi.SDK.Demo.MapsActivity";
+//        Intent notificationIntent = null;
+//        try {
+//            notificationIntent = new Intent(this, Class.forName(classNameProv));
+//            PendingIntent pendingIntent = PendingIntent.getActivity(this,
+//                    0, notificationIntent, 0);
+//            Notification notification = new NotificationCompat.Builder(this, CHANNEL_ID)
+//                    .setContentTitle("Messaging SDK")
+//                    .setContentText("Demo location on ")
+//                    .setSmallIcon(R.mipmap.ic_launcher_round)
+//                    .setContentIntent(pendingIntent)
+//                    .build();
+//            startForeground(1, notification);
+//        } catch (ClassNotFoundException e) {
+//            e.printStackTrace();
+//        }catch (NullPointerException e){
+//        e.printStackTrace();
+//
+//        notificationIntent = new Intent("android.intent.action.MAIN");
+//    }
     //fetchLocation(true, Messaging.MessagingLocationPriority.PRIORITY_HIGH_ACCURACY);
-    Messaging.fetchLocation(null,true, Messaging.MessagingLocationPriority.PRIORITY_BALANCED_POWER_ACCURACY);
+    Messaging.fetchLocation(null,true, Messaging.MessagingLocationPriority.PRIORITY_HIGH_ACCURACY);
     //return super.onStartCommand(intent, flags, startId);
         return START_STICKY;
 

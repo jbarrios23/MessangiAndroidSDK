@@ -135,7 +135,6 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
             public void onClick(View v) {
                 Messaging.turnOFFUpdateLocation();
                 stopService();
-
             }
         });
 

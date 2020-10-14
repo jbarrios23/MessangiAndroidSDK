@@ -448,34 +448,7 @@ class MessagingSdkUtils {
                 boolean provEnable=jsonObject.getBoolean(Messaging.MESSAGING_LOCATION_ENABLE);
                 showDebugLog(this,nameMethod, "locationEnable : "
                         +provEnable);
-                if(provEnable){
-                    if(Messaging.isForeground){
-                        showDebugLog(this,nameMethod, "locationEnable : "
-                                +provEnable+" is F "+Messaging.isForeground);
-                        Messaging.fetchLocation(null,true,PRIORITY_HIGH_ACCURACY);
-                    }else{
-                        showDebugLog(this,nameMethod, "locationEnable : "
-                                +provEnable+" is b "+Messaging.isBackground);
-                        Intent intent = new Intent(context, MessagingLocationService.class);
-                        context.startForegroundService(intent);
 
-                    }
-//                    if(Messaging.isBackground){
-//                        showDebugLog(this,nameMethod, "locationEnable : "
-//                                +provEnable+" is b "+Messaging.isBackground);
-//                        Intent intent = new Intent(context, MessagingLocationService.class);
-//                        context.startForegroundService(intent);
-//                    }
-
-                }else{
-                    if(Messaging.isBackground){
-                        showDebugLog(this,nameMethod, "locationEnable : "
-                                +provEnable+" is b "+Messaging.isBackground);
-                        Messaging.turnOFFUpdateLocation();
-                        messaging.stopServiceLocation();
-
-                    }
-                }
                 setLocation_allowed(provEnable);
             }
             if(jsonObject.has(Messaging.MESSAGING_ANALYTICS_ENABLE)){
