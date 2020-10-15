@@ -559,7 +559,7 @@ public class Messaging implements LifecycleObserver {
                     @Override
                     public void handleMessage(Message inputMessage) {
                     messaging.utils.showDebugLog(messaging,nameMethod," Continue Location on ");
-                    fusedLocationClient.requestLocationUpdates(locationRequest, locationCallback,null);
+                    fusedLocationClient.requestLocationUpdates(locationRequest, locationCallback,Looper.getMainLooper());
 
 
                     }
@@ -594,7 +594,7 @@ public class Messaging implements LifecycleObserver {
                             messaging.sendGlobalLocationToActivity(ACTION_FETCH_LOCATION,wayLatitude,wayLongitude);
                         } else {
                             messaging.utils.showDebugLog(messaging,nameMethod,"requestLocationUpdates ");
-                            fusedLocationClient.requestLocationUpdates(locationRequest, locationCallback, null);
+                            fusedLocationClient.requestLocationUpdates(locationRequest, locationCallback, Looper.getMainLooper());
                         }
                     }
                 });
@@ -1288,8 +1288,10 @@ public class Messaging implements LifecycleObserver {
                     nameMethod=new Object(){}.getClass().getEnclosingMethod().getName();
                     messaging.utils.showHttpResponseLog(provUrl,messaging,nameMethod,"Successful",response);
                     JSONObject resp=new JSONObject(response);
-                    messaging.messagingDevice =messaging.utils.getMessagingDevFromJsonOnlyResp(resp,pushToken);
-                    messaging.messagingStorageController.saveDevice(resp, "", null);
+                    messaging.utils.showDebugLog(this,nameMethod,"Device "+resp.getJSONObject("device"));
+                    JSONObject tempResp=resp.getJSONObject("device");
+                    messaging.messagingDevice =messaging.utils.getMessagingDevFromJsonOnlyResp(tempResp,pushToken);
+                    messaging.messagingStorageController.saveDevice(tempResp, "", null);
                     messaging.sendEventToActivity(ACTION_FETCH_DEVICE,messaging.messagingDevice,context);
 
                 }
@@ -1396,7 +1398,7 @@ public class Messaging implements LifecycleObserver {
         protected void onPostExecute(String response) {
             super.onPostExecute(response);
             try{
-                if(!response.equals("")) {
+
                     JSONObject resp=new JSONObject(response);
                     nameMethod=new Object(){}.getClass().getEnclosingMethod().getName();
                     messaging.utils.showHttpResponseLog(provUrl,messaging,nameMethod,"Create Device Successful",response);
@@ -1410,7 +1412,7 @@ public class Messaging implements LifecycleObserver {
                     }
                     messaging.sendEventToActivity(ACTION_REGISTER_DEVICE,messaging.messagingDevice,messaging.context);
 
-                }
+
             }catch (NullPointerException e){
                 messaging.sendEventToActivity(ACTION_REGISTER_DEVICE,null,messaging.context);
                 messaging.utils.showErrorLog(this,nameMethod,"Device not create! NullPointerException ",e.getStackTrace().toString());

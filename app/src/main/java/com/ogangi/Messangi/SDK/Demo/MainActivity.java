@@ -145,7 +145,7 @@ public class MainActivity extends AppCompatActivity {
                         messagingDevArrayList.clear();
                         messagingUserDeviceArrayList.clear();
                         Messaging.fetchDevice(true, getApplicationContext());
-                        Messaging.fetchUser(getApplicationContext(), true);
+                        //Messaging.fetchUser(getApplicationContext(), true);
                         return true;
                 }
 
@@ -746,7 +746,7 @@ public class MainActivity extends AppCompatActivity {
         nameMethod=new Object(){}.getClass().getEnclosingMethod().getName();
         Log.d(TAG,"DEBUG: "+CLASS_TAG+": "+nameMethod+": unregister LocalBroadcastReceiver");
         LocalBroadcastManager.getInstance(this).unregisterReceiver(mReceiver);
-        Messaging.enableLocationBackground=true;
+        //Messaging.enableLocationBackground=true;
         super.onDestroy();
     }
 
@@ -785,11 +785,12 @@ public class MainActivity extends AppCompatActivity {
                     case Messaging.ACTION_SAVE_DEVICE:
                         messagingDevice = (MessagingDevice) data;
                         Log.d(TAG,"DEBUG: " + CLASS_TAG + ": " + nameMethod + ": messagingDevice :  " + messagingDevice.toString());
-                        showData();
+
                         // Aca se hace el fetch user porque para obtener el usuario es necesario tener el device primero
                         if(messagingUser == null){
                             Messaging.fetchUser(getApplicationContext(),false);
                         }
+                        showData();
                         break;
 
                     case Messaging.ACTION_FETCH_USER:

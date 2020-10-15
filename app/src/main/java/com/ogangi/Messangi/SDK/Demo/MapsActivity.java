@@ -258,7 +258,8 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
     }
 
     private void drawGeofence(int radius) {
-        Log.d(CLASS_TAG, "drawGeofence()");
+        //Log.d(CLASS_TAG, "drawGeofence()");
+        Log.d(TAG, "DEBUG: " + CLASS_TAG + ": drawGeofence()");
 
         if ( geoFenceLimits != null )
             geoFenceLimits.remove();
@@ -306,7 +307,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
                     messagingCircularRegions = (ArrayList<MessagingCircularRegion>) data;
 
                     for(MessagingCircularRegion temp:messagingCircularRegions){
-                        Log.d(TAG, "DEBUG: " + CLASS_TAG + ": " + nameMethod + ": Data Location Lat:  "
+                    Log.d(TAG, "DEBUG: " + CLASS_TAG + ": " + nameMethod + ": Data Location Lat:  "
                                 + temp.getLatitude()+" Long: "+temp.getLongitud()+" radius "+temp.getRadius()
                                 +" trigger "+temp.getTrigger());
                         LatLng prov=new LatLng(temp.getLatitude(),temp.getLongitud());

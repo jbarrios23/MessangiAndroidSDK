@@ -315,6 +315,7 @@ public class MessagingUser implements Serializable {
 
                 if(code == HttpURLConnection.HTTP_OK){
                     server_response = messaging.readStream(urlConnection.getInputStream());
+                    messaging.utils.showDebugLog(this,nameMethod,"ok "+server_response);
 
                 }
 
@@ -336,7 +337,7 @@ public class MessagingUser implements Serializable {
         protected void onPostExecute(String response) {
             super.onPostExecute(response);
             try{
-                if(!response.equals("")) {
+
                     messaging.utils.showHttpResponseLog(provUrl, MessagingUser.this,nameMethod,"User Update Successful",response);
 //                    JSONObject resp=new JSONObject(response);
 //                    JSONObject data=resp.getJSONObject("subscriber").getJSONObject("data");
@@ -345,7 +346,7 @@ public class MessagingUser implements Serializable {
                     messaging.messagingUser = MessagingUser.parseData(resultMap);
                     sendEventToActivity(Messaging.ACTION_SAVE_USER,messaging.messagingUser, context);
 
-                }
+
             }catch (NullPointerException e){
                 sendEventToActivity(Messaging.ACTION_SAVE_USER,null,context);
                 messaging.utils.showErrorLog(this,nameMethod,"User not update! NullPointerException",e.getStackTrace().toString());

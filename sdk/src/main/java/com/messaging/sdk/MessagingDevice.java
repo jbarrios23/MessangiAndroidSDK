@@ -447,15 +447,15 @@ public class MessagingDevice implements Serializable {
         protected void onPostExecute(String response) {
             super.onPostExecute(response);
             try{
-                if(!response.equals("")) {
                     nameMethod=new Object(){}.getClass().getEnclosingMethod().getName();
                     messaging.utils.showHttpResponseLog(provUrl, MessagingDevice.this,nameMethod,"Update Successful",response);
-                    JSONObject resp=new JSONObject(response);
+                    //JSONObject resp=new JSONObject(response);
+                    JSONObject resp=new JSONObject();
+                    resp.put("update","update");
                     messagingDevice = messaging.utils.getMessagingDevFromJson(resp, jsonObject,Id);
                     messaging.messagingStorageController.saveDevice(resp,Id, jsonObject);
                     sendEventToActivity(Messaging.ACTION_SAVE_DEVICE,messagingDevice,context);
 
-                }
             }catch (NullPointerException e){
                 messaging.utils.showErrorLog(this,nameMethod,"device not update! NullPointerException",e.getStackTrace().toString());
                 sendEventToActivity(Messaging.ACTION_SAVE_DEVICE,null,context);
