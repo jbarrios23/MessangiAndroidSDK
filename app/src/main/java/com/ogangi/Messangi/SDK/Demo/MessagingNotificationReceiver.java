@@ -39,6 +39,13 @@ public class MessagingNotificationReceiver extends BroadcastReceiver {
     public void onReceive(Context context, Intent intent) {
         // TODO: This method is called when the BroadcastReceiver is receiving
         nameMethod=new Object(){}.getClass().getEnclosingMethod().getName();
+        if(intent!=null && intent.getAction()!=null && intent.getAction().equals(Intent.ACTION_BOOT_COMPLETED)){
+            Log.e(TAG,"DEBUG: "+CLASS_TAG+": "+nameMethod+": Boot complete:  ");
+            Messaging.re_registerGeofence();
+            return;
+        }
+
+
         boolean hasError=intent.getBooleanExtra(Messaging.INTENT_EXTRA_HAS_ERROR,true);
         Log.d(TAG,"DEBUG: "+CLASS_TAG+": "+nameMethod+": Has error:  "+ hasError);
         if (!hasError ) {

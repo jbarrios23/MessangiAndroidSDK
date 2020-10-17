@@ -25,9 +25,16 @@ public class MessaginGeofenceBroadcastReceiver extends BroadcastReceiver {
         // TODO: This method is called when the BroadcastReceiver is receiving
         // an Intent broadcast.
         // an Intent broadcast.
+        nameMethod=new Object(){}.getClass().getEnclosingMethod().getName();
+        messaging=Messaging.getInstance();
+//        if(intent!=null && intent.getAction()!=null && intent.getAction().equals(Intent.ACTION_BOOT_COMPLETED)){
+//            messaging.utils.showDebugLog(this,nameMethod,"Boot complete ");
+//            return;
+//        }
+
         db=new MessagingDB(context);
         nameMethod="onReceive";
-        messaging=Messaging.getInstance();
+
         messaging.utils.showDebugLog(this,nameMethod,"MessaginGeofenceBroadcastReceiver "+intent.getExtras().toString());
 
         nameMethod = new Object() {}.getClass().getEnclosingMethod().getName();

@@ -110,6 +110,7 @@ public class Messaging implements LifecycleObserver {
     public static final String ACTION_FETCH_FIELDS="com.messaging.sdk.ACTION_FETCH_FIELDS";
     public static final String ACTION_SAVE_DEVICE="com.messaging.sdk.ACTION_SAVE_DEVICE";
     public static final String ACTION_FETCH_USER="com.messaging.sdk.ACTION_FETCH_USER";
+    public static final String FETCH_USER_SUSCRIBER="subscriber";
     public static final String ACTION_SAVE_USER="com.messaging.sdk.ACTION_SAVE_USER";
     public static final String ACTION_GET_NOTIFICATION="com.messaging.sdk.PUSH_NOTIFICATION";
     public static final String ACTION_GET_GEOFENCE_TRANSITION_DETAILS="com.messaging.sdk.GEOFENCE_TRANSITION_DETAILS";
@@ -158,7 +159,7 @@ public class Messaging implements LifecycleObserver {
 
     public static final String MESSAGING_NOTIFICATION_OPEN="NOTIFICATION_OPEN";
     public static final String MESSAGING_NOTIFICATION_RECEIVED="NOTIFICATION_RECEIVED";
-
+    public static final String MESSAGING_DEVICE="device";
 
 
     public static String MESSAGING_NOTIFICATION_CUSTOM_EVENT="";
@@ -1289,7 +1290,7 @@ public class Messaging implements LifecycleObserver {
                     messaging.utils.showHttpResponseLog(provUrl,messaging,nameMethod,"Successful",response);
                     JSONObject resp=new JSONObject(response);
                     messaging.utils.showDebugLog(this,nameMethod,"Device "+resp.getJSONObject("device"));
-                    JSONObject tempResp=resp.getJSONObject("device");
+                    JSONObject tempResp=resp.getJSONObject(Messaging.MESSAGING_DEVICE);
                     messaging.messagingDevice =messaging.utils.getMessagingDevFromJsonOnlyResp(tempResp,pushToken);
                     messaging.messagingStorageController.saveDevice(tempResp, "", null);
                     messaging.sendEventToActivity(ACTION_FETCH_DEVICE,messaging.messagingDevice,context);
@@ -1526,7 +1527,8 @@ public class Messaging implements LifecycleObserver {
                     nameMethod=new Object(){}.getClass().getEnclosingMethod().getName();
                     messaging.utils.showHttpResponseLog(provUrl,this,nameMethod,"Successful",response);
                     JSONObject resp=new JSONObject(response);
-                    Map<String, String> resultMap=toMap(resp);
+                    JSONObject tempResp=resp.getJSONObject(Messaging.FETCH_USER_SUSCRIBER);
+                    Map<String, String> resultMap=toMap(tempResp);
                     messaging.messagingStorageController.saveUserByDevice(resultMap);
                     messaging.messagingUser = MessagingUser.parseData(resultMap);
                     //messagingUser.id = deviceId;
@@ -1765,6 +1767,14 @@ public class Messaging implements LifecycleObserver {
         MessagingDB db=new MessagingDB(messaging.context);
         db.deleteAll();
         db.getAllGeoFenceToBd();
+
+    }
+
+    public static void re_registerGeofence(){
+        final Messaging messaging= Messaging.getInstance();
+        String nameMethod=new Object(){}.getClass().getEnclosingMethod().getName();
+        //fetchGeofence(true);
+        messaging.utils.showDebugLog(messaging,nameMethod,"Re-Register Geofence");
 
     }
 

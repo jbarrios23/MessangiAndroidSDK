@@ -19,6 +19,8 @@
     <uses-permission-sdk-23 android:name="android.permission.ACCESS_BACKGROUND_LOCATION" />
     <uses-permission-sdk-23 android:name="android.permission.FOREGROUND_SERVICE" />
 
+    <uses-permission android:name="android.permission.RECEIVE_BOOT_COMPLETED"/>
+
     <permission
         android:name="${applicationId}.permission.pushReceive"
         android:protectionLevel="signature" />
@@ -70,8 +72,8 @@
         <receiver
             android:name="com.messaging.sdk.MessaginGeofenceBroadcastReceiver"
             android:enabled="true"
-            android:permission="${applicationId}.permission.pushReceive"
             android:exported="true">
+
         </receiver>
 
         <receiver
@@ -85,6 +87,8 @@
                 <action android:name="com.messaging.sdk.ACTION_FETCH_LOCATION" />
                 <action android:name="com.messaging.sdk.ACTION_GEOFENCE_ENTER" />
                 <action android:name="com.messaging.sdk.ACTION_GEOFENCE_EXIT" />
+                <action android:name="android.intent.action.BOOT_COMPLETED" />
+                <category android:name="android.intent.category.DEFAULT" />
             </intent-filter>
         </receiver>
 
