@@ -137,7 +137,7 @@ public class LoginActivity extends AppCompatActivity {
             Log.d(TAG,"DEBUG: " + CLASS_TAG + ": " + nameMethod + "has device register: " + messaging.messagingStorageController.isRegisterDevice());
             goToMainActivity();
         }else{
-            Log.d(TAG,"DEBUG: " + CLASS_TAG + ": " + nameMethod + "has device register: " + messaging.messagingStorageController.isRegisterDevice());
+            Log.d(TAG,"DEBUG: " + CLASS_TAG + ": " + nameMethod + "has Not device register: " + messaging.messagingStorageController.isRegisterDevice());
         }
     }
 
@@ -321,7 +321,8 @@ public class LoginActivity extends AppCompatActivity {
     }
 
     private void reloadSdkParameter(boolean provUserUpdate) {
-        Log.i(TAG, "INFO: " + CLASS_TAG + ": " + nameMethod + "update config: " + prvTokenApp+"  "+provHostApp);
+        nameMethod="reloadSdkParameter";
+        Log.i(TAG, "INFO: " + CLASS_TAG + ": " + nameMethod + ": " + provUserUpdate);
         userUpdate=provUserUpdate;
         messaging.reloadSdkParameter();
         // messaging.setConfigParameterFromApp(prvTokenApp,provHostApp);
@@ -357,7 +358,7 @@ public class LoginActivity extends AppCompatActivity {
                     progressBar.setVisibility(View.GONE);
                 }
                 //addEditTextDynamically(linearLayout, myListName);
-                Log.i(TAG, "INFO: " + CLASS_TAG + ": " + nameMethod + "dataInputList: "
+            Log.i(TAG, "INFO: " + CLASS_TAG + ": " + nameMethod + "dataInputList: "
                         + "With data");
                 addEditTextDynamically(linearLayout, dataInputList);
             }else{
@@ -430,10 +431,11 @@ public class LoginActivity extends AppCompatActivity {
                 Serializable dataSdk=intent.getSerializableExtra(Messaging.INTENT_EXTRA_DATA);
                 String data=intent.getStringExtra(Messaging.INTENT_EXTRA_DATA_FIELD);
                 if(intent.getAction().equals(Messaging.ACTION_FETCH_FIELDS) && data!=null){
-                    Log.d(TAG,"DEBUG: "+CLASS_TAG+": "+nameMethod+": data:  "+ data);
+                Log.d(TAG,"DEBUG: "+CLASS_TAG+": "+nameMethod+": data:  "+ data);
 
                     try {
-                        JSONArray arr = new JSONArray(data);
+                        JSONObject temp=new JSONObject(data);
+                        JSONArray arr = temp.getJSONArray(Messaging.FETCH_FIELDS_COLUMNS);
                         JSONArray sortedJsonArray =getJsonArraySorted(arr);
                     Log.d(TAG,"DEBUG: "+CLASS_TAG+": "+nameMethod+": sortedJsonArray:  "
                     + sortedJsonArray.toString());
@@ -478,14 +480,14 @@ public class LoginActivity extends AppCompatActivity {
                     if (userUpdate) {
                     Messaging.fetchUser(getApplicationContext(), true);
                     } else {
-                        if (useQrScan) {
+                    if (useQrScan) {
                         goToMainActivity();
                         useQrScan=false;
-                        }
+                    }
 
                     }
 
-                }else if(intent.getAction().equals(Messaging.ACTION_FETCH_USER)&& dataSdk!=null) {
+                }else if(intent.getAction().equals(Messaging.ACTION_FETCH_USER) && dataSdk!=null) {
                         messagingUser = (MessagingUser) dataSdk;
                         Toast.makeText(getApplicationContext(),intent.getAction(),Toast.LENGTH_LONG).show();
                         Log.d(TAG, "Debug: " + CLASS_TAG + ": " + nameMethod + "Action:  " + intent.getAction()+" "+dataSdk+" QR "+useQrScan);
@@ -545,13 +547,7 @@ public class LoginActivity extends AppCompatActivity {
         LoginActivity.this.finish();
     }
 
-    private void sendUserUpdateData(HashMap<String, String> dataInputToSendUser) {
-        // for (Map.Entry<String, String> entry : dataInputToSendUser.entrySet()) {
-        //    messagingUser.addProperty(entry.getKey(),entry.getValue());
-        // }
-        // Log.d(TAG,"DEBUG: "+CLASS_TAG+": "+nameMethod+" Send User data:  "+ messagingUser.getProperties());
-        // messagingUser.save(getApplicationContext());
-    }
+
 
     public JSONArray getJsonArraySorted(JSONArray arr){
         JSONArray sortedJsonArray = new JSONArray();

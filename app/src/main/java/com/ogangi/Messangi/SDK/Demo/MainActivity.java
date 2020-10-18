@@ -323,14 +323,6 @@ public class MainActivity extends AppCompatActivity {
         progressBar.setVisibility(View.VISIBLE);
         Messaging.fetchDevice(false, getApplicationContext());
         Log.i(TAG,"INFO: "+CLASS_TAG+": "+nameMethod+": ");
-        //verify if GPS turn on!
-//        new GpsUtils(this).turnGPSOn(new GpsUtils.onGpsListener() {
-//            @Override
-//            public void gpsStatus(boolean isGPSEnable) {
-//                messaging.setGPS(isGPSEnable);
-//                Log.d(CLASS_TAG,TAG+ " isGPS To Interface "+messaging.isGPS());
-//            }
-//        });
 
     }
 

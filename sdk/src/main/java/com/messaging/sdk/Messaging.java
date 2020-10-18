@@ -111,6 +111,7 @@ public class Messaging implements LifecycleObserver {
     public static final String ACTION_SAVE_DEVICE="com.messaging.sdk.ACTION_SAVE_DEVICE";
     public static final String ACTION_FETCH_USER="com.messaging.sdk.ACTION_FETCH_USER";
     public static final String FETCH_USER_SUSCRIBER="subscriber";
+    public static final String FETCH_FIELDS_COLUMNS="columns";
     public static final String ACTION_SAVE_USER="com.messaging.sdk.ACTION_SAVE_USER";
     public static final String ACTION_GET_NOTIFICATION="com.messaging.sdk.PUSH_NOTIFICATION";
     public static final String ACTION_GET_GEOFENCE_TRANSITION_DETAILS="com.messaging.sdk.GEOFENCE_TRANSITION_DETAILS";
@@ -1411,7 +1412,7 @@ public class Messaging implements LifecycleObserver {
                         messaging.messagingDevice.setPushToken(token);
                         messaging.messagingDevice.save(messaging.context);
                     }
-                    messaging.sendEventToActivity(ACTION_REGISTER_DEVICE,messaging.messagingDevice,messaging.context);
+            messaging.sendEventToActivity(ACTION_REGISTER_DEVICE,messaging.messagingDevice,messaging.context);
 
 
             }catch (NullPointerException e){
@@ -1660,7 +1661,6 @@ public class Messaging implements LifecycleObserver {
                     nameMethod = new Object() {}.getClass().getEnclosingMethod().getName();
                     messaging.utils.showHttpResponseLog(provUrl,this,nameMethod,"Get Field Successful ",response);
                     messaging.sendFieldToActivity(Messaging.ACTION_FETCH_FIELDS,response,context);
-
                 }
             } catch (NullPointerException e) {
                 e.printStackTrace();
@@ -1774,7 +1774,18 @@ public class Messaging implements LifecycleObserver {
         final Messaging messaging= Messaging.getInstance();
         String nameMethod=new Object(){}.getClass().getEnclosingMethod().getName();
         //fetchGeofence(true);
-        messaging.utils.showDebugLog(messaging,nameMethod,"Re-Register Geofence");
+        if(messaging.utils.isLocation_allowed()) {
+            MessagingDB db=new MessagingDB(messaging.context);
+            if(db.getAllGeoFenceToBd().size()>0) {
+                messaging.startGeofence();
+                messaging.utils.showDebugLog(messaging, nameMethod, "Re-Register Geofence");
+            }else{
+
+                messaging.utils.showDebugLog(messaging, nameMethod, "Not Geofence in dB");
+            }
+        }else{
+            messaging.utils.showDebugLog(messaging, nameMethod, "Location Not Enable");
+        }
 
     }
 
