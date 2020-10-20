@@ -557,8 +557,8 @@ public class MainActivity extends AppCompatActivity {
             messagingDevArrayList.add("Os: " + messagingDevice.getOs());
             messagingDevArrayList.add("SdkVersion: " + messagingDevice.getSdkVersion());
             messagingDevArrayList.add("Tags: " + messagingDevice.getTags());
-            messagingDevArrayList.add("Timestamp: " + messagingDevice.getTimestamp());
-            messagingDevArrayList.add("Transaction: " + messagingDevice.getTransaction());
+//            messagingDevArrayList.add("Timestamp: " + messagingDevice.getTimestamp());
+//            messagingDevArrayList.add("Transaction: " + messagingDevice.getTransaction());
             messagingDevArrayList.add("ExternalId: " + messaging.getExternalId());
             messagingDevArrayList.add("Config: ");
             messagingDevArrayList.add("Host: " + messaging.getMessagingHost());

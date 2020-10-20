@@ -449,11 +449,12 @@ public class MessagingDevice implements Serializable {
             try{
                     nameMethod=new Object(){}.getClass().getEnclosingMethod().getName();
                     messaging.utils.showHttpResponseLog(provUrl, MessagingDevice.this,nameMethod,"Update Successful",response);
-                    //JSONObject resp=new JSONObject(response);
-                    JSONObject resp=new JSONObject();
-                    resp.put("update","update");
-                    messagingDevice = messaging.utils.getMessagingDevFromJson(resp, jsonObject,Id);
-                    messaging.messagingStorageController.saveDevice(resp,Id, jsonObject);
+                    JSONObject resp=new JSONObject(response);
+                    //JSONObject resp=new JSONObject();
+                    //resp.put("update","update");
+                    JSONObject temp=resp.getJSONObject(Messaging.MESSAGING_DATA);
+                    messagingDevice = messaging.utils.getMessagingDevFromJson(temp, jsonObject,Id);
+                    messaging.messagingStorageController.saveDevice(temp,Id, jsonObject);
                     sendEventToActivity(Messaging.ACTION_SAVE_DEVICE,messagingDevice,context);
 
             }catch (NullPointerException e){

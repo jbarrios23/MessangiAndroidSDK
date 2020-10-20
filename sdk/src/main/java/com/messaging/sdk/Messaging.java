@@ -135,7 +135,7 @@ public class Messaging implements LifecycleObserver {
     public static final String MESSAGING_BODY="MSGI_BODY";
     public static final String MESSAGING_APP_ID="MSGI_APPID";
     public static final String MESSAGING_CONFIGURATION="MSGI_CONFIGURATION";
-    public static final String MESSAGING_GEOFENCE_PUSH="MSGI_GEOFENCES";
+    public static final String MESSAGING_GEOFENCE_PUSH="geofence";
     public static final String MESSAGING_GEOFENCE_SINC="MSGI_GEOFENCES_SINC";
     public static final String MESSAGING_GEO_PUSH="MSGI_GEOPUSH";
     public static final String MESSAGING_APP_TOKEN="appToken";
@@ -161,6 +161,7 @@ public class Messaging implements LifecycleObserver {
     public static final String MESSAGING_NOTIFICATION_OPEN="NOTIFICATION_OPEN";
     public static final String MESSAGING_NOTIFICATION_RECEIVED="NOTIFICATION_RECEIVED";
     public static final String MESSAGING_DEVICE="device";
+    public static final String MESSAGING_DATA="data";
 
 
     public static String MESSAGING_NOTIFICATION_CUSTOM_EVENT="";
@@ -673,6 +674,7 @@ public class Messaging implements LifecycleObserver {
                     try {
 
                         String response=(String)o;
+                        messaging.utils.showDebugLog(this,"onSucces","response "+response);
                         if (!response.equals("")) {
                         messaging.utils.showHttpResponseLog(provUrl,this,nameMethod,"Event Successful ",response);
 
@@ -713,6 +715,7 @@ public class Messaging implements LifecycleObserver {
                     try {
 
                         String response=(String)o;
+
                         if (!response.equals("")) {
 
                             messaging.utils.showHttpResponseLog(url,this,nameMethod,"Event Successful ",response);
@@ -1290,10 +1293,11 @@ public class Messaging implements LifecycleObserver {
                     nameMethod=new Object(){}.getClass().getEnclosingMethod().getName();
                     messaging.utils.showHttpResponseLog(provUrl,messaging,nameMethod,"Successful",response);
                     JSONObject resp=new JSONObject(response);
-                    messaging.utils.showDebugLog(this,nameMethod,"Device "+resp.getJSONObject("device"));
-                    JSONObject tempResp=resp.getJSONObject(Messaging.MESSAGING_DEVICE);
-                    messaging.messagingDevice =messaging.utils.getMessagingDevFromJsonOnlyResp(tempResp,pushToken);
-                    messaging.messagingStorageController.saveDevice(tempResp, "", null);
+                    messaging.utils.showDebugLog(this,nameMethod,"Device "+resp.getJSONObject(Messaging.MESSAGING_DATA).getJSONObject(MESSAGING_DEVICE));
+                    JSONObject tempResp=resp.getJSONObject(Messaging.MESSAGING_DATA);
+                    JSONObject tempRespDef=tempResp.getJSONObject(Messaging.MESSAGING_DEVICE);
+                    messaging.messagingDevice =messaging.utils.getMessagingDevFromJsonOnlyResp(tempRespDef,pushToken);
+                    messaging.messagingStorageController.saveDevice(tempRespDef, "", tempResp);
                     messaging.sendEventToActivity(ACTION_FETCH_DEVICE,messaging.messagingDevice,context);
 
                 }
@@ -1404,8 +1408,9 @@ public class Messaging implements LifecycleObserver {
                     JSONObject resp=new JSONObject(response);
                     nameMethod=new Object(){}.getClass().getEnclosingMethod().getName();
                     messaging.utils.showHttpResponseLog(provUrl,messaging,nameMethod,"Create Device Successful",response);
-                    messaging.messagingStorageController.saveDevice(resp, "",provRequestBody);
-                    messaging.messagingDevice=messaging.utils.getMessagingDevFromJson(resp,provRequestBody, "");
+                    JSONObject temp=resp.getJSONObject(Messaging.MESSAGING_DATA);
+                    messaging.messagingStorageController.saveDevice(temp, "",provRequestBody);
+                    messaging.messagingDevice=messaging.utils.getMessagingDevFromJson(temp,provRequestBody, "");
                     if(messaging.messagingStorageController.hasTokenRegister()&&
                             !messaging.messagingStorageController.isNotificationManually()){
                         String token= messaging.messagingStorageController.getToken();
@@ -1528,8 +1533,9 @@ public class Messaging implements LifecycleObserver {
                     nameMethod=new Object(){}.getClass().getEnclosingMethod().getName();
                     messaging.utils.showHttpResponseLog(provUrl,this,nameMethod,"Successful",response);
                     JSONObject resp=new JSONObject(response);
-                    JSONObject tempResp=resp.getJSONObject(Messaging.FETCH_USER_SUSCRIBER);
-                    Map<String, String> resultMap=toMap(tempResp);
+                    JSONObject tempResp=resp.getJSONObject(Messaging.MESSAGING_DATA);
+                    JSONObject tempRespDef=tempResp.getJSONObject(Messaging.FETCH_USER_SUSCRIBER);
+                    Map<String, String> resultMap=toMap(tempRespDef);
                     messaging.messagingStorageController.saveUserByDevice(resultMap);
                     messaging.messagingUser = MessagingUser.parseData(resultMap);
                     //messagingUser.id = deviceId;
@@ -1756,6 +1762,15 @@ public class Messaging implements LifecycleObserver {
             super.onPostExecute(response);
             if (callback!=null){
                 callback.onSuccess(response);
+                messaging.utils.showDebugLog(this,"onPostExecute ","callback.onSuccess(response)");
+            }else{
+                try {
+                    JSONObject resp=new JSONObject(response);
+                    JSONObject temp=resp.getJSONObject(Messaging.MESSAGING_DATA);
+                    messaging.utils.showDebugLog(this,"onPostExecute ","Status "+temp.getString("status"));
+                } catch (JSONException e) {
+                    e.printStackTrace();
+                }
             }
         }
     }
