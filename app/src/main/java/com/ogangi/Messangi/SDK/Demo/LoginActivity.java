@@ -435,7 +435,8 @@ public class LoginActivity extends AppCompatActivity {
 
                     try {
                         JSONObject temp=new JSONObject(data);
-                        JSONArray arr = temp.getJSONArray(Messaging.FETCH_FIELDS_COLUMNS);
+                        JSONObject temp1=temp.getJSONObject(Messaging.MESSAGING_DATA);
+                        JSONArray arr = temp1.getJSONArray(Messaging.FETCH_FIELDS_COLUMNS);
                         JSONArray sortedJsonArray =getJsonArraySorted(arr);
                     Log.d(TAG,"DEBUG: "+CLASS_TAG+": "+nameMethod+": sortedJsonArray:  "
                     + sortedJsonArray.toString());
