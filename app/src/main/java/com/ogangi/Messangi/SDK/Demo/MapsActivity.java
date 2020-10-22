@@ -94,7 +94,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
             @Override
             public void onClick(View v) {
                 if(messaging.isLocation_allowed()) {
-                    Messaging.fetchLocation(MapsActivity.this, false,PRIORITY_BALANCED_POWER_ACCURACY);
+                    Messaging.fetchLocation(MapsActivity.this, false,PRIORITY_HIGH_ACCURACY);
                     Log.d(CLASS_TAG,TAG+ " Priority "+Messaging.getLocationRequestPriority());
                 }else{
                     Log.d(CLASS_TAG,TAG+ " isLocation_allowed "+messaging.isLocation_allowed());
