@@ -41,6 +41,7 @@ class MessagingSdkUtils {
     public String provHost;
     private MessagingStorageController messagingStorageController;
     private MessagingDevice messagingDevice;
+    private MessagingUser messagingUser;
     private Context context;
 
 
@@ -466,6 +467,12 @@ class MessagingSdkUtils {
                     (jsonObject.has(Messaging.MESSAGING_APP_HOST))){
                 //create device
                 showDebugLog(this,nameMethod, "Reload SDK ");
+                if(messagingStorageController.isRegisterDevice()){
+                    messagingStorageController.saveDevice(null,null,null);
+                    messagingStorageController.saveUserByDevice(null);
+                    messagingDevice=null;
+                    messagingUser=null;
+                }
                 messaging.createDeviceParameters();
             }else{
                 showDebugLog(this,nameMethod, "Not Reload SDK");
@@ -599,12 +606,12 @@ class MessagingSdkUtils {
         MessagingDB db=new MessagingDB(context);
         try {
             JSONArray jsonArray=new JSONArray(messagingGeoFencePush);
+            messaging.utils.showDebugLog(this,nameMethod,"GeoFence Array "+jsonArray);
             for(int i=0;i<jsonArray.length();i++){
                 JSONObject temp=jsonArray.getJSONObject(i);
                 if(temp.has(Messaging.GOEOFENCE_OPERATION) &&
                         temp.getString(Messaging.GOEOFENCE_OPERATION)
                                 .equals(Messaging.GOEOFENCE_OPERATION_CREATE)){
-
 
                     String provOperation=temp.getString(Messaging.GOEOFENCE_OPERATION);
                     long provExpiration;
@@ -615,7 +622,7 @@ class MessagingSdkUtils {
                     }
 
                     //metodo para guardar en la BD cree el objeto MCR
-                    MessagingCircularRegion geofence=builder.setId(temp.getString(Messaging.GOEOFENCE_ID))
+                    MessagingCircularRegion geofence=builder.setId(temp.getString(Messaging.GOEOFENCE_ID_ADD))
                             .setLatitude(temp.getDouble(Messaging.GOEOFENCE_LAT))
                             .setLongitud(temp.getDouble(Messaging.GOEOFENCE_LONG))
                             .setRadius(temp.getInt(Messaging.GOEOFENCE_RADIUS))
@@ -686,44 +693,40 @@ class MessagingSdkUtils {
 
     }
 
-    public void processGeofenceList() {
+    public void processGeofenceList(JSONArray jsonArrayItems) {
         Messaging messaging=Messaging.getInstance();
         MessagingDB db=new MessagingDB(context);
-        ArrayList<MessagingCircularRegion> prMessagingCircularRegions=db.getAllGeoFenceToBd();
+        String nameMethod=new Object(){}.getClass().getEnclosingMethod().getName();
+        MessagingCircularRegion.Builder builder= new MessagingCircularRegion.Builder();
+        try {
 
+         for(int i=0;i<jsonArrayItems.length();i++){
+            JSONObject temp=jsonArrayItems.getJSONObject(i);
+            if(temp.getDouble(Messaging.GOEOFENCE_LAT)>0) {
+                MessagingCircularRegion geofence = builder.setId(temp.getString(Messaging.GOEOFENCE_ID))
+                        .setLatitude(temp.getDouble(Messaging.GOEOFENCE_LAT))
+                        .setLongitud(temp.getDouble(Messaging.GOEOFENCE_LONG))
+                        .setRadius(temp.getInt(Messaging.GOEOFENCE_RADIUS))
+                        .setMessagingGeoFenceTrigger(temp.getString(Messaging.GOEOFENCE_TYPE))
+                        .build();
+                db.addGeoFenceToBd(geofence);
+            }else{
+                messaging.utils.showDebugLog(this,nameMethod,"Invalid latitude "
+                        +temp.getDouble(Messaging.GOEOFENCE_LAT));
+                MessagingCircularRegion geofence=builder.setId(temp.getString(Messaging.GOEOFENCE_ID))
+                        .setLatitude(10.17)
+                        .setLongitud(-66.88)
+                        .setRadius(temp.getInt(Messaging.GOEOFENCE_RADIUS))
+                        .setMessagingGeoFenceTrigger(temp.getString(Messaging.GOEOFENCE_TYPE))
+                        .build();
+                db.addGeoFenceToBd(geofence);
+            }
+            }
+            db.getAllGeoFenceToBd();
 
-        //        String nameMethod=new Object(){}.getClass().getEnclosingMethod().getName();
-//        MessagingCircularRegion.Builder builder= new MessagingCircularRegion.Builder();
-//        ArrayList<MessagingCircularRegion> messagingCircularRegionArrayList=new ArrayList<>();
-//        Messaging messaging=Messaging.getInstance();
-//        MessagingDB db=new MessagingDB(context);
-//        try {
-//            JSONObject jsonObject=new JSONObject(response);
-//            JSONArray jsonArray=jsonObject.getJSONArray("geofences");
-//            showDebugLog(this,nameMethod,jsonArray.toString());
-//            //delete all geofence
-//            //reque id borrar
-//            ArrayList<MessagingCircularRegion> prMessagingCircularRegions=db.getAllGeoFenceToBd();
-//            List<String> removeIds= getListOfId(prMessagingCircularRegions);
-//            messaging.removeGeofence(removeIds);
-//            db.deleteAll();
-//            for(int i=0;i<jsonArray.length();i++){
-//            JSONObject temp=jsonArray.getJSONObject(i);
-//            MessagingCircularRegion geofence=builder.setId(temp.getString(Messaging.GOEOFENCE_ID))
-//                        .setLatitude(temp.getDouble(Messaging.GOEOFENCE_LAT))
-//                        .setLongitud(temp.getDouble(Messaging.GOEOFENCE_LONG))
-//                        .setRadius(temp.getInt(Messaging.GOEOFENCE_RADIUS))
-//                        .setMessagingGeoFenceTrigger(temp.getString(Messaging.GOEOFENCE_TYPE))
-//                        .build();
-//            messagingCircularRegionArrayList.add(geofence);
-//            db.addGeoFenceToBd(geofence);
-//            }
-//            db.getAllGeoFenceToBd();
-//            showDebugLog(this,nameMethod,messagingCircularRegionArrayList.toString());
-//            messaging.startGeofence();
-//        } catch (JSONException e) {
-//            e.printStackTrace();
-//        }
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
     }
 
     private List<String> getListOfId(ArrayList<MessagingCircularRegion> prMessagingCircularRegions) {
@@ -753,7 +756,7 @@ class MessagingSdkUtils {
                 showDebugLog(this, nameMethod, "Sinc Enable call service : "
                         + " is F " + Messaging.isForeground);
                 //launch fetch gofence
-                Messaging.fetchGeofence(true);
+                Messaging.fetchGeofence(true,null);
             }else {
                 Messaging.flagSinc=true;
                 Messaging.isBackground=true;
@@ -765,6 +768,18 @@ class MessagingSdkUtils {
         } catch (JSONException e) {
             e.printStackTrace();
         }
+
+    }
+
+    public void deleteGeofenceLocal() {
+         //delete all geofence
+        //reque id borrar
+        MessagingDB db=new MessagingDB(context);
+        Messaging messaging=Messaging.getInstance();
+        ArrayList<MessagingCircularRegion> prMessagingCircularRegions=db.getAllGeoFenceToBd();
+        List<String> removeIds= getListOfId(prMessagingCircularRegions);
+        messaging.removeGeofence(removeIds);
+        db.deleteAll();
 
     }
 }

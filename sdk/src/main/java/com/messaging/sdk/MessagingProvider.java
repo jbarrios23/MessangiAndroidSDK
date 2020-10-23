@@ -31,26 +31,6 @@ public class MessagingProvider extends ContentProvider {
             messaging.createDeviceParameters();
         }
 
-        MessagingDB db=new MessagingDB(getContext());
-        if(db.getAllGeoFenceToBd().size()>0){
-            db.deleteAll();
-        }
-        if(db.getAllGeoFenceToBd().size()==0){
-            MessagingCircularRegion.Builder builder=new MessagingCircularRegion.Builder();
-            MessagingCircularRegion messagingCircularRegion=builder
-                    .setId("112233")
-                    .setRadius(1000)
-                    .setLatitude(10.1703)
-                    .setLongitud(-66.88)
-                    .setExpiration(Messaging.NEVER_EXPIRE)
-                    .setMessagingGeoFenceTrigger("both")
-                    .build();
-            db.addGeoFenceToBd(messagingCircularRegion);
-            messaging.utils.showDebugLog(this,nameMethod,"Creating Geofence Test ");
-        }
-
-
-
         return false;
     }
 

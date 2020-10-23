@@ -135,7 +135,7 @@ public class Messaging implements LifecycleObserver {
     public static final String MESSAGING_BODY="MSGI_BODY";
     public static final String MESSAGING_APP_ID="MSGI_APPID";
     public static final String MESSAGING_CONFIGURATION="MSGI_CONFIGURATION";
-    public static final String MESSAGING_GEOFENCE_PUSH="geofence";
+    public static final String MESSAGING_GEOFENCE_PUSH="MSGI_GEOFENCES";
     public static final String MESSAGING_GEOFENCE_SINC="MSGI_GEOFENCES_SINC";
     public static final String MESSAGING_GEO_PUSH="MSGI_GEOPUSH";
     public static final String MESSAGING_APP_TOKEN="appToken";
@@ -176,7 +176,8 @@ public class Messaging implements LifecycleObserver {
     public static final String LOCATION_LON="LOCATION_LON";
     public static final String LOCATION_PROVIDER="LOCATION_PROVIDER";
 
-    public static final String GOEOFENCE_ID="id";
+    public static final String GOEOFENCE_ID="_id";
+    public static final String GOEOFENCE_ID_ADD="id";
     public static final String GOEOFENCE_LAT="latitude";
     public static final String GOEOFENCE_LONG="longitude";
     public static final String GOEOFENCE_RADIUS="radius";
@@ -378,7 +379,8 @@ public class Messaging implements LifecycleObserver {
             if(messagingStorageController.isSincAllowed()){
                 utils.showInfoLog(this,nameMethod,"Sinc Enable F call service "+flagSinc);
                 //launch fetch gofence
-                fetchGeofence(true);
+
+                fetchGeofence(true,null);
                 flagSinc=false;
                 messagingStorageController.setSincAllowed(flagSinc);
             }
@@ -694,7 +696,7 @@ public class Messaging implements LifecycleObserver {
         }
     }
 
-    public static void fetchGeofence(boolean forsecallservice) {
+    public static void fetchGeofence(boolean forsecallservice, String next) {
         final Messaging messaging = Messaging.getInstance();
         final MessagingDB db=new MessagingDB(messaging.context);
         final String  nameMethod="fetchGeofence";
@@ -706,7 +708,11 @@ public class Messaging implements LifecycleObserver {
             }else{
                 provId=messaging.messagingStorageController.getDevice().getId();
             }
-            final String url=messaging.utils.getMessagingHost()+"/devices/"+provId+"/region";
+            String provUrl= messaging.utils.getMessagingHost() + "/devices/" + provId + "/region";
+            if(next!=null && !next.equals("")) {
+                 provUrl = provUrl+ "?"+next;
+            }
+            final String url=provUrl;
             //new HttpRequestEventGet(provId, messaging, "", "","","").execute();
             final String params="";
             new HttpRequestEvent(url,"GET",params,new HttpRequestCallback(){
@@ -721,15 +727,51 @@ public class Messaging implements LifecycleObserver {
                             messaging.utils.showHttpResponseLog(url,this,nameMethod,"Event Successful ",response);
                             if(params.equals("")){
                                 messaging.utils.showDebugLog(this,nameMethod,"Get GeoFences and process "+response);
-                                //JSONObject jsonObject=new JSONObject(response);
-                                //preguntar por items y guardar todos lo geofence en BD que vienen ahi.
-                                //preguntar por "pagination.next": null,
-                                //lanzo el servicio pero con la variacion de offset que esta en next
+                                try {
+                                    JSONObject jsonObject=new JSONObject(response);
+                                    JSONArray jsonArrayItems=jsonObject.getJSONArray("items");
+                                    if(jsonObject.has("pagination")&& jsonObject.getJSONObject("pagination")
+                                            .has("prev")){
+                                       String preProv=jsonObject.getJSONObject("pagination")
+                                               .getString("prev");
+                                       if(preProv.equals("null")){
+                                           messaging.utils.deleteGeofenceLocal();
+                                       }
 
-                                //guardando en la BD
-                                 
-                                messaging.utils.processGeofenceList();
-                                messaging.sendEventToActivity(Messaging.ACTION_FETCH_GEOFENCE,db.getAllGeoFenceToBd(),messaging.context);
+                                    }
+                                    if(jsonArrayItems.length()>0){
+                                        messaging.utils.showDebugLog(this,nameMethod,"save Item to BD "+response);
+                                        messaging.utils.processGeofenceList(jsonArrayItems);
+
+                                    }else{
+                                        messaging.utils.showDebugLog(this,nameMethod,"Do Not have Items "+response);
+                                    }
+
+                                    if(jsonObject.has("pagination")){
+                                        String provNext=jsonObject.getJSONObject("pagination").getString("next");
+
+                                        if(!provNext.equals("null")){
+                                            messaging.utils.showDebugLog(this,nameMethod,"fetch geofence "
+                                                    +jsonObject.getJSONObject("pagination").getString("next"));
+                                            //String provNext=jsonObject.getJSONObject("pagination").getString("next");
+                                            fetchGeofence(true,provNext);
+
+                                        }else{
+                                            messaging.utils.showDebugLog(this,nameMethod,"start geofence ");
+                                            if(db.getAllGeoFenceToBd().size()>0) {
+                                                messaging.startGeofence();
+                                                messaging.sendEventToActivity(Messaging.ACTION_FETCH_GEOFENCE,db.getAllGeoFenceToBd(),messaging.context);
+                                            }
+                                        }
+
+                                    }else{
+                                        messaging.utils.showDebugLog(this,nameMethod,"Do Not have pagination "+response);
+                                    }
+                                } catch (JSONException e) {
+                                    e.printStackTrace();
+                                }
+
+
 
                             }
                         }

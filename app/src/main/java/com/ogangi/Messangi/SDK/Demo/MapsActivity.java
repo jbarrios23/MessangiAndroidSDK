@@ -125,7 +125,8 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
 //                if(messaging.isEnable_permission_automatic() ){
 //                    Messaging.requestPermissions(MapsActivity.this);
 //                }
-                Messaging.fetchGeofence(false);
+
+                Messaging.fetchGeofence(false,null);
 
             }
         });
@@ -135,13 +136,17 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
             public void onClick(View v) {
                 Messaging.turnOFFUpdateLocation();
                 stopService();
+                //Messaging.deteAllBD();
             }
         });
 
         textView.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                 Messaging.deteAllBD();
+                //String next="limit=3";
+                String next="";
+                Messaging.fetchGeofence(true,next);
+                //Messaging.deteAllBD();
             }
         });
 

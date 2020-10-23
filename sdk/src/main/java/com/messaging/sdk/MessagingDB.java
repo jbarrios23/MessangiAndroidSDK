@@ -16,7 +16,7 @@ public class MessagingDB extends SQLiteOpenHelper {
     public static final String MESSAGING_DATABASE_NAME = "MessagingGeofence.db";
 
     public static final String MESSAGING_TABLA_GEOFENCE = "MessagingCircularRegion";
-    public static final String MESSAGING_COLUMNA_ID = "_id";
+    public static final String MESSAGING_COLUMNA_ID = "numrow";
 
     private static final String SQL_CREAR="CREATE TABLE " + MESSAGING_TABLA_GEOFENCE + "(" +
     MESSAGING_COLUMNA_ID + " INTEGER PRIMARY KEY, " +
@@ -93,10 +93,13 @@ public class MessagingDB extends SQLiteOpenHelper {
                     .setMessagingGeoFenceTrigger(cursor.getString(5))
                     .setExpiration(cursor.getInt(6))
                     .build();
+            Messaging messaging=Messaging.getInstance();
+            String nameMethod=new Object(){}.getClass().getEnclosingMethod().getName();
+            messaging.utils.showDebugLog(this,nameMethod,"Get data "
+                    +messagingCircularRegion.toString());
 
             return messagingCircularRegion;
         }
-
 
 
 
@@ -136,7 +139,7 @@ public class MessagingDB extends SQLiteOpenHelper {
         }
         Messaging messaging=Messaging.getInstance();
         String nameMethod=new Object(){}.getClass().getEnclosingMethod().getName();
-        messaging.utils.showDebugLog(this,nameMethod,"get all data "+result.toString());
+        messaging.utils.showDebugLog(this,nameMethod,"Get all data "+result.toString());
 
         db.close();
     return  result;
