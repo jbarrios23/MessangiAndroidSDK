@@ -45,6 +45,10 @@ public class MessaginGeofenceBroadcastReceiver extends BroadcastReceiver {
         if (geofencingEvent.hasError()) {
             String errorMessage = getErrorString(geofencingEvent.getErrorCode());
             messaging.utils.showErrorLog(this,nameMethod,errorMessage,"");
+            if(errorMessage.equals("GeoFence not available")){
+                //Messaging.re_registerGeofence();
+                messaging.utils.showErrorLog(this,nameMethod,errorMessage,"");
+            }
             return;
         }
         // Get the transition type.

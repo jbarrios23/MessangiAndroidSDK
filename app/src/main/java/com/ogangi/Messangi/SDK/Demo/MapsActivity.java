@@ -26,6 +26,8 @@ import android.widget.ListView;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.google.android.gms.common.ConnectionResult;
+import com.google.android.gms.common.GooglePlayServicesUtil;
 import com.google.android.gms.location.LocationRequest;
 import com.google.android.gms.maps.CameraUpdate;
 import com.google.android.gms.maps.CameraUpdateFactory;
@@ -145,8 +147,11 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
             public void onClick(View v) {
                 //String next="limit=3";
                 String next="";
-                Messaging.fetchGeofence(true,next);
+                //Messaging.fetchGeofence(true,next);
+                Messaging.sendEventCustomToBackend("pushNotification");
                 //Messaging.deteAllBD();
+//                Messaging.setConfigParameter("123344","host",
+//                        true,false,true);
             }
         });
 
@@ -158,6 +163,14 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
                 Log.d(CLASS_TAG,TAG+ " isGPS To Interface two "+messaging.isGPS());
             }
         });
+
+//        int status = GooglePlayServicesUtil.isGooglePlayServicesAvailable( getApplicationContext() );
+//        if(status == ConnectionResult.SUCCESS) {
+//            //alarm to go and install Google Play Services
+//
+//        }else if(status == ConnectionResult.SERVICE_VERSION_UPDATE_REQUIRED){
+//            Toast.makeText(getApplicationContext(),"please udpate your google play service",Toast.LENGTH_SHORT).show
+//        }
 
     }
     private void stopService() {
@@ -283,6 +296,8 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
             nameMethod=new Object(){}.getClass().getEnclosingMethod().getName();
 
             boolean hasError=intent.getBooleanExtra(Messaging.INTENT_EXTRA_HAS_ERROR,true);
+            String alertMessage = getResources().getString(getResources().getIdentifier(intent.getAction(), "string", getPackageName()));
+            Toast.makeText(getApplicationContext(), alertMessage, Toast.LENGTH_LONG).show();
             Log.d(TAG,"DEBUG: "+CLASS_TAG+": "+nameMethod+": Has error:  "+ hasError);
             if (!hasError ) {
                 Serializable data=intent.getSerializableExtra(Messaging.INTENT_EXTRA_DATA);
@@ -296,7 +311,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
 
                     }else{
                         messagingLocation = (MessagingLocation) data;
-                        Toast.makeText(getApplicationContext(), intent.getAction(), Toast.LENGTH_SHORT).show();
+
                         Log.d(TAG, "DEBUG: " + CLASS_TAG + ": " + nameMethod + ": Data Location Lat:  "
                                 + messagingLocation.getLatitude()+" Long: "+messagingLocation.getLongitude());
 
@@ -321,10 +336,10 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
 
 
                     }else{
-                    Toast.makeText(getApplicationContext(),intent.getAction(),Toast.LENGTH_SHORT).show();
+                    Toast.makeText(getApplicationContext(),alertMessage,Toast.LENGTH_SHORT).show();
                     }
                 }else{
-                    Toast.makeText(getApplicationContext(),intent.getAction(),Toast.LENGTH_SHORT).show();
+                    Toast.makeText(getApplicationContext(),alertMessage,Toast.LENGTH_SHORT).show();
                 }
 
 

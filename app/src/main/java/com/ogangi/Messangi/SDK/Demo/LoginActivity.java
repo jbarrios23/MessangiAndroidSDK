@@ -424,7 +424,8 @@ public class LoginActivity extends AppCompatActivity {
         @Override
         public void onReceive(Context context, Intent intent) {
             nameMethod=new Object(){}.getClass().getEnclosingMethod().getName();
-
+            String alertMessage = getResources().getString(getResources().getIdentifier(intent.getAction(), "string", getPackageName()));
+            Toast.makeText(getApplicationContext(), alertMessage, Toast.LENGTH_LONG).show();
             boolean hasError=intent.getBooleanExtra(Messaging.INTENT_EXTRA_HAS_ERROR,true);
             Log.d(TAG,"ERROR: "+CLASS_TAG+": "+nameMethod+": Has error:  "+ hasError);
             if (!hasError) {
@@ -476,7 +477,7 @@ public class LoginActivity extends AppCompatActivity {
 
                 }else if(intent.getAction().equals(Messaging.ACTION_REGISTER_DEVICE)&& dataSdk!=null) {
                     MessagingDevice messagingDevice = (MessagingDevice) dataSdk;
-                    Toast.makeText(getApplicationContext(), intent.getAction(), Toast.LENGTH_LONG).show();
+
                     Log.d(TAG, "Debug: " + CLASS_TAG + ": " + nameMethod + ": Data Register:  " + dataSdk +" userUpdate " + userUpdate);
                     if (userUpdate) {
                     Messaging.fetchUser(getApplicationContext(), true);
@@ -490,7 +491,7 @@ public class LoginActivity extends AppCompatActivity {
 
                 }else if(intent.getAction().equals(Messaging.ACTION_FETCH_USER) && dataSdk!=null) {
                         messagingUser = (MessagingUser) dataSdk;
-                        Toast.makeText(getApplicationContext(),intent.getAction(),Toast.LENGTH_LONG).show();
+
                         Log.d(TAG, "Debug: " + CLASS_TAG + ": " + nameMethod + "Action:  " + intent.getAction()+" "+dataSdk+" QR "+useQrScan);
                         if(useQrScan){
                             if(onetimeFlag) {
@@ -502,7 +503,7 @@ public class LoginActivity extends AppCompatActivity {
 
                 }else if(intent.getAction().equals(Messaging.ACTION_SAVE_USER)&& dataSdk!=null) {
                         messagingUser = (MessagingUser) dataSdk;
-                        Toast.makeText(getApplicationContext(),intent.getAction(),Toast.LENGTH_LONG).show();
+
                         Log.d(TAG, "Debug: " + CLASS_TAG + ": " + nameMethod + ": Save User:  " + dataSdk +" "+intent.getAction()+" QR "+useQrScan);
                         if(useQrScan) {
                             goToMainActivity();
@@ -510,9 +511,10 @@ public class LoginActivity extends AppCompatActivity {
                         }
 
                 }else{
-                Toast.makeText(getApplicationContext(),intent.getAction(),Toast.LENGTH_LONG).show();
+                Toast.makeText(getApplicationContext(),": An error occurred on action:  "
+                        +alertMessage,Toast.LENGTH_LONG).show();
                 Log.e(TAG,"DEBUG: "+CLASS_TAG+": "+nameMethod+": An error occurred on action:  "
-                            + intent.getAction());
+                            + alertMessage);
                     if(progressBar.isShown()){
                         progressBar.setVisibility(View.GONE);
                     }
@@ -520,9 +522,9 @@ public class LoginActivity extends AppCompatActivity {
 
             } else {
                 Log.e(TAG,"DEBUG: "+CLASS_TAG+": "+nameMethod+": An error occurred on action:  "
-                        + intent.getAction());
+                        + alertMessage);
                 Toast.makeText(getApplicationContext(),"An error occurred on action "
-                        +intent.getAction(),Toast.LENGTH_LONG).show();
+                        +alertMessage,Toast.LENGTH_LONG).show();
                 if(progressBar.isShown()){
                     progressBar.setVisibility(View.GONE);
                 }

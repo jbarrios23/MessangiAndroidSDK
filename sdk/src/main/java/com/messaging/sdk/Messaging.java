@@ -177,7 +177,7 @@ public class Messaging implements LifecycleObserver {
     public static final String LOCATION_PROVIDER="LOCATION_PROVIDER";
 
     public static final String GOEOFENCE_ID="_id";
-    public static final String GOEOFENCE_ID_ADD="id";
+    public static final String GOEOFENCE_ID_OTHER="id";
     public static final String GOEOFENCE_LAT="latitude";
     public static final String GOEOFENCE_LONG="longitude";
     public static final String GOEOFENCE_RADIUS="radius";
@@ -423,7 +423,7 @@ public class Messaging implements LifecycleObserver {
     }
 
     public void reloadSdkParameter(){
-        setConfigParameterFromApp(prvTokenApp,provHostApp);
+        setConfigParameterFromAppToLogin(prvTokenApp,provHostApp);
         if(messagingStorageController.isRegisterDevice()){
             messagingStorageController.saveDevice(null,null,null);
             messagingStorageController.saveUserByDevice(null);
@@ -929,8 +929,18 @@ public class Messaging implements LifecycleObserver {
         this.os = os;
     }
 
-    void setConfigParameterFromApp(String token, String Host){
+    void setConfigParameterFromAppToLogin(String token, String Host){
         utils.saveConfigParameterFromApp(token,Host);
+    }
+
+    public static void setConfigParameter(String token, String Host,
+                                   boolean locatioEnable,boolean analyticsEnable,
+                                   boolean loggingEnable){
+        Messaging messaging=Messaging.getInstance();
+        messaging.utils.saveConfigParameterFromApp(token,Host);
+        messaging.utils.setLocation_allowed(locatioEnable);
+        messaging.utils.setAnalytics_allowed(analyticsEnable);
+        messaging.utils.setLogging_allowed(loggingEnable);
     }
 
 

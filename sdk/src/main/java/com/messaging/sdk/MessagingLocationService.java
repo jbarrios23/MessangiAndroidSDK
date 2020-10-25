@@ -84,15 +84,16 @@ public class MessagingLocationService extends Service {
         this.nameMethod="onStartCommand";
         messaging.utils.showDebugLog(MessagingLocationService.this,nameMethod,""+messaging.getNameClass());
         createNotificationChannel();
-        String classNameProv="com.ogangi.Messangi.SDK.Demo.MapsActivity";
+        //String classNameProv="com.ogangi.Messangi.SDK.Demo.MapsActivity";
+        String classNameProv=messaging.getNameClass();
         Intent notificationIntent = null;
         try {
             notificationIntent = new Intent(this, Class.forName(classNameProv));
             PendingIntent pendingIntent = PendingIntent.getActivity(this,
                     0, notificationIntent, 0);
             Notification notification = new NotificationCompat.Builder(this, CHANNEL_ID)
-                    .setContentTitle("Messaging SDK")
-                    .setContentText("Demo location on ")
+                    .setContentTitle(getResources().getString(R.string.app_name))
+                    .setContentText(getResources().getString(R.string.app_name_notification))
                     .setSmallIcon(R.mipmap.ic_launcher_round)
                     .setContentIntent(pendingIntent)
                     .build();

@@ -34,8 +34,8 @@ class MessagingSdkUtils {
     private  String messagingHost;
     private  String messagingToken;
     private  String messagingTokenDefault;
-    private  boolean analytics_allowed;
-    private  boolean location_allowed;
+//    private  boolean analytics_allowed;
+//    private  boolean location_allowed;
     //private  boolean logging_allowed;
     private  boolean enable_permission_automatic=true;
     public String provHost;
@@ -427,7 +427,9 @@ class MessagingSdkUtils {
     public void saveConfigParameter(String parameter, Messaging messaging){
         String nameMethod=new Object(){}.getClass().getEnclosingMethod().getName();
         try {
+            showDebugLog(this,nameMethod,"parameter "+parameter);
             JSONObject jsonObject=new JSONObject(parameter);
+            showDebugLog(this,nameMethod,"parameter Json "+jsonObject.toString());
             if(jsonObject.has(Messaging.MESSAGING_APP_TOKEN)){
                 String provEnable=jsonObject.getString(Messaging.MESSAGING_APP_TOKEN);
                 showDebugLog(this,nameMethod, "appToken : "
@@ -466,7 +468,7 @@ class MessagingSdkUtils {
             if((jsonObject.has(Messaging.MESSAGING_APP_TOKEN))||
                     (jsonObject.has(Messaging.MESSAGING_APP_HOST))){
                 //create device
-                showDebugLog(this,nameMethod, "Reload SDK ");
+                showDebugLog(this,nameMethod, "Reload SDK ans create device ");
                 if(messagingStorageController.isRegisterDevice()){
                     messagingStorageController.saveDevice(null,null,null);
                     messagingStorageController.saveUserByDevice(null);
@@ -481,6 +483,7 @@ class MessagingSdkUtils {
 
         } catch (JSONException e) {
             e.printStackTrace();
+            showErrorLog(this,nameMethod,"error ",e.getMessage());
         }
     }
 
@@ -622,7 +625,7 @@ class MessagingSdkUtils {
                     }
 
                     //metodo para guardar en la BD cree el objeto MCR
-                    MessagingCircularRegion geofence=builder.setId(temp.getString(Messaging.GOEOFENCE_ID_ADD))
+                    MessagingCircularRegion geofence=builder.setId(temp.getString(Messaging.GOEOFENCE_ID_OTHER))
                             .setLatitude(temp.getDouble(Messaging.GOEOFENCE_LAT))
                             .setLongitud(temp.getDouble(Messaging.GOEOFENCE_LONG))
                             .setRadius(temp.getInt(Messaging.GOEOFENCE_RADIUS))
@@ -651,7 +654,7 @@ class MessagingSdkUtils {
                     }
                     //metodo para guardar en la BD cree el objeto MCR
                     String provId=temp.getString(Messaging.GOEOFENCE_ID);
-                    MessagingCircularRegion geofence=builder.setId(temp.getString(Messaging.GOEOFENCE_ID))
+                    MessagingCircularRegion geofence=builder.setId(temp.getString(Messaging.GOEOFENCE_ID_OTHER))
                             .setLatitude(temp.getDouble(Messaging.GOEOFENCE_LAT))
                             .setLongitud(temp.getDouble(Messaging.GOEOFENCE_LONG))
                             .setRadius(temp.getInt(Messaging.GOEOFENCE_RADIUS))
@@ -670,9 +673,9 @@ class MessagingSdkUtils {
                     if(temp.has(Messaging.GOEOFENCE_OPERATION) &&
                             temp.getString(Messaging.GOEOFENCE_OPERATION).equals(Messaging.GOEOFENCE_OPERATION_DELETE)){
 
-                        String provId=temp.getString(Messaging.GOEOFENCE_ID);
+                        //String provId=temp.getString(Messaging.GOEOFENCE_ID);
+                        String provId=temp.getString(Messaging.GOEOFENCE_ID_OTHER);
                         String provOperation=temp.getString(Messaging.GOEOFENCE_OPERATION);
-
 
                         db.delete(provId);
                         //delete id geofence
@@ -683,7 +686,7 @@ class MessagingSdkUtils {
                     }
                 }
             }
-            if(db.getAllGeoFenceToBd().size()>0) {
+            if(db.getAllGeoFenceToBd().size()>0 && isLocation_allowed()) {
                 messaging.startGeofence();
             }
 

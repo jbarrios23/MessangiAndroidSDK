@@ -178,7 +178,7 @@ public class MessagingDB extends SQLiteOpenHelper {
                     new String[] { String.valueOf (geoFenID ) });
             db.close();
 
-            messaging.utils.showDebugLog(this,nameMethod,"Delete data");
+            messaging.utils.showDebugLog(this,nameMethod,"Delete data ID "+geoFenID);
         }catch(Exception ex){
             messaging.utils.showErrorLog(this,nameMethod,"error delete data","");
         }

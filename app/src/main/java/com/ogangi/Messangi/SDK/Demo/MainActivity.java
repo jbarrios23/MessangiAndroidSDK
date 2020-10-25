@@ -145,6 +145,7 @@ public class MainActivity extends AppCompatActivity {
                         messagingDevArrayList.clear();
                         messagingUserDeviceArrayList.clear();
                         Messaging.fetchDevice(true, getApplicationContext());
+                        Messaging.fetchUser(getApplicationContext(), true);
                         //Messaging.fetchUser(getApplicationContext(), true);
                         return true;
                 }
@@ -255,6 +256,9 @@ public class MainActivity extends AppCompatActivity {
             case R.id.action_logout:
                 goToLogin();
                 return true;
+            case R.id.action_getLog:
+                showAlertGetLogCat();
+                return true;
         }
 
         return super.onOptionsItemSelected(item);
@@ -322,6 +326,7 @@ public class MainActivity extends AppCompatActivity {
         messagingUserDeviceArrayList.clear();
         progressBar.setVisibility(View.VISIBLE);
         Messaging.fetchDevice(false, getApplicationContext());
+
         Log.i(TAG,"INFO: "+CLASS_TAG+": "+nameMethod+": ");
 
     }
@@ -651,7 +656,7 @@ public class MainActivity extends AppCompatActivity {
     private void showAlertGetLogCat() {
         // create an alert builder
         AlertDialog.Builder builder = new AlertDialog.Builder(this);
-        builder.setTitle("LogCat From Sdk");
+        builder.setTitle("Logcat From Sdk and app");
         // set the custom layout
         //final View customLayout = getLayoutInflater().inflate(R.layout.custom_notification_layout, null);
         final View customLayout = getLayoutInflater().inflate(R.layout.layout_logcat, null);
@@ -681,9 +686,9 @@ public class MainActivity extends AppCompatActivity {
 //                    log.append(separator);
 //                }
 
-             String processId = Integer.toString(android.os.Process.myPid());
-            String[] command = new String[] { "logcat", "-d", "-v", "threadtime" };
-
+            String processId = Integer.toString(android.os.Process.myPid());
+            //String[] command = new String[] { "logcat", "-d", "-v", "threadtime" };
+            String[] command = new String[] { "logcat", "-d", "-v", "MESSAGING" };
             Process process = Runtime.getRuntime().exec(command);
 
             BufferedReader bufferedReader = new BufferedReader(
@@ -693,7 +698,7 @@ public class MainActivity extends AppCompatActivity {
             while ((line = bufferedReader.readLine()) != null) {
                 if (line.contains(processId)) {
                     stringBuilder.append(line);
-                    //Code here
+
                 }
             }
             data.setText(stringBuilder.toString());
@@ -747,7 +752,8 @@ public class MainActivity extends AppCompatActivity {
         public void onReceive(Context context, Intent intent) {
             nameMethod = new Object(){}.getClass().getEnclosingMethod().getName();
             boolean hasError = intent.getBooleanExtra(Messaging.INTENT_EXTRA_HAS_ERROR,true);
-
+            String alertMessage = getResources().getString(getResources().getIdentifier(intent.getAction(), "string", getPackageName()));
+            Toast.makeText(getApplicationContext(), alertMessage, Toast.LENGTH_LONG).show();
             Log.d(TAG,"DEBUG: "+CLASS_TAG+": "+nameMethod+": Has error:  "+ hasError);
             if (!hasError) {
                 Serializable data = intent.getSerializableExtra(Messaging.INTENT_EXTRA_DATA);
@@ -758,29 +764,31 @@ public class MainActivity extends AppCompatActivity {
                     }
                     return;
                 }
-                String alertMessage = getResources().getString(getResources().getIdentifier(intent.getAction(), "string", getPackageName()));
-                Toast.makeText(getApplicationContext(), alertMessage, Toast.LENGTH_LONG).show();
+
                 switch (intent.getAction()){
                     case Messaging.ACTION_REGISTER_DEVICE:
                         messagingDevice = (MessagingDevice) data;
                         Log.d(TAG,"DEBUG: " + CLASS_TAG + ": " + nameMethod + ": messagingDevice :  " + messagingDevice.toString());
+
                         showData();
                     break;
                     case Messaging.ACTION_FETCH_DEVICE:
                         messagingDevice = (MessagingDevice) data;
+                        Log.d(TAG,"DEBUG: " + CLASS_TAG + ": " + nameMethod + ": messagingUser :  " + messagingUser);
                         if(messagingUser == null){
-                            Messaging.fetchUser(getApplicationContext(),false);
+                            Messaging.fetchUser(getApplicationContext(),true);
                         }
                         Log.d(TAG,"DEBUG: " + CLASS_TAG + ": " + nameMethod + ": messagingDevice :  " + messagingDevice.toString());
+
                         showData();
                     break;
                     case Messaging.ACTION_SAVE_DEVICE:
                         messagingDevice = (MessagingDevice) data;
                         Log.d(TAG,"DEBUG: " + CLASS_TAG + ": " + nameMethod + ": messagingDevice :  " + messagingDevice.toString());
-
+                        Log.d(TAG,"DEBUG: " + CLASS_TAG + ": " + nameMethod + ": messagingUser :  " + messagingUser.toString());
                         // Aca se hace el fetch user porque para obtener el usuario es necesario tener el device primero
-                        if(messagingUser == null){
-                            Messaging.fetchUser(getApplicationContext(),false);
+                        if(messagingUser != null){
+                            Messaging.fetchUser(getApplicationContext(),true);
                         }
                         showData();
                         break;
@@ -811,7 +819,8 @@ public class MainActivity extends AppCompatActivity {
                         break;
                 }
             } else {
-                Toast.makeText(getApplicationContext(),"An error occurred on action " + intent.getAction(),Toast.LENGTH_LONG).show();
+            Toast.makeText(getApplicationContext(),"An error occurred on action "
+                    + alertMessage,Toast.LENGTH_LONG).show();
                 if(progressBar.isShown()){
                     progressBar.setVisibility(View.GONE);
                 }

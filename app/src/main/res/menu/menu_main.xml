@@ -18,6 +18,13 @@
         app:showAsAction="never" />
 
     <item
+        android:id="@+id/action_getLog"
+        android:orderInCategory="100"
+        android:icon="@drawable/ic_baseline_refresh_24"
+        android:title="Get Log"
+        app:showAsAction="never" />
+
+    <item
         android:id="@+id/action_logout"
         android:orderInCategory="100"
         android:icon="@drawable/ic_baseline_power_settings_new_24"

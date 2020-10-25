@@ -45,7 +45,8 @@ public class MessagingNotificationReceiver extends BroadcastReceiver {
             return;
         }
 
-
+        String alertMessage = context.getResources().getString(context.getResources().getIdentifier(intent.getAction(), "string", context.getPackageName()));
+        Toast.makeText(context, alertMessage, Toast.LENGTH_LONG).show();
         boolean hasError=intent.getBooleanExtra(Messaging.INTENT_EXTRA_HAS_ERROR,true);
         Log.d(TAG,"DEBUG: "+CLASS_TAG+": "+nameMethod+": Has error:  "+ hasError);
         if (!hasError ) {
@@ -66,7 +67,6 @@ public class MessagingNotificationReceiver extends BroadcastReceiver {
                  wayLatitude = intent.getDoubleExtra(Messaging.INTENT_EXTRA_DATA_lAT,0.00);
                  wayLongitude = intent.getDoubleExtra(Messaging.INTENT_EXTRA_DATA_lONG,0.00);
 
-                 Toast.makeText(context, intent.getAction(), Toast.LENGTH_SHORT).show();
 
                  Location location=new Location(LOCATION_SERVICE);
                  location.setLatitude(wayLatitude);
@@ -101,13 +101,13 @@ public class MessagingNotificationReceiver extends BroadcastReceiver {
 
              }else{
 
-                Toast.makeText(context,intent.getAction(),Toast.LENGTH_LONG).show();
+                Toast.makeText(context,alertMessage,Toast.LENGTH_LONG).show();
 
             }
 
         }else{
         Toast.makeText(context,"An error occurred on action "
-                    +intent.getAction(),Toast.LENGTH_LONG).show();
+                    +alertMessage,Toast.LENGTH_LONG).show();
         }
 
     }
