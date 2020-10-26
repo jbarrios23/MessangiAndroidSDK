@@ -155,6 +155,8 @@ public class MessagingNotification implements Serializable {
          this.title=additionalData.get(Messaging.MESSAGING_TITLE);
          this.body=additionalData.get(Messaging.MESSAGING_BODY);
          this.msgAppId=additionalData.get(Messaging.MESSAGING_APP_ID);
+         messaging.utils.showDebugLog(this,nameMethod, "MSGI_APPID: "
+                 +msgAppId);
          if(msgAppId!=null && msgAppId!="") {
              this.matchAppId = messaging.utils.verifyMatchAppId(msgAppId);
              messaging.utils.showDebugLog(this,nameMethod, "MSGI_APPID: "

@@ -34,5 +34,9 @@
     <string name="com.messaging.sdk.PUSH_NOTIFICATION"> Push Notification </string>
     <string name="com.messaging.sdk.PUSH_NOTIFICATION_TO_OPE"> Notification Open </string>_OPEN";
     <string name="com.messaging.sdk.ACTION_FETCH_LOCATION"> Location Loaded </string>
+    <string name="com.messaging.sdk.ACTION_FETCH_GEOFENCE"> Geofence Loaded </string>
+    <string name="com.messaging.sdk.ACTION_GEOFENCE_ENTER"> IN </string>
+    <string name="com.messaging.sdk.ACTION_GEOFENCE_EXIT"> OUT </string>
+
 
 </resources>

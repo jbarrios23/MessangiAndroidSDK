@@ -192,7 +192,10 @@ public class Messaging implements LifecycleObserver {
     public static final String GOEOFENCE_OPERATION_DELETE="delete";
     public static final long NEVER_EXPIRE = Geofence.NEVER_EXPIRE;
 
-
+    public static final String GET_GOEOFENCE_ITEMS="items";
+    public static final String GET_GOEOFENCE_PAGINATION="pagination";
+    public static final String GET_GOEOFENCE_PREV="prev";
+    public static final String GET_GOEOFENCE_NEXT="next";
 
 
 
@@ -455,8 +458,6 @@ public class Messaging implements LifecycleObserver {
             break;
             case PRIORITY_HIGH_ACCURACY:
                 locationRequest.setPriority(priority.getPriority());
-//                locationRequest.setInterval(10 * 1000); // 10 seconds
-//                locationRequest.setFastestInterval(5 * 1000); // 5 seconds
                 locationRequest.setInterval(1000); // 10 seconds
                 locationRequest.setFastestInterval(900); // 5 seconds
 
@@ -729,11 +730,11 @@ public class Messaging implements LifecycleObserver {
                                 messaging.utils.showDebugLog(this,nameMethod,"Get GeoFences and process "+response);
                                 try {
                                     JSONObject jsonObject=new JSONObject(response);
-                                    JSONArray jsonArrayItems=jsonObject.getJSONArray("items");
-                                    if(jsonObject.has("pagination")&& jsonObject.getJSONObject("pagination")
-                                            .has("prev")){
-                                       String preProv=jsonObject.getJSONObject("pagination")
-                                               .getString("prev");
+                                    JSONArray jsonArrayItems=jsonObject.getJSONArray(Messaging.GET_GOEOFENCE_ITEMS);
+                                    if(jsonObject.has(Messaging.GET_GOEOFENCE_PAGINATION) && jsonObject.getJSONObject(Messaging.GET_GOEOFENCE_PAGINATION)
+                                            .has(Messaging.GET_GOEOFENCE_PREV)){
+                                       String preProv=jsonObject.getJSONObject(Messaging.GET_GOEOFENCE_PAGINATION)
+                                               .getString(Messaging.GET_GOEOFENCE_PREV);
                                        if(preProv.equals("null")){
                                            messaging.utils.deleteGeofenceLocal();
                                        }
@@ -747,20 +748,24 @@ public class Messaging implements LifecycleObserver {
                                         messaging.utils.showDebugLog(this,nameMethod,"Do Not have Items "+response);
                                     }
 
-                                    if(jsonObject.has("pagination")){
-                                        String provNext=jsonObject.getJSONObject("pagination").getString("next");
+                                    if(jsonObject.has(Messaging.GET_GOEOFENCE_PAGINATION)){
+                                        String provNext=jsonObject.getJSONObject(Messaging.GET_GOEOFENCE_PAGINATION).getString(Messaging.GET_GOEOFENCE_NEXT);
 
                                         if(!provNext.equals("null")){
                                             messaging.utils.showDebugLog(this,nameMethod,"fetch geofence "
-                                                    +jsonObject.getJSONObject("pagination").getString("next"));
+                                                    +jsonObject.getJSONObject(Messaging.GET_GOEOFENCE_PAGINATION)
+                                                    .getString(Messaging.GET_GOEOFENCE_NEXT));
                                             //String provNext=jsonObject.getJSONObject("pagination").getString("next");
                                             fetchGeofence(true,provNext);
 
                                         }else{
-                                            messaging.utils.showDebugLog(this,nameMethod,"start geofence ");
-                                            if(db.getAllGeoFenceToBd().size()>0) {
+
+                                            if(db.getAllGeoFenceToBd().size()>0 && messaging.utils.isLocation_allowed()) {
+                                                messaging.utils.showDebugLog(this,nameMethod,"start geofence ");
                                                 messaging.startGeofence();
                                                 messaging.sendEventToActivity(Messaging.ACTION_FETCH_GEOFENCE,db.getAllGeoFenceToBd(),messaging.context);
+                                            }else{
+                                                messaging.utils.showDebugLog(this,nameMethod,"Not start geofence ");
                                             }
                                         }
 
@@ -784,7 +789,7 @@ public class Messaging implements LifecycleObserver {
             },messaging).execute();
 
         }else{
-            if(db.getAllGeoFenceToBd().size()>0) {
+            if(db.getAllGeoFenceToBd().size()>0 && messaging.utils.isLocation_allowed()) {
                 messaging.sendEventToActivity(Messaging.ACTION_FETCH_GEOFENCE, db.getAllGeoFenceToBd(), messaging.context);
             }else{
                 messaging.utils.showErrorLog(messaging, nameMethod, "No data to send ", "");
@@ -1868,12 +1873,12 @@ public class Messaging implements LifecycleObserver {
     String nameMethod=new Object(){}.getClass().getEnclosingMethod().getName();
     final Messaging messaging= Messaging.getInstance();
     messaging.utils.showDebugLog(messaging,nameMethod,"Register Geofence");
-        //validacion de geofence a registrar
-        //remove geofence
+
         ArrayList< MessagingCircularRegion> provMessagingCircularRegions;
         MessagingDB db=new MessagingDB(context);
         provMessagingCircularRegions=db.getAllGeoFenceToBd();
-        messaging.utils.showDebugLog(messaging,nameMethod,"GF from DB "+provMessagingCircularRegions);
+        messaging.utils.showDebugLog(messaging,nameMethod,"GF from DB Before validate "+provMessagingCircularRegions);
+        //validate geofence To register
         if(messaging.messagingStorageController.hasLastLocation()) {
             final Location provLocation=messaging.messagingStorageController.getLastLocationSaved();
             Collections.sort(provMessagingCircularRegions,new Comparator<MessagingCircularRegion>() {
@@ -1898,11 +1903,11 @@ public class Messaging implements LifecycleObserver {
                 }
             });
         }
-        messaging.utils.showDebugLog(messaging,nameMethod,"GF from DB sorter "+provMessagingCircularRegions);
+        messaging.utils.showDebugLog(messaging,nameMethod,"GF from DB Sorter "+provMessagingCircularRegions);
         List<Geofence> geofencesToAdd = new ArrayList<>();
         for(MessagingCircularRegion messagingCircularRegion:provMessagingCircularRegions){
             Geofence geofence =messagingCircularRegion.getGeofence();
-            messaging.utils.showDebugLog(messaging,nameMethod,"GF For "+geofence.toString());
+            messaging.utils.showDebugLog(messaging,nameMethod,"GF to add: "+geofence.toString());
             geofencesToAdd.add(geofence);
             if(geofencesToAdd.size()==100){
             break;

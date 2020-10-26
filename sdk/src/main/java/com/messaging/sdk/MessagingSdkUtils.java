@@ -653,7 +653,7 @@ class MessagingSdkUtils {
                         provExpiration=Messaging.NEVER_EXPIRE;
                     }
                     //metodo para guardar en la BD cree el objeto MCR
-                    String provId=temp.getString(Messaging.GOEOFENCE_ID);
+                    String provId=temp.getString(Messaging.GOEOFENCE_ID_OTHER);
                     MessagingCircularRegion geofence=builder.setId(temp.getString(Messaging.GOEOFENCE_ID_OTHER))
                             .setLatitude(temp.getDouble(Messaging.GOEOFENCE_LAT))
                             .setLongitud(temp.getDouble(Messaging.GOEOFENCE_LONG))
@@ -775,14 +775,18 @@ class MessagingSdkUtils {
     }
 
     public void deleteGeofenceLocal() {
-         //delete all geofence
-        //reque id borrar
+
+        String nameMethod="deleteGeofenceLocal";
         MessagingDB db=new MessagingDB(context);
         Messaging messaging=Messaging.getInstance();
-        ArrayList<MessagingCircularRegion> prMessagingCircularRegions=db.getAllGeoFenceToBd();
-        List<String> removeIds= getListOfId(prMessagingCircularRegions);
-        messaging.removeGeofence(removeIds);
-        db.deleteAll();
+        if(db.getAllGeoFenceToBd().size()>0) {
+            ArrayList<MessagingCircularRegion> prMessagingCircularRegions = db.getAllGeoFenceToBd();
+            List<String> removeIds = getListOfId(prMessagingCircularRegions);
+            messaging.removeGeofence(removeIds);
+            db.deleteAll();
+        }else{
+            messaging.utils.showDebugLog(this,nameMethod,"Don not have GF in DB");
+        }
 
     }
 }

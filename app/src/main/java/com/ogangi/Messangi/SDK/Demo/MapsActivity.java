@@ -147,8 +147,8 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
             public void onClick(View v) {
                 //String next="limit=3";
                 String next="";
-                //Messaging.fetchGeofence(true,next);
-                Messaging.sendEventCustomToBackend("pushNotification");
+                Messaging.fetchGeofence(true,next);
+                //Messaging.sendEventCustomToBackend("pushNotification");
                 //Messaging.deteAllBD();
 //                Messaging.setConfigParameter("123344","host",
 //                        true,false,true);
