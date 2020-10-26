@@ -164,14 +164,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
             }
         });
 
-//        int status = GooglePlayServicesUtil.isGooglePlayServicesAvailable( getApplicationContext() );
-//        if(status == ConnectionResult.SUCCESS) {
-//            //alarm to go and install Google Play Services
-//
-//        }else if(status == ConnectionResult.SERVICE_VERSION_UPDATE_REQUIRED){
-//            Toast.makeText(getApplicationContext(),"please udpate your google play service",Toast.LENGTH_SHORT).show
-//        }
-
+        Messaging.checkGPlayServiceStatus();
     }
     private void stopService() {
         messaging.stopServiceLocation();

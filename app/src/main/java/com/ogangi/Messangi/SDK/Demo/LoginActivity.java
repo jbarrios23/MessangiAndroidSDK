@@ -87,6 +87,7 @@ public class LoginActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_login);
+        setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_PORTRAIT);
         nameMethod = new Object(){}.getClass().getEnclosingMethod().getName();
         button_get_started=findViewById(R.id.button);
         skip=findViewById(R.id.button_skip);

@@ -104,6 +104,7 @@ public class MainActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+        setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_PORTRAIT);
         Toolbar toolbar = findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
 
@@ -785,9 +786,10 @@ public class MainActivity extends AppCompatActivity {
                     case Messaging.ACTION_SAVE_DEVICE:
                         messagingDevice = (MessagingDevice) data;
                         Log.d(TAG,"DEBUG: " + CLASS_TAG + ": " + nameMethod + ": messagingDevice :  " + messagingDevice.toString());
-                        Log.d(TAG,"DEBUG: " + CLASS_TAG + ": " + nameMethod + ": messagingUser :  " + messagingUser.toString());
+
                         // Aca se hace el fetch user porque para obtener el usuario es necesario tener el device primero
                         if(messagingUser != null){
+                            Log.d(TAG,"DEBUG: " + CLASS_TAG + ": " + nameMethod + ": messagingUser :  " + messagingUser.toString());
                             Messaging.fetchUser(getApplicationContext(),true);
                         }
                         showData();

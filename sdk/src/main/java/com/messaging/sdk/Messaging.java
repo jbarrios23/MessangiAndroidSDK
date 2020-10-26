@@ -19,6 +19,7 @@ import android.os.Message;
 import android.provider.Settings;
 import android.util.Log;
 import android.widget.ListView;
+import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.RequiresApi;
@@ -29,6 +30,8 @@ import androidx.lifecycle.OnLifecycleEvent;
 import androidx.lifecycle.ProcessLifecycleOwner;
 import androidx.localbroadcastmanager.content.LocalBroadcastManager;
 
+import com.google.android.gms.common.ConnectionResult;
+import com.google.android.gms.common.GooglePlayServicesUtil;
 import com.google.android.gms.location.FusedLocationProviderClient;
 import com.google.android.gms.location.Geofence;
 import com.google.android.gms.location.GeofencingClient;
@@ -1057,6 +1060,23 @@ public class Messaging implements LifecycleObserver {
 
     public boolean isLogged() {
         return messagingStorageController.isRegisterDevice();
+    }
+
+    public static void checkGPlayServiceStatus(){
+        String nameMethod="GetGPlayServiceStatus";
+        Messaging messaging=Messaging.getInstance();
+        int status = GooglePlayServicesUtil.isGooglePlayServicesAvailable( messaging.context );
+        messaging.utils.showDebugLog(messaging,nameMethod,"status GOPS "+status);
+        if(status == ConnectionResult.SUCCESS) {
+            //alarm to go and install Google Play Services
+            messaging.utils.showDebugLog(messaging,nameMethod,"yes have Google Play Services "+status);
+            //fe_geofences
+        }else if(status == ConnectionResult.SERVICE_VERSION_UPDATE_REQUIRED){
+            messaging.utils.showDebugLog(messaging,nameMethod,"please udpate your google play service "+status);
+            Toast.makeText(messaging.context,"please udpate your google play service",Toast.LENGTH_SHORT).show();
+        }
+
+
     }
 
     /**
