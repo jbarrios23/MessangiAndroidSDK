@@ -426,7 +426,8 @@ public class LoginActivity extends AppCompatActivity {
         public void onReceive(Context context, Intent intent) {
             nameMethod=new Object(){}.getClass().getEnclosingMethod().getName();
             String alertMessage = getResources().getString(getResources().getIdentifier(intent.getAction(), "string", getPackageName()));
-            Toast.makeText(getApplicationContext(), alertMessage, Toast.LENGTH_LONG).show();
+            //Toast.makeText(getApplicationContext(), alertMessage, Toast.LENGTH_LONG).show();
+            Log.d(TAG,"DEBUG: " + CLASS_TAG + ": " + nameMethod + ":   " + alertMessage);
             boolean hasError=intent.getBooleanExtra(Messaging.INTENT_EXTRA_HAS_ERROR,true);
             Log.d(TAG,"ERROR: "+CLASS_TAG+": "+nameMethod+": Has error:  "+ hasError);
             if (!hasError) {

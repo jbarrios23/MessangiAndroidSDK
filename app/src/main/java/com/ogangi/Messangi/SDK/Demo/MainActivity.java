@@ -755,7 +755,8 @@ public class MainActivity extends AppCompatActivity {
             boolean hasError = intent.getBooleanExtra(Messaging.INTENT_EXTRA_HAS_ERROR,true);
             Log.d(TAG,"DEBUG: "+CLASS_TAG+": "+nameMethod+": Has error:  "+ intent.getAction());
             String alertMessage = getResources().getString(getResources().getIdentifier(intent.getAction(), "string", getPackageName()));
-            Toast.makeText(getApplicationContext(), alertMessage, Toast.LENGTH_LONG).show();
+            //Toast.makeText(getApplicationContext(), alertMessage, Toast.LENGTH_LONG).show();
+            Log.d(TAG,"DEBUG: " + CLASS_TAG + ": " + nameMethod + ":   " + alertMessage);
             Log.d(TAG,"DEBUG: "+CLASS_TAG+": "+nameMethod+": Has error:  "+ hasError);
             if (!hasError) {
                 Serializable data = intent.getSerializableExtra(Messaging.INTENT_EXTRA_DATA);
@@ -770,6 +771,7 @@ public class MainActivity extends AppCompatActivity {
                 switch (intent.getAction()){
                     case Messaging.ACTION_REGISTER_DEVICE:
                         messagingDevice = (MessagingDevice) data;
+
                         Log.d(TAG,"DEBUG: " + CLASS_TAG + ": " + nameMethod + ": messagingDevice :  " + messagingDevice.toString());
 
                         showData();

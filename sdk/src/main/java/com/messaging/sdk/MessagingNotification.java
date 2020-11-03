@@ -197,10 +197,10 @@ public class MessagingNotification implements Serializable {
          if(additionalData.get(Messaging.MESSAGING_GEO_PUSH)!=null &&
                  !additionalData.get(Messaging.MESSAGING_GEO_PUSH).isEmpty()) {
              try {
-                 //JSONObject data=new JSONObject(additionalData.get(Messaging.MESSAGING_GEO_PUSH));
-                 JSONArray data=new JSONArray(additionalData.get(Messaging.MESSAGING_GEO_PUSH));
-                 //this.renderNotification = messaging.utils.verifyIsValidGeoPush(data,messaging);
-                 this.renderNotification = messaging.utils.verifyIsValidGeoPushTwo(data,messaging);
+                 JSONObject data=new JSONObject(additionalData.get(Messaging.MESSAGING_GEO_PUSH));
+                 //JSONArray data=new JSONArray(additionalData.get(Messaging.MESSAGING_GEO_PUSH));
+                 this.renderNotification = messaging.utils.verifyIsValidGeoPush(data,messaging);
+                 //this.renderNotification = messaging.utils.verifyIsValidGeoPushTwo(data,messaging);
                  messaging.utils.showDebugLog(this,nameMethod, "MSGI_GEOPUSH: "
                          + renderNotification);
              } catch (JSONException e) {
