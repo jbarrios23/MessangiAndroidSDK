@@ -150,8 +150,9 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
                 Messaging.fetchGeofence(true,next);
                 //Messaging.sendEventCustomToBackend("pushNotification");
                 //Messaging.deteAllBD();
-//                Messaging.setConfigParameter("123344","host",
+//              Messaging.setConfigParameter("123344","host",
 //                        true,false,true);
+                Messaging.checkGPlayServiceStatus();
             }
         });
 

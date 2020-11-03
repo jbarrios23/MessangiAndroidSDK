@@ -37,6 +37,7 @@
     <string name="com.messaging.sdk.ACTION_FETCH_GEOFENCE"> Geofence Loaded </string>
     <string name="com.messaging.sdk.ACTION_GEOFENCE_ENTER"> IN </string>
     <string name="com.messaging.sdk.ACTION_GEOFENCE_EXIT"> OUT </string>
+    <string name="com.messaging.sdk.PUSH_NOTIFICATION_TO_OPEN"> Notification Open </string>
 
 
 </resources>

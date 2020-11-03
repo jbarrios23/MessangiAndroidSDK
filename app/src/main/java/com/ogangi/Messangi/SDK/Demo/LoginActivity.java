@@ -439,6 +439,7 @@ public class LoginActivity extends AppCompatActivity {
                         JSONObject temp=new JSONObject(data);
                         JSONObject temp1=temp.getJSONObject(Messaging.MESSAGING_DATA);
                         JSONArray arr = temp1.getJSONArray(Messaging.FETCH_FIELDS_COLUMNS);
+
                         JSONArray sortedJsonArray =getJsonArraySorted(arr);
                     Log.d(TAG,"DEBUG: "+CLASS_TAG+": "+nameMethod+": sortedJsonArray:  "
                     + sortedJsonArray.toString());
@@ -468,6 +469,7 @@ public class LoginActivity extends AppCompatActivity {
                                 + dataInputList.size());
                         showLinearData();
                     }else{
+                        Log.d(TAG, "DEBUG: " + CLASS_TAG + ": " + nameMethod + ": Don't have Columns:  ");
                         reloadSdkParameter(false);
                     }
 

@@ -753,6 +753,7 @@ public class MainActivity extends AppCompatActivity {
         public void onReceive(Context context, Intent intent) {
             nameMethod = new Object(){}.getClass().getEnclosingMethod().getName();
             boolean hasError = intent.getBooleanExtra(Messaging.INTENT_EXTRA_HAS_ERROR,true);
+            Log.d(TAG,"DEBUG: "+CLASS_TAG+": "+nameMethod+": Has error:  "+ intent.getAction());
             String alertMessage = getResources().getString(getResources().getIdentifier(intent.getAction(), "string", getPackageName()));
             Toast.makeText(getApplicationContext(), alertMessage, Toast.LENGTH_LONG).show();
             Log.d(TAG,"DEBUG: "+CLASS_TAG+": "+nameMethod+": Has error:  "+ hasError);
@@ -787,9 +788,8 @@ public class MainActivity extends AppCompatActivity {
                         messagingDevice = (MessagingDevice) data;
                         Log.d(TAG,"DEBUG: " + CLASS_TAG + ": " + nameMethod + ": messagingDevice :  " + messagingDevice.toString());
 
-                        // Aca se hace el fetch user porque para obtener el usuario es necesario tener el device primero
                         if(messagingUser != null){
-                            Log.d(TAG,"DEBUG: " + CLASS_TAG + ": " + nameMethod + ": messagingUser :  " + messagingUser.toString());
+                            Log.d(TAG,"DEBUG: " + CLASS_TAG + ": " + nameMethod + ": messagingUser E :  " + messagingUser.toString());
                             Messaging.fetchUser(getApplicationContext(),true);
                         }
                         showData();

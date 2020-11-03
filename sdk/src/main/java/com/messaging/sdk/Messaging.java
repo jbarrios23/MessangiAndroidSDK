@@ -717,6 +717,7 @@ public class Messaging implements LifecycleObserver {
                  provUrl = provUrl+ "?"+next;
             }
             final String url=provUrl;
+            messaging.utils.showDebugLog(messaging,nameMethod,provUrl);
             //new HttpRequestEventGet(provId, messaging, "", "","","").execute();
             final String params="";
             new HttpRequestEvent(url,"GET",params,new HttpRequestCallback(){
