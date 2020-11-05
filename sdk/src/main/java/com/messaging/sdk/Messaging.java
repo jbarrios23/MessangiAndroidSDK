@@ -503,7 +503,7 @@ public class Messaging implements LifecycleObserver {
 
         String nameMethod=new Object(){}.getClass().getEnclosingMethod().getName();
         final Messaging messaging=Messaging.getInstance();
-        messaging.utils.showInfoLog(messaging,nameMethod,"isGPS "+isGPS+" isContinue "+isContinue);
+        //messaging.utils.showInfoLog(messaging,nameMethod,"isGPS "+isGPS+" isContinue "+isContinue);
 
         if (!isGPS) {
             messaging.utils.showDebugLog(messaging,nameMethod,"Please turn on GPS "+isGPS);
@@ -645,7 +645,7 @@ public class Messaging implements LifecycleObserver {
         }else{
         provId=messaging.messagingStorageController.getDevice().getId();
         }
-        if(reason.equals("") && !reason.isEmpty()){
+        if(!reason.equals("") && !reason.isEmpty()){
             provUrl=messaging.utils.getMessagingHost()+"/devices/"+provId+"/event/"+nameEvent+"?reason="+reason;
         }else{
             provUrl = messaging.utils.getMessagingHost()+"/devices/"+provId+"/event/"+nameEvent;

@@ -12,8 +12,6 @@ public class MessagingCircularRegion extends MessagingGeofence implements Serial
     private static final long GEO_DURATION = 60 * 60 * 1000;
 
 
-
-
     @Override
     public Geofence getGeofence() {
         return new Geofence.Builder()

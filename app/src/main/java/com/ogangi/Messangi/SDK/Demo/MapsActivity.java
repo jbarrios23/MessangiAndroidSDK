@@ -148,11 +148,11 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
                 //String next="limit=3";
                 String next="";
                 Messaging.fetchGeofence(true,next);
-                //Messaging.sendEventCustomToBackend("pushNotification");
+                Messaging.sendEventCustomToBackend("pushNotification");
                 //Messaging.deteAllBD();
-//              Messaging.setConfigParameter("123344","host",
-//                        true,false,true);
-                Messaging.checkGPlayServiceStatus();
+                //Messaging.setConfigParameter("123344","host",
+                //        true,false,true);
+              Messaging.checkGPlayServiceStatus();
             }
         });
 
@@ -291,7 +291,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
 
             boolean hasError=intent.getBooleanExtra(Messaging.INTENT_EXTRA_HAS_ERROR,true);
             String alertMessage = getResources().getString(getResources().getIdentifier(intent.getAction(), "string", getPackageName()));
-            //Toast.makeText(getApplicationContext(), alertMessage, Toast.LENGTH_LONG).show();
+            Toast.makeText(getApplicationContext(), alertMessage, Toast.LENGTH_LONG).show();
             Log.d(TAG,"DEBUG: " + CLASS_TAG + ": " + nameMethod + ":   " + alertMessage);
             Log.d(TAG,"DEBUG: "+CLASS_TAG+": "+nameMethod+": Has error:  "+ hasError);
             if (!hasError ) {

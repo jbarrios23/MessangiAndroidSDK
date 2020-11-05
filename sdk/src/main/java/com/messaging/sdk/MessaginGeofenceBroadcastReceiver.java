@@ -46,7 +46,7 @@ public class MessaginGeofenceBroadcastReceiver extends BroadcastReceiver {
             String errorMessage = getErrorString(geofencingEvent.getErrorCode());
             messaging.utils.showErrorLog(this,nameMethod,errorMessage,"");
             if(errorMessage.equals("GeoFence not available")){
-                //Messaging.re_registerGeofence();
+                Messaging.re_registerGeofence();
                 messaging.utils.showErrorLog(this,nameMethod,errorMessage,"");
             }
             return;
