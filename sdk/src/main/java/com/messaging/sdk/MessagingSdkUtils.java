@@ -535,8 +535,10 @@ class MessagingSdkUtils {
         }else {
 
             if(messaging.isGPS()){
+                showDebugLog(this,nameMethod,"location enable "
+                        +isLocation_allowed());
 
-                if(messaging.isLocation_allowed()){
+                if(isLocation_allowed()){
                     if(jsonObject.has(Messaging.GOEOFENCE_LONG) && jsonObject.has(Messaging.GOEOFENCE_LAT)
                             && jsonObject.has(Messaging.GOEOFENCE_RADIUS)){
                         try {
@@ -648,7 +650,7 @@ class MessagingSdkUtils {
 
             if(messaging.isGPS()){
 
-                if(messaging.isLocation_allowed()){
+                if(isLocation_allowed()){
                     try {
                         JSONArray jsonArray=new JSONArray(messagingGeoFencePush);
                         messaging.utils.showDebugLog(this,nameMethod,"GeoFence Array "+jsonArray);

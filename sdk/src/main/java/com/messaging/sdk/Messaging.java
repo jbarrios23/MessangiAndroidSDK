@@ -995,11 +995,13 @@ public class Messaging implements LifecycleObserver {
     }
 
     public boolean isGPS() {
-        return isGPS;
+        return messagingStorageController.isGPSAllowed();
     }
 
     public void setGPS(boolean GPS) {
-        isGPS = GPS;
+
+        messagingStorageController.setGPSAllowed(GPS);
+        //isGPS = GPS;
     }
     public static boolean isIsContinue() {
         return isContinue;

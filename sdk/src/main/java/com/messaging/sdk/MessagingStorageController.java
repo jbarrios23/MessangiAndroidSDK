@@ -583,6 +583,33 @@ public class MessagingStorageController {
         return result ;
     }
 
+    /**
+     * Method setLocationAllowed
+     * @param enable : enable
+     */
+    public void setGPSAllowed(boolean enable){
+        nameMethod=new Object(){}.getClass().getEnclosingMethod().getName();
+        SharedPreferences.Editor data=mSharedPreferencesConfig.edit();
+        data.putBoolean("GPSAllowed",enable);
+        data.putInt("GPSAllowedInt",1);
+        data.apply();
+        messaging.utils.showDebugLog(this,nameMethod,"Set GPSAllowed "+enable);
+
+    }
+
+    public int hasGPSAllowed(){
+        nameMethod=new Object(){}.getClass().getEnclosingMethod().getName();
+        int token=mSharedPreferencesConfig.getInt("GPSAllowedInt",0);
+        //messaging.utils.showDebugLog(this,nameMethod,"has LocationAllowed "+token);
+        return token;
+    }
+
+    public boolean isGPSAllowed(){
+        boolean result=mSharedPreferencesConfig.getBoolean("GPSAllowed",false);
+        messaging.utils.showDebugLog(this,nameMethod,"Get GPSAllowed from storage "+result);
+        return result ;
+    }
+
 
 
 }
