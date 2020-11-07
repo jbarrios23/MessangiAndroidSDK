@@ -25,6 +25,7 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.Window;
+import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.CompoundButton;
@@ -210,7 +211,8 @@ public class MainActivity extends AppCompatActivity {
             if(isBackground) {
                 Serializable data = extras.getSerializable(Messaging.INTENT_EXTRA_DATA);
                 messagingNotification=(MessagingNotification)data;
-                showAlertNotification(messagingNotification, data);
+                //showAlertNotification(messagingNotification, data);
+                Log.i(TAG, "INFO: " + CLASS_TAG + ": " + nameMethod + ": " + messagingNotification.toString());
             }else{
                 //to process notification from background mode
                 MessagingNotification notification=Messaging.checkNotification(extras);
@@ -220,6 +222,16 @@ public class MainActivity extends AppCompatActivity {
             }
 
         }
+
+        list_device.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+            @Override
+            public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+                Log.i(TAG, "INFO: " + CLASS_TAG + ": " + nameMethod + ": " + position);
+                if((position==12)||(position==13)||(position==14)) {
+                    showDialogSelectionConfig();
+                }
+            }
+        });
 
 
 
@@ -284,7 +296,7 @@ public class MainActivity extends AppCompatActivity {
         nameMethod=new Object(){}.getClass().getEnclosingMethod().getName();
         Intent intent=new Intent(MainActivity.this,LoginActivity.class);
         startActivity(intent);
-        messaging.showAnalyticAllowedState();
+
 
         Log.i(TAG, "INFO: " + CLASS_TAG + ": " + nameMethod + " isAnalytics_allowed: " + messaging.isAnalytics_allowed());
         MainActivity.this.finish();
@@ -328,6 +340,7 @@ public class MainActivity extends AppCompatActivity {
         progressBar.setVisibility(View.VISIBLE);
         Messaging.fetchDevice(false, getApplicationContext());
         Log.i(TAG,"INFO: "+CLASS_TAG+": "+nameMethod+": ");
+        messaging.showAnalyticAllowedState();
 
     }
 
@@ -414,6 +427,63 @@ public class MainActivity extends AppCompatActivity {
         NotificationManager notificationManager =
                 (NotificationManager) context.getSystemService(Context.NOTIFICATION_SERVICE);
         notificationManager.notify(notificationId /* ID of notification */, notificationBuilder.build());
+
+
+    }
+
+    public void showDialogSelectionConfig(){
+        AlertDialog.Builder builder = new AlertDialog.Builder(this);
+        // Set the dialog title
+        String[] selection=new String[]{"LocationEnable ","AnanlyticsEnable ","Log Enable "};
+        builder.setTitle("config")
+                // Specify the list array, the items to be selected by default (null for none),
+                // and the listener through which to receive callbacks when items are selected
+                .setMultiChoiceItems(selection, null,
+                        new DialogInterface.OnMultiChoiceClickListener() {
+                            @Override
+                            public void onClick(DialogInterface dialog, int which,
+                                                boolean isChecked) {
+                                if (isChecked) {
+                                    Log.d(TAG,"DEBUG: "+CLASS_TAG+": "+nameMethod+":  "+which+"  "+isChecked);
+                                    handleSelection(isChecked,which);
+                                }else{
+
+                                    Log.d(TAG,"DEBUG: "+CLASS_TAG+": "+nameMethod+":  "+which+"  "+isChecked);
+                                    handleSelection(isChecked,which);
+                                }
+                                showData();
+                            }
+                        })
+                // Set the action buttons
+                .setPositiveButton("Ok", new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int id) {
+                        // User clicked OK, so save the selectedItems results somewhere
+                        // or return them to the component that opened the dialog
+
+                    }
+                });
+
+        builder.show();
+
+    }
+
+    private void handleSelection(boolean isChecked, int which) {
+        switch (which){
+            case 0:
+            Messaging.setLocationAllowed(isChecked);
+            break;
+            case 1:
+            Messaging.setAnalytincAllowed(isChecked);
+            break;
+            case 2:
+            Messaging.setLogingAllowed(isChecked);
+            break;
+            default:
+            break;
+
+
+        }
 
 
     }
@@ -656,59 +726,13 @@ public class MainActivity extends AppCompatActivity {
     private void showAlertGetLogCat() {
         // create an alert builder
         AlertDialog.Builder builder = new AlertDialog.Builder(this);
-        builder.setTitle("Logcat From Sdk and app");
+        builder.setTitle("Logcat Resume");
         // set the custom layout
         //final View customLayout = getLayoutInflater().inflate(R.layout.custom_notification_layout, null);
         final View customLayout = getLayoutInflater().inflate(R.layout.layout_logcat, null);
         builder.setView(customLayout);
         TextView data=customLayout.findViewById(R.id.texViewLogCat);
-        StringBuilder stringBuilder = new StringBuilder();
-        try {
-//            Process process = Runtime.getRuntime().exec("logcat -d");
-//            BufferedReader bufferedReader = new BufferedReader(
-//                    new InputStreamReader(process.getInputStream()));
-//
-//            StringBuilder log=new StringBuilder();
-//            String line = "";
-//            while ((line = bufferedReader.readLine()) != null) {
-//                log.append(line);
-//            }
-
-//            Process logcat;
-//            final StringBuilder log = new StringBuilder();
-//
-//                logcat = Runtime.getRuntime().exec(new String[]{"logcat", "-d"});
-//                BufferedReader br = new BufferedReader(new InputStreamReader(logcat.getInputStream()),4*1024);
-//                String line;
-//                String separator = System.getProperty("line.separator");
-//                while ((line = br.readLine()) != null) {
-//                    log.append(line);
-//                    log.append(separator);
-//                }
-
-            String processId = Integer.toString(android.os.Process.myPid());
-            //String[] command = new String[] { "logcat", "-d", "-v", "threadtime" };
-            String[] command = new String[] { "logcat", "-d", "-v", "MESSAGING" };
-            Process process = Runtime.getRuntime().exec(command);
-
-            BufferedReader bufferedReader = new BufferedReader(
-                    new InputStreamReader(process.getInputStream()));
-
-            String line;
-            while ((line = bufferedReader.readLine()) != null) {
-                if (line.contains(processId)) {
-                    stringBuilder.append(line);
-
-                }
-            }
-            data.setText(stringBuilder.toString());
-
-        }
-        catch (IOException e) {
-            e.printStackTrace();
-        }
-
-
+        data.setText(Messaging.getLocat());
 
         // add a button
         builder.setPositiveButton("Ok", new DialogInterface.OnClickListener() {

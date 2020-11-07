@@ -44,6 +44,7 @@ import com.google.android.gms.location.LocationServices;
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.firebase.messaging.FirebaseMessaging;
+import com.google.firebase.messaging.RemoteMessage;
 
 
 import org.json.JSONArray;
@@ -141,6 +142,7 @@ public class Messaging implements LifecycleObserver {
     public static final String MESSAGING_GEOFENCE_PUSH="MSGI_GEOFENCES";
     public static final String MESSAGING_GEOFENCE_SINC="MSGI_GEOFENCES_SINC";
     public static final String MESSAGING_GEO_PUSH="MSGI_GEOPUSH";
+    public static final String MESSAGING_PUBLISH_LOGS="MGSI_PUBLISH_LOGS";
     public static final String MESSAGING_APP_TOKEN="appToken";
     public static final String MESSAGING_LOCATION_ENABLE="locationEnable";
     public static final String MESSAGING_ANALYTICS_ENABLE="analyticsEnable";
@@ -167,7 +169,7 @@ public class Messaging implements LifecycleObserver {
     public static final String MESSAGING_DATA="data";
 
 
-    public static String MESSAGING_NOTIFICATION_CUSTOM_EVENT="";
+    public static String MESSAGING_CUSTOM_EVENT="";
     public static final String MESSAGING_INVALID_DEVICE_LOCATION="INVALID_DEVICE_LOCATION";
     public static final String MESSAGING_INVALID_DEVICE_LOCATION_REASON_MISSING="Missing_Permission";
     public static final String MESSAGING_INVALID_DEVICE_LOCATION_REASON_LOCATION="Location_Disabled";
@@ -222,6 +224,8 @@ public class Messaging implements LifecycleObserver {
 
     private GeofencingClient geofencingClient;
     public static boolean enableLocationBackground=false;
+
+    private String notificationIdParameter;
 
 
 
@@ -375,11 +379,6 @@ public class Messaging implements LifecycleObserver {
         }
         isForeground=true;
         isBackground=false;
-//        if(flagSinc){
-//            utils.showInfoLog(this,nameMethod,"Sinc Enable call service "+flagSinc);
-//            //launch fetch gofence
-//            flagSinc=false;
-//        }
 
         if(messagingStorageController.hasSincAllowed()==1){
             if(messagingStorageController.isSincAllowed()){
@@ -618,7 +617,7 @@ public class Messaging implements LifecycleObserver {
         messaging.utils.showInfoLog(messaging,nameMethod,"notification "+notification.toString());
         if(notification!=null) {
             messaging.utils.showInfoLog(messaging,nameMethod,"The Activity was opened as a consequence of a notification");
-            sendEventToBackend(Messaging.MESSAGING_NOTIFICATION_OPEN,"");
+            sendEventToBackend(Messaging.MESSAGING_NOTIFICATION_OPEN,notification);
         } else {
             messaging.utils.showInfoLog(messaging,nameMethod,"intent.extra does not contain a notification");
         }
@@ -626,13 +625,18 @@ public class Messaging implements LifecycleObserver {
         return notification;
     }
 
-    public static void sendEventCustomToBackend(String snakeCases){
-            String nameMethod=new Object(){}.getClass().getEnclosingMethod().getName();
-            Messaging messaging = Messaging.getInstance();
-            MESSAGING_NOTIFICATION_CUSTOM_EVENT = messaging.utils.toUpperSnakeCase(snakeCases);
-            messaging.utils.showInfoLog(messaging,nameMethod,
-                    "MESSAGING_NOTIFICATION_CUSTOM_EVENT "+MESSAGING_NOTIFICATION_CUSTOM_EVENT);
-            sendEventToBackend(MESSAGING_NOTIFICATION_CUSTOM_EVENT,"");
+    public static void sendEventCustomToBackend(String snakeCases,String reason){
+        String nameMethod=new Object(){}.getClass().getEnclosingMethod().getName();
+        Messaging messaging = Messaging.getInstance();
+        String provSnake = messaging.utils.toUpperSnakeCase(snakeCases);
+        messaging.utils.showInfoLog(messaging,nameMethod,
+        "MESSAGING_NOTIFICATION_CUSTOM_EVENT "+provSnake);
+
+        if(reason!=null && reason.length()>512) {
+            reason = reason.substring(0, 512);
+        }
+
+        sendEventToBackend(provSnake,reason);
     }
 
     public static void sendEventToBackend(String nameEvent,String reason) {
@@ -640,16 +644,39 @@ public class Messaging implements LifecycleObserver {
     final Messaging messaging = Messaging.getInstance();
     String provId = "";
     String provUrl = "";
+
+        if (messaging.messagingDevice != null) {
+            provId = messaging.messagingDevice.getId();
+        } else {
+            provId = messaging.messagingStorageController.getDevice().getId();
+        }
+        provUrl=messaging.utils.getMessagingHost()+"/devices/"+provId+"/event/"+nameEvent+"?reason="+reason;
+
+        if (messaging.utils.isAnalytics_allowed()) {
+
+            new HttpRequestEvent(provUrl, "GET", nameEvent, null, messaging).execute();
+            messaging.utils.showInfoLog(messaging, nameMethod, "isAnalytics_allowed() "
+                    + messaging.utils.isAnalytics_allowed());
+        } else {
+            messaging.utils.showInfoLog(messaging, nameMethod, "isAnalytics_allowed() "
+                    + messaging.utils.isAnalytics_allowed());
+        }
+    }
+
+    public static void sendEventToBackend(String nameEvent,MessagingNotification messagingNotification) {
+        String nameMethod=new Object(){}.getClass().getEnclosingMethod().getName();
+        final Messaging messaging = Messaging.getInstance();
+        String provId = "";
+        String provUrl = "";
+
         if(messaging.messagingDevice!=null) {
-        provId = messaging.messagingDevice.getId();
+            provId = messaging.messagingDevice.getId();
         }else{
-        provId=messaging.messagingStorageController.getDevice().getId();
+            provId=messaging.messagingStorageController.getDevice().getId();
         }
-        if(!reason.equals("") && !reason.isEmpty()){
-            provUrl=messaging.utils.getMessagingHost()+"/devices/"+provId+"/event/"+nameEvent+"?reason="+reason;
-        }else{
-            provUrl = messaging.utils.getMessagingHost()+"/devices/"+provId+"/event/"+nameEvent;
-        }
+
+        provUrl = messaging.utils.getMessagingHost()+"/devices/"+provId+"/event/"+nameEvent+"?externalId="+messagingNotification.getNotificationId();
+
         if(messaging.utils.isAnalytics_allowed()) {
             //new HttpRequestEventGet(provId, messaging, nameEvent, reason,typeAction,geofenceId).execute();
             new HttpRequestEvent(provUrl,"GET",nameEvent,null,messaging).execute();
@@ -942,16 +969,29 @@ public class Messaging implements LifecycleObserver {
         utils.saveConfigParameterFromApp(token,Host);
     }
 
-    public static void setConfigParameter(String token, String Host,
-                                   boolean locatioEnable,boolean analyticsEnable,
-                                   boolean loggingEnable){
+    public static void setConfigParameterTokenAndHost(String token, String host){
         Messaging messaging=Messaging.getInstance();
-        messaging.utils.saveConfigParameterFromApp(token,Host);
-        messaging.utils.setLocation_allowed(locatioEnable);
-        messaging.utils.setAnalytics_allowed(analyticsEnable);
-        messaging.utils.setLogging_allowed(loggingEnable);
+        messaging.utils.saveConfigParameterFromApp(token,host);
+
     }
 
+    public static void setLocationAllowed(boolean enable){
+        Messaging messaging=Messaging.getInstance();
+        messaging.utils.setLocation_allowed(enable);
+
+    }
+
+    public static void setAnalytincAllowed(boolean enable){
+        Messaging messaging=Messaging.getInstance();
+        messaging.utils.setAnalytics_allowed(enable);
+
+    }
+
+    public static void setLogingAllowed(boolean enable){
+        Messaging messaging=Messaging.getInstance();
+        messaging.utils.setLogging_allowed(enable);
+
+    }
 
 
     public void showAnalyticAllowedState(){
@@ -999,7 +1039,6 @@ public class Messaging implements LifecycleObserver {
     }
 
     public void setGPS(boolean GPS) {
-
         messagingStorageController.setGPSAllowed(GPS);
         //isGPS = GPS;
     }
@@ -2043,6 +2082,37 @@ public class Messaging implements LifecycleObserver {
                 context, GEOFENCE_REQ_CODE, intent, PendingIntent.FLAG_UPDATE_CURRENT );
 
         return geoFencePendingIntent;
+    }
+
+
+    public static String getLocat(){
+        Messaging messaging=Messaging.getInstance();
+        String nameMethod="getLocat";
+        StringBuilder stringBuilder = new StringBuilder();
+        try {
+            String processId = Integer.toString(android.os.Process.myPid());
+            //String[] command = new String[] { "logcat", "-d", "-v", "threadtime" };
+            String[] command = new String[] { "logcat", "-d", "-v", "MESSAGING" };
+            Process process = Runtime.getRuntime().exec(command);
+
+            BufferedReader bufferedReader = new BufferedReader(
+                    new InputStreamReader(process.getInputStream()));
+
+            String line;
+            while ((line = bufferedReader.readLine()) != null) {
+                if (line.contains(processId)) {
+                    stringBuilder.append(line);
+
+                }
+            }
+            //data.setText(stringBuilder.toString());
+            messaging.utils.showDebugLog(messaging,nameMethod,stringBuilder.toString());
+
+        }
+        catch (IOException e) {
+            e.printStackTrace();
+        }
+        return stringBuilder.toString();
     }
 
 

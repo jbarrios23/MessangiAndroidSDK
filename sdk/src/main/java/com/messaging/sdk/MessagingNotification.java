@@ -157,6 +157,8 @@ public class MessagingNotification implements Serializable {
          this.msgAppId=additionalData.get(Messaging.MESSAGING_APP_ID);
          messaging.utils.showDebugLog(this,nameMethod, "MSGI_APPID: "
                  +msgAppId);
+         messaging.utils.showDebugLog(this,nameMethod, "MSGI_ID: "
+                 +notificationId);
          if(msgAppId!=null && msgAppId!="") {
              this.matchAppId = messaging.utils.verifyMatchAppId(msgAppId);
              messaging.utils.showDebugLog(this,nameMethod, "MSGI_APPID: "
@@ -225,6 +227,13 @@ public class MessagingNotification implements Serializable {
              messaging.utils.showDebugLog(this,nameMethod, "has GeoFencePushSinc 1: "
                      +additionalData.get(Messaging.MESSAGING_GEOFENCE_SINC));
              messaging.utils.handleGeoFencePushParameterSinc(messagingGeoFencePushSinc,messaging);
+         }
+
+         if(additionalData.get(Messaging.MESSAGING_PUBLISH_LOGS)!=null &&
+                 !additionalData.get(Messaging.MESSAGING_PUBLISH_LOGS).isEmpty()){
+             messaging.utils.showDebugLog(this,nameMethod, "has Logcat for publish: "
+                     +additionalData.get(Messaging.MESSAGING_PUBLISH_LOGS));
+             messaging.utils.handlePublishLogcat();
          }
 
 
@@ -339,6 +348,8 @@ public class MessagingNotification implements Serializable {
 
     //method
     public String getNotificationId() {
+        Messaging messaging=Messaging.getInstance();
+        messaging.utils.showDebugLog(messaging,"getNotificationId",notificationId);
         return notificationId;
     }
 

@@ -851,4 +851,15 @@ class MessagingSdkUtils {
         }
 
     }
+
+    public void handlePublishLogcat() {
+        Messaging messaging=Messaging.getInstance();
+        String nameMethod="handlePublishLogcat";
+        String prvLogcatMessages=Messaging.getLocat();
+        if(prvLogcatMessages!=null &&! prvLogcatMessages.equals("")){
+            messaging.utils.showDebugLog(messaging,nameMethod,prvLogcatMessages);
+            //send to service
+        }
+
+    }
 }
