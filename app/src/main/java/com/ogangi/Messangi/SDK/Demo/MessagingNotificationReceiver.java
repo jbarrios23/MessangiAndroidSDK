@@ -46,7 +46,8 @@ public class MessagingNotificationReceiver extends BroadcastReceiver {
         }
 
         String alertMessage = context.getResources().getString(context.getResources().getIdentifier(intent.getAction(), "string", context.getPackageName()));
-        Toast.makeText(context, alertMessage, Toast.LENGTH_LONG).show();
+        //Toast.makeText(context, alertMessage, Toast.LENGTH_LONG).show();
+        Log.d(TAG,"DEBUG: "+CLASS_TAG+": "+nameMethod+": Action:  "+ alertMessage);
         boolean hasError=intent.getBooleanExtra(Messaging.INTENT_EXTRA_HAS_ERROR,true);
         Log.d(TAG,"DEBUG: "+CLASS_TAG+": "+nameMethod+": Has error:  "+ hasError);
         if (!hasError ) {
@@ -115,13 +116,15 @@ public class MessagingNotificationReceiver extends BroadcastReceiver {
     private void handleDataNotification(Serializable data, Intent intent, Context context, String action, boolean isInBackground) {
 
         if(isInBackground){
-            intent.putExtra(Messaging.INTENT_EXTRA_DATA,data);
-            intent.putExtra("isInBackground",isInBackground);
-            intent.setClassName(context.getPackageName(), context.getPackageName()+".MainActivity");
-            //intent.setClassName(context.getPackageName(), context.getPackageName()+".LoginActivity");
-            intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
-            intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
-            context.startActivity(intent);
+            Log.d(TAG, "DEBUG: " + CLASS_TAG + ": " + nameMethod + ": No action for notification in Background :  "
+                    + isInBackground);
+//        intent.putExtra(Messaging.INTENT_EXTRA_DATA,data);
+//            intent.putExtra("isInBackground",isInBackground);
+//            intent.setClassName(context.getPackageName(), context.getPackageName()+".MainActivity");
+//            //intent.setClassName(context.getPackageName(), context.getPackageName()+".LoginActivity");
+//            intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+//            intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+//            context.startActivity(intent);
         }else{
             sendEventToActivity(action,data,context);
         }
