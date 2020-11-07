@@ -81,6 +81,7 @@ public class LoginActivity extends AppCompatActivity {
     public boolean userUpdate=false;
     public boolean useQrScan=false;
     public boolean onetimeFlag=true;
+    public boolean onetimeFlagUser=true;
 
 
     @Override
@@ -484,7 +485,10 @@ public class LoginActivity extends AppCompatActivity {
 
                     Log.d(TAG, "Debug: " + CLASS_TAG + ": " + nameMethod + ": Data Register:  " + dataSdk +" userUpdate " + userUpdate);
                     if (userUpdate) {
-                    Messaging.fetchUser(getApplicationContext(), true);
+                    if(onetimeFlagUser) {
+                        Messaging.fetchUser(getApplicationContext(), true);
+                        onetimeFlagUser=false;
+                    }
                     } else {
                     if (useQrScan) {
                         goToMainActivity();

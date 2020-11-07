@@ -327,7 +327,6 @@ public class MainActivity extends AppCompatActivity {
         messagingUserDeviceArrayList.clear();
         progressBar.setVisibility(View.VISIBLE);
         Messaging.fetchDevice(false, getApplicationContext());
-
         Log.i(TAG,"INFO: "+CLASS_TAG+": "+nameMethod+": ");
 
     }
@@ -753,14 +752,14 @@ public class MainActivity extends AppCompatActivity {
         public void onReceive(Context context, Intent intent) {
             nameMethod = new Object(){}.getClass().getEnclosingMethod().getName();
             boolean hasError = intent.getBooleanExtra(Messaging.INTENT_EXTRA_HAS_ERROR,true);
-            Log.d(TAG,"DEBUG: "+CLASS_TAG+": "+nameMethod+": Has error:  "+ intent.getAction());
+            Log.d(TAG,"DEBUG: "+CLASS_TAG+": "+nameMethod+": Action:  "+ intent.getAction());
             String alertMessage = getResources().getString(getResources().getIdentifier(intent.getAction(), "string", getPackageName()));
             //Toast.makeText(getApplicationContext(), alertMessage, Toast.LENGTH_LONG).show();
             Log.d(TAG,"DEBUG: " + CLASS_TAG + ": " + nameMethod + ":   " + alertMessage);
             Log.d(TAG,"DEBUG: "+CLASS_TAG+": "+nameMethod+": Has error:  "+ hasError);
             if (!hasError) {
                 Serializable data = intent.getSerializableExtra(Messaging.INTENT_EXTRA_DATA);
-                Log.d(TAG,"DEBUG: " + CLASS_TAG + ": " + nameMethod + ": Received Action :  " + intent.getAction());
+                //Log.d(TAG,"DEBUG: " + CLASS_TAG + ": " + nameMethod + ": Received Action :  " + intent.getAction());
                 if(data == null){
                     if(progressBar.isShown()){
                         progressBar.setVisibility(View.GONE);
@@ -771,16 +770,14 @@ public class MainActivity extends AppCompatActivity {
                 switch (intent.getAction()){
                     case Messaging.ACTION_REGISTER_DEVICE:
                         messagingDevice = (MessagingDevice) data;
-
                         Log.d(TAG,"DEBUG: " + CLASS_TAG + ": " + nameMethod + ": messagingDevice :  " + messagingDevice.toString());
-
                         showData();
                     break;
                     case Messaging.ACTION_FETCH_DEVICE:
                         messagingDevice = (MessagingDevice) data;
                         Log.d(TAG,"DEBUG: " + CLASS_TAG + ": " + nameMethod + ": messagingUser :  " + messagingUser);
                         if(messagingUser == null){
-                            Messaging.fetchUser(getApplicationContext(),true);
+                            Messaging.fetchUser(getApplicationContext(),false);
                         }
                         Log.d(TAG,"DEBUG: " + CLASS_TAG + ": " + nameMethod + ": messagingDevice :  " + messagingDevice.toString());
 
