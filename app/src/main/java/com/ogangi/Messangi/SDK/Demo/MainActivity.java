@@ -241,7 +241,6 @@ public class MainActivity extends AppCompatActivity {
     public boolean onCreateOptionsMenu(Menu menu) {
         getMenuInflater().inflate(R.menu.menu_main, menu);
         menu.findItem(R.id.action_visibility).setIcon(R.drawable.ic_baseline_visibility_24);
-
         return true;
     }
 
@@ -284,10 +283,8 @@ public class MainActivity extends AppCompatActivity {
     private void gotoMapActivity() {
         Intent intent=new Intent(MainActivity.this,MapsActivity.class);
         startActivity(intent);
-        MainActivity.this.finish();
-        //Messaging.sendEventGeofenceToBackend("out","5f486b13d11caa00268f0581");
-        //Messaging.fetchGeofence(true);
-        //Messaging.sendEventCustomToBackend("pushNotification");
+        //MainActivity.this.finish();
+
     }
 
     private void goToLogin() {
@@ -430,6 +427,8 @@ public class MainActivity extends AppCompatActivity {
 
 
     }
+
+
 
     public void showDialogSelectionConfig(){
         AlertDialog.Builder builder = new AlertDialog.Builder(this);
@@ -760,6 +759,13 @@ public class MainActivity extends AppCompatActivity {
         dialog.show();
 
     }
+    @Override
+    protected void onStop() {
+        super.onStop();
+        nameMethod=new Object(){}.getClass().getEnclosingMethod().getName();
+        Log.d(TAG,"DEBUG: "+CLASS_TAG+": "+nameMethod+": unregister LocalBroadcastReceiver");
+        LocalBroadcastManager.getInstance(this).unregisterReceiver(mReceiver);
+    }
 
 
     @Override
@@ -866,7 +872,7 @@ public class MainActivity extends AppCompatActivity {
                 // If request is cancelled, the result arrays are empty.
                 if (grantResults.length > 0
                         && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
-                    Messaging.fetchLocation(MainActivity.this,true, PRIORITY_BALANCED_POWER_ACCURACY);
+                    Messaging.fetchLocation(MainActivity.this,true);
                 } else {
                     Toast.makeText(getApplicationContext(), "Permission denied", Toast.LENGTH_SHORT).show();
                     permissionsDenied();

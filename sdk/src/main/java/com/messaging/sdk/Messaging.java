@@ -498,7 +498,9 @@ public class Messaging implements LifecycleObserver {
         return result;
     }
 
-    public static void fetchLocation(Activity activity,boolean isContinue,MessagingLocationPriority priority){
+
+
+    public static void fetchLocation(Activity activity,boolean isContinue){
 
         String nameMethod=new Object(){}.getClass().getEnclosingMethod().getName();
         final Messaging messaging=Messaging.getInstance();
@@ -511,7 +513,7 @@ public class Messaging implements LifecycleObserver {
             return;
         }
         Messaging.isContinue = isContinue;
-        Messaging.setLocationRequestWithPriority(priority);
+        //Messaging.setLocationRequestWithPriority(priority);
         messaging.utils.showDebugLog(messaging,nameMethod,"Priority "+Messaging.getLocationRequestPriority());
         getLastLocation(activity);
 
@@ -1040,7 +1042,7 @@ public class Messaging implements LifecycleObserver {
 
     public void setGPS(boolean GPS) {
         messagingStorageController.setGPSAllowed(GPS);
-        //isGPS = GPS;
+        isGPS = GPS;
     }
     public static boolean isIsContinue() {
         return isContinue;

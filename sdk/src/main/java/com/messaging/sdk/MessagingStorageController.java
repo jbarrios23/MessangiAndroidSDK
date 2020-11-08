@@ -460,7 +460,7 @@ public class MessagingStorageController {
 
     public boolean isLocationAllowed(){
         boolean result=mSharedPreferencesConfig.getBoolean("LocationAllowed",false);
-        //messaging.utils.showDebugLog(this,nameMethod,"Get LocationAllowed from storage "+result);
+        messaging.utils.showDebugLog(this,nameMethod,"Get LocationAllowed from storage "+result);
         return result ;
     }
 
@@ -608,6 +608,91 @@ public class MessagingStorageController {
         boolean result=mSharedPreferencesConfig.getBoolean("GPSAllowed",false);
         messaging.utils.showDebugLog(this,nameMethod,"Get GPSAllowed from storage "+result);
         return result ;
+    }
+
+    /**
+     * Method setLocationContinueAllowed
+     * @param enable : enable
+     */
+    public void setLocationContinueAllowed(boolean enable){
+        nameMethod=new Object(){}.getClass().getEnclosingMethod().getName();
+        SharedPreferences.Editor data=mSharedPreferencesConfig.edit();
+        data.putBoolean("LocationContinueAllowed",enable);
+        data.putInt("LocationContinueAllowedInt",1);
+        data.apply();
+        messaging.utils.showDebugLog(this,nameMethod,"Set LocationContinueAllowed "+enable);
+
+    }
+
+    public int hasLocationContinueAllowed(){
+        nameMethod=new Object(){}.getClass().getEnclosingMethod().getName();
+        int token=mSharedPreferencesConfig.getInt("LocationContinueAllowedInt",0);
+        //messaging.utils.showDebugLog(this,nameMethod,"has LocationAllowed "+token);
+        return token;
+    }
+
+    public boolean isLocationContinueAllowed(){
+        boolean result=mSharedPreferencesConfig.getBoolean("LocationContinueAllowed",false);
+        messaging.utils.showDebugLog(this,nameMethod,"Get LocationContinueAllowed from storage "+result);
+        return result ;
+    }
+
+    /**
+     * Method setLocationBackgroundAllowed
+     * @param enable : enable
+     */
+    public void setLocationBackgroundAllowed(boolean enable){
+        nameMethod=new Object(){}.getClass().getEnclosingMethod().getName();
+        SharedPreferences.Editor data=mSharedPreferencesConfig.edit();
+        data.putBoolean("LocationBackgroundAllowed",enable);
+        data.putInt("LocationBackgroundAllowedInt",1);
+        data.apply();
+        messaging.utils.showDebugLog(this,nameMethod,"Set LocationBackgroundAllowed "+enable);
+
+    }
+
+    public int hasLocationBackgroundAllowed(){
+        nameMethod=new Object(){}.getClass().getEnclosingMethod().getName();
+        int token=mSharedPreferencesConfig.getInt("LocationBackgroundAllowedInt",0);
+        //messaging.utils.showDebugLog(this,nameMethod,"has LocationAllowed "+token);
+        return token;
+    }
+
+    public boolean isLocationBackgroundAllowed(){
+        boolean result=mSharedPreferencesConfig.getBoolean("LocationBackgroundAllowed",false);
+        messaging.utils.showDebugLog(this,nameMethod,"Get LocationAllowed from storage "+result);
+        return result ;
+    }
+
+    /**
+     * Method setLocationProritySelected
+     * @param enable : enable
+     */
+    public void setLocationProritySelected(int enable){
+        nameMethod=new Object(){}.getClass().getEnclosingMethod().getName();
+        SharedPreferences.Editor data=mSharedPreferencesConfig.edit();
+        data.putInt("LocationProritySelected",enable);
+
+        data.apply();
+        messaging.utils.showDebugLog(this,nameMethod,"Set LocationBackgroundAllowed "+enable);
+
+    }
+
+    public boolean hasLocationProritySelected(){
+        nameMethod=new Object(){}.getClass().getEnclosingMethod().getName();
+        boolean result=false;
+        int token=mSharedPreferencesConfig.getInt("LocationProritySelected",0);
+        //messaging.utils.showDebugLog(this,nameMethod,"has LocationAllowed "+token);
+        if(token!=0){
+            result=true;
+        }
+        return result;
+    }
+
+    public int getLocationProritySelected(){
+        int result=mSharedPreferencesConfig.getInt("LocationProritySelected",3);
+        messaging.utils.showDebugLog(this,nameMethod,"Get LocationProritySelected from storage "+result);
+        return result;
     }
 
 

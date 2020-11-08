@@ -649,8 +649,6 @@ class MessagingSdkUtils {
         }else {
 
             if(messaging.isGPS()){
-
-                if(isLocation_allowed()){
                     try {
                         JSONArray jsonArray=new JSONArray(messagingGeoFencePush);
                         messaging.utils.showDebugLog(this,nameMethod,"GeoFence Array "+jsonArray);
@@ -730,22 +728,20 @@ class MessagingSdkUtils {
                                 }
                             }
                         }
-                        if(db.getAllGeoFenceToBd().size()>0 && isLocation_allowed()) {
-                            messaging.startGeofence();
+                        if(db.getAllGeoFenceToBd().size()>0 ) {
+                            if(isLocation_allowed()) {
+                                messaging.startGeofence();
+                            }else{
+                                showDebugLog(this,nameMethod,"Disable location config for GeoFence "
+                                        +Messaging.MESSAGING_INVALID_DEVICE_LOCATION_REASON_CONFIG);
+                                Messaging.sendEventToBackend(Messaging.MESSAGING_INVALID_DEVICE_LOCATION,
+                                        Messaging.MESSAGING_INVALID_DEVICE_LOCATION_REASON_CONFIG);
+                            }
                         }
 
                     } catch (JSONException e) {
                         e.printStackTrace();
                     }
-
-
-                }else{
-                    showDebugLog(this,nameMethod,"Disable location config for GeoFence "
-                            +Messaging.MESSAGING_INVALID_DEVICE_LOCATION_REASON_CONFIG);
-                    Messaging.sendEventToBackend(Messaging.MESSAGING_INVALID_DEVICE_LOCATION,
-                            Messaging.MESSAGING_INVALID_DEVICE_LOCATION_REASON_CONFIG);
-
-                }
 
             }else{
                 showDebugLog(this,nameMethod,"Disable location for GeoFence "

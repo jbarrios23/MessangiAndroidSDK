@@ -106,7 +106,7 @@ public class MessagingLocationService extends Service {
         notificationIntent = new Intent("android.intent.action.MAIN");
     }
     //fetchLocation(true, Messaging.MessagingLocationPriority.PRIORITY_HIGH_ACCURACY);
-    Messaging.fetchLocation(null,true, Messaging.MessagingLocationPriority.PRIORITY_HIGH_ACCURACY);
+    Messaging.fetchLocation(null,true);
     //return super.onStartCommand(intent, flags, startId);
         return START_STICKY;
 

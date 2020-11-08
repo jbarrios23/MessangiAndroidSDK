@@ -1,6 +1,8 @@
 package com.ogangi.Messangi.SDK.Demo;
 
 import androidx.annotation.NonNull;
+import androidx.appcompat.app.AppCompatActivity;
+import androidx.appcompat.widget.Toolbar;
 import androidx.fragment.app.FragmentActivity;
 import androidx.localbroadcastmanager.content.LocalBroadcastManager;
 
@@ -18,13 +20,17 @@ import android.graphics.Color;
 import android.location.Location;
 import android.os.Bundle;
 import android.util.Log;
+import android.view.Menu;
+import android.view.MenuItem;
 import android.view.View;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
+import android.widget.CompoundButton;
 import android.widget.ImageButton;
 import android.widget.ListView;
 import android.widget.TextView;
 import android.widget.Toast;
+import android.widget.ToggleButton;
 
 import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.GooglePlayServicesUtil;
@@ -40,6 +46,7 @@ import com.google.android.gms.maps.model.CircleOptions;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
+import com.google.android.material.dialog.MaterialAlertDialogBuilder;
 import com.messaging.sdk.Messaging;
 import com.messaging.sdk.MessagingCircularRegion;
 import com.messaging.sdk.MessagingDevice;
@@ -58,7 +65,7 @@ import static com.messaging.sdk.Messaging.MessagingLocationPriority.PRIORITY_HIG
 import static com.messaging.sdk.Messaging.MessagingLocationPriority.PRIORITY_LOW_POWER;
 import static com.messaging.sdk.Messaging.MessagingLocationPriority.PRIORITY_NO_POWER;
 
-public class MapsActivity extends FragmentActivity implements OnMapReadyCallback {
+public class MapsActivity extends AppCompatActivity implements OnMapReadyCallback {
 
     public static String CLASS_TAG=MapsActivity.class.getSimpleName();
     public static String TAG="MESSAGING";
@@ -70,7 +77,8 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
     ArrayList<MessagingCircularRegion> messagingCircularRegions;
     public boolean onetimeFlag=true;
     public MessagingLocation messagingLocation;
-    private Button getLocation,getPermission,getLocationC,turnOffLocationButton;
+    private Button getLocation,getPermission;
+    private ToggleButton turnOffLocationButton,getLocationC;
     private Circle geoFenceLimits;
     public TextView textView;
 
@@ -79,11 +87,14 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_maps);
         setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_PORTRAIT);
+        Toolbar toolbar = findViewById(R.id.toolbar);
+        setSupportActionBar(toolbar);
+        //getSupportActionBar().setDisplayShowTitleEnabled(false);
         messaging=Messaging.getInstance();
         getLocation=findViewById(R.id.button_get_location);
         getLocationC=findViewById(R.id.button_get_location_c);
         getPermission=findViewById(R.id.button_get_permission);
-        turnOffLocationButton=findViewById(R.id.button_turnOffLocation);
+        turnOffLocationButton=findViewById(R.id.button_backgroundLocation);
         textView=findViewById(R.id.textView);
         // Obtain the SupportMapFragment and get notified when the map is ready to be used.
         SupportMapFragment mapFragment = (SupportMapFragment) getSupportFragmentManager()
@@ -92,68 +103,65 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
 
 
 
-        getLocation.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                if(messaging.isLocation_allowed()) {
-                    Messaging.fetchLocation(MapsActivity.this, false,PRIORITY_HIGH_ACCURACY);
-                    Log.d(CLASS_TAG,TAG+ " Priority "+Messaging.getLocationRequestPriority());
-                }else{
-                    Log.d(CLASS_TAG,TAG+ " isLocation_allowed "+messaging.isLocation_allowed());
-                }
-            }
-        });
-
-        getLocationC.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                if(messaging.isLocation_allowed()) {
-                    Messaging.fetchLocation(MapsActivity.this, true,PRIORITY_HIGH_ACCURACY);
-                    Log.d(CLASS_TAG,TAG+ " Priority "+Messaging.getLocationRequestPriority());
-                }else{
-                    Log.d(CLASS_TAG,TAG+ " isLocation_allowed "+messaging.isLocation_allowed());
-                }
-            }
-        });
-
-
-
-        getPermission.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                //verify permission get
-                Log.i(TAG, "INFO: " + CLASS_TAG + ": " + nameMethod + " has verify permission : "
-                        + messaging.isEnable_permission_automatic());
-//                if(messaging.isEnable_permission_automatic() ){
-//                    Messaging.requestPermissions(MapsActivity.this);
+//        getLocation.setOnClickListener(new View.OnClickListener() {
+//            @Override
+//            public void onClick(View v) {
+//                if(messaging.isLocation_allowed()) {
+//                    Messaging.fetchLocation(MapsActivity.this, false,PRIORITY_HIGH_ACCURACY);
+//                    Log.d(CLASS_TAG,TAG+ " Priority "+Messaging.getLocationRequestPriority());
+//                }else{
+//                    Log.d(CLASS_TAG,TAG+ " isLocation_allowed "+messaging.isLocation_allowed());
 //                }
+//            }
+//        });
 
-                Messaging.fetchGeofence(false,null);
-
-            }
-        });
-
-        turnOffLocationButton.setOnClickListener(new View.OnClickListener() {
+        getLocationC.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
             @Override
-            public void onClick(View v) {
-                Messaging.turnOFFUpdateLocation();
-                stopService();
-                //Messaging.deteAllBD();
+            public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
+                if (isChecked) {
+                    // The toggle is enabled
+                    if (messaging.isLocation_allowed()) {
+                        Toast.makeText(getApplicationContext(), "Continue Location "+isChecked,Toast.LENGTH_SHORT).show();
+                        Messaging.fetchLocation(MapsActivity.this, true);
+                        Log.d(CLASS_TAG, TAG + "Continue Location "+isChecked);
+                        Log.d(CLASS_TAG, TAG + " Priority " + Messaging.getLocationRequestPriority());
+                        messaging.messagingStorageController.setLocationContinueAllowed(isChecked);
+                    } else {
+                        messaging.messagingStorageController.setLocationContinueAllowed(false);
+                        Log.d(CLASS_TAG, TAG + " isLocation_allowed " + messaging.isLocation_allowed());
+                    }
+                } else {
+                    // The toggle is disabled
+                    Messaging.turnOFFUpdateLocation();
+                    messaging.messagingStorageController.setLocationContinueAllowed(isChecked);
+                    Log.d(CLASS_TAG, TAG + "Continue Location "+isChecked);
+                    Toast.makeText(getApplicationContext(), "Continue Location "+isChecked,Toast.LENGTH_SHORT).show();
+                }
             }
         });
 
-        textView.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                //String next="limit=3";
-                String next="";
-                //Messaging.fetchGeofence(true,next);
-                Messaging.sendEventCustomToBackend("pushNotification","bad request for notificaction");
-                //Messaging.deteAllBD();
 
-                Messaging.checkGPlayServiceStatus();
-            }
-        });
+
+           turnOffLocationButton.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
+               @Override
+               public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
+                   if (isChecked) {
+                       // The toggle is enabled
+                       Toast.makeText(getApplicationContext(),"Get Location in Background "+isChecked,Toast.LENGTH_SHORT).show();
+                       Log.d(CLASS_TAG, TAG + "Get Location in Background "+isChecked);
+                       Messaging.enableLocationBackground=true;
+                       messaging.messagingStorageController.setLocationBackgroundAllowed(isChecked);
+                   } else {
+                       // The toggle is disabled
+                       Toast.makeText(getApplicationContext(),"Get Location in Background "+isChecked,Toast.LENGTH_SHORT).show();
+                       Log.d(CLASS_TAG, TAG + "Get Location in Background "+isChecked);
+                       Messaging.enableLocationBackground=false;
+                       Messaging.turnOFFUpdateLocation();
+                       messaging.messagingStorageController.setLocationBackgroundAllowed(isChecked);
+                   }
+               }
+           });
+
 
         new GpsUtils(this).turnGPSOn(new GpsUtils.onGpsListener() {
             @Override
@@ -164,8 +172,114 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
             }
         });
 
-        Messaging.checkGPlayServiceStatus();
+        if(messaging.messagingStorageController.hasLocationContinueAllowed()==1){
+            getLocationC.setChecked(messaging.messagingStorageController.isLocationContinueAllowed());
+        }
+        if(messaging.messagingStorageController.hasLocationBackgroundAllowed()==1){
+            turnOffLocationButton.setChecked(messaging.messagingStorageController.isLocationBackgroundAllowed());
+        }
+
     }
+
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        getMenuInflater().inflate(R.menu.menu_map, menu);
+        //menu.findItem(R.id.action_visibility).setIcon(R.drawable.ic_baseline_visibility_24);
+        return true;
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        int id = item.getItemId();
+
+        switch (id){
+            case R.id.action_get_geofences:
+                if(true) {
+                    Toast.makeText(getApplicationContext(), "Disable Notification Push", Toast.LENGTH_LONG).show();
+//                    messagingDevice.setStatusNotificationPush(false, getApplicationContext());
+//                    progressBar.setVisibility(View.VISIBLE);
+                    item.setIcon(R.drawable.ic_baseline_visibility_off_24);
+                } else {
+                    Toast.makeText(getApplicationContext(), "Enable Notification Push", Toast.LENGTH_LONG).show();
+//                    messagingDevice.setStatusNotificationPush(true, getApplicationContext());
+//                    progressBar.setVisibility(View.VISIBLE);
+                    item.setIcon(R.drawable.ic_baseline_visibility_24);
+                }
+                return true;
+            case R.id.action_sinc:
+                //gotoMapActivity();
+                return true;
+            case R.id.action_permission:
+                Log.i(TAG, "INFO: " + CLASS_TAG + ": " + nameMethod + " has verify permission manual : "
+                        + messaging.isEnable_permission_automatic());
+                if(messaging.isEnable_permission_automatic() ){
+                    Messaging.requestPermissions(MapsActivity.this);
+                }
+                return true;
+            case R.id.action_setpriority:
+                showAlertGetPriority();
+                return true;
+            case R.id.action_getLocation:
+                if(messaging.isLocation_allowed()) {
+                    Messaging.fetchLocation(MapsActivity.this, false);
+                    Log.d(CLASS_TAG,TAG+ " Priority "+Messaging.getLocationRequestPriority());
+                }else{
+                    Log.d(CLASS_TAG,TAG+ " isLocation_allowed "+messaging.isLocation_allowed());
+                }
+                return true;
+        }
+
+        return super.onOptionsItemSelected(item);
+    }
+
+    private void showAlertGetPriority() {
+        MaterialAlertDialogBuilder alertDialog = new MaterialAlertDialogBuilder(this);
+        //AlertDialog.Builder alertDialog = new AlertDialog.Builder(MapsActivity.this);
+        alertDialog.setTitle("SELECT PRIORITY LOCATION");
+        Messaging.turnOFFUpdateLocation();
+        getLocationC.setChecked(false);
+        String[] items = {"PRIORITY_BALANCED_POWER_ACCURACY","PRIORITY_HIGH_ACCURACY","PRIORITY_LOW_POWER","PRIORITY_NO_POWER"};
+        int checkedItem = messaging.messagingStorageController.getLocationProritySelected();
+        alertDialog.setSingleChoiceItems(items, checkedItem, new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialog, int which) {
+                switch (which) {
+                    case 0:
+                        Toast.makeText(MapsActivity.this, "PRIORITY_BALANCED_POWER_ACCURACY", Toast.LENGTH_LONG).show();
+                        Messaging.setLocationRequestWithPriority(PRIORITY_BALANCED_POWER_ACCURACY);
+                        messaging.messagingStorageController.setLocationProritySelected(which);
+                        break;
+                    case 1:
+                        Toast.makeText(MapsActivity.this, "PRIORITY_HIGH_ACCURACY", Toast.LENGTH_LONG).show();
+                        Messaging.setLocationRequestWithPriority(PRIORITY_HIGH_ACCURACY);
+                        messaging.messagingStorageController.setLocationProritySelected(which);
+                        break;
+                    case 2:
+                        Toast.makeText(MapsActivity.this, "PRIORITY_LOW_POWER", Toast.LENGTH_LONG).show();
+                        Messaging.setLocationRequestWithPriority(PRIORITY_LOW_POWER);
+                        messaging.messagingStorageController.setLocationProritySelected(which);
+                        break;
+                    case 3:
+                        Toast.makeText(MapsActivity.this, "PRIORITY_NO_POWER", Toast.LENGTH_LONG).show();
+                        Messaging.setLocationRequestWithPriority(PRIORITY_NO_POWER);
+                        messaging.messagingStorageController.setLocationProritySelected(which);
+                        break;
+
+                }
+            }
+        });
+        alertDialog.setNeutralButton("Close", new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialog, int which) {
+                dialog.dismiss();
+            }
+        });
+        //AlertDialog alert = alertDialog.create();
+        alertDialog.setCancelable(false);
+        alertDialog.show();
+
+    }
+
     private void stopService() {
         messaging.stopServiceLocation();
     }
@@ -290,7 +404,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
 
             boolean hasError=intent.getBooleanExtra(Messaging.INTENT_EXTRA_HAS_ERROR,true);
             String alertMessage = getResources().getString(getResources().getIdentifier(intent.getAction(), "string", getPackageName()));
-            Toast.makeText(getApplicationContext(), alertMessage, Toast.LENGTH_LONG).show();
+            Toast.makeText(getApplicationContext(), alertMessage, Toast.LENGTH_SHORT).show();
             Log.d(TAG,"DEBUG: " + CLASS_TAG + ": " + nameMethod + ":   " + alertMessage);
             Log.d(TAG,"DEBUG: "+CLASS_TAG+": "+nameMethod+": Has error:  "+ hasError);
             if (!hasError ) {
@@ -351,7 +465,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
                 // If request is cancelled, the result arrays are empty.
                 if (grantResults.length > 0
                         && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
-                        Messaging.fetchLocation(MapsActivity.this,false,PRIORITY_LOW_POWER);
+                        Messaging.fetchLocation(MapsActivity.this,false);
                 } else {
                     Toast.makeText(getApplicationContext(), "Permission denied", Toast.LENGTH_SHORT).show();
                     permissionsDenied();
