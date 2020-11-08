@@ -49,8 +49,8 @@ public class MessagingNotificationReceiver extends BroadcastReceiver {
         //Toast.makeText(context, alertMessage, Toast.LENGTH_LONG).show();
         Log.d(TAG,"DEBUG: "+CLASS_TAG+": "+nameMethod+": Action:  "+ alertMessage);
         boolean hasError=intent.getBooleanExtra(Messaging.INTENT_EXTRA_HAS_ERROR,true);
-        Log.d(TAG,"DEBUG: "+CLASS_TAG+": "+nameMethod+": Has error:  "+ hasError);
-        if (!hasError ) {
+
+        if (!hasError) {
             String action=intent.getAction();
             Serializable data = intent.getSerializableExtra(Messaging.INTENT_EXTRA_DATA);
             //optional code to determinate if app is Background or not

@@ -433,11 +433,14 @@ public class MainActivity extends AppCompatActivity {
     public void showDialogSelectionConfig(){
         AlertDialog.Builder builder = new AlertDialog.Builder(this);
         // Set the dialog title
+        Messaging messaging=Messaging.getInstance();
         String[] selection=new String[]{"LocationEnable ","AnanlyticsEnable ","Log Enable "};
+        boolean[] selectionChecked=new boolean[]{messaging.isLocation_allowed(),
+                messaging.isAnalytics_allowed(),messaging.isLogging_allowed()};
         builder.setTitle("config")
                 // Specify the list array, the items to be selected by default (null for none),
                 // and the listener through which to receive callbacks when items are selected
-                .setMultiChoiceItems(selection, null,
+                .setMultiChoiceItems(selection, selectionChecked,
                         new DialogInterface.OnMultiChoiceClickListener() {
                             @Override
                             public void onClick(DialogInterface dialog, int which,
@@ -773,7 +776,7 @@ public class MainActivity extends AppCompatActivity {
         nameMethod=new Object(){}.getClass().getEnclosingMethod().getName();
         Log.d(TAG,"DEBUG: "+CLASS_TAG+": "+nameMethod+": unregister LocalBroadcastReceiver");
         LocalBroadcastManager.getInstance(this).unregisterReceiver(mReceiver);
-        //Messaging.enableLocationBackground=true;
+
         super.onDestroy();
     }
 
@@ -786,7 +789,7 @@ public class MainActivity extends AppCompatActivity {
             String alertMessage = getResources().getString(getResources().getIdentifier(intent.getAction(), "string", getPackageName()));
             //Toast.makeText(getApplicationContext(), alertMessage, Toast.LENGTH_LONG).show();
             Log.d(TAG,"DEBUG: " + CLASS_TAG + ": " + nameMethod + ":   " + alertMessage);
-            Log.d(TAG,"DEBUG: "+CLASS_TAG+": "+nameMethod+": Has error:  "+ hasError);
+
             if (!hasError) {
                 Serializable data = intent.getSerializableExtra(Messaging.INTENT_EXTRA_DATA);
                 //Log.d(TAG,"DEBUG: " + CLASS_TAG + ": " + nameMethod + ": Received Action :  " + intent.getAction());

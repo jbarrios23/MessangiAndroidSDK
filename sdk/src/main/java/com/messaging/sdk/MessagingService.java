@@ -62,15 +62,16 @@ public class MessagingService extends FirebaseMessagingService  {
         MessagingNotification messagingNotification=new MessagingNotification(remoteMessage);
 
         messaging.utils.showDebugLog(this,nameMethod,"is silent: "+messagingNotification.isSilent());
-        if(messagingNotification.isSilent()){
-            Messaging.sendEventToBackend(Messaging.MESSAGING_NOTIFICATION_RECEIVED,messagingNotification);
-        }
+
         if(messagingNotification.isMatchAppId()) {
-            if(messagingNotification.isRenderNotification()) {
-                messaging.utils.showDebugLog(this,nameMethod,"GEO_PUSH process");
+            if (messagingNotification.isSilent()) {
+                Messaging.sendEventToBackend(Messaging.MESSAGING_NOTIFICATION_RECEIVED, messagingNotification);
+            }
+            if (messagingNotification.isRenderNotification()) {
+                messaging.utils.showDebugLog(this, nameMethod, "GEO_PUSH process");
                 messaging.sendGlobalEventToActivity(Messaging.ACTION_GET_NOTIFICATION, messagingNotification);
-            }else{
-                messaging.utils.showDebugLog(this,nameMethod,"GEO_PUSH not process");
+            } else {
+                messaging.utils.showDebugLog(this, nameMethod, "GEO_PUSH not process");
             }
         }else{
             messaging.utils.showDebugLog(this,nameMethod,"Security does not match");

@@ -6,7 +6,14 @@
     <item
         android:id="@+id/action_get_geofences"
         android:orderInCategory="100"
-        android:title="See Geofence List"
+        android:title="Get Geofence List from dB"
+        android:icon="@drawable/ic_baseline_my_location_24"
+        app:showAsAction="never" />
+
+    <item
+        android:id="@+id/action_get_geofences_service"
+        android:orderInCategory="100"
+        android:title="Get Geofence List from Service"
         android:icon="@drawable/ic_baseline_my_location_24"
         app:showAsAction="never" />
 
@@ -21,7 +28,7 @@
         android:id="@+id/action_permission"
         android:orderInCategory="100"
         android:icon="@drawable/ic_baseline_refresh_24"
-        android:title="Get Permission to location"
+        android:title="Get Location Permission"
         app:showAsAction="never" />
 
     <item

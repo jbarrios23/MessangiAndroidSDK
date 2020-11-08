@@ -194,17 +194,12 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
 
         switch (id){
             case R.id.action_get_geofences:
-                if(true) {
-                    Toast.makeText(getApplicationContext(), "Disable Notification Push", Toast.LENGTH_LONG).show();
-//                    messagingDevice.setStatusNotificationPush(false, getApplicationContext());
-//                    progressBar.setVisibility(View.VISIBLE);
-                    item.setIcon(R.drawable.ic_baseline_visibility_off_24);
-                } else {
-                    Toast.makeText(getApplicationContext(), "Enable Notification Push", Toast.LENGTH_LONG).show();
-//                    messagingDevice.setStatusNotificationPush(true, getApplicationContext());
-//                    progressBar.setVisibility(View.VISIBLE);
-                    item.setIcon(R.drawable.ic_baseline_visibility_24);
-                }
+                Toast.makeText(getApplicationContext(), "Geting geofence List....", Toast.LENGTH_SHORT).show();
+                Messaging.fetchGeofence(false,"");
+                return true;
+            case R.id.action_get_geofences_service:
+                Toast.makeText(getApplicationContext(), "Geting geofence List....", Toast.LENGTH_SHORT).show();
+                Messaging.fetchGeofence(true,"");
                 return true;
             case R.id.action_sinc:
                 //gotoMapActivity();
@@ -231,6 +226,49 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
 
         return super.onOptionsItemSelected(item);
     }
+
+    @SuppressLint("SetTextI18n")
+    private void showAlertGeofenceList(ArrayList<MessagingCircularRegion> geofenceFromdB) {
+        // create an alert builder
+        MaterialAlertDialogBuilder builder = new MaterialAlertDialogBuilder(this);
+        // builder.setTitle("Notification");
+        // set the custom layout
+        //final View customLayout = getLayoutInflater().inflate(R.layout.custom_notification_layout, null);
+        final View customLayout = getLayoutInflater().inflate(R.layout.notification_layout, null);
+        builder.setView(customLayout);
+        TextView title=customLayout.findViewById(R.id.textView_title_geofence_list);
+        title.setText(getResources().getString(R.string.geofence_info));
+        ArrayList<String> messangiGeofenceData = new ArrayList<>();
+        ArrayAdapter<String> messangiDataArrayAdapter;
+        ListView listView=customLayout.findViewById(R.id.list_data_noti);
+        if(geofenceFromdB.size()>0) {
+            for (MessagingCircularRegion region : geofenceFromdB) {
+                messangiGeofenceData.add(region.toString());
+            }
+        }else{
+            Log.d(CLASS_TAG,TAG+ " do not have geofence ");
+            messangiGeofenceData.add(" Do not have Geofences yet! ");
+        }
+
+
+        messangiDataArrayAdapter = new ArrayAdapter<>(this, R.layout.item_device, R.id.Texview_value, messangiGeofenceData);
+        listView.setAdapter(messangiDataArrayAdapter);
+
+
+        // add a button
+        builder.setPositiveButton("Ok", new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialog, int which) {
+                // send data from the AlertDialog to the Activity
+                onetimeFlag=true;
+                dialog.dismiss();
+            }
+        });
+
+        builder.show();
+
+    }
+
 
     private void showAlertGetPriority() {
         MaterialAlertDialogBuilder alertDialog = new MaterialAlertDialogBuilder(this);
@@ -406,7 +444,7 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
             String alertMessage = getResources().getString(getResources().getIdentifier(intent.getAction(), "string", getPackageName()));
             Toast.makeText(getApplicationContext(), alertMessage, Toast.LENGTH_SHORT).show();
             Log.d(TAG,"DEBUG: " + CLASS_TAG + ": " + nameMethod + ":   " + alertMessage);
-            Log.d(TAG,"DEBUG: "+CLASS_TAG+": "+nameMethod+": Has error:  "+ hasError);
+            //Log.d(TAG,"DEBUG: "+CLASS_TAG+": "+nameMethod+": Has error:  "+ hasError);
             if (!hasError ) {
                 Serializable data=intent.getSerializableExtra(Messaging.INTENT_EXTRA_DATA);
 
@@ -441,6 +479,7 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
                         LatLng prov=new LatLng(temp.getLatitude(),temp.getLongitud());
                         markerForGeofence(prov,temp.getRadius());
                     }
+                    showAlertGeofenceList(messagingCircularRegions);
 
 
                     }else{

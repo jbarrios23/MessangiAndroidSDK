@@ -729,6 +729,21 @@ public class Messaging implements LifecycleObserver {
         }
     }
 
+    public static ArrayList<MessagingCircularRegion> getGeofenceFromdB() {
+        final Messaging messaging = Messaging.getInstance();
+        final MessagingDB db=new MessagingDB(messaging.context);
+        final String  nameMethod="GetGeofenceFromdB";
+        ArrayList<MessagingCircularRegion> result=null;
+        if(db.getAllGeoFenceToBd().size()>0){
+                result=db.getAllGeoFenceToBd();
+        }else{
+            messaging.utils.showDebugLog(messaging,nameMethod,"Do not Have geofence in bd ");
+            result=new ArrayList<>();
+        }
+
+        return result;
+    }
+
     public static void fetchGeofence(boolean forsecallservice, String next) {
         final Messaging messaging = Messaging.getInstance();
         final MessagingDB db=new MessagingDB(messaging.context);
