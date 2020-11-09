@@ -81,6 +81,7 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
     private ToggleButton turnOffLocationButton,getLocationC;
     private Circle geoFenceLimits;
     public TextView textView;
+    public boolean showGofenceList=false;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -196,13 +197,17 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
             case R.id.action_get_geofences:
                 Toast.makeText(getApplicationContext(), "Geting geofence List....", Toast.LENGTH_SHORT).show();
                 Messaging.fetchGeofence(false,"");
+                showGofenceList=true;
                 return true;
             case R.id.action_get_geofences_service:
                 Toast.makeText(getApplicationContext(), "Geting geofence List....", Toast.LENGTH_SHORT).show();
                 Messaging.fetchGeofence(true,"");
+                showGofenceList=true;
                 return true;
             case R.id.action_sinc:
                 //gotoMapActivity();
+                Messaging.fetchGeofence(true,"");
+                showGofenceList=false;
                 return true;
             case R.id.action_permission:
                 Log.i(TAG, "INFO: " + CLASS_TAG + ": " + nameMethod + " has verify permission manual : "
@@ -479,7 +484,10 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
                         LatLng prov=new LatLng(temp.getLatitude(),temp.getLongitud());
                         markerForGeofence(prov,temp.getRadius());
                     }
-                    showAlertGeofenceList(messagingCircularRegions);
+                    if(showGofenceList) {
+                        showAlertGeofenceList(messagingCircularRegions);
+                        showGofenceList=false;
+                    }
 
 
                     }else{

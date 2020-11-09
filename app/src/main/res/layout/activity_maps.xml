@@ -101,8 +101,8 @@
                 android:layout_height="wrap_content"
                 android:background="@color/colorPrimary"
                 android:textSize="15sp"
-                android:textOn="Get Location Continue on"
-                android:textOff="Get Location Continue off"
+                android:textOn="Get Loc Continue on"
+                android:textOff="Get Loc Continue off"
                 android:textAllCaps="false"
                 android:textColor="@color/whiteColor"
                 android:drawableLeft="@android:drawable/ic_menu_mylocation" />
@@ -134,7 +134,7 @@
                 android:textColor="@color/whiteColor"
                 android:textOn="Tracking Background on"
                 android:textOff="Tracking Background off"
-                android:textSize="14sp"
+                android:textSize="12sp"
                 android:drawableLeft="@android:drawable/ic_menu_compass" />
 
 
