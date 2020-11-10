@@ -27,13 +27,14 @@ public class MessaginGeofenceBroadcastReceiver extends BroadcastReceiver {
         // an Intent broadcast.
         nameMethod=new Object(){}.getClass().getEnclosingMethod().getName();
         messaging=Messaging.getInstance();
-//        if(intent!=null && intent.getAction()!=null && intent.getAction().equals(Intent.ACTION_BOOT_COMPLETED)){
-//            messaging.utils.showDebugLog(this,nameMethod,"Boot complete ");
-//            return;
-//        }
+        if(intent!=null && intent.getAction()!=null && intent.getAction().equals(Intent.ACTION_BOOT_COMPLETED)){
+            messaging.utils.showDebugLog(this,nameMethod,": Boot complete:  ");
+            Messaging.re_registerGeofence();
+            return;
+        }
 
         db=new MessagingDB(context);
-        nameMethod="onReceive";
+
 
         messaging.utils.showDebugLog(this,nameMethod,"MessaginGeofenceBroadcastReceiver "+intent.getExtras().toString());
 

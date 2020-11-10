@@ -73,6 +73,10 @@
             android:name="com.messaging.sdk.MessaginGeofenceBroadcastReceiver"
             android:enabled="true"
             android:exported="true">
+            <intent-filter>
+                <action android:name="android.intent.action.BOOT_COMPLETED" />
+                <category android:name="android.intent.category.DEFAULT" />
+            </intent-filter>
 
         </receiver>
 
@@ -87,8 +91,8 @@
                 <action android:name="com.messaging.sdk.ACTION_FETCH_LOCATION" />
                 <action android:name="com.messaging.sdk.ACTION_GEOFENCE_ENTER" />
                 <action android:name="com.messaging.sdk.ACTION_GEOFENCE_EXIT" />
-                <action android:name="android.intent.action.BOOT_COMPLETED" />
-                <category android:name="android.intent.category.DEFAULT" />
+<!--                <action android:name="android.intent.action.BOOT_COMPLETED" />-->
+<!--                <category android:name="android.intent.category.DEFAULT" />-->
             </intent-filter>
         </receiver>
 

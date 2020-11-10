@@ -1933,7 +1933,7 @@ public class Messaging implements LifecycleObserver {
     public static void re_registerGeofence(){
         final Messaging messaging= Messaging.getInstance();
         String nameMethod=new Object(){}.getClass().getEnclosingMethod().getName();
-        //fetchGeofence(true);
+
         if(messaging.utils.isLocation_allowed()) {
             MessagingDB db=new MessagingDB(messaging.context);
             if(db.getAllGeoFenceToBd().size()>0) {
@@ -1944,7 +1944,7 @@ public class Messaging implements LifecycleObserver {
                 messaging.utils.showDebugLog(messaging, nameMethod, "Not Geofence in dB");
             }
         }else{
-            messaging.utils.showDebugLog(messaging, nameMethod, "Location Not Enable");
+            messaging.utils.showDebugLog(messaging, nameMethod, "Location Config Not Enable");
         }
 
     }

@@ -39,11 +39,7 @@ public class MessagingNotificationReceiver extends BroadcastReceiver {
     public void onReceive(Context context, Intent intent) {
         // TODO: This method is called when the BroadcastReceiver is receiving
         nameMethod=new Object(){}.getClass().getEnclosingMethod().getName();
-        if(intent!=null && intent.getAction()!=null && intent.getAction().equals(Intent.ACTION_BOOT_COMPLETED)){
-            Log.e(TAG,"DEBUG: "+CLASS_TAG+": "+nameMethod+": Boot complete:  ");
-            Messaging.re_registerGeofence();
-            return;
-        }
+
 
         String alertMessage = context.getResources().getString(context.getResources().getIdentifier(intent.getAction(), "string", context.getPackageName()));
         //Toast.makeText(context, alertMessage, Toast.LENGTH_LONG).show();

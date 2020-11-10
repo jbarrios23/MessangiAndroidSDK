@@ -806,7 +806,7 @@ class MessagingSdkUtils {
     public void handleGeoFencePushParameterSinc(String messagingGeoFencePushSinc, Messaging messaging) {
         String nameMethod="handleGeoFencePushParameterSinc";
         try {
-            //JSONArray jsonArray=new JSONArray(messagingGeoFencePushSinc);
+
             JSONObject jsonArray=new JSONObject(messagingGeoFencePushSinc);
             showDebugLog(this,nameMethod,"Sinc"
                     +jsonArray.toString());
@@ -818,7 +818,7 @@ class MessagingSdkUtils {
             if(Messaging.isForeground) {
                 showDebugLog(this, nameMethod, "Sinc Enable call service : "
                         + " is F " + Messaging.isForeground);
-                //launch fetch gofence
+
                 Messaging.fetchGeofence(true,null);
             }else {
                 Messaging.flagSinc=true;
