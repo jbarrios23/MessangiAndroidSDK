@@ -95,6 +95,7 @@ public class MainActivity extends AppCompatActivity {
     private NotificationManager notificationManager;
     private static final String ADMIN_CHANNEL_ID ="admin_channel";
     public boolean onetimeFlag=true;
+    public boolean onShowDialog=true;
     public static MainActivity mainActivityInstance;
     public Map<String,String> additionalData;
     public boolean isBackground;
@@ -128,7 +129,7 @@ public class MainActivity extends AppCompatActivity {
 
         messagingDevArrayList = new ArrayList<>();
         messagingUserDeviceArrayList = new ArrayList<>();
-        messagingDevArrayAdapter = new ArrayAdapter<>(this, R.layout.item_device, R.id.Texview_value, messagingDevArrayList);
+
         messagingUserDeviceArrayAdapter = new ArrayAdapter<>(this, R.layout.item_device, R.id.Texview_value, messagingUserDeviceArrayList);
 
 
@@ -304,7 +305,7 @@ public class MainActivity extends AppCompatActivity {
         super.onStart();
         nameMethod=new Object(){}.getClass().getEnclosingMethod().getName();
         Log.d(TAG,"DEBUG: "+CLASS_TAG+": "+nameMethod+": register LocalBroadcastReceiver");
-
+        messagingDevArrayAdapter = new ArrayAdapter<>(this, R.layout.item_device, R.id.Texview_value, messagingDevArrayList);
         LocalBroadcastManager.getInstance(this).registerReceiver(mReceiver,
                 new IntentFilter(Messaging.ACTION_FETCH_DEVICE));
         LocalBroadcastManager.getInstance(this).registerReceiver(mReceiver,
@@ -663,6 +664,28 @@ public class MainActivity extends AppCompatActivity {
     @SuppressLint("SetTextI18n")
     private void showAlertNotification(MessagingNotification messagingNotification, Serializable data) {
         // create an alert builder
+        if(messagingNotification.getAdditionalData()!=null){
+            messagingDevArrayList.clear();
+            messagingUserDeviceArrayList.clear();
+            for (Map.Entry entry : messagingNotification.getAdditionalData().entrySet()) {
+                if(!entry.getKey().equals("profile")){
+                    if(entry.getKey().equals("subject")) {
+                        messagingDevArrayList.add(entry.getValue());
+                    }else if(entry.getKey().equals("content")){
+                        messagingDevArrayList.add(entry.getValue());
+                    }
+                    if(entry.getKey().equals("show")){
+                        onShowDialog=false;
+                        Log.d(TAG,"DEBUG: "+CLASS_TAG+": "+nameMethod+": onshowdialog "+onShowDialog);
+                        messagingDevArrayAdapter = new ArrayAdapter<>(this, R.layout.layout_publi, R.id.Texview_value, messagingDevArrayList);
+                        list_device.setAdapter(messagingDevArrayAdapter);
+                        list_device.setDivider(null);
+                        list_user.setAdapter(messagingUserDeviceArrayAdapter);
+
+                    }
+                }
+            }
+        }
         MaterialAlertDialogBuilder builder = new MaterialAlertDialogBuilder(this);
         // builder.setTitle("Notification");
         // set the custom layout
@@ -704,6 +727,10 @@ public class MainActivity extends AppCompatActivity {
                 for (Map.Entry entry : messagingNotification.getAdditionalData().entrySet()) {
                     if(!entry.getKey().equals("profile")){
                         messangiData.add(entry.getKey() + ": " + entry.getValue());
+                        if(entry.getKey().equals("show") && entry.getValue().equals(true)){
+                            onShowDialog=false;
+                            break;
+                        }
                     }
                 }
             }
@@ -720,8 +747,11 @@ public class MainActivity extends AppCompatActivity {
                 dialog.dismiss();
             }
         });
-
-        builder.show();
+        if(onShowDialog) {
+            builder.show();
+        }else{
+            onShowDialog=true;
+        }
 
     }
 

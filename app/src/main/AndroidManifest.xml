@@ -125,7 +125,6 @@
         <activity android:name=".ExampleActivity">
             <intent-filter>
                 <action android:name="com.ogangi.Messangi.SDK.Demo.ExampleActivity" />
-
                 <category android:name="android.intent.category.DEFAULT" />
             </intent-filter>
         </activity>
