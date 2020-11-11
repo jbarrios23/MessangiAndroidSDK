@@ -35,74 +35,42 @@
         android:checked="true"
         android:drawableStart="@android:drawable/ic_menu_view"
         android:drawableLeft="@android:drawable/ic_menu_view"
-        android:gravity="center" />
+        android:gravity="center"
+        tools:ignore="MissingConstraints,UseSwitchCompatOrMaterialXml" />
 
 
     <LinearLayout
         android:id="@+id/botones"
         android:visibility="gone"
+        tools:visibility="visible"
         android:layout_width="0dp"
+        android:background="@color/colorPrimary"
         android:layout_height="wrap_content"
-        android:background="@color/greyColor"
-        android:gravity="center_horizontal"
         app:layout_constraintTop_toBottomOf="@id/appbar"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        android:orientation="horizontal">
+        android:orientation="vertical">
 
-        <Button
-            android:id="@+id/device"
-            style="@style/Widget.AppCompat.Button.Borderless"
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            android:layout_weight="1"
+        <View
+            android:layout_width="wrap_content"
             android:background="@color/greyColor"
-            android:drawableStart="@android:drawable/ic_menu_directions"
-            android:drawableLeft="@android:drawable/ic_menu_directions"
-            android:text="Reload"
-            android:textColor="@color/whiteColor"
-            android:textSize="12sp" />
+            android:layout_height="5dp"></View>
 
-        <Button
-            android:id="@+id/user"
-            android:layout_width="0dp"
+        <TextView
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_weight="1"
-            android:background="@color/greyColor"
-            android:drawableStart="@android:drawable/ic_dialog_map"
-            android:drawableLeft="@android:drawable/ic_dialog_map"
-            android:text="Add User Info"
+            android:text="mensaje de prueba"
+            android:id="@+id/texview_inapp"
+            android:gravity="center"
+            android:textSize="25sp"
+            android:textStyle="bold"
             android:textColor="@color/whiteColor"
-            android:textSize="12sp" />
-
-        <Button
-            android:id="@+id/tag"
-            android:visibility="gone"
-            android:layout_weight="1"
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            android:background="@color/greyColor"
-            android:drawableStart="@android:drawable/ic_menu_today"
-            android:drawableLeft="@android:drawable/ic_menu_today"
-            android:text="Tags"
-            android:textColor="@color/whiteColor"
-            android:textSize="12sp" />
-
-
-        <Button
-            android:id="@+id/save"
-            android:visibility="gone"
-            android:layout_weight="1"
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            android:background="@color/greyColor"
-            android:drawableStart="@android:drawable/ic_menu_save"
-            android:drawableLeft="@android:drawable/ic_menu_save"
-            android:text="Save"
-            android:textColor="@color/whiteColor"
-            android:textSize="12sp" />
-
-
+            >
+        </TextView>
+        <View
+            android:layout_width="wrap_content"
+            android:background="@color/whiteColor"
+            android:layout_height="5dp"></View>
     </LinearLayout>
 
 

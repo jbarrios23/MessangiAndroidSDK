@@ -31,6 +31,7 @@ import android.widget.Button;
 import android.widget.CompoundButton;
 import android.widget.EditText;
 import android.widget.ImageButton;
+import android.widget.LinearLayout;
 import android.widget.ListView;
 import android.widget.ProgressBar;
 import android.widget.Switch;
@@ -99,6 +100,9 @@ public class MainActivity extends AppCompatActivity {
     public static MainActivity mainActivityInstance;
     public Map<String,String> additionalData;
     public boolean isBackground;
+    public TextView messageInapp,title_device;
+    public LinearLayout layoutInApp;
+    public MessagingNotification notification;
 
     @SuppressLint("NewApi")
     @RequiresApi(api = Build.VERSION_CODES.JELLY_BEAN_MR2)
@@ -120,10 +124,14 @@ public class MainActivity extends AppCompatActivity {
 
         bottomNavigation = findViewById(R.id.bottom_navigation);
 
-        device = findViewById(R.id.device);
-        user = findViewById(R.id.user);
-        tags = findViewById(R.id.tag);
-        save = findViewById(R.id.save);
+//        device = findViewById(R.id.device);
+//        user = findViewById(R.id.user);
+//        tags = findViewById(R.id.tag);
+//        save = findViewById(R.id.save);
+        title_device=findViewById(R.id.textView);
+        messageInapp=findViewById(R.id.texview_inapp);
+        layoutInApp=findViewById(R.id.botones);
+
 
         progressBar = findViewById(R.id.progressBar);
 
@@ -157,44 +165,7 @@ public class MainActivity extends AppCompatActivity {
             }
         });
 
-        device.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                Log.i(TAG,"INFO: " + CLASS_TAG + ": " + nameMethod + ": " + messaging.getExternalId());
-                progressBar.setVisibility(View.VISIBLE);
-                messagingDevArrayList.clear();
-                messagingUserDeviceArrayList.clear();
-                Messaging.fetchDevice(true, getApplicationContext());
-                Messaging.fetchUser(getApplicationContext(), true);
 
-            }
-        });
-
-        user.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                createAlertUser();
-            }
-        });
-
-        tags.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                createAlert();
-            }
-        });
-
-        save.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                if (messagingDevice != null && messagingDevice.getTags().size() > 0) {
-                    progressBar.setVisibility(View.VISIBLE);
-                    messagingDevice.save(getApplicationContext());
-                } else {
-                    Toast.makeText(getApplicationContext(), "Nothing to save", Toast.LENGTH_LONG).show();
-                }
-            }
-        });
 
         //for handle notification from background
         Bundle extras = null;
@@ -216,7 +187,7 @@ public class MainActivity extends AppCompatActivity {
                 Log.i(TAG, "INFO: " + CLASS_TAG + ": " + nameMethod + ": " + messagingNotification.toString());
             }else{
                 //to process notification from background mode
-                MessagingNotification notification=Messaging.checkNotification(extras);
+                notification=Messaging.checkNotification(extras);
                 Log.i(TAG, "INFO: " + CLASS_TAG + ": " + nameMethod + ": " + notification.toString());
                 Log.i(TAG, "INFO: " + CLASS_TAG + ": " + nameMethod + ": " + notification.equals(notification));
                 Log.i(TAG, "INFO: " + CLASS_TAG + ": " + nameMethod + ": " + notification.hashCode());
@@ -231,6 +202,13 @@ public class MainActivity extends AppCompatActivity {
                 if((position==12)||(position==13)||(position==14)) {
                     showDialogSelectionConfig();
                 }
+            }
+        });
+
+        title_device.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                layoutInApp.setVisibility(View.GONE);
             }
         });
 
@@ -336,9 +314,10 @@ public class MainActivity extends AppCompatActivity {
         messagingDevArrayList.clear();
         messagingUserDeviceArrayList.clear();
         progressBar.setVisibility(View.VISIBLE);
+        Log.i(TAG,"INFO: "+CLASS_TAG+": "+nameMethod+": "+notification);
         Messaging.fetchDevice(false, getApplicationContext());
-        Log.i(TAG,"INFO: "+CLASS_TAG+": "+nameMethod+": ");
         messaging.showAnalyticAllowedState();
+
 
     }
 
@@ -665,24 +644,34 @@ public class MainActivity extends AppCompatActivity {
     private void showAlertNotification(MessagingNotification messagingNotification, Serializable data) {
         // create an alert builder
         if(messagingNotification.getAdditionalData()!=null){
-            messagingDevArrayList.clear();
-            messagingUserDeviceArrayList.clear();
+            String subject="";
+            String content = "";
+            Log.d(TAG,"DEBUG: "+CLASS_TAG+": "+nameMethod+": data "+messagingNotification.getAdditionalData());
             for (Map.Entry entry : messagingNotification.getAdditionalData().entrySet()) {
                 if(!entry.getKey().equals("profile")){
+                    Log.d(TAG,"DEBUG: "+CLASS_TAG+": "+nameMethod+": key: "+entry.getKey() + " value: " + entry.getValue());
                     if(entry.getKey().equals("subject")) {
-                        messagingDevArrayList.add(entry.getValue());
+                        subject= (String) entry.getValue();
                     }else if(entry.getKey().equals("content")){
-                        messagingDevArrayList.add(entry.getValue());
+
+                        content= (String) entry.getValue();
                     }
                     if(entry.getKey().equals("show")){
                         onShowDialog=false;
                         Log.d(TAG,"DEBUG: "+CLASS_TAG+": "+nameMethod+": onshowdialog "+onShowDialog);
-                        messagingDevArrayAdapter = new ArrayAdapter<>(this, R.layout.layout_publi, R.id.Texview_value, messagingDevArrayList);
-                        list_device.setAdapter(messagingDevArrayAdapter);
-                        list_device.setDivider(null);
-                        list_user.setAdapter(messagingUserDeviceArrayAdapter);
+//                        messagingDevArrayAdapter = new ArrayAdapter<>(this, R.layout.layout_publi, R.id.Texview_value, messagingDevArrayList);
+//                        list_device.setAdapter(messagingDevArrayAdapter);
+//                        list_device.setDivider(null);
 
                     }
+                }
+            }
+            if(!onShowDialog) {
+                layoutInApp.setVisibility(View.VISIBLE);
+                if (!subject.equals("") && !content.equals("")) {
+                    messageInapp.setText(subject + "\n " + content);
+                } else {
+                    messageInapp.setText("Not Message");
                 }
             }
         }
@@ -727,10 +716,10 @@ public class MainActivity extends AppCompatActivity {
                 for (Map.Entry entry : messagingNotification.getAdditionalData().entrySet()) {
                     if(!entry.getKey().equals("profile")){
                         messangiData.add(entry.getKey() + ": " + entry.getValue());
-                        if(entry.getKey().equals("show") && entry.getValue().equals(true)){
-                            onShowDialog=false;
-                            break;
-                        }
+//                        if(entry.getKey().equals("show") && entry.getValue().equals(true)){
+//                            onShowDialog=false;
+//                            break;
+//                        }
                     }
                 }
             }
