@@ -10,7 +10,6 @@ import android.content.pm.PackageManager;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.location.Location;
-import android.media.MediaMetadata;
 import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Build;
@@ -19,8 +18,6 @@ import android.os.Handler;
 import android.os.Looper;
 import android.os.Message;
 import android.provider.Settings;
-import android.util.Log;
-import android.widget.ListView;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
@@ -37,7 +34,6 @@ import com.google.android.gms.common.GooglePlayServicesUtil;
 import com.google.android.gms.location.FusedLocationProviderClient;
 import com.google.android.gms.location.Geofence;
 import com.google.android.gms.location.GeofencingClient;
-import com.google.android.gms.location.GeofencingEvent;
 import com.google.android.gms.location.GeofencingRequest;
 import com.google.android.gms.location.LocationCallback;
 import com.google.android.gms.location.LocationRequest;
@@ -46,7 +42,6 @@ import com.google.android.gms.location.LocationServices;
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.firebase.messaging.FirebaseMessaging;
-import com.google.firebase.messaging.RemoteMessage;
 
 
 import org.json.JSONArray;
@@ -512,7 +507,7 @@ public class Messaging implements LifecycleObserver {
 
         if (!isGPS) {
             messaging.utils.showDebugLog(messaging,nameMethod,"Please turn on GPS "+isGPS);
-            sendEventToBackend(MESSAGING_INVALID_DEVICE_LOCATION,MESSAGING_INVALID_DEVICE_LOCATION_REASON_LOCATION);
+            sendEventToBackend(MESSAGING_INVALID_DEVICE_LOCATION,MESSAGING_INVALID_DEVICE_LOCATION_REASON_LOCATION, "");
             messaging.stopServiceLocation();
             return;
         }
@@ -529,7 +524,7 @@ public class Messaging implements LifecycleObserver {
         if (ActivityCompat.checkSelfPermission(messaging.context, android.Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED
                 && ActivityCompat.checkSelfPermission(messaging.context, android.Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
             messaging.utils.showDebugLog(messaging,nameMethod,"has not permission ");
-            sendEventToBackend(MESSAGING_INVALID_DEVICE_LOCATION,MESSAGING_INVALID_DEVICE_LOCATION_REASON_MISSING);
+            sendEventToBackend(MESSAGING_INVALID_DEVICE_LOCATION,MESSAGING_INVALID_DEVICE_LOCATION_REASON_MISSING, "");
         }
     }
 
@@ -544,7 +539,7 @@ public class Messaging implements LifecycleObserver {
                             Manifest.permission.ACCESS_BACKGROUND_LOCATION},
                     LOCATION_REQUEST);
                 messaging.utils.showDebugLog(messaging,nameMethod,"send event ");
-                sendEventToBackend(MESSAGING_INVALID_DEVICE_LOCATION,MESSAGING_INVALID_DEVICE_LOCATION_REASON_MISSING);
+                sendEventToBackend(MESSAGING_INVALID_DEVICE_LOCATION,MESSAGING_INVALID_DEVICE_LOCATION_REASON_MISSING, "");
         }
     }
 
@@ -563,7 +558,7 @@ public class Messaging implements LifecycleObserver {
             }else{
 
                 messaging.utils.showDebugLog(messaging,nameMethod," Activity null send event ");
-                sendEventToBackend(MESSAGING_INVALID_DEVICE_LOCATION,MESSAGING_INVALID_DEVICE_LOCATION_REASON_MISSING);
+                sendEventToBackend(MESSAGING_INVALID_DEVICE_LOCATION,MESSAGING_INVALID_DEVICE_LOCATION_REASON_MISSING, "");
             }
         } else {
             if (isContinue) {
@@ -631,7 +626,7 @@ public class Messaging implements LifecycleObserver {
         return notification;
     }
 
-    public static void sendEventCustomToBackend(String snakeCases,String reason){
+    public static void sendEventCustom(String snakeCases,String reason,String externalId){
         String nameMethod=new Object(){}.getClass().getEnclosingMethod().getName();
         Messaging messaging = Messaging.getInstance();
         String provSnake = messaging.utils.toUpperSnakeCase(snakeCases);
@@ -642,10 +637,10 @@ public class Messaging implements LifecycleObserver {
             reason = reason.substring(0, 512);
         }
 
-        sendEventToBackend(provSnake,reason);
+        sendEventToBackend(provSnake,reason,externalId);
     }
 
-    public static void sendEventToBackend(String nameEvent,String reason) {
+    public static void sendEventToBackend(String nameEvent, String reason, String externalId) {
     String nameMethod=new Object(){}.getClass().getEnclosingMethod().getName();
     final Messaging messaging = Messaging.getInstance();
     String provId = "";
@@ -656,7 +651,12 @@ public class Messaging implements LifecycleObserver {
         } else {
             provId = messaging.messagingStorageController.getDevice().getId();
         }
-        provUrl=messaging.utils.getMessagingHost()+"/devices/"+provId+"/event/"+nameEvent+"?reason="+reason;
+        if(!externalId.equals("")){
+            provUrl=messaging.utils.getMessagingHost()+"/devices/"+provId+"/event/"+nameEvent+"?externalId="+externalId+"&reason="+reason;
+        }else{
+            provUrl=messaging.utils.getMessagingHost()+"/devices/"+provId+"/event/"+nameEvent+"?reason="+reason;
+        }
+
 
         if (messaging.utils.isAnalytics_allowed()) {
 
@@ -1459,6 +1459,7 @@ public class Messaging implements LifecycleObserver {
         }
     }
 
+
     public String readStream(InputStream inputStream) {
         BufferedReader reader = null;
         StringBuffer response = new StringBuffer();
@@ -2021,7 +2022,7 @@ public class Messaging implements LifecycleObserver {
         if (ActivityCompat.checkSelfPermission(context, android.Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED
                 && ActivityCompat.checkSelfPermission(context, android.Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
             utils.showDebugLog(this,nameMethod," Dont have permission for Geofence add ");
-            sendEventToBackend(MESSAGING_INVALID_DEVICE_LOCATION,MESSAGING_INVALID_DEVICE_LOCATION_REASON_MISSING);
+            sendEventToBackend(MESSAGING_INVALID_DEVICE_LOCATION,MESSAGING_INVALID_DEVICE_LOCATION_REASON_MISSING, "");
 
         }else{
 

@@ -179,6 +179,7 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
         if(messaging.messagingStorageController.hasLocationBackgroundAllowed()==1){
             turnOffLocationButton.setChecked(messaging.messagingStorageController.isLocationBackgroundAllowed());
         }
+        Messaging.sendEventCustom("notipush","INVALID_INPUSH","12345");
 
     }
 

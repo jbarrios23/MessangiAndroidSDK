@@ -1,7 +1,6 @@
 package com.messaging.sdk;
 
 import android.content.Context;
-import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.content.res.Resources;
 import android.location.Location;
@@ -10,9 +9,6 @@ import android.util.Log;
 
 import androidx.annotation.RequiresApi;
 import androidx.core.app.ActivityCompat;
-
-import com.google.android.gms.location.Geofence;
-import com.google.android.gms.location.LocationRequest;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -25,7 +21,6 @@ import java.util.ArrayList;
 import java.util.List;
 
 import static android.content.Context.LOCATION_SERVICE;
-import static com.messaging.sdk.Messaging.MessagingLocationPriority.PRIORITY_HIGH_ACCURACY;
 
 class MessagingSdkUtils {
 
@@ -532,7 +527,7 @@ class MessagingSdkUtils {
                 && ActivityCompat.checkSelfPermission(context, android.Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
             showDebugLog(this,nameMethod," Dont have permission for GeoPush yet! ");
             Messaging.sendEventToBackend(Messaging.MESSAGING_INVALID_DEVICE_LOCATION,
-                    Messaging.MESSAGING_INVALID_DEVICE_LOCATION_REASON_MISSING);
+                    Messaging.MESSAGING_INVALID_DEVICE_LOCATION_REASON_MISSING, "");
 
         }else {
 
@@ -578,14 +573,14 @@ class MessagingSdkUtils {
                     showDebugLog(this,nameMethod,"Disable location Config for Geopush "
                             +Messaging.MESSAGING_INVALID_DEVICE_LOCATION_REASON_CONFIG);
                     Messaging.sendEventToBackend(Messaging.MESSAGING_INVALID_DEVICE_LOCATION,
-                            Messaging.MESSAGING_INVALID_DEVICE_LOCATION_REASON_CONFIG);
+                            Messaging.MESSAGING_INVALID_DEVICE_LOCATION_REASON_CONFIG, "");
 
                 }
             }else{
                 showDebugLog(this,nameMethod,"Disable location for Geopush "
                         +Messaging.MESSAGING_INVALID_DEVICE_LOCATION_REASON_LOCATION);
                 Messaging.sendEventToBackend(Messaging.MESSAGING_INVALID_DEVICE_LOCATION,
-                        Messaging.MESSAGING_INVALID_DEVICE_LOCATION_REASON_LOCATION);
+                        Messaging.MESSAGING_INVALID_DEVICE_LOCATION_REASON_LOCATION, "");
 
             }
 
@@ -646,7 +641,7 @@ class MessagingSdkUtils {
                 && ActivityCompat.checkSelfPermission(context, android.Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
             showDebugLog(this,nameMethod," Dont have permission for GeoFence yet! ");
             Messaging.sendEventToBackend(Messaging.MESSAGING_INVALID_DEVICE_LOCATION,
-                    Messaging.MESSAGING_INVALID_DEVICE_LOCATION_REASON_MISSING);
+                    Messaging.MESSAGING_INVALID_DEVICE_LOCATION_REASON_MISSING, "");
 
         }else {
 
@@ -737,7 +732,7 @@ class MessagingSdkUtils {
                                 showDebugLog(this,nameMethod,"Disable location config for GeoFence "
                                         +Messaging.MESSAGING_INVALID_DEVICE_LOCATION_REASON_CONFIG);
                                 Messaging.sendEventToBackend(Messaging.MESSAGING_INVALID_DEVICE_LOCATION,
-                                        Messaging.MESSAGING_INVALID_DEVICE_LOCATION_REASON_CONFIG);
+                                        Messaging.MESSAGING_INVALID_DEVICE_LOCATION_REASON_CONFIG, "");
                             }
                         }
 
@@ -749,7 +744,7 @@ class MessagingSdkUtils {
                 showDebugLog(this,nameMethod,"Disable location for GeoFence "
                         +Messaging.MESSAGING_INVALID_DEVICE_LOCATION_REASON_LOCATION);
                 Messaging.sendEventToBackend(Messaging.MESSAGING_INVALID_DEVICE_LOCATION,
-                        Messaging.MESSAGING_INVALID_DEVICE_LOCATION_REASON_LOCATION);
+                        Messaging.MESSAGING_INVALID_DEVICE_LOCATION_REASON_LOCATION, "");
 
             }
 
