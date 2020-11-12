@@ -1,14 +1,19 @@
 package com.ogangi.Messangi.SDK.Demo;
 
 import android.app.ActivityManager;
+import android.app.Notification;
+import android.app.NotificationManager;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.location.Location;
 import android.util.Log;
 import android.view.View;
 import android.widget.Toast;
 
+import androidx.core.app.NotificationCompat;
 import androidx.localbroadcastmanager.content.LocalBroadcastManager;
 
 import com.messaging.sdk.Messaging;
@@ -21,7 +26,10 @@ import com.messaging.sdk.MessagingUser;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import java.io.IOException;
 import java.io.Serializable;
+import java.net.MalformedURLException;
+import java.net.URL;
 import java.util.ArrayList;
 import java.util.Map;
 
@@ -35,6 +43,8 @@ public class MessagingNotificationReceiver extends BroadcastReceiver {
     private MessagingNotification messagingNotification;
     private double wayLatitude, wayLongitude;
     private ArrayList<MessagingCircularRegion> messagingCircularRegions;
+    private NotificationManager notificationManager;
+    private static final String CHANNEL_ID = "uno";
     @Override
     public void onReceive(Context context, Intent intent) {
         // TODO: This method is called when the BroadcastReceiver is receiving
@@ -114,16 +124,86 @@ public class MessagingNotificationReceiver extends BroadcastReceiver {
         if(isInBackground){
             Log.d(TAG, "DEBUG: " + CLASS_TAG + ": " + nameMethod + ": No action for notification in Background :  "
                     + isInBackground);
-//        intent.putExtra(Messaging.INTENT_EXTRA_DATA,data);
-//            intent.putExtra("isInBackground",isInBackground);
-//            intent.setClassName(context.getPackageName(), context.getPackageName()+".MainActivity");
-//            //intent.setClassName(context.getPackageName(), context.getPackageName()+".LoginActivity");
-//            intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
-//            intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
-//            context.startActivity(intent);
+            messagingNotification = (MessagingNotification) data;
+            String subject="";
+            String content = "";
+            String Title="";
+            String Text = "";
+            String Image="";
+            boolean showCustomNotification=false;
+            for (Map.Entry entry : messagingNotification.getAdditionalData().entrySet()) {
+                if(!entry.getKey().equals("profile")){
+                    Log.d(TAG,"DEBUG: "+CLASS_TAG+": "+nameMethod+": key: "+entry.getKey() + " value: " + entry.getValue());
+                    if(entry.getKey().equals("subject")) {
+                        subject= (String) entry.getValue();
+                    }else if(entry.getKey().equals("content")){
+
+                        content= (String) entry.getValue();
+                    }else if(entry.getKey().equals("Title")){
+
+                        Title= (String) entry.getValue();
+                    }else if(entry.getKey().equals("Text")){
+
+                        Text= (String) entry.getValue();
+                    }else if(entry.getKey().equals("Image")){
+
+                        Image= (String) entry.getValue();
+                        showCustomNotification=true;
+                    }
+
+                }
+
+            }
+            if(showCustomNotification){
+                showCustomNotification(Title,Text,Image,context);
+
+            }
+
         }else{
             sendEventToActivity(action,data,context);
         }
+    }
+
+    private void showCustomNotification(String title, String text, String image, Context context) {
+        nameMethod="showCustomNotification";
+        new Thread(new Runnable() {
+            @Override
+            public void run() {
+                URL url = null;
+                try {
+                    url = new URL(image);
+                    Bitmap bmp = BitmapFactory.decodeStream(url.openConnection().getInputStream());
+                    //Bitmap bmp = Messaging.getBitmapFromURL(image);
+                    Log.d(TAG,"DEBUG: "+CLASS_TAG+": "+nameMethod+": bitmap "+bmp);
+                    notificationManager =
+                            (NotificationManager) context.getSystemService(Context.NOTIFICATION_SERVICE);
+
+
+                    Notification notification = new NotificationCompat.Builder(context, CHANNEL_ID)
+                            .setSmallIcon(R.mipmap.ic_launcher)
+                            .setContentTitle(title)
+                            .setContentText(text)
+                            .setLargeIcon(bmp)
+                            .setNotificationSilent()
+                            .setStyle(new NotificationCompat.BigPictureStyle()
+                                    .bigPicture(bmp)
+                                    .bigLargeIcon(null))
+                            .build();
+
+                notificationManager.notify(1 /* ID of notification */, notification);
+
+                } catch (MalformedURLException e) {
+                    e.printStackTrace();
+                    Log.e(TAG, "DEBUG: " + CLASS_TAG + ": " + nameMethod + ": error 1 " + e.getMessage());
+                } catch (IOException e) {
+                    e.printStackTrace();
+                    Log.e(TAG, "DEBUG: " + CLASS_TAG + ": " + nameMethod + ": error 1 " + e.getMessage());
+                }
+
+
+            }
+        }).start();
+
     }
 
     /**

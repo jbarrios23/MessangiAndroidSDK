@@ -7,6 +7,8 @@ import android.app.PendingIntent;
 import android.content.Context;
 import android.content.Intent;
 import android.content.pm.PackageManager;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.location.Location;
 import android.media.MediaMetadata;
 import android.net.Uri;
@@ -2132,6 +2134,35 @@ public class Messaging implements LifecycleObserver {
             e.printStackTrace();
         }
         return stringBuilder.toString();
+    }
+
+    public static Bitmap getBitmapFromURL(final String src) {
+        final Messaging messaging=Messaging.getInstance();
+        final String nameMethod="getBitmapFromURL";
+        final Bitmap[] myBitmap = new Bitmap[1];
+        new Thread(new Runnable() {
+            @Override
+            public void run() {
+
+                try {
+                    URL url = new URL(src);
+                    HttpURLConnection connection = (HttpURLConnection) url.openConnection();
+                    connection.setDoInput(true);
+                    connection.connect();
+                    InputStream input = connection.getInputStream();
+                    myBitmap[0] = BitmapFactory.decodeStream(input);
+
+                } catch (IOException e) {
+                    // Log exception
+                    e.printStackTrace();
+                    messaging.utils.showErrorLog(messaging,nameMethod,"Error ",e.getLocalizedMessage());
+                }
+
+            }
+        }).start();
+
+        return myBitmap[0];
+
     }
 
 

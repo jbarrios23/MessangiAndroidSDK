@@ -23,7 +23,6 @@
 
     <application>
 
-
         <service
             android:name=".MessagingLocationService"
             android:enabled="true"

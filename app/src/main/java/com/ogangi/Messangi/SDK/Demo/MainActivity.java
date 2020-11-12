@@ -3,6 +3,7 @@ package com.ogangi.Messangi.SDK.Demo;
 import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.app.AlertDialog;
+import android.app.Notification;
 import android.app.NotificationChannel;
 import android.app.NotificationManager;
 import android.app.PendingIntent;
@@ -14,7 +15,10 @@ import android.content.IntentFilter;
 import android.content.SharedPreferences;
 import android.content.pm.ActivityInfo;
 import android.content.pm.PackageManager;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.graphics.Color;
+import android.graphics.drawable.Drawable;
 import android.media.RingtoneManager;
 import android.net.Uri;
 import android.os.Build;
@@ -53,12 +57,18 @@ import com.messaging.sdk.MessagingDevice;
 import com.messaging.sdk.MessagingLocation;
 import com.messaging.sdk.MessagingNotification;
 import com.messaging.sdk.MessagingUser;
+import com.squareup.picasso.Picasso;
+import com.squareup.picasso.Target;
 
 
 import java.io.BufferedReader;
 import java.io.IOException;
+import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.Serializable;
+import java.net.HttpURLConnection;
+import java.net.MalformedURLException;
+import java.net.URL;
 import java.util.ArrayList;
 
 import java.util.Map;
@@ -67,6 +77,7 @@ import java.util.Random;
 import static com.messaging.sdk.Messaging.MessagingLocationPriority.PRIORITY_BALANCED_POWER_ACCURACY;
 
 public class MainActivity extends AppCompatActivity {
+
     public static String CLASS_TAG=MainActivity.class.getSimpleName();
     public static String TAG="MESSAGING";
     public static final String DELETE_TAG = "DELETE_TAG";
@@ -103,6 +114,7 @@ public class MainActivity extends AppCompatActivity {
     public TextView messageInapp,title_device;
     public LinearLayout layoutInApp;
     public MessagingNotification notification;
+    private static final String CHANNEL_ID = "uno";
 
     @SuppressLint("NewApi")
     @RequiresApi(api = Build.VERSION_CODES.JELLY_BEAN_MR2)
@@ -209,6 +221,7 @@ public class MainActivity extends AppCompatActivity {
             @Override
             public void onClick(View v) {
                 layoutInApp.setVisibility(View.GONE);
+
             }
         });
 
@@ -646,6 +659,11 @@ public class MainActivity extends AppCompatActivity {
         if(messagingNotification.getAdditionalData()!=null){
             String subject="";
             String content = "";
+            String Title="";
+            String Text = "";
+            String Image="";
+            boolean showCustomNotification=false;
+
             Log.d(TAG,"DEBUG: "+CLASS_TAG+": "+nameMethod+": data "+messagingNotification.getAdditionalData());
             for (Map.Entry entry : messagingNotification.getAdditionalData().entrySet()) {
                 if(!entry.getKey().equals("profile")){
@@ -655,8 +673,19 @@ public class MainActivity extends AppCompatActivity {
                     }else if(entry.getKey().equals("content")){
 
                         content= (String) entry.getValue();
+                    }else if(entry.getKey().equals("Title")){
+
+                        Title= (String) entry.getValue();
+                    }else if(entry.getKey().equals("Text")){
+
+                        Text= (String) entry.getValue();
+                    }else if(entry.getKey().equals("Image")){
+
+                        Image= (String) entry.getValue();
+                        showCustomNotification=true;
                     }
-                    if(entry.getKey().equals("show")){
+
+                    if(entry.getKey().equals("show")||entry.getKey().equals("Image")){
                         onShowDialog=false;
                         Log.d(TAG,"DEBUG: "+CLASS_TAG+": "+nameMethod+": onshowdialog "+onShowDialog);
 //                        messagingDevArrayAdapter = new ArrayAdapter<>(this, R.layout.layout_publi, R.id.Texview_value, messagingDevArrayList);
@@ -664,14 +693,18 @@ public class MainActivity extends AppCompatActivity {
 //                        list_device.setDivider(null);
 
                     }
+
+
                 }
             }
+            if(showCustomNotification){
+                showCustomNotification(Title,Text,Image);
+
+            }
             if(!onShowDialog) {
-                layoutInApp.setVisibility(View.VISIBLE);
                 if (!subject.equals("") && !content.equals("")) {
+                    layoutInApp.setVisibility(View.VISIBLE);
                     messageInapp.setText(subject + "\n " + content);
-                } else {
-                    messageInapp.setText("Not Message");
                 }
             }
         }
@@ -741,6 +774,63 @@ public class MainActivity extends AppCompatActivity {
         }else{
             onShowDialog=true;
         }
+
+    }
+
+    private void showCustomNotification(String title, String text, String image) {
+        nameMethod="showCustomNotification";
+            new Thread(new Runnable() {
+                @Override
+                public void run() {
+                    URL url = null;
+                    try {
+                        url = new URL(image);
+                        Bitmap bmp = BitmapFactory.decodeStream(url.openConnection().getInputStream());
+                        //Bitmap bmp = Messaging.getBitmapFromURL(image);
+                        Log.d(TAG,"DEBUG: "+CLASS_TAG+": "+nameMethod+": bitmap "+bmp);
+                        notificationManager =
+                                (NotificationManager) getApplicationContext().getSystemService(Context.NOTIFICATION_SERVICE);
+
+                        if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.O) {
+                            //String CHANNEL_ID = "my_channel_01";
+                            CharSequence name = "my_channel";
+                            String Description = "This is my channel";
+                            int importance = NotificationManager.IMPORTANCE_HIGH;
+                            NotificationChannel mChannel = new NotificationChannel(CHANNEL_ID, name, importance);
+                            mChannel.setDescription(Description);
+                            mChannel.enableLights(true);
+                            mChannel.setLightColor(Color.RED);
+                            mChannel.enableVibration(true);
+                            mChannel.setVibrationPattern(new long[]{100, 200, 300, 400, 500, 400, 300, 200, 400});
+                            mChannel.setShowBadge(false);
+                            notificationManager.createNotificationChannel(mChannel);
+                        }
+
+
+                        Notification notification = new NotificationCompat.Builder(getApplicationContext(), CHANNEL_ID)
+                                .setSmallIcon(R.mipmap.ic_launcher)
+                                .setContentTitle(title)
+                                .setContentText(text)
+                                .setLargeIcon(bmp)
+                                .setNotificationSilent()
+                                .setStyle(new NotificationCompat.BigPictureStyle()
+                                        .bigPicture(bmp)
+                                        .bigLargeIcon(null))
+                                .build();
+
+                        notificationManager.notify(1 /* ID of notification */, notification);
+
+                    } catch (MalformedURLException e) {
+                        e.printStackTrace();
+                        Log.e(TAG, "DEBUG: " + CLASS_TAG + ": " + nameMethod + ": error 1 " + e.getMessage());
+                    } catch (IOException e) {
+                        e.printStackTrace();
+                        Log.e(TAG, "DEBUG: " + CLASS_TAG + ": " + nameMethod + ": error 1 " + e.getMessage());
+                    }
+
+
+                }
+            }).start();
 
     }
 
