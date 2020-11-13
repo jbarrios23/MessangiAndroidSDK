@@ -844,6 +844,7 @@ public class Messaging implements LifecycleObserver {
             if(db.getAllGeoFenceToBd().size()>0 && messaging.utils.isLocation_allowed()) {
                 messaging.sendEventToActivity(Messaging.ACTION_FETCH_GEOFENCE, db.getAllGeoFenceToBd(), messaging.context);
             }else{
+                Toast.makeText(messaging.context,"has not Geofence yet!",Toast.LENGTH_SHORT).show();
                 messaging.utils.showErrorLog(messaging, nameMethod, "No data to send ", "");
             }
         }
@@ -1925,13 +1926,7 @@ public class Messaging implements LifecycleObserver {
 
     //Geofence stuff
 
-    public static void deteAllBD(){
-        Messaging messaging=Messaging.getInstance();
-        MessagingDB db=new MessagingDB(messaging.context);
-        db.deleteAll();
-        db.getAllGeoFenceToBd();
 
-    }
 
     public static void re_registerGeofence(){
         final Messaging messaging= Messaging.getInstance();
@@ -2164,6 +2159,13 @@ public class Messaging implements LifecycleObserver {
 
         return myBitmap[0];
 
+    }
+
+    public static void deleteAlldB() {
+        Messaging messaging=Messaging.getInstance();
+        MessagingDB db=new MessagingDB(messaging.context);
+        db.deleteAll();
+        db.getAllGeoFenceToBd();
     }
 
 

@@ -104,17 +104,7 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
 
 
 
-//        getLocation.setOnClickListener(new View.OnClickListener() {
-//            @Override
-//            public void onClick(View v) {
-//                if(messaging.isLocation_allowed()) {
-//                    Messaging.fetchLocation(MapsActivity.this, false,PRIORITY_HIGH_ACCURACY);
-//                    Log.d(CLASS_TAG,TAG+ " Priority "+Messaging.getLocationRequestPriority());
-//                }else{
-//                    Log.d(CLASS_TAG,TAG+ " isLocation_allowed "+messaging.isLocation_allowed());
-//                }
-//            }
-//        });
+
 
         getLocationC.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
             @Override
@@ -179,7 +169,7 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
         if(messaging.messagingStorageController.hasLocationBackgroundAllowed()==1){
             turnOffLocationButton.setChecked(messaging.messagingStorageController.isLocationBackgroundAllowed());
         }
-        Messaging.sendEventCustom("notipush","INVALID_INPUSH","12345");
+
 
     }
 
@@ -227,6 +217,14 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
                 }else{
                     Log.d(CLASS_TAG,TAG+ " isLocation_allowed "+messaging.isLocation_allowed());
                 }
+                return true;
+            case R.id.action_sendEvent:
+                Messaging.sendEventCustom("notipush","INVALID_INPUSH","12345");
+                Messaging.checkGPlayServiceStatus();
+                return true;
+
+            case R.id.action_delete:
+                Messaging.deleteAlldB();
                 return true;
         }
 
@@ -415,8 +413,9 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
                 .title(title);
         if ( mMap!=null ) {
             // Remove last geoFenceMarker
-            if (geoFenceMarker != null)
+            if (geoFenceMarker != null) {
                 geoFenceMarker.remove();
+            }
 
             geoFenceMarker = mMap.addMarker(markerOptions);
             drawGeofence(radius);
@@ -430,8 +429,9 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
         //Log.d(CLASS_TAG, "drawGeofence()");
         Log.d(TAG, "DEBUG: " + CLASS_TAG + ": drawGeofence()");
 
-        if ( geoFenceLimits != null )
+        if ( geoFenceLimits != null ) {
             geoFenceLimits.remove();
+        }
 
         CircleOptions circleOptions = new CircleOptions()
                 .center( geoFenceMarker.getPosition())
@@ -448,7 +448,7 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
 
             boolean hasError=intent.getBooleanExtra(Messaging.INTENT_EXTRA_HAS_ERROR,true);
             String alertMessage = getResources().getString(getResources().getIdentifier(intent.getAction(), "string", getPackageName()));
-            Toast.makeText(getApplicationContext(), alertMessage, Toast.LENGTH_SHORT).show();
+            Toast.makeText(getApplicationContext(), alertMessage, Toast.LENGTH_LONG).show();
             Log.d(TAG,"DEBUG: " + CLASS_TAG + ": " + nameMethod + ":   " + alertMessage);
             //Log.d(TAG,"DEBUG: "+CLASS_TAG+": "+nameMethod+": Has error:  "+ hasError);
             if (!hasError ) {
@@ -472,7 +472,7 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
                     }else if(((intent.getAction().equals(Messaging.ACTION_GET_NOTIFICATION))||
                             (intent.getAction().equals(Messaging.ACTION_GET_NOTIFICATION_OPENED)))&& data!=null) {
                         messagingNotification = (MessagingNotification) data;
-                        //showAlertNotification(messagingNotification, data);
+                        showAlertNotification(messagingNotification, data);
 
                     }else if(intent.getAction().equals(Messaging.ACTION_FETCH_GEOFENCE) && data!=null) {
 

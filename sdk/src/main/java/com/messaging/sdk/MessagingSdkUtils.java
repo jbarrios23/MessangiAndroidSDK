@@ -677,7 +677,7 @@ class MessagingSdkUtils {
 
                                 db.addGeoFenceToBd(geofence);
 
-                                db.getAllGeoFenceToBd();
+                                //db.getAllGeoFenceToBd();
 
                             }else if(temp.has(Messaging.GOEOFENCE_OPERATION) &&
                                     temp.getString(Messaging.GOEOFENCE_OPERATION)
@@ -706,7 +706,7 @@ class MessagingSdkUtils {
 
                                 db.update(geofence,provId);
 
-                                db.getAllGeoFenceToBd();
+                                //db.getAllGeoFenceToBd();
 
                             }else{
                                 if(temp.has(Messaging.GOEOFENCE_OPERATION) &&

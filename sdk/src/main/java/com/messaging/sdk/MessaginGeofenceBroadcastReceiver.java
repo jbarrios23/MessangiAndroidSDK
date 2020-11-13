@@ -57,8 +57,8 @@ public class MessaginGeofenceBroadcastReceiver extends BroadcastReceiver {
         List<Geofence> triggeringGeofences = geofencingEvent.getTriggeringGeofences();
 
         messaging.utils.showDebugLog(this,nameMethod,geofenceTransition+" "+triggeringGeofences.toString());
-        messaging.utils.showDebugLog(this,nameMethod,"example: "+Messaging.MessagingGeoFenceTrigger.ENTER.getTrigger());
-        messaging.utils.showDebugLog(this,nameMethod,"example: "+Messaging.MessagingGeoFenceTrigger.EXIT.getTrigger());
+        //messaging.utils.showDebugLog(this,nameMethod,"example: "+Messaging.MessagingGeoFenceTrigger.ENTER.getTrigger());
+        //messaging.utils.showDebugLog(this,nameMethod,"example: "+Messaging.MessagingGeoFenceTrigger.EXIT.getTrigger());
 
         // Test that the reported transition was of interest.
 
