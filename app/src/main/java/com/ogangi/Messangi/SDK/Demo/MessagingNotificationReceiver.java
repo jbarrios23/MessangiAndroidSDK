@@ -3,6 +3,7 @@ package com.ogangi.Messangi.SDK.Demo;
 import android.app.ActivityManager;
 import android.app.Notification;
 import android.app.NotificationManager;
+import android.app.PendingIntent;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
@@ -45,12 +46,13 @@ public class MessagingNotificationReceiver extends BroadcastReceiver {
     private ArrayList<MessagingCircularRegion> messagingCircularRegions;
     private NotificationManager notificationManager;
     private static final String CHANNEL_ID = "uno";
+    private Messaging messaging;
     @Override
     public void onReceive(Context context, Intent intent) {
         // TODO: This method is called when the BroadcastReceiver is receiving
         nameMethod=new Object(){}.getClass().getEnclosingMethod().getName();
 
-
+        messaging=Messaging.getInstance();
         String alertMessage = context.getResources().getString(context.getResources().getIdentifier(intent.getAction(), "string", context.getPackageName()));
         //Toast.makeText(context, alertMessage, Toast.LENGTH_LONG).show();
         Log.d(TAG,"DEBUG: "+CLASS_TAG+": "+nameMethod+": Action:  "+ alertMessage);
@@ -175,6 +177,30 @@ public class MessagingNotificationReceiver extends BroadcastReceiver {
                     Bitmap bmp = BitmapFactory.decodeStream(url.openConnection().getInputStream());
                     //Bitmap bmp = Messaging.getBitmapFromURL(image);
                     Log.d(TAG,"DEBUG: "+CLASS_TAG+": "+nameMethod+": bitmap "+bmp);
+                    Intent notificationIntent=null;
+                    try {
+
+                        notificationIntent = new Intent(context,
+                                Class.forName(messaging.getNameClass()));
+                        Log.d(TAG,"DEBUG: "+CLASS_TAG+": "+nameMethod+": name class "
+                                +messaging.getNameClass());
+
+
+                    } catch (ClassNotFoundException e) {
+                        e.printStackTrace();
+                        Log.e(TAG,"DEBUG: "+CLASS_TAG+": "+nameMethod+": error "+e.getMessage());
+
+                    }catch (NullPointerException e){
+                        e.printStackTrace();
+                        Log.e(TAG,"DEBUG: "+CLASS_TAG+": "+nameMethod+": error "+e.getMessage());
+                        notificationIntent = new Intent("android.intent.action.MAIN");
+                    }
+
+                    notificationIntent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
+
+                    final PendingIntent pendingIntent = PendingIntent.getActivity(context
+                            , 0, notificationIntent,
+                            PendingIntent.FLAG_ONE_SHOT);
                     notificationManager =
                             (NotificationManager) context.getSystemService(Context.NOTIFICATION_SERVICE);
 
@@ -184,6 +210,8 @@ public class MessagingNotificationReceiver extends BroadcastReceiver {
                             .setContentTitle(title)
                             .setContentText(text)
                             .setLargeIcon(bmp)
+                            .setContentIntent(pendingIntent)
+                            .setAutoCancel(true)
                             .setNotificationSilent()
                             .setStyle(new NotificationCompat.BigPictureStyle()
                                     .bigPicture(bmp)

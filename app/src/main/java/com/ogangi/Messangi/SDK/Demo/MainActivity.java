@@ -788,6 +788,30 @@ public class MainActivity extends AppCompatActivity {
                         Bitmap bmp = BitmapFactory.decodeStream(url.openConnection().getInputStream());
                         //Bitmap bmp = Messaging.getBitmapFromURL(image);
                         Log.d(TAG,"DEBUG: "+CLASS_TAG+": "+nameMethod+": bitmap "+bmp);
+                        Intent notificationIntent=null;
+                        try {
+
+                            notificationIntent = new Intent(getApplicationContext(),
+                                    Class.forName(messaging.getNameClass()));
+                            Log.d(TAG,"DEBUG: "+CLASS_TAG+": "+nameMethod+": name class "
+                                    +messaging.getNameClass());
+
+
+                        } catch (ClassNotFoundException e) {
+                            e.printStackTrace();
+                            Log.e(TAG,"DEBUG: "+CLASS_TAG+": "+nameMethod+": error "+e.getMessage());
+
+                        }catch (NullPointerException e){
+                            e.printStackTrace();
+                            Log.e(TAG,"DEBUG: "+CLASS_TAG+": "+nameMethod+": error "+e.getMessage());
+                            notificationIntent = new Intent("android.intent.action.MAIN");
+                        }
+
+                        notificationIntent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
+
+                        final PendingIntent pendingIntent = PendingIntent.getActivity(getApplicationContext()
+                                , 0, notificationIntent,
+                                PendingIntent.FLAG_ONE_SHOT);
                         notificationManager =
                                 (NotificationManager) getApplicationContext().getSystemService(Context.NOTIFICATION_SERVICE);
 
@@ -813,6 +837,8 @@ public class MainActivity extends AppCompatActivity {
                                 .setContentText(text)
                                 .setLargeIcon(bmp)
                                 .setNotificationSilent()
+                                .setContentIntent(pendingIntent)
+                                .setAutoCancel(true)
                                 .setStyle(new NotificationCompat.BigPictureStyle()
                                         .bigPicture(bmp)
                                         .bigLargeIcon(null))
