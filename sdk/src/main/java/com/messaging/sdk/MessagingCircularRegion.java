@@ -10,11 +10,16 @@ public class MessagingCircularRegion extends MessagingGeofence implements Serial
     private double longitud;
     private int radius;
     private static final long GEO_DURATION = 60 * 60 * 1000;
+    private MessagingSdkUtils messagingSdkUtils;
 
 
     @Override
     public Geofence getGeofence() {
-        if(latitude>0.00) {
+        messagingSdkUtils=new MessagingSdkUtils();
+        Messaging messaging=Messaging.getInstance();
+        messaging.utils.showDebugLog(this,"GetGeofence Valid Location",
+                messagingSdkUtils.isValidLatLng(latitude,longitud));
+        if(messagingSdkUtils.isValidLatLng(latitude,longitud)){
             return new Geofence.Builder()
                     .setRequestId(id)
                     .setCircularRegion(latitude, longitud, radius)
@@ -25,7 +30,7 @@ public class MessagingCircularRegion extends MessagingGeofence implements Serial
             toString();
             return new Geofence.Builder()
                     .setRequestId(id)
-                    .setCircularRegion(0.00, longitud, radius)
+                    .setCircularRegion(0.00, 0.00, radius)
                     .setExpirationDuration(expiration)
                     .setTransitionTypes(messagingGeoFenceTrigger.getTrigger())
                     .build();

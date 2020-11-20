@@ -855,4 +855,18 @@ class MessagingSdkUtils {
         }
 
     }
+
+    public boolean isValidLatLng(double lat, double lng){
+
+        if(lat < -90 || lat > 90)
+        {
+            return false;
+        }
+        else if(lng < -180 || lng > 180)
+        {
+            return false;
+        }
+
+        return true;
+    }
 }
