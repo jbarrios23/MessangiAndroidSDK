@@ -14,12 +14,22 @@ public class MessagingCircularRegion extends MessagingGeofence implements Serial
 
     @Override
     public Geofence getGeofence() {
-        return new Geofence.Builder()
-                .setRequestId(id)
-                .setCircularRegion( latitude, longitud, radius)
-                .setExpirationDuration( expiration )
-                .setTransitionTypes(messagingGeoFenceTrigger.getTrigger())
-                .build();
+        if(latitude>0.00) {
+            return new Geofence.Builder()
+                    .setRequestId(id)
+                    .setCircularRegion(latitude, longitud, radius)
+                    .setExpirationDuration(expiration)
+                    .setTransitionTypes(messagingGeoFenceTrigger.getTrigger())
+                    .build();
+        }else{
+            toString();
+            return new Geofence.Builder()
+                    .setRequestId(id)
+                    .setCircularRegion(0.00, longitud, radius)
+                    .setExpirationDuration(expiration)
+                    .setTransitionTypes(messagingGeoFenceTrigger.getTrigger())
+                    .build();
+        }
     }
 
 

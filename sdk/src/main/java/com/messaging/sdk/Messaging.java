@@ -1919,6 +1919,8 @@ public class Messaging implements LifecycleObserver {
                     messaging.utils.showDebugLog(this,"onPostExecute ","Status "+temp.getString("status"));
                 } catch (JSONException e) {
                     e.printStackTrace();
+                }catch (NullPointerException e){
+                    e.printStackTrace();
                 }
             }
         }
