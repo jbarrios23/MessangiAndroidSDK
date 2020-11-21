@@ -39,8 +39,8 @@ public class ExampleActivity extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        getWindow().requestFeature(Window.FEATURE_ACTION_BAR);
-        getSupportActionBar().hide();
+        //getWindow().requestFeature(Window.FEATURE_ACTION_BAR);
+        //getActionBar().hide();
         setContentView(R.layout.activity_example);
         printData=findViewById(R.id.lista_data);
         nameMethod=new Object(){}.getClass().getEnclosingMethod().getName();

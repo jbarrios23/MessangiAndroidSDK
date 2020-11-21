@@ -39,8 +39,8 @@ public class ExampleURLSchemasActivity extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        getWindow().requestFeature(Window.FEATURE_ACTION_BAR);
-        getSupportActionBar().hide();
+//        getWindow().requestFeature(Window.FEATURE_ACTION_BAR);
+//        getSupportActionBar().hide();
         setContentView(R.layout.activity_example_u_r_l_schemas);
         printData=findViewById(R.id.lista_data);
         messangiData=new ArrayList<>();

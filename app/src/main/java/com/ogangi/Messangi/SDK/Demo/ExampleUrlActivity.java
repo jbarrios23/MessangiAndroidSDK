@@ -39,8 +39,8 @@ public class ExampleUrlActivity extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        getWindow().requestFeature(Window.FEATURE_ACTION_BAR);
-        getSupportActionBar().hide();
+//        getWindow().requestFeature(Window.FEATURE_ACTION_BAR);
+//        getSupportActionBar().hide();
         setContentView(R.layout.activity_example_url);
         printData=findViewById(R.id.lista_data);
         nameMethod=new Object(){}.getClass().getEnclosingMethod().getName();

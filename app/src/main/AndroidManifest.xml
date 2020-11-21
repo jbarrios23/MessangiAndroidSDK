@@ -96,7 +96,8 @@
             </intent-filter>
         </receiver>
 
-        <activity android:name=".ExampleURLSchemasActivity">
+        <activity android:name=".ExampleURLSchemasActivity"
+            android:theme="@style/Theme.AppCompat.NoActionBar">
             <intent-filter>
                 <action android:name="android.intent.action.VIEW" />
 
@@ -109,7 +110,8 @@
                     android:scheme="exampleapp" />
             </intent-filter>
         </activity>
-        <activity android:name=".ExampleUrlActivity">
+        <activity android:name=".ExampleUrlActivity"
+            android:theme="@style/Theme.AppCompat.NoActionBar">
             <intent-filter>
                 <action android:name="android.intent.action.VIEW" />
 
@@ -122,7 +124,8 @@
                     android:scheme="http" />
             </intent-filter>
         </activity>
-        <activity android:name=".ExampleActivity">
+        <activity android:name=".ExampleActivity"
+            android:theme="@style/Theme.AppCompat.NoActionBar">
             <intent-filter>
                 <action android:name="com.ogangi.Messangi.SDK.Demo.ExampleActivity" />
                 <category android:name="android.intent.category.DEFAULT" />
