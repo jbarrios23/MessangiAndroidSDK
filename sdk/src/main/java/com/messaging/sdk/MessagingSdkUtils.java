@@ -471,8 +471,8 @@ class MessagingSdkUtils {
                     messagingStorageController.saveUserByDevice(null);
                     messagingDevice=null;
                     messagingUser=null;
-                    MessagingDB db=new MessagingDB(context);
-                    db.deleteAll();
+                    Messaging.deleteAlldB();
+
                 }
                 messaging.createDeviceParameters();
             }else{

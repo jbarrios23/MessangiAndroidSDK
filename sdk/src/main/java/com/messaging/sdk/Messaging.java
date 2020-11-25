@@ -431,8 +431,8 @@ public class Messaging implements LifecycleObserver {
             messagingStorageController.saveUserByDevice(null);
             messagingDevice=null;
             messagingUser=null;
-            MessagingDB db=new MessagingDB(context);
-            db.deleteAll();
+            deleteAlldB();
+
         }
         createDeviceParameters();
     }
