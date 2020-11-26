@@ -59,6 +59,7 @@ import java.io.OutputStreamWriter;
 import java.io.Serializable;
 import java.net.HttpURLConnection;
 import java.net.URL;
+import java.text.Normalizer;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
@@ -630,14 +631,26 @@ public class Messaging implements LifecycleObserver {
         String nameMethod=new Object(){}.getClass().getEnclosingMethod().getName();
         Messaging messaging = Messaging.getInstance();
         String provSnake = messaging.utils.toUpperSnakeCase(snakeCases);
+        String provReason=stringProcess(reason);
         messaging.utils.showInfoLog(messaging,nameMethod,
         "MESSAGING_NOTIFICATION_CUSTOM_EVENT "+provSnake);
 
-        if(reason!=null && reason.length()>512) {
-            reason = reason.substring(0, 512);
+        if(provReason!=null && provReason.length()>512) {
+            provReason = provReason.substring(0, 512);
+            messaging.utils.showInfoLog(messaging,nameMethod,
+                    "ProvEventCustom reason cut "+provReason);
         }
 
-        sendEventToBackend(provSnake,reason,externalId);
+        sendEventToBackend(provSnake,provReason,externalId);
+    }
+
+    private static String stringProcess(String reason) {
+        String provReason=reason.replaceAll("\\s","");
+        provReason=Normalizer.normalize(provReason, Normalizer.Form.NFD);
+        provReason=provReason.replaceAll("[^\\p{ASCII}]", "");
+        provReason = provReason.replaceAll("[-+.^:,]","");
+        provReason=provReason.replace("\"", "");
+        return provReason;
     }
 
     public static void sendEventToBackend(String nameEvent, String reason, String externalId) {
