@@ -110,13 +110,12 @@ public class MessagingCircularRegion extends MessagingGeofence implements Serial
 
     @Override
     public String toString() {
-        return "MessagingCircularRegion{" +
-                "latitude=" + latitude +
-                ", longitud=" + longitud +
-                ", radius=" + radius +
-                ", id='" + id + '\'' +
-                ", messagingGeoFenceTrigger=" + messagingGeoFenceTrigger +
-                ", expiration=" + expiration +
-                '}';
+        return "MessagingCircularRegion" +"\n"+
+                "latitude=" + latitude +"\n"+
+                "longitud=" + longitud +"\n"+
+                "radius=" + radius +"\n"+
+                "id='" + id + '\'' +"\n"+
+                "messagingGeoFenceTrigger=" + messagingGeoFenceTrigger +"\n"+
+                "expiration=" + expiration+"\n";
     }
 }

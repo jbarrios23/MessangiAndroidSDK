@@ -1,7 +1,9 @@
 package com.ogangi.Messangi.SDK.Demo;
 
+import androidx.annotation.RequiresApi;
 import androidx.appcompat.app.AppCompatActivity;
 
+import android.os.Build;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.Window;
@@ -36,6 +38,7 @@ public class ExampleActivity extends AppCompatActivity {
     public MessagingNotification messagingNotification;
 
 
+    @RequiresApi(api = Build.VERSION_CODES.O)
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -87,7 +90,9 @@ public class ExampleActivity extends AppCompatActivity {
         messangiDataArrayAdapter = new ArrayAdapter<>(this, R.layout.item_device, R.id.Texview_value, messangiData);
         //dataAdapter = new ArrayAdapter<>(this, R.layout.item_device, R.id.Texview_value, dataArrayList);
         printData.setAdapter(messangiDataArrayAdapter);
+        Messaging.checkNotification(extras);
 
     }
+
 
 }

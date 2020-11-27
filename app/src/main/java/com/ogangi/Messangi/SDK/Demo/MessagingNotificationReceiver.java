@@ -92,8 +92,6 @@ public class MessagingNotificationReceiver extends BroadcastReceiver {
                              +" Long: "+wayLongitude);
                  }
 
-
-
              }else if(intent.getAction().equals(Messaging.ACTION_GEOFENCE_ENTER)
                      ||intent.getAction().equals(Messaging.ACTION_GEOFENCE_EXIT)){
                   messagingCircularRegions=(ArrayList<MessagingCircularRegion>)data;

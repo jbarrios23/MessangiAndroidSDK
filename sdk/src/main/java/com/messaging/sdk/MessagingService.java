@@ -64,9 +64,8 @@ public class MessagingService extends FirebaseMessagingService  {
         messaging.utils.showDebugLog(this,nameMethod,"is silent: "+messagingNotification.isSilent());
 
         if(messagingNotification.isMatchAppId()) {
-            if (messagingNotification.isSilent()) {
-                Messaging.sendEventToBackend(Messaging.MESSAGING_NOTIFICATION_RECEIVED, messagingNotification);
-            }
+
+            Messaging.sendEventToBackend(Messaging.MESSAGING_NOTIFICATION_RECEIVED, messagingNotification);
             if (messagingNotification.isRenderNotification()) {
                 messaging.utils.showDebugLog(this, nameMethod, "GEO_PUSH process");
                 messaging.sendGlobalEventToActivity(Messaging.ACTION_GET_NOTIFICATION, messagingNotification);

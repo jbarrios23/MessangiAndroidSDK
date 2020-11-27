@@ -57,8 +57,11 @@ import java.io.InputStreamReader;
 import java.io.OutputStream;
 import java.io.OutputStreamWriter;
 import java.io.Serializable;
+import java.io.UnsupportedEncodingException;
 import java.net.HttpURLConnection;
 import java.net.URL;
+import java.net.URLEncoder;
+import java.nio.charset.StandardCharsets;
 import java.text.Normalizer;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -620,6 +623,7 @@ public class Messaging implements LifecycleObserver {
         if(notification!=null) {
             messaging.utils.showInfoLog(messaging,nameMethod,"The Activity was opened as a consequence of a notification");
             sendEventToBackend(Messaging.MESSAGING_NOTIFICATION_OPEN,notification);
+            sendEventToBackend(Messaging.MESSAGING_NOTIFICATION_RECEIVED,notification);
         } else {
             messaging.utils.showInfoLog(messaging,nameMethod,"intent.extra does not contain a notification");
         }
@@ -627,29 +631,44 @@ public class Messaging implements LifecycleObserver {
         return notification;
     }
 
-    public static void sendEventCustom(String snakeCases,String reason,String externalId){
+    @RequiresApi(api = Build.VERSION_CODES.KITKAT)
+    public static void sendEventCustom(String snakeCases, String reason, String externalId){
         String nameMethod=new Object(){}.getClass().getEnclosingMethod().getName();
         Messaging messaging = Messaging.getInstance();
         String provSnake = messaging.utils.toUpperSnakeCase(snakeCases);
-        String provReason=stringProcess(reason);
-        messaging.utils.showInfoLog(messaging,nameMethod,
-        "MESSAGING_NOTIFICATION_CUSTOM_EVENT "+provSnake);
+        String provReason="";
+        if(reason!=null ) {
+            if(reason.length()>512){
+                reason = reason.substring(0, 512);
+                messaging.utils.showInfoLog(messaging,nameMethod,
+                        "ProvEventCustom reason cut "+reason);
+            }
 
-        if(provReason!=null && provReason.length()>512) {
-            provReason = provReason.substring(0, 512);
+            provReason=stringProcess(reason);
             messaging.utils.showInfoLog(messaging,nameMethod,
-                    "ProvEventCustom reason cut "+provReason);
+                    "MESSAGING_NOTIFICATION_CUSTOM_EVENT "+provSnake);
         }
 
         sendEventToBackend(provSnake,provReason,externalId);
     }
 
+    @RequiresApi(api = Build.VERSION_CODES.KITKAT)
     private static String stringProcess(String reason) {
-        String provReason=reason.replaceAll("\\s","");
-        provReason=Normalizer.normalize(provReason, Normalizer.Form.NFD);
-        provReason=provReason.replaceAll("[^\\p{ASCII}]", "");
-        provReason = provReason.replaceAll("[-+.^:,]","");
-        provReason=provReason.replace("\"", "");
+        Messaging messaging=Messaging.getInstance();
+        String provReason= "";
+        try {
+            provReason = URLEncoder.encode(reason, String.valueOf(StandardCharsets.UTF_8));
+        } catch (UnsupportedEncodingException e) {
+
+            messaging.utils.showErrorLog(messaging, "stringProcess", "Error String process  "
+                    ,e.getMessage());
+            provReason=reason.replaceAll("\\s","");
+            provReason=Normalizer.normalize(provReason, Normalizer.Form.NFD);
+            provReason=provReason.replaceAll("[^\\p{ASCII}]", "");
+            provReason = provReason.replaceAll("[-+.^:,]","");
+            provReason=provReason.replace("\"", "");
+        }
+
         return provReason;
     }
 

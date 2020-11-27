@@ -1,6 +1,7 @@
 package com.ogangi.Messangi.SDK.Demo;
 
 import androidx.annotation.NonNull;
+import androidx.annotation.RequiresApi;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
 import androidx.fragment.app.FragmentActivity;
@@ -18,6 +19,7 @@ import android.content.pm.ActivityInfo;
 import android.content.pm.PackageManager;
 import android.graphics.Color;
 import android.location.Location;
+import android.os.Build;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.Menu;
@@ -180,6 +182,7 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
         return true;
     }
 
+    @RequiresApi(api = Build.VERSION_CODES.KITKAT)
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
         int id = item.getItemId();
@@ -219,8 +222,8 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
                 }
                 return true;
             case R.id.action_sendEvent:
-                //String provReason="Lorem Ipsum es simplemente el texto de relleno de las imprentas y archivos de texto Lorem Ipsum ha sido el texto de relleno estándar de las industrias desde el año 1500 cuando un impresor desconocido usó una galería de textos y los mezcló de tal manera que logró hacer un libro de textos especimen No sólo sobrevivió 500 años, sino que tambien ingresó como texto de relleno en documentos electrónicos, quedando esencialmente igual al original. Fue popularizado en los 60s con la creación de las hojas \"Letraset\", las cuales contenian pasajes de Lorem Ipsum, y más recientemente con software de autoedición, como por ejemplo Aldus PageMaker, el cual incluye versiones de Lorem Ipsum.";
-                String provReason="Invalid push send";
+                String provReason="Lorem Ipsum es simplemente el texto de relleno de las imprentas y archivos de texto Lorem Ipsum ha sido el texto de relleno estándar de las industrias desde el año 1500 cuando un impresor desconocido usó una galería de textos y los mezcló de tal manera que logró hacer un libro de textos especimen No sólo sobrevivió 500 años, sino que tambien ingresó como texto de relleno en documentos electrónicos, quedando esencialmente igual al original. Fue popularizado en los 60s con la creación de las hojas \"Letraset\", las cuales contenian pasajes de Lorem Ipsum, y más recientemente con software de autoedición, como por ejemplo Aldus PageMaker, el cual incluye versiones de Lorem Ipsum.";
+                //String provReason="Invalid push send";
                 Log.d(CLASS_TAG,TAG+ " provReason "+provReason.replaceAll("\\s",""));
                 Messaging.sendEventCustom("noti push",provReason,"12345");
                 Messaging.checkGPlayServiceStatus();
@@ -492,7 +495,7 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
                         showAlertGeofenceList(messagingCircularRegions);
                         showGofenceList=false;
                     }
-
+                    Messaging.fetchLocation(MapsActivity.this,false);
 
                     }else{
                     Toast.makeText(getApplicationContext(),alertMessage,Toast.LENGTH_SHORT).show();
