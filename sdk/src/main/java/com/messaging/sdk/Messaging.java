@@ -860,8 +860,6 @@ public class Messaging implements LifecycleObserver {
                                     e.printStackTrace();
                                 }
 
-
-
                             }
                         }
                     } catch (NullPointerException e) {
