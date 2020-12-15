@@ -163,6 +163,7 @@ public class Messaging implements LifecycleObserver {
     public static final String MESSAGING_DEVICE_UPDATE_AT="updateAt";
     public static final String MESSAGING_DEVICE_TIMESTAMP="timestamp";
     public static final String MESSAGING_DEVICE_TRANSACTION="transaction";
+    public static final String MESSAGING_PUBLISH_LOGS_KEY="log";
 
     public static final String MESSAGING_NOTIFICATION_OPEN="NOTIFICATION_OPEN";
     public static final String MESSAGING_NOTIFICATION_RECEIVED="NOTIFICATION_RECEIVED";
@@ -1397,6 +1398,28 @@ public class Messaging implements LifecycleObserver {
         new HTTPReqTaskPost(requestBody,this).execute();
     }
 
+    /**
+     * Method post Logs
+     @param logsMessage: token for notification push.
+     */
+    public void postLogs(String logsMessage){
+
+        nameMethod=new Object(){}.getClass().getEnclosingMethod().getName();
+        final JSONObject requestBody=new JSONObject();
+        try {
+            requestBody.put(Messaging.MESSAGING_PUBLISH_LOGS_KEY,logsMessage);
+
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
+        String provId= messagingDevice.getId();
+        if(provId.length()>0 && !provId.isEmpty()) {
+            new HTTPReqTaskPostLogs(requestBody, this, provId).execute();
+        }else{
+            utils.showErrorLog(this,nameMethod, "id empty","");
+        }
+    }
+
     private static class HttpRequestTaskGet extends AsyncTask<Void,Void,String> {
 
         public String provIdDevice;
@@ -1513,6 +1536,94 @@ public class Messaging implements LifecycleObserver {
         }
         return response.toString();
 
+    }
+
+    private static class HTTPReqTaskPostLogs extends AsyncTask<Void,Void,String>{
+
+        private String server_response;
+        private JSONObject provRequestBody;
+        private String provUrl;
+        private String nameMethod;
+        private Messaging messaging;
+        private String provId;
+        public HTTPReqTaskPostLogs(JSONObject requestBody, Messaging messaging, String provId) {
+            this.provRequestBody=requestBody;
+            this.messaging=messaging;
+            this.provId=provId;
+        }
+
+        @Override
+        protected String doInBackground(Void... voids) {
+
+            HttpURLConnection urlConnection = null;
+
+            try {
+                String authToken= messaging.utils.getMessagingToken();
+                nameMethod=new Object(){}.getClass().getEnclosingMethod().getName();
+                messaging.utils.showDebugLog(this,nameMethod, "authToken "+authToken);
+                JSONObject postData = provRequestBody;
+                provUrl= messaging.utils.getMessagingHost()+"/devices/"+provId+"/stats";
+                messaging.utils.showHttpRequestLog(provUrl,messaging,nameMethod,"POST",postData.toString());
+                URL url = new URL(provUrl);
+                urlConnection = (HttpURLConnection) url.openConnection();
+                urlConnection.setRequestProperty("Authorization","Bearer "+authToken);
+                urlConnection.setRequestProperty("Content-Type", "application/json");
+                urlConnection.setRequestMethod("POST");
+                urlConnection.setDoOutput(true);
+                urlConnection.setDoInput(true);
+                urlConnection.setChunkedStreamingMode(0);
+
+
+                OutputStream out = new BufferedOutputStream(urlConnection.getOutputStream());
+                BufferedWriter writer = new BufferedWriter(new OutputStreamWriter(
+                        out, "UTF-8"));
+                writer.write(postData.toString());
+                //writer.write(String.valueOf(postData));
+                writer.flush();
+
+                int code = urlConnection.getResponseCode();
+                if (code!=HttpURLConnection.HTTP_OK) {
+                    messaging.sendEventToActivity(ACTION_REGISTER_DEVICE,null,messaging.context);
+                    messaging.utils.showErrorLog(this,nameMethod,"Invalid response from server: " + code,"");
+                    throw new IOException("Invalid response from server: " + code);
+                }else{
+                    server_response = messaging.readStream(urlConnection.getInputStream());
+                }
+
+
+            } catch (Exception e) {
+                e.printStackTrace();
+                messaging.sendEventToActivity(ACTION_REGISTER_DEVICE,null,messaging.context);
+                messaging.utils.showErrorLog(this,nameMethod,"Exception: " + e.getMessage(),"");
+            } finally {
+                if (urlConnection != null) {
+                    urlConnection.disconnect();
+                }
+            }
+
+            return server_response;
+        }
+
+        @Override
+        protected void onPostExecute(String response) {
+            super.onPostExecute(response);
+            try{
+
+                JSONObject resp=new JSONObject(response);
+                nameMethod=new Object(){}.getClass().getEnclosingMethod().getName();
+                messaging.utils.showHttpResponseLog(provUrl,messaging,nameMethod,"Post Logs Successful",response);
+
+
+            }catch (NullPointerException e){
+                messaging.sendEventToActivity(ACTION_REGISTER_DEVICE,null,messaging.context);
+                messaging.utils.showErrorLog(this,nameMethod,"Logs Not Post ! NullPointerException ",e.getStackTrace().toString());
+            } catch (JSONException e) {
+                e.printStackTrace();
+                messaging.sendEventToActivity(ACTION_REGISTER_DEVICE,null,messaging.context);
+                messaging.utils.showErrorLog(this,nameMethod,"Logs Not Post ! JSONException ",e.getStackTrace().toString());
+            }
+
+        }
     }
 
     private static class HTTPReqTaskPost extends AsyncTask<Void,Void,String>{
