@@ -2,6 +2,7 @@ package com.ogangi.Messangi.SDK.Demo;
 
 import android.app.ActivityManager;
 import android.app.Notification;
+import android.app.NotificationChannel;
 import android.app.NotificationManager;
 import android.app.PendingIntent;
 import android.content.BroadcastReceiver;
@@ -9,11 +10,16 @@ import android.content.Context;
 import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
+import android.graphics.Color;
 import android.location.Location;
+import android.media.RingtoneManager;
+import android.net.Uri;
+import android.os.Build;
 import android.util.Log;
 import android.view.View;
 import android.widget.Toast;
 
+import androidx.annotation.RequiresApi;
 import androidx.core.app.NotificationCompat;
 import androidx.localbroadcastmanager.content.LocalBroadcastManager;
 
@@ -33,6 +39,7 @@ import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.Map;
+import java.util.Random;
 
 import static android.content.Context.LOCATION_SERVICE;
 
@@ -47,6 +54,7 @@ public class MessagingNotificationReceiver extends BroadcastReceiver {
     private NotificationManager notificationManager;
     private static final String CHANNEL_ID = "uno";
     private Messaging messaging;
+    private static final String ADMIN_CHANNEL_ID ="admin_channel";
     @Override
     public void onReceive(Context context, Intent intent) {
         // TODO: This method is called when the BroadcastReceiver is receiving
@@ -122,15 +130,18 @@ public class MessagingNotificationReceiver extends BroadcastReceiver {
     private void handleDataNotification(Serializable data, Intent intent, Context context, String action, boolean isInBackground) {
 
         if(isInBackground){
-            Log.d(TAG, "DEBUG: " + CLASS_TAG + ": " + nameMethod + ": No action for notification in Background :  "
-                    + isInBackground);
+
             messagingNotification = (MessagingNotification) data;
+            Log.d(TAG, "DEBUG: " + CLASS_TAG + ": " + nameMethod + ": No action for notification in Background :  "
+                    + isInBackground+" "+messagingNotification.getAdditionalData());
+
             String subject="";
             String content = "";
             String Title="";
             String Text = "";
             String Image="";
             boolean showCustomNotification=false;
+            boolean showCustomNotificationGeoPush=false;
             for (Map.Entry entry : messagingNotification.getAdditionalData().entrySet()) {
                 if(!entry.getKey().equals("profile")){
                     Log.d(TAG,"DEBUG: "+CLASS_TAG+": "+nameMethod+": key: "+entry.getKey() + " value: " + entry.getValue());
@@ -149,6 +160,8 @@ public class MessagingNotificationReceiver extends BroadcastReceiver {
 
                         Image= (String) entry.getValue();
                         showCustomNotification=true;
+                    }else if(entry.getKey().equals("MSGI_GEOPUSH")){
+                        showCustomNotificationGeoPush=true;
                     }
 
                 }
@@ -156,12 +169,76 @@ public class MessagingNotificationReceiver extends BroadcastReceiver {
             }
             if(showCustomNotification){
                 showCustomNotification(Title,Text,Image,context);
-
+            }
+            if(showCustomNotificationGeoPush){
+                showNotificationGP(messagingNotification.getTitle(),messagingNotification.getBody(),context);
             }
 
         }else{
             sendEventToActivity(action,data,context);
         }
+    }
+
+    private void showNotificationGP(String title, String body, Context context) {
+        String classNameProv=messaging.getNameClass();
+        Intent notificationIntent=null;
+        try {
+
+            notificationIntent = new Intent(context, Class.forName(classNameProv));
+
+
+        } catch (ClassNotFoundException e) {
+            e.printStackTrace();
+
+        }catch (NullPointerException e){
+            e.printStackTrace();
+
+            notificationIntent = new Intent("android.intent.action.MAIN");
+        }
+
+        notificationIntent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
+
+        final PendingIntent pendingIntent = PendingIntent.getActivity(context, 0, notificationIntent,
+                PendingIntent.FLAG_ONE_SHOT);
+        notificationManager = (NotificationManager) context.getSystemService(Context.NOTIFICATION_SERVICE);
+
+        //Setting notification for Android Oreo or higer.
+        if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.O) {
+            setupChannels(context);
+        }
+        int notificationId = new Random().nextInt(60000);
+
+        // Create the notification.
+        Uri defaultSoundUri = RingtoneManager.getDefaultUri(RingtoneManager.TYPE_NOTIFICATION);
+        NotificationCompat.Builder notificationBuilder = new NotificationCompat.Builder(context, ADMIN_CHANNEL_ID)
+                .setSmallIcon(messaging.icon)  //a resource for your custom small icon
+                .setContentTitle(title) //the "title" value you sent in your notification
+                .setContentText(body) //ditto
+                .setAutoCancel(true)  //dismisses the notification on click
+                .setContentIntent(pendingIntent)
+                .setSound(defaultSoundUri);
+
+
+        NotificationManager notificationManager =
+                (NotificationManager) context.getSystemService(Context.NOTIFICATION_SERVICE);
+        notificationManager.notify(notificationId /* ID of notification */, notificationBuilder.build());
+
+    }
+
+    @RequiresApi(api = Build.VERSION_CODES.O)
+    private void setupChannels(Context context) {
+        CharSequence adminChannelName = context.getString(com.messaging.sdk.R.string.notifications_admin_channel_name);
+        String adminChannelDescription = context.getString(com.messaging.sdk.R.string.notifications_admin_channel_description);
+        NotificationChannel adminChannel;
+        adminChannel = new NotificationChannel(ADMIN_CHANNEL_ID, adminChannelName, NotificationManager.IMPORTANCE_LOW);
+        adminChannel.setDescription(adminChannelDescription);
+        adminChannel.enableLights(true);
+        adminChannel.setLightColor(Color.RED);
+        adminChannel.enableVibration(true);
+        if (notificationManager != null) {
+            notificationManager.createNotificationChannel(adminChannel);
+        }
+
     }
 
     private void showCustomNotification(String title, String text, String image, Context context) {

@@ -252,11 +252,12 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
         ArrayAdapter<String> messangiDataArrayAdapter;
         ListView listView=customLayout.findViewById(R.id.list_data_noti);
         if(geofenceFromdB.size()>0) {
+            messangiGeofenceData.add("# Geofence "+geofenceFromdB.size());
             for (MessagingCircularRegion region : geofenceFromdB) {
-                messangiGeofenceData.add(region.toString());
+               messangiGeofenceData.add(region.toString());
             }
         }else{
-            Log.d(CLASS_TAG,TAG+ " do not have geofence ");
+            Log.d(CLASS_TAG,TAG+ " Do not have geofence ");
             messangiGeofenceData.add(" Do not have Geofences yet! ");
         }
 

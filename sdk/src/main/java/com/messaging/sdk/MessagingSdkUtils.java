@@ -761,7 +761,7 @@ class MessagingSdkUtils {
          for(int i=0;i<jsonArrayItems.length();i++){
             JSONObject temp=jsonArrayItems.getJSONObject(i);
 
-            if(isValidLatLng(temp.getDouble(Messaging.GOEOFENCE_LAT),temp.getDouble(Messaging.GOEOFENCE_LONG))) {
+            //if(isValidLatLng(temp.getDouble(Messaging.GOEOFENCE_LAT),temp.getDouble(Messaging.GOEOFENCE_LONG))) {
                 MessagingCircularRegion geofence = builder.setId(temp.getString(Messaging.GOEOFENCE_ID))
                         .setLatitude(temp.getDouble(Messaging.GOEOFENCE_LAT))
                         .setLongitud(temp.getDouble(Messaging.GOEOFENCE_LONG))
@@ -770,11 +770,11 @@ class MessagingSdkUtils {
                         .setExpiration(provExpiration)
                         .build();
                 db.addGeoFenceToBd(geofence);
-             }else{
+             /*}else{
                 messaging.utils.showDebugLog(this,nameMethod,"Invalid latitude "
                         +temp.getDouble(Messaging.GOEOFENCE_LAT));
 
-             }
+             }*/
             }
             db.getAllGeoFenceToBd();
 
@@ -855,11 +855,7 @@ class MessagingSdkUtils {
 
     public boolean isValidLatLng(double lat, double lng){
 
-        if(lat < -90 || lat > 90)
-        {
-            return false;
-        }
-        else if(lng < -180 || lng > 180)
+        if(lat < -90 || lat > 90 || lng < -180 || lng > 180)
         {
             return false;
         }

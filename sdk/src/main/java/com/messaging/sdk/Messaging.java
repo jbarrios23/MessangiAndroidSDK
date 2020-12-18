@@ -828,9 +828,10 @@ public class Messaging implements LifecycleObserver {
                                     if(jsonArrayItems.length()>0){
                                         messaging.utils.showDebugLog(this,nameMethod,"save Item to BD "+response);
                                         messaging.utils.processGeofenceList(jsonArrayItems);
-
+                                        //messaging.utils.showDebugLog(this,nameMethod,"DB "+db.getAllGeoFenceToBd().size());
                                     }else{
-                                        messaging.utils.showDebugLog(this,nameMethod,"Do Not have Items "+response);
+                                        Toast.makeText(messaging.context,"Has not Geofence yet!",Toast.LENGTH_LONG).show();
+                                        messaging.utils.showDebugLog(this,nameMethod,"Do Not have Items of GF "+response);
                                     }
 
                                     if(jsonObject.has(Messaging.GET_GOEOFENCE_PAGINATION)){
@@ -875,8 +876,9 @@ public class Messaging implements LifecycleObserver {
             if(db.getAllGeoFenceToBd().size()>0 && messaging.utils.isLocation_allowed()) {
                 messaging.sendEventToActivity(Messaging.ACTION_FETCH_GEOFENCE, db.getAllGeoFenceToBd(), messaging.context);
             }else{
-                Toast.makeText(messaging.context,"has not Geofence yet!",Toast.LENGTH_SHORT).show();
-                messaging.utils.showErrorLog(messaging, nameMethod, "No data to send ", "");
+                Toast.makeText(messaging.context,"Has not Geofence yet!",Toast.LENGTH_LONG).show();
+                messaging.utils.showDebugLog(messaging, nameMethod, "has not Geofence yet! ");
+
             }
         }
 
@@ -2079,10 +2081,12 @@ public class Messaging implements LifecycleObserver {
             MessagingDB db=new MessagingDB(messaging.context);
             if(db.getAllGeoFenceToBd().size()>0) {
                 messaging.startGeofence();
-                messaging.utils.showDebugLog(messaging, nameMethod, "Re-Register Geofence");
+                messaging.utils.showDebugLog(messaging, nameMethod, "Re-Register Geofence "+db.getAllGeoFenceToBd().size());
+                Toast.makeText(messaging.context,"Re-Register Geofence..... "+db.getAllGeoFenceToBd().size(),Toast.LENGTH_LONG).show();
             }else{
-
+                Toast.makeText(messaging.context,"Has not Geofence yet!",Toast.LENGTH_LONG).show();
                 messaging.utils.showDebugLog(messaging, nameMethod, "Not Geofence in dB");
+                messaging.utils.showDebugLog(messaging, nameMethod, "Has not Geofence yet!");
             }
         }else{
             messaging.utils.showDebugLog(messaging, nameMethod, "Location Config Not Enable");
@@ -2134,11 +2138,9 @@ public class Messaging implements LifecycleObserver {
             if(geofencesToAdd.size()==100){
             break;
             }
-
         }
         GeofencingRequest geofenceRequest = createGeofenceRequest( geofencesToAdd );
         addGeofence(geofenceRequest);
-
     }
 
     //Create a Geofence Request
