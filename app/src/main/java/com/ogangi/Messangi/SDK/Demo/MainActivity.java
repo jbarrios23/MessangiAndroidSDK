@@ -182,20 +182,21 @@ public class MainActivity extends AppCompatActivity {
         //for handle notification from background
         Bundle extras = null;
         if(Static.extras!=null){
-        Log.i(TAG, "INFO: " + CLASS_TAG + ": " + nameMethod + ": " + Static.extras);
+        Log.i(TAG, "INFO: " + CLASS_TAG + ": " + nameMethod + "Static: " + Static.extras);
         extras=Static.extras;
+        Static.extras=null;
         }else{
             extras=getIntent().getExtras();
-            Log.i(TAG, "INFO: " + CLASS_TAG + ": " + nameMethod + ": " + extras);
+            Log.i(TAG, "INFO: " + CLASS_TAG + ": " + nameMethod + "extras: " + extras);
         }
 
         if(extras!=null){
             isBackground=extras.getBoolean("isInBackground",false);
             Log.i(TAG, "INFO: " + CLASS_TAG + ": " + nameMethod + ": " + isBackground);
             if(isBackground) {
-                Serializable data = extras.getSerializable(Messaging.INTENT_EXTRA_DATA);
-                messagingNotification=(MessagingNotification)data;
-                //showAlertNotification(messagingNotification, data);
+//                Serializable data = extras.getSerializable(Messaging.INTENT_EXTRA_DATA);
+//                messagingNotification=(MessagingNotification)data;
+//                showAlertNotification(messagingNotification, data);
                 Log.i(TAG, "INFO: " + CLASS_TAG + ": " + nameMethod + ": " + messagingNotification.toString());
             }else{
                 //to process notification from background mode
@@ -224,8 +225,6 @@ public class MainActivity extends AppCompatActivity {
 
             }
         });
-
-
 
     }
 
@@ -282,6 +281,7 @@ public class MainActivity extends AppCompatActivity {
     private void goToLogin() {
         SharedPreferences sharedPreferences = getApplicationContext().getSharedPreferences("MESSAGING_LOGIN", Context.MODE_PRIVATE);
         sharedPreferences.edit().putBoolean("IS_LOGGED", false).apply();
+        //deberia ser la sesion ser controlada por deviceId preguntando si tengo device Id.
         nameMethod=new Object(){}.getClass().getEnclosingMethod().getName();
         Intent intent=new Intent(MainActivity.this,LoginActivity.class);
         startActivity(intent);

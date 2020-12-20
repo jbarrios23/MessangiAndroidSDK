@@ -157,7 +157,6 @@ public class MessagingNotificationReceiver extends BroadcastReceiver {
 
                         Text= (String) entry.getValue();
                     }else if(entry.getKey().equals("Image")){
-
                         Image= (String) entry.getValue();
                         showCustomNotification=true;
                     }else if(entry.getKey().equals("MSGI_GEOPUSH")){
@@ -294,6 +293,7 @@ public class MessagingNotificationReceiver extends BroadcastReceiver {
                             .build();
 
                 notificationManager.notify(1 /* ID of notification */, notification);
+                    Log.d(TAG,"DEBUG: "+CLASS_TAG+": "+nameMethod+": notification "+notification);
 
                 } catch (MalformedURLException e) {
                     e.printStackTrace();

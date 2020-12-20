@@ -677,8 +677,6 @@ class MessagingSdkUtils {
 
                                 db.addGeoFenceToBd(geofence);
 
-                                //db.getAllGeoFenceToBd();
-
                             }else if(temp.has(Messaging.GOEOFENCE_OPERATION) &&
                                     temp.getString(Messaging.GOEOFENCE_OPERATION)
                                             .equals(Messaging.GOEOFENCE_OPERATION_UPDATE)){
@@ -718,7 +716,7 @@ class MessagingSdkUtils {
 
                                     db.delete(provId);
                                     //delete id geofence
-                                    db.getAllGeoFenceToBd();
+                                    //db.getAllGeoFenceToBd();
                                     //metodo para guardar en la BD cree el objeto MCR
                                     //delete Geofence in BD
 
@@ -776,7 +774,7 @@ class MessagingSdkUtils {
 
              }*/
             }
-            db.getAllGeoFenceToBd();
+
 
         } catch (JSONException e) {
             e.printStackTrace();

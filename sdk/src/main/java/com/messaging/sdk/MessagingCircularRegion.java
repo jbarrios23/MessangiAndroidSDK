@@ -17,8 +17,8 @@ public class MessagingCircularRegion extends MessagingGeofence implements Serial
     public Geofence getGeofence() {
         messagingSdkUtils=new MessagingSdkUtils();
         Messaging messaging=Messaging.getInstance();
-        messaging.utils.showDebugLog(this,"GetGeofence Valid Location",
-                messagingSdkUtils.isValidLatLng(latitude,longitud));
+//        messaging.utils.showDebugLog(this,"GetGeofence Valid Location",
+//                messagingSdkUtils.isValidLatLng(latitude,longitud));
         if(messagingSdkUtils.isValidLatLng(latitude,longitud)){
             return new Geofence.Builder()
                     .setRequestId(id)

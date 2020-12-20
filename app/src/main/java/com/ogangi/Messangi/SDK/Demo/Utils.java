@@ -1,10 +1,18 @@
 package com.ogangi.Messangi.SDK.Demo;
 
 import android.annotation.SuppressLint;
+import android.location.Location;
+
+import com.messaging.sdk.MessagingCircularRegion;
 
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.regex.Pattern;
+
+import static android.content.Context.LOCATION_SERVICE;
 
 public class Utils {
 
@@ -66,6 +74,33 @@ public class Utils {
         }catch (ParseException e){
             return false;
         }
+    }
+
+    public static ArrayList<MessagingCircularRegion> getOrderMessagingCircularRegion(ArrayList< MessagingCircularRegion> provMessagingCircularRegions
+            ,Location provLocation){
+
+        Collections.sort(provMessagingCircularRegions,new Comparator<MessagingCircularRegion>() {
+            @Override
+            public int compare(MessagingCircularRegion o1, MessagingCircularRegion o2) {
+                Location location1=new Location(LOCATION_SERVICE);
+                location1.setLatitude(o1.getLatitude());
+                location1.setLongitude(o1.getLongitud());
+                double dist1=provLocation.distanceTo(location1);
+                Location location2=new Location(LOCATION_SERVICE);
+                location2.setLatitude(o2.getLatitude());
+                location2.setLongitude(o2.getLongitud());
+                double dist2=provLocation.distanceTo(location2);
+                if(dist1<dist2){
+                    return -1;
+                }else if(dist1>dist2){
+                    return 1;
+                }else{
+                    return 0;
+                }
+
+            }
+        });
+        return provMessagingCircularRegions;
     }
 
 

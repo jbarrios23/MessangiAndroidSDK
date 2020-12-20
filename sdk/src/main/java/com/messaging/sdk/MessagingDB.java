@@ -5,10 +5,15 @@ import android.content.Context;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
+import android.location.Location;
 
 import androidx.annotation.Nullable;
 
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
+
+import static android.content.Context.LOCATION_SERVICE;
 
 public class MessagingDB extends SQLiteOpenHelper {
 
@@ -140,8 +145,32 @@ public class MessagingDB extends SQLiteOpenHelper {
         Messaging messaging=Messaging.getInstance();
         String nameMethod=new Object(){}.getClass().getEnclosingMethod().getName();
         messaging.utils.showDebugLog(this,nameMethod,"Get all data "+result.toString());
-
         db.close();
+
+        if(messaging.messagingStorageController.hasLastLocation()) {
+            final Location provLocation = messaging.messagingStorageController.getLastLocationSaved();
+            Collections.sort(result, new Comparator<MessagingCircularRegion>() {
+                @Override
+                public int compare(MessagingCircularRegion o1, MessagingCircularRegion o2) {
+                    Location location1 = new Location(LOCATION_SERVICE);
+                    location1.setLatitude(o1.getLatitude());
+                    location1.setLongitude(o1.getLongitud());
+                    double dist1 = provLocation.distanceTo(location1);
+                    Location location2 = new Location(LOCATION_SERVICE);
+                    location2.setLatitude(o2.getLatitude());
+                    location2.setLongitude(o2.getLongitud());
+                    double dist2 = provLocation.distanceTo(location2);
+                    if (dist1 < dist2) {
+                        return -1;
+                    } else if (dist1 > dist2) {
+                        return 1;
+                    } else {
+                        return 0;
+                    }
+
+                }
+            });
+        }
     return  result;
     }
 

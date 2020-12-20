@@ -621,19 +621,24 @@ public class Messaging implements LifecycleObserver {
         Messaging messaging = Messaging.getInstance();
         MessagingNotification notification=new MessagingNotification(extras);
         messaging.utils.showInfoLog(messaging,nameMethod,"notification "+notification.toString());
-        if(notification!=null) {
+        if(notification!=null && !notification.getTitle().equals("")
+                && !notification.getBody().equals("")
+                && notification.getAdditionalData().size()>0) {
+
             messaging.utils.showInfoLog(messaging,nameMethod,"The Activity was opened as a consequence of a notification");
             sendEventToBackend(Messaging.MESSAGING_NOTIFICATION_OPEN,notification);
             sendEventToBackend(Messaging.MESSAGING_NOTIFICATION_RECEIVED,notification);
+            setLastMessagingNotification(notification,messaging.context);
         } else {
+            setLastMessagingNotification(null,messaging.context);
             messaging.utils.showInfoLog(messaging,nameMethod,"intent.extra does not contain a notification");
         }
-        setLastMessagingNotification(notification,messaging.context);
+
         return notification;
     }
 
     @RequiresApi(api = Build.VERSION_CODES.KITKAT)
-    public static void sendEventCustom(String snakeCases, String reason, String externalId){
+    public static void sendEventCustom(String snakeCases, String reason){
         String nameMethod=new Object(){}.getClass().getEnclosingMethod().getName();
         Messaging messaging = Messaging.getInstance();
         String provSnake = messaging.utils.toUpperSnakeCase(snakeCases);
@@ -650,7 +655,7 @@ public class Messaging implements LifecycleObserver {
                     "MESSAGING_NOTIFICATION_CUSTOM_EVENT "+provSnake);
         }
 
-        sendEventToBackend(provSnake,provReason,externalId);
+        sendEventToBackend(provSnake,provReason,"");
     }
 
     @RequiresApi(api = Build.VERSION_CODES.KITKAT)
@@ -2103,39 +2108,24 @@ public class Messaging implements LifecycleObserver {
         ArrayList< MessagingCircularRegion> provMessagingCircularRegions;
         MessagingDB db=new MessagingDB(context);
         provMessagingCircularRegions=db.getAllGeoFenceToBd();
-        messaging.utils.showDebugLog(messaging,nameMethod,"GF from DB Before validate "+provMessagingCircularRegions);
-        //validate geofence To register
-        if(messaging.messagingStorageController.hasLastLocation()) {
-            final Location provLocation=messaging.messagingStorageController.getLastLocationSaved();
-            Collections.sort(provMessagingCircularRegions,new Comparator<MessagingCircularRegion>() {
-                @Override
-                public int compare(MessagingCircularRegion o1, MessagingCircularRegion o2) {
-                    Location location1=new Location(LOCATION_SERVICE);
-                    location1.setLatitude(o1.getLatitude());
-                    location1.setLongitude(o1.getLongitud());
-                    double dist1=provLocation.distanceTo(location1);
-                    Location location2=new Location(LOCATION_SERVICE);
-                    location2.setLatitude(o2.getLatitude());
-                    location2.setLongitude(o2.getLongitud());
-                    double dist2=provLocation.distanceTo(location2);
-                    if(dist1<dist2){
-                        return -1;
-                    }else if(dist1>dist2){
-                        return 1;
-                    }else{
-                        return 0;
-                    }
 
-                }
-            });
-        }
         messaging.utils.showDebugLog(messaging,nameMethod,"GF from DB Sorter "+provMessagingCircularRegions);
-        List<Geofence> geofencesToAdd = new ArrayList<>();
+        final List<Geofence> geofencesToAdd = new ArrayList<>();
         for(MessagingCircularRegion messagingCircularRegion:provMessagingCircularRegions){
             Geofence geofence =messagingCircularRegion.getGeofence();
-            messaging.utils.showDebugLog(messaging,nameMethod,"GF to add: "+geofence.toString());
+            //messaging.utils.showDebugLog(messaging,nameMethod,"GF to add: "+geofence.toString());
             geofencesToAdd.add(geofence);
             if(geofencesToAdd.size()==100){
+                messaging.utils.showInfoLog(messaging,nameMethod,"Limit to GF to add: "
+                        +geofencesToAdd.size());
+                Handler mHandler = new Handler(Looper.getMainLooper()) {
+                    @Override
+                    public void handleMessage(Message message) {
+                        Toast.makeText(context,"Limit to GF to add: "
+                                +geofencesToAdd.size(),Toast.LENGTH_LONG).show();
+                    }
+                };
+                mHandler.sendEmptyMessage(0);
             break;
             }
         }
@@ -2147,7 +2137,7 @@ public class Messaging implements LifecycleObserver {
 
     GeofencingRequest createGeofenceRequest(List<Geofence> geofences ) {
         nameMethod=new Object(){}.getClass().getEnclosingMethod().getName();
-        utils.showDebugLog(this,nameMethod,"createGeofenceRequest "+geofences.toString());
+        utils.showDebugLog(this,nameMethod,"createGeofenceRequest "+geofences.size());
 
         return new GeofencingRequest.Builder()
                 .setInitialTrigger( GeofencingRequest.INITIAL_TRIGGER_ENTER )
@@ -2306,11 +2296,11 @@ public class Messaging implements LifecycleObserver {
 
     }
 
-    public static void deleteAlldB() {
+    public static void deleteAlldB() {//log out
         Messaging messaging=Messaging.getInstance();
         MessagingDB db=new MessagingDB(messaging.context);
         db.deleteAll();
-        db.getAllGeoFenceToBd();
+        //db.getAllGeoFenceToBd();
     }
 
 
