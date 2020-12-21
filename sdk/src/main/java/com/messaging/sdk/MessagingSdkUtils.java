@@ -801,11 +801,11 @@ class MessagingSdkUtils {
 
     public void handleGeoFencePushParameterSinc(String messagingGeoFencePushSinc, Messaging messaging) {
         String nameMethod="handleGeoFencePushParameterSinc";
-        try {
+        //try {
 
-            JSONObject jsonArray=new JSONObject(messagingGeoFencePushSinc);
-            showDebugLog(this,nameMethod,"Sinc"
-                    +jsonArray.toString());
+//            JSONObject jsonArray=new JSONObject(messagingGeoFencePushSinc);
+//            showDebugLog(this,nameMethod,"Sinc"
+//                    +jsonArray.toString());
             showDebugLog(this, nameMethod, "state : "
                     + " is F " + Messaging.isForeground);
             showDebugLog(this, nameMethod, "state : "
@@ -824,9 +824,10 @@ class MessagingSdkUtils {
                 messaging.messagingStorageController.setSincAllowed(Messaging.flagSinc);
             }
 
-        } catch (JSONException e) {
-            e.printStackTrace();
-        }
+//        } catch (JSONException e) {
+//            e.printStackTrace();
+//
+//        }
 
     }
 
