@@ -52,12 +52,12 @@
         android:title="Send Event Custom"
         app:showAsAction="never" />
 
-    <item
-        android:id="@+id/action_delete"
-        android:orderInCategory="100"
-        android:icon="@drawable/ic_baseline_refresh_24"
-        android:title="Delete All dB"
-        app:showAsAction="never" />
+<!--    <item-->
+<!--        android:id="@+id/action_delete"-->
+<!--        android:orderInCategory="100"-->
+<!--        android:icon="@drawable/ic_baseline_refresh_24"-->
+<!--        android:title="Delete All dB"-->
+<!--        app:showAsAction="never" />-->
 
 
 </menu>

@@ -229,9 +229,9 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
                 Messaging.checkGPlayServiceStatus();
                 return true;
 
-            case R.id.action_delete:
-                Messaging.deleteAlldB();
-                return true;
+//            case R.id.action_delete:
+//                //Messaging.deleteAlldB();
+//                return true;
         }
 
         return super.onOptionsItemSelected(item);

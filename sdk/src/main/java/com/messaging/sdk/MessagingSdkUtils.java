@@ -10,6 +10,8 @@ import android.util.Log;
 import androidx.annotation.RequiresApi;
 import androidx.core.app.ActivityCompat;
 
+import com.google.android.gms.location.GeofenceStatusCodes;
+
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -471,7 +473,7 @@ class MessagingSdkUtils {
                     messagingStorageController.saveUserByDevice(null);
                     messagingDevice=null;
                     messagingUser=null;
-                    Messaging.deleteAlldB();
+                    Messaging.logOutProcess();
 
                 }
                 messaging.createDeviceParameters();
@@ -674,7 +676,6 @@ class MessagingSdkUtils {
                                 showDebugLog(this,nameMethod,"MessagingCircularRegion geofence "
                                         +geofence.messagingGeoFenceTrigger+" operation "+provOperation);
                                 //save Geofence in BD
-
                                 db.addGeoFenceToBd(geofence);
 
                             }else if(temp.has(Messaging.GOEOFENCE_OPERATION) &&
@@ -704,7 +705,7 @@ class MessagingSdkUtils {
 
                                 db.update(geofence,provId);
 
-                                //db.getAllGeoFenceToBd();
+
 
                             }else{
                                 if(temp.has(Messaging.GOEOFENCE_OPERATION) &&
@@ -716,15 +717,17 @@ class MessagingSdkUtils {
 
                                     db.delete(provId);
                                     //delete id geofence
-                                    //db.getAllGeoFenceToBd();
+
                                     //metodo para guardar en la BD cree el objeto MCR
                                     //delete Geofence in BD
 
                                 }
                             }
                         }
-                        if(db.getAllGeoFenceToBd().size()>0 ) {
+                        if(db.getAllGeoFenceToBd().size()>0 ) {//aca sera
+                            // colocar otra validacion preguntando si la bd tiene 100 GF
                             if(isLocation_allowed()) {
+                                messaging.stopGeofenceSupervition();
                                 messaging.startGeofence();
                             }else{
                                 showDebugLog(this,nameMethod,"Disable location config for GeoFence "
@@ -785,10 +788,14 @@ class MessagingSdkUtils {
         String nameMethod="getListOfId";
         List<String> result=new ArrayList<>();
         for (MessagingCircularRegion temp: prMessagingCircularRegions){
+
             result.add(temp.id);
+            if(result.size()==99){
+                break;
+            }
         }
         showDebugLog(this, nameMethod, "result : "
-                + " id to remove " + result.toString());
+                + " id to remove " + result.size());
         return result;
     }
 
@@ -823,8 +830,7 @@ class MessagingSdkUtils {
 
     }
 
-    public void deleteGeofenceLocal() {
-
+    public void deleteBdAndGeofenceLocal() {
         String nameMethod="deleteGeofenceLocal";
         MessagingDB db=new MessagingDB(context);
         Messaging messaging=Messaging.getInstance();
@@ -833,6 +839,20 @@ class MessagingSdkUtils {
             List<String> removeIds = getListOfId(prMessagingCircularRegions);
             messaging.removeGeofence(removeIds);
             db.deleteAll();
+        }else{
+            messaging.utils.showDebugLog(this,nameMethod,"Don not have GF in DB");
+        }
+
+    }
+
+    public void deleteGeofenceLocal() {
+        String nameMethod="deleteGeofenceLocalOnly";
+        MessagingDB db=new MessagingDB(context);
+        Messaging messaging=Messaging.getInstance();
+        if(db.getAllGeoFenceToBd().size()>0) {
+            ArrayList<MessagingCircularRegion> prMessagingCircularRegions = db.getAllGeoFenceToBd();
+            List<String> removeIds = getListOfId(prMessagingCircularRegions);
+            messaging.removeGeofence(removeIds);
         }else{
             messaging.utils.showDebugLog(this,nameMethod,"Don not have GF in DB");
         }
@@ -859,5 +879,21 @@ class MessagingSdkUtils {
         }
 
         return true;
+    }
+
+    /**
+     * Returns the error string for a geofencing error code.
+     */
+    public  String getErrorString(int errorCode) {
+        switch (errorCode) {
+            case GeofenceStatusCodes.GEOFENCE_NOT_AVAILABLE:
+                return "Geofence is not available";
+            case GeofenceStatusCodes.GEOFENCE_TOO_MANY_GEOFENCES:
+                return "Too many geofences";
+            case GeofenceStatusCodes.GEOFENCE_TOO_MANY_PENDING_INTENTS:
+                return "Too many pending intents";
+            default:
+                return "Unknown error: " + Integer.toString(errorCode);
+        }
     }
 }

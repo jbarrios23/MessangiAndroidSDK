@@ -100,8 +100,8 @@ public class MessagingDB extends SQLiteOpenHelper {
                     .build();
             Messaging messaging=Messaging.getInstance();
             String nameMethod=new Object(){}.getClass().getEnclosingMethod().getName();
-            messaging.utils.showDebugLog(this,nameMethod,"Get data "
-                    +messagingCircularRegion.toString());
+//            messaging.utils.showDebugLog(this,nameMethod,"Get data "
+//                    +messagingCircularRegion.toString());
 
             return messagingCircularRegion;
         }
@@ -144,7 +144,7 @@ public class MessagingDB extends SQLiteOpenHelper {
         }
         Messaging messaging=Messaging.getInstance();
         String nameMethod=new Object(){}.getClass().getEnclosingMethod().getName();
-        messaging.utils.showDebugLog(this,nameMethod,"Get all data "+result.toString());
+        messaging.utils.showDebugLog(this,nameMethod,"Get all data "+result.size());
         db.close();
 
         if(messaging.messagingStorageController.hasLastLocation()) {

@@ -281,13 +281,10 @@ public class MainActivity extends AppCompatActivity {
     private void goToLogin() {
         SharedPreferences sharedPreferences = getApplicationContext().getSharedPreferences("MESSAGING_LOGIN", Context.MODE_PRIVATE);
         sharedPreferences.edit().putBoolean("IS_LOGGED", false).apply();
-        //deberia ser la sesion ser controlada por deviceId preguntando si tengo device Id.
+        Messaging.logOutProcess();
         nameMethod=new Object(){}.getClass().getEnclosingMethod().getName();
         Intent intent=new Intent(MainActivity.this,LoginActivity.class);
         startActivity(intent);
-
-
-        Log.i(TAG, "INFO: " + CLASS_TAG + ": " + nameMethod + " isAnalytics_allowed: " + messaging.isAnalytics_allowed());
         MainActivity.this.finish();
     }
 
