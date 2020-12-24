@@ -191,6 +191,13 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
             case R.id.action_get_geofences:
                 Toast.makeText(getApplicationContext(), "Geting geofence List....", Toast.LENGTH_SHORT).show();
                 Messaging.fetchGeofence(false,"");
+                if (geoFenceMarker != null) {
+                    geoFenceMarker.remove();
+                }
+                if (geoFenceLimits != null ) {
+                    geoFenceLimits.remove();
+                }
+
                 showGofenceList=true;
                 return true;
             case R.id.action_get_geofences_service:
@@ -421,19 +428,19 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
 
     private Marker geoFenceMarker;
     // Create a marker for the geofence creation
-    private void markerForGeofence(LatLng latLng,int radius,int monitoring) {
-        Log.i(CLASS_TAG, "markerForGeofence("+latLng+")");
+    private void markerForGeofence(LatLng latLng, int radius, int monitoring, int size, String id) {
+        Log.i(CLASS_TAG, "markerForGeofence("+latLng+")"+size);
 
         // Define marker options
         MarkerOptions markerOptions;
         if(monitoring==1) {
-             String title = latLng.latitude + ", " + latLng.longitude+"  "+"ON "+" "+radius;
+             String title = id+" "+latLng.latitude + ", " + latLng.longitude+"  "+"ON "+" "+radius;
              markerOptions= new MarkerOptions()
                     .position(latLng)
                     .icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_GREEN))
                     .title(title);
         }else{
-             String title = latLng.latitude + ", " + latLng.longitude+"  "+"OFF "+" "+radius;
+             String title = id+" "+latLng.latitude + ", " + latLng.longitude+"  "+"OFF "+" "+radius;
              markerOptions = new MarkerOptions()
                     .position(latLng)
                     .icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_ROSE))
@@ -442,7 +449,7 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
         if ( mMap!=null ) {
             // Remove last geoFenceMarker
             if (geoFenceMarker != null) {
-                //geoFenceMarker.remove();
+               // geoFenceMarker.remove();
             }
             geoFenceMarker = mMap.addMarker(markerOptions);
             drawGeofence(radius);
@@ -500,22 +507,30 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
                         showAlertNotification(messagingNotification, data);
 
                     }else if(intent.getAction().equals(Messaging.ACTION_FETCH_GEOFENCE) && data!=null) {
-
+                    Messaging.fetchLocation(MapsActivity.this,false);
                     messagingCircularRegions = (ArrayList<MessagingCircularRegion>) data;
-
+                    if (geoFenceMarker != null) {
+                       // Log.e(TAG, "DEBUG: " + CLASS_TAG + ": " + nameMethod + ": geoFenceMarker.remove():" );
+                        geoFenceMarker.remove();
+                    }
+                    if (geoFenceLimits != null ) {
+                        //Log.e(TAG, "DEBUG: " + CLASS_TAG + ": " + nameMethod + ": geoFenceLimits.remove():" );
+                        geoFenceLimits.remove();
+                    }
                     for(MessagingCircularRegion temp:messagingCircularRegions){
 //                    Log.d(TAG, "DEBUG: " + CLASS_TAG + ": " + nameMethod + ": Data Location Lat:  "
 //                                + temp.getLatitude()+" Long: "+temp.getLongitud()+" radius "+temp.getRadius()
 //                                +" trigger "+temp.getTrigger());
                         LatLng prov=new LatLng(temp.getLatitude(),temp.getLongitud());
-                        markerForGeofence(prov,temp.getRadius(),temp.getMonitoring());
+                        markerForGeofence(prov,temp.getRadius(),temp.getMonitoring()
+                                ,messagingCircularRegions.size(),temp.getId());
                     }
 
                     if(showGofenceList) {
                         showAlertGeofenceList(messagingCircularRegions);
                         showGofenceList=false;
                     }
-                    Messaging.fetchLocation(MapsActivity.this,false);
+
 
                     }else{
                     Toast.makeText(getApplicationContext(),alertMessage,Toast.LENGTH_SHORT).show();

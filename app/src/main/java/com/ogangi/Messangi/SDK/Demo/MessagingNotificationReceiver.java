@@ -101,8 +101,9 @@ public class MessagingNotificationReceiver extends BroadcastReceiver {
                  }
 
              }else if(intent.getAction().equals(Messaging.ACTION_GEOFENCE_ENTER)
-                     ||intent.getAction().equals(Messaging.ACTION_GEOFENCE_EXIT)){
-                  messagingCircularRegions=(ArrayList<MessagingCircularRegion>)data;
+                     ||intent.getAction().equals(Messaging.ACTION_GEOFENCE_EXIT)
+                     ||intent.getAction().equals(Messaging.ACTION_FETCH_GEOFENCE)){
+                 messagingCircularRegions=(ArrayList<MessagingCircularRegion>)data;
                  if(isInBackground){
                  Log.d(TAG, "DEBUG: " + CLASS_TAG + ": " + nameMethod + ": Data Geofence:  "
                              + messagingCircularRegions);

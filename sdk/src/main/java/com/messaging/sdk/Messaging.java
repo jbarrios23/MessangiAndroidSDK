@@ -188,6 +188,7 @@ public class Messaging implements LifecycleObserver {
     public static final String GOEOFENCE_TYPE="type";
     public static final String GOEOFENCE_EXPIRATION="expiration";
     public static final String GOEOFENCE_MONITORING="monitoring";
+    public static final String GOEOFENCE_AFTER_DELETE="afterDelete";
     public static final String GOEOFENCE_TYPE_IN="in";
     public static final String GOEOFENCE_TYPE_OUT="out";
     public static final String GOEOFENCE_TYPE_BOTH="both";
@@ -829,7 +830,7 @@ public class Messaging implements LifecycleObserver {
                                                .getString(Messaging.GET_GOEOFENCE_PREV);
                                        if(preProv.equals("null")){
                                            //messaging.utils.deleteGeofenceLocal();
-                                           //messaging.stopGeofenceSupervition();
+                                           messaging.stopGeofenceSupervition();
                                            Messaging.logOutProcess();
                                        }
 
@@ -857,8 +858,9 @@ public class Messaging implements LifecycleObserver {
 
                                             if(db.getAllGeoFenceToBd().size()>0 && messaging.utils.isLocation_allowed()) {
                                                 messaging.utils.showDebugLog(this,nameMethod,"start geofence ");
-                                                messaging.startGeofence("");
+                                                messaging.startGeofence(null);
                                                 messaging.sendEventToActivity(Messaging.ACTION_FETCH_GEOFENCE,db.getAllGeoFenceToBd(),messaging.context);
+                                                //messaging.sendGlobalEventToActivity(Messaging.ACTION_FETCH_GEOFENCE,db.getAllGeoFenceToBd());
                                             }else{
                                                 messaging.utils.showDebugLog(this,nameMethod,
                                                         Messaging.MESSAGING_INVALID_DEVICE_LOCATION_REASON_CONFIG +" or no data in BD");
@@ -886,7 +888,10 @@ public class Messaging implements LifecycleObserver {
 
         }else{
             if(db.getAllGeoFenceToBd().size()>0 && messaging.utils.isLocation_allowed()) {
+                messaging.utils.showDebugLog(messaging, nameMethod, "send GF BD! "
+                        +db.getAllGeoFenceToBd().size());
                 messaging.sendEventToActivity(Messaging.ACTION_FETCH_GEOFENCE, db.getAllGeoFenceToBd(), messaging.context);
+                //messaging.sendGlobalEventToActivity(Messaging.ACTION_FETCH_GEOFENCE, db.getAllGeoFenceToBd());
             }else{
                 Toast.makeText(messaging.context,"Has not Geofence yet!",Toast.LENGTH_LONG).show();
                 messaging.utils.showDebugLog(messaging, nameMethod, "has not Geofence yet! ");
@@ -1330,11 +1335,14 @@ public class Messaging implements LifecycleObserver {
      @param context : context instance
      */
     private void sendEventToActivity(String action, Serializable something, Context context) {
-
+        nameMethod="sendEventToActivity";
         Intent intent=new Intent(action);
         intent.putExtra(INTENT_EXTRA_DATA,something);
         intent.putExtra(INTENT_EXTRA_HAS_ERROR,something==null);
         LocalBroadcastManager.getInstance(context).sendBroadcast(intent);
+        Messaging messaging=Messaging.getInstance();
+        messaging.utils.showDebugLog(messaging, nameMethod, "Action Send "
+                +action);
 
     }
 
@@ -2092,7 +2100,8 @@ public class Messaging implements LifecycleObserver {
         if(messaging.utils.isLocation_allowed()) {
             MessagingDB db=new MessagingDB(messaging.context);
             if(db.getAllGeoFenceToBd().size()>0) {
-                messaging.startGeofence("");
+                db.clearMonitoring();
+                messaging.startGeofence(null);
                 messaging.utils.showDebugLog(messaging, nameMethod, "Re-Register Geofence "+db.getAllGeoFenceToBd().size());
                 Toast.makeText(messaging.context,"Re-Register Geofence..... "+db.getAllGeoFenceToBd().size(),Toast.LENGTH_LONG).show();
             }else{
@@ -2109,18 +2118,14 @@ public class Messaging implements LifecycleObserver {
     }
 
     // Start Geofence creation process
-    void startGeofence(String provOperation) {
+    void startGeofence(ArrayList<String> geofenceToRegister) {
     String nameMethod=new Object(){}.getClass().getEnclosingMethod().getName();
     final Messaging messaging= Messaging.getInstance();
     messaging.utils.showDebugLog(messaging,nameMethod,"Register Geofence");
         MessagingDB db=new MessagingDB(context);
         nearestRegions=db.getAllGeoFenceToBd();
         provMessagingCircularRegionsMonitoring=messaging.utils.getGFMonitoringOne(nearestRegions);
-
-        messaging.utils.showDebugLog(messaging,nameMethod,"provMessagingCircularRegionsMonitoring "
-                +provMessagingCircularRegionsMonitoring.size());
         final ArrayList<MessagingCircularRegion> closestRegions = new ArrayList<>();
-
         for(MessagingCircularRegion messagingCircularRegion:nearestRegions){
 
             //messaging.utils.showDebugLog(messaging,nameMethod,"GF to add: "+geofence.toString());
@@ -2140,15 +2145,27 @@ public class Messaging implements LifecycleObserver {
             break;
             }
         }
-        ArrayList<MessagingCircularRegion> intersetion=messaging.utils.
+        messaging.utils.showDebugLog(messaging,nameMethod,"provMessagingCircularRegionsMonitoring "
+                +provMessagingCircularRegionsMonitoring.size());
+        ArrayList<MessagingCircularRegion> intersection=messaging.utils.
                 getIntersection(closestRegions,provMessagingCircularRegionsMonitoring);
-        messaging.utils.showInfoLog(messaging,nameMethod,"intersetion: "
-                +(intersetion.size()));
+        messaging.utils.showInfoLog(messaging,nameMethod,"intersection: "
+                +(intersection.size()));
         regionsToDelete=messaging.utils
-                .symmetricDifference(provMessagingCircularRegionsMonitoring,intersetion);
+                .symmetricDifference(provMessagingCircularRegionsMonitoring,intersection);
         regionsToAdd=messaging.utils
-                .symmetricDifference(intersetion,closestRegions);
-        messaging.utils.deleteGeofenceLocal(regionsToDelete,provOperation);
+                .symmetricDifference(intersection,closestRegions);
+        if(geofenceToRegister!=null){
+            for(String gf:geofenceToRegister){
+                for(int i=0;i<intersection.size();i++){
+                    if(intersection.get(i).getId().equals(gf)){
+                        regionsToDelete.add(intersection.get(i));
+                        regionsToAdd.add(intersection.get(i));
+                    }
+                }
+            }
+        }
+        messaging.utils.deleteGeofenceLocal(regionsToDelete);
         if(regionsToAdd.size()>0){
             messaging.utils.showInfoLog(messaging,nameMethod,"regionsToAdd: "
                     +(regionsToAdd.size()));
@@ -2157,8 +2174,9 @@ public class Messaging implements LifecycleObserver {
         }else{
             messaging.utils.showInfoLog(messaging,nameMethod,"no regionsToAdd: "
                     +(regionsToAdd.size()));
-            fetchGeofence(true,"");
+
         }
+        db.deleteMarked();
 
     }
 
@@ -2198,18 +2216,13 @@ public class Messaging implements LifecycleObserver {
                             MessagingDB db=new MessagingDB(context);
                             MessagingCircularRegion.Builder builder= new MessagingCircularRegion.Builder();
                             for(MessagingCircularRegion messagingCircularRegion:regionsToAdd){
-                                MessagingCircularRegion geofence=builder
-                                        .initWith(messagingCircularRegion)
-                                        .setMonitoring(1)
-                                        .build();
-                                db.update(geofence,messagingCircularRegion.getId());
+
+                                db.markRecordToMonitoring(messagingCircularRegion.getId(),true);
                             }
                             for(MessagingCircularRegion messagingCircularRegion:regionsToDelete){
-                                MessagingCircularRegion geofence=builder
-                                        .initWith(messagingCircularRegion)
-                                        .setMonitoring(0)
-                                        .build();
-                                db.update(geofence,messagingCircularRegion.getId());
+
+                                db.markRecordToMonitoring(messagingCircularRegion.getId(),false);
+
                             }
                             fetchGeofence(false,"");
 
@@ -2224,6 +2237,7 @@ public class Messaging implements LifecycleObserver {
                     if(mesagError.equals("Too many geofences")){
                         sendEventCustom(mesagError,mesagError);
                     }
+                    fetchGeofence(false,"");
 
                 }
             });
@@ -2255,7 +2269,7 @@ public class Messaging implements LifecycleObserver {
 
     }
 
-    void removeGeofence(List<String> listIds){
+    void removeGeofence(final List<String> listIds){
         nameMethod="removeGeofence";
         utils.showDebugLog(this,nameMethod,"removeGeofence "+listIds.toString());
         utils.showDebugLog(this,nameMethod,"removeGeofence "+listIds.size());
@@ -2265,15 +2279,23 @@ public class Messaging implements LifecycleObserver {
                     public void onSuccess(Void aVoid) {
                         nameMethod=new Object(){}.getClass().getEnclosingMethod().getName();
                         utils.showDebugLog(this,nameMethod,"onSuccess removeGeofence ");
+                        //actualizar monitor de GF a 0
+                        MessagingDB db=new MessagingDB(context);
+                        for(String temp:listIds){
+                            db.markRecordToMonitoring(temp,false);
+                        }
+                        fetchGeofence(false,"");
+
+
                     }
                 })
                 .addOnFailureListener(new OnFailureListener() {
                     @Override
                     public void onFailure(@NonNull Exception e) {
-                        // Failed to remove geofences
-                        // ...
+
                         nameMethod=new Object(){}.getClass().getEnclosingMethod().getName();
                         utils.showDebugLog(this,nameMethod,"onFailure removeGeofence "+e.getMessage());
+                        fetchGeofence(false,"");
                     }
                 });
 

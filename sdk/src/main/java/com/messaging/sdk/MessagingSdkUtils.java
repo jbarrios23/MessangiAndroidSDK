@@ -649,6 +649,7 @@ class MessagingSdkUtils {
                         JSONArray jsonArray=new JSONArray(messagingGeoFencePush);
                         String provOperation = "";
                         messaging.utils.showDebugLog(this,nameMethod,"GeoFence Array "+jsonArray);
+                        ArrayList<String> geofenceToRegister=new ArrayList<>();
                         for(int i=0;i<jsonArray.length();i++){
                             JSONObject temp=jsonArray.getJSONObject(i);
                             if(!temp.has(Messaging.GOEOFENCE_ID_OTHER)) {
@@ -666,7 +667,8 @@ class MessagingSdkUtils {
                             if(provOperation.equals(Messaging.GOEOFENCE_OPERATION_DELETE) ){
                                 if(region!=null) {
 
-                                    db.delete(provId);
+                                    //db.delete(provId);
+                                    db.markRecordToDelete(provId);
                                 }
 
                             }else{
@@ -681,6 +683,7 @@ class MessagingSdkUtils {
                                             .setExpiration(provExpiration)
                                             .build();
                                     db.update(geofence,provId);
+                                    geofenceToRegister.add(provId);
                                 }else{
                                     MessagingCircularRegion geofence=builder
                                             .setId(temp.getString(Messaging.GOEOFENCE_ID_OTHER))
@@ -699,7 +702,7 @@ class MessagingSdkUtils {
                         if(db.getAllGeoFenceToBd().size()>0 ) {//aca sera
                                 if(isLocation_allowed()) {
                                 //messaging.stopGeofenceSupervition();
-                                messaging.startGeofence(provOperation);
+                                messaging.startGeofence(geofenceToRegister);
                             }else{
                                 showDebugLog(this,nameMethod,"Disable location config for GeoFence "
                                         +Messaging.MESSAGING_INVALID_DEVICE_LOCATION_REASON_CONFIG);
@@ -812,18 +815,20 @@ class MessagingSdkUtils {
 
     }
 
-    public void deleteGeofenceLocal(ArrayList<MessagingCircularRegion> regionsToDelete, String provOperation) {
+    public void deleteGeofenceLocal(ArrayList<MessagingCircularRegion> regionsToDelete) {
         String nameMethod="deleteGeofenceLocalOnly";
         Messaging messaging=Messaging.getInstance();
         messaging.utils.showDebugLog(this,nameMethod,"regionsToDelete "
-                +regionsToDelete.size()+" "+provOperation);
+                +regionsToDelete.size());
         if(regionsToDelete.size()>0) {
             List<String> removeIds = getListOfId(regionsToDelete);
             messaging.removeGeofence(removeIds);
+
         }else{
-            if(provOperation.equals("")) {
-                messaging.stopGeofenceSupervition();
-            }
+//            if(provOperation.equals("")) {
+//                messaging.stopGeofenceSupervition();
+//                messaging.utils.showDebugLog(this,nameMethod,"stopGeofenceSupervition() ");
+//            }
             messaging.utils.showDebugLog(this,nameMethod,"Don not have GF to delete");
         }
 

@@ -12,10 +12,13 @@ public class MessagingCircularRegion extends MessagingGeofence implements Serial
     private static final long GEO_DURATION = 60 * 60 * 1000;
     private MessagingSdkUtils messagingSdkUtils;
     private int monitoring;
+    private int isafterToDelete;
 
 
     public MessagingCircularRegion() {
+
         this.monitoring = 0;
+        this.isafterToDelete=0;
     }
 
     @Override
@@ -59,6 +62,10 @@ public class MessagingCircularRegion extends MessagingGeofence implements Serial
         return monitoring;
     }
 
+    public boolean isAfterTodelete() {
+
+        return isafterToDelete==1;
+    }
 
 
     public static class Builder{
@@ -72,6 +79,11 @@ public class MessagingCircularRegion extends MessagingGeofence implements Serial
 
         public MessagingCircularRegion.Builder setMonitoring(int monitoring) {
             prepare().monitoring = monitoring;
+            return this;
+        }
+
+        public MessagingCircularRegion.Builder setIsAfterDelete(int isAfterDelete) {
+            prepare().isafterToDelete = isAfterDelete;
             return this;
         }
 
