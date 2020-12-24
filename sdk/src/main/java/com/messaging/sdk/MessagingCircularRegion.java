@@ -11,7 +11,12 @@ public class MessagingCircularRegion extends MessagingGeofence implements Serial
     private int radius;
     private static final long GEO_DURATION = 60 * 60 * 1000;
     private MessagingSdkUtils messagingSdkUtils;
+    private int monitoring;
 
+
+    public MessagingCircularRegion() {
+        this.monitoring = 0;
+    }
 
     @Override
     public Geofence getGeofence() {
@@ -50,12 +55,23 @@ public class MessagingCircularRegion extends MessagingGeofence implements Serial
         return radius;
     }
 
+    public int getMonitoring() {
+        return monitoring;
+    }
+
+
+
     public static class Builder{
 
         private MessagingCircularRegion product;
 
         public MessagingCircularRegion.Builder setId(String id) {
             prepare().id = id;
+            return this;
+        }
+
+        public MessagingCircularRegion.Builder setMonitoring(int monitoring) {
+            prepare().monitoring = monitoring;
             return this;
         }
 
@@ -106,6 +122,10 @@ public class MessagingCircularRegion extends MessagingGeofence implements Serial
             return prov;
         }
 
+        public Builder initWith(MessagingCircularRegion messagingCircularRegion) {
+            this.product=messagingCircularRegion;
+            return this;
+        }
     }
 
     @Override
@@ -116,6 +136,7 @@ public class MessagingCircularRegion extends MessagingGeofence implements Serial
                 "radius=" + radius +"\n"+
                 "id='" + id + '\'' +"\n"+
                 "messagingGeoFenceTrigger=" + messagingGeoFenceTrigger +"\n"+
-                "expiration=" + expiration+"\n";
+                "expiration=" + expiration+"\n"+
+                "monitoring=" + monitoring+"\n";
     }
 }

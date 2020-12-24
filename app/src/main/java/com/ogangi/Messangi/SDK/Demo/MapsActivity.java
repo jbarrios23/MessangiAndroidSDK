@@ -253,8 +253,19 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
         ListView listView=customLayout.findViewById(R.id.list_data_noti);
         if(geofenceFromdB.size()>0) {
             messangiGeofenceData.add("# Geofence "+geofenceFromdB.size());
+            messangiGeofenceData.add("Last Location "+"\n"+"Lat: "
+                    +Messaging.getLastLocation().getLatitude()+" Long: "
+                    +Messaging.getLastLocation().getLongitude());
+            final Location provLocation = Messaging.getLastLocation();
             for (MessagingCircularRegion region : geofenceFromdB) {
-               messangiGeofenceData.add(region.toString());
+                messangiGeofenceData.add(region.toString());
+                if(provLocation!=null){
+                Location location1 = new Location(LOCATION_SERVICE);
+                location1.setLatitude(region.getLatitude());
+                location1.setLongitude(region.getLongitud());
+                double dist = provLocation.distanceTo(location1);
+                messangiGeofenceData.add("Distance: "+dist);
+                }
             }
         }else{
             Log.d(CLASS_TAG,TAG+ " Do not have geofence ");
@@ -410,14 +421,24 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
 
     private Marker geoFenceMarker;
     // Create a marker for the geofence creation
-    private void markerForGeofence(LatLng latLng,int radius) {
+    private void markerForGeofence(LatLng latLng,int radius,int monitoring) {
         Log.i(CLASS_TAG, "markerForGeofence("+latLng+")");
-        String title = latLng.latitude + ", " + latLng.longitude;
+
         // Define marker options
-        MarkerOptions markerOptions = new MarkerOptions()
-                .position(latLng)
-                .icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_ORANGE))
-                .title(title);
+        MarkerOptions markerOptions;
+        if(monitoring==1) {
+             String title = latLng.latitude + ", " + latLng.longitude+"  "+"ON "+" "+radius;
+             markerOptions= new MarkerOptions()
+                    .position(latLng)
+                    .icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_GREEN))
+                    .title(title);
+        }else{
+             String title = latLng.latitude + ", " + latLng.longitude+"  "+"OFF "+" "+radius;
+             markerOptions = new MarkerOptions()
+                    .position(latLng)
+                    .icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_ROSE))
+                    .title(title);
+        }
         if ( mMap!=null ) {
             // Remove last geoFenceMarker
             if (geoFenceMarker != null) {
@@ -425,15 +446,13 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
             }
             geoFenceMarker = mMap.addMarker(markerOptions);
             drawGeofence(radius);
-
-
         }
 
     }
 
     private void drawGeofence(int radius) {
         //Log.d(CLASS_TAG, "drawGeofence()");
-        Log.d(TAG, "DEBUG: " + CLASS_TAG + ": drawGeofence()");
+        //Log.d(TAG, "DEBUG: " + CLASS_TAG + ": drawGeofence()");
 
         if ( geoFenceLimits != null ) {
             //geoFenceLimits.remove();
@@ -454,7 +473,7 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
 
             boolean hasError=intent.getBooleanExtra(Messaging.INTENT_EXTRA_HAS_ERROR,true);
             String alertMessage = getResources().getString(getResources().getIdentifier(intent.getAction(), "string", getPackageName()));
-            Toast.makeText(getApplicationContext(), alertMessage, Toast.LENGTH_SHORT).show();
+            Toast.makeText(getApplicationContext(), alertMessage, Toast.LENGTH_LONG).show();
             Log.d(TAG,"DEBUG: " + CLASS_TAG + ": " + nameMethod + ":   " + alertMessage);
             //Log.d(TAG,"DEBUG: "+CLASS_TAG+": "+nameMethod+": Has error:  "+ hasError);
             if (!hasError ) {
@@ -485,11 +504,11 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
                     messagingCircularRegions = (ArrayList<MessagingCircularRegion>) data;
 
                     for(MessagingCircularRegion temp:messagingCircularRegions){
-                    Log.d(TAG, "DEBUG: " + CLASS_TAG + ": " + nameMethod + ": Data Location Lat:  "
-                                + temp.getLatitude()+" Long: "+temp.getLongitud()+" radius "+temp.getRadius()
-                                +" trigger "+temp.getTrigger());
+//                    Log.d(TAG, "DEBUG: " + CLASS_TAG + ": " + nameMethod + ": Data Location Lat:  "
+//                                + temp.getLatitude()+" Long: "+temp.getLongitud()+" radius "+temp.getRadius()
+//                                +" trigger "+temp.getTrigger());
                         LatLng prov=new LatLng(temp.getLatitude(),temp.getLongitud());
-                        markerForGeofence(prov,temp.getRadius());
+                        markerForGeofence(prov,temp.getRadius(),temp.getMonitoring());
                     }
 
                     if(showGofenceList) {

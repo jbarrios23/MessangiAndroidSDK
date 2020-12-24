@@ -20,7 +20,10 @@ import java.net.MalformedURLException;
 import java.net.URISyntaxException;
 import java.net.URL;
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 import static android.content.Context.LOCATION_SERVICE;
 
@@ -28,14 +31,10 @@ class MessagingSdkUtils {
 
 
     public static String TAG="MESSAGING";
-    //    private static String messaging_host;
-//    private static String messaging_token;
+
     private  String messagingHost;
     private  String messagingToken;
     private  String messagingTokenDefault;
-//    private  boolean analytics_allowed;
-//    private  boolean location_allowed;
-    //private  boolean logging_allowed;
     private  boolean enable_permission_automatic=true;
     public String provHost;
     private MessagingStorageController messagingStorageController;
@@ -530,9 +529,7 @@ class MessagingSdkUtils {
             showDebugLog(this,nameMethod," Dont have permission for GeoPush yet! ");
             Messaging.sendEventToBackend(Messaging.MESSAGING_INVALID_DEVICE_LOCATION,
                     Messaging.MESSAGING_INVALID_DEVICE_LOCATION_REASON_MISSING, "");
-
         }else {
-
             if(messaging.isGPS()){
                 showDebugLog(this,nameMethod,"location enable "
                         +isLocation_allowed());
@@ -549,6 +546,7 @@ class MessagingSdkUtils {
                             location.setLongitude(provLongitude);
                             showDebugLog(this,nameMethod,"GeoPush location lat: "+provLatitude
                                     +" Long: "+provLongitude);
+
                             if(messaging.messagingStorageController.hasLastLocation()){
                                 Location lastLocation=messaging.messagingStorageController.getLastLocationSaved();
                                 showDebugLog(this,nameMethod,"last location lat: "+lastLocation.getLatitude()
@@ -646,89 +644,62 @@ class MessagingSdkUtils {
                     Messaging.MESSAGING_INVALID_DEVICE_LOCATION_REASON_MISSING, "");
 
         }else {
-
             if(messaging.isGPS()){
                     try {
                         JSONArray jsonArray=new JSONArray(messagingGeoFencePush);
+                        String provOperation = "";
                         messaging.utils.showDebugLog(this,nameMethod,"GeoFence Array "+jsonArray);
                         for(int i=0;i<jsonArray.length();i++){
                             JSONObject temp=jsonArray.getJSONObject(i);
-                            if(temp.has(Messaging.GOEOFENCE_OPERATION) &&
-                                    temp.getString(Messaging.GOEOFENCE_OPERATION)
-                                            .equals(Messaging.GOEOFENCE_OPERATION_CREATE)){
-
-                                String provOperation=temp.getString(Messaging.GOEOFENCE_OPERATION);
-                                long provExpiration;
-                                if(temp.has(Messaging.GOEOFENCE_EXPIRATION)) {
-                                    provExpiration= temp.getLong(Messaging.GOEOFENCE_EXPIRATION);
-                                }else{
-                                    provExpiration=Messaging.NEVER_EXPIRE;
-                                }
-
-                                //metodo para guardar en la BD cree el objeto MCR
-                                MessagingCircularRegion geofence=builder.setId(temp.getString(Messaging.GOEOFENCE_ID_OTHER))
-                                        .setLatitude(temp.getDouble(Messaging.GOEOFENCE_LAT))
-                                        .setLongitud(temp.getDouble(Messaging.GOEOFENCE_LONG))
-                                        .setRadius(temp.getInt(Messaging.GOEOFENCE_RADIUS))
-                                        .setMessagingGeoFenceTrigger(temp.getString(Messaging.GOEOFENCE_TYPE))
-                                        .setExpiration(provExpiration)
-                                        .build();
-                                showDebugLog(this,nameMethod,"MessagingCircularRegion geofence "
-                                        +geofence.messagingGeoFenceTrigger+" operation "+provOperation);
-                                //save Geofence in BD
-                                db.addGeoFenceToBd(geofence);
-
-                            }else if(temp.has(Messaging.GOEOFENCE_OPERATION) &&
-                                    temp.getString(Messaging.GOEOFENCE_OPERATION)
-                                            .equals(Messaging.GOEOFENCE_OPERATION_UPDATE)){
-
-
-                                String provOperation=temp.getString(Messaging.GOEOFENCE_OPERATION);
-                                long provExpiration;
-                                if(temp.has(Messaging.GOEOFENCE_EXPIRATION)) {
-                                    provExpiration= temp.getLong(Messaging.GOEOFENCE_EXPIRATION);
-                                }else{
-                                    provExpiration=Messaging.NEVER_EXPIRE;
-                                }
-                                //metodo para guardar en la BD cree el objeto MCR
-                                String provId=temp.getString(Messaging.GOEOFENCE_ID_OTHER);
-                                MessagingCircularRegion geofence=builder.setId(temp.getString(Messaging.GOEOFENCE_ID_OTHER))
-                                        .setLatitude(temp.getDouble(Messaging.GOEOFENCE_LAT))
-                                        .setLongitud(temp.getDouble(Messaging.GOEOFENCE_LONG))
-                                        .setRadius(temp.getInt(Messaging.GOEOFENCE_RADIUS))
-                                        .setMessagingGeoFenceTrigger(temp.getString(Messaging.GOEOFENCE_TYPE))
-                                        .setExpiration(provExpiration)
-                                        .build();
-                                //save Geofence in BD
-                                showDebugLog(this,nameMethod,"MessagingCircularRegion geofence "
-                                        +geofence.messagingGeoFenceTrigger+" operation "+provOperation);
-
-                                db.update(geofence,provId);
-
-
-
+                            if(!temp.has(Messaging.GOEOFENCE_ID_OTHER)) {
+                                continue;
+                            }
+                            long provExpiration;
+                            if(temp.has(Messaging.GOEOFENCE_EXPIRATION)) {
+                                provExpiration= temp.getLong(Messaging.GOEOFENCE_EXPIRATION);
                             }else{
-                                if(temp.has(Messaging.GOEOFENCE_OPERATION) &&
-                                        temp.getString(Messaging.GOEOFENCE_OPERATION).equals(Messaging.GOEOFENCE_OPERATION_DELETE)){
-
-                                    //String provId=temp.getString(Messaging.GOEOFENCE_ID);
-                                    String provId=temp.getString(Messaging.GOEOFENCE_ID_OTHER);
-                                    String provOperation=temp.getString(Messaging.GOEOFENCE_OPERATION);
+                                provExpiration=Messaging.NEVER_EXPIRE;
+                            }
+                            String provId=temp.getString(Messaging.GOEOFENCE_ID_OTHER);
+                            provOperation=temp.getString(Messaging.GOEOFENCE_OPERATION);
+                            MessagingCircularRegion region=db.getGeoFenceToBd(provId);
+                            if(provOperation.equals(Messaging.GOEOFENCE_OPERATION_DELETE) ){
+                                if(region!=null) {
 
                                     db.delete(provId);
-                                    //delete id geofence
-
-                                    //metodo para guardar en la BD cree el objeto MCR
-                                    //delete Geofence in BD
-
                                 }
+
+                            }else{
+                                ///operation can be null,create or update
+                                if(region!=null){
+                                    MessagingCircularRegion geofence=builder.initWith(region)
+                                            .setId(temp.getString(Messaging.GOEOFENCE_ID_OTHER))
+                                            .setLatitude(temp.getDouble(Messaging.GOEOFENCE_LAT))
+                                            .setLongitud(temp.getDouble(Messaging.GOEOFENCE_LONG))
+                                            .setRadius(temp.getInt(Messaging.GOEOFENCE_RADIUS))
+                                            .setMessagingGeoFenceTrigger(temp.getString(Messaging.GOEOFENCE_TYPE))
+                                            .setExpiration(provExpiration)
+                                            .build();
+                                    db.update(geofence,provId);
+                                }else{
+                                    MessagingCircularRegion geofence=builder
+                                            .setId(temp.getString(Messaging.GOEOFENCE_ID_OTHER))
+                                            .setLatitude(temp.getDouble(Messaging.GOEOFENCE_LAT))
+                                            .setLongitud(temp.getDouble(Messaging.GOEOFENCE_LONG))
+                                            .setRadius(temp.getInt(Messaging.GOEOFENCE_RADIUS))
+                                            .setMessagingGeoFenceTrigger(temp.getString(Messaging.GOEOFENCE_TYPE))
+                                            .setExpiration(provExpiration)
+                                            .build();
+                                    db.saveGeofence(geofence);
+                                }
+
                             }
+
                         }
                         if(db.getAllGeoFenceToBd().size()>0 ) {//aca sera
-                            // colocar otra validacion preguntando si la bd tiene 100 GF
-                            if(isLocation_allowed()) {
-                                messaging.stopGeofenceSupervition();
-                                messaging.startGeofence();
+                                if(isLocation_allowed()) {
+                                //messaging.stopGeofenceSupervition();
+                                messaging.startGeofence(provOperation);
                             }else{
                                 showDebugLog(this,nameMethod,"Disable location config for GeoFence "
                                         +Messaging.MESSAGING_INVALID_DEVICE_LOCATION_REASON_CONFIG);
@@ -761,7 +732,6 @@ class MessagingSdkUtils {
          long provExpiration = Messaging.NEVER_EXPIRE;
          for(int i=0;i<jsonArrayItems.length();i++){
             JSONObject temp=jsonArrayItems.getJSONObject(i);
-
             //if(isValidLatLng(temp.getDouble(Messaging.GOEOFENCE_LAT),temp.getDouble(Messaging.GOEOFENCE_LONG))) {
                 MessagingCircularRegion geofence = builder.setId(temp.getString(Messaging.GOEOFENCE_ID))
                         .setLatitude(temp.getDouble(Messaging.GOEOFENCE_LAT))
@@ -770,7 +740,7 @@ class MessagingSdkUtils {
                         .setMessagingGeoFenceTrigger(temp.getString(Messaging.GOEOFENCE_TYPE))
                         .setExpiration(provExpiration)
                         .build();
-                db.addGeoFenceToBd(geofence);
+                db.saveGeofence(geofence);
              /*}else{
                 messaging.utils.showDebugLog(this,nameMethod,"Invalid latitude "
                         +temp.getDouble(Messaging.GOEOFENCE_LAT));
@@ -788,11 +758,7 @@ class MessagingSdkUtils {
         String nameMethod="getListOfId";
         List<String> result=new ArrayList<>();
         for (MessagingCircularRegion temp: prMessagingCircularRegions){
-
             result.add(temp.id);
-            if(result.size()==99){
-                break;
-            }
         }
         showDebugLog(this, nameMethod, "result : "
                 + " id to remove " + result.size());
@@ -846,16 +812,19 @@ class MessagingSdkUtils {
 
     }
 
-    public void deleteGeofenceLocal() {
+    public void deleteGeofenceLocal(ArrayList<MessagingCircularRegion> regionsToDelete, String provOperation) {
         String nameMethod="deleteGeofenceLocalOnly";
-        MessagingDB db=new MessagingDB(context);
         Messaging messaging=Messaging.getInstance();
-        if(db.getAllGeoFenceToBd().size()>0) {
-            ArrayList<MessagingCircularRegion> prMessagingCircularRegions = db.getAllGeoFenceToBd();
-            List<String> removeIds = getListOfId(prMessagingCircularRegions);
+        messaging.utils.showDebugLog(this,nameMethod,"regionsToDelete "
+                +regionsToDelete.size()+" "+provOperation);
+        if(regionsToDelete.size()>0) {
+            List<String> removeIds = getListOfId(regionsToDelete);
             messaging.removeGeofence(removeIds);
         }else{
-            messaging.utils.showDebugLog(this,nameMethod,"Don not have GF in DB");
+            if(provOperation.equals("")) {
+                messaging.stopGeofenceSupervition();
+            }
+            messaging.utils.showDebugLog(this,nameMethod,"Don not have GF to delete");
         }
 
     }
@@ -897,4 +866,48 @@ class MessagingSdkUtils {
                 return "Unknown error: " + Integer.toString(errorCode);
         }
     }
+
+    public  ArrayList<MessagingCircularRegion> getIntersection(ArrayList<MessagingCircularRegion> arr1,
+                                           ArrayList<MessagingCircularRegion> arr2) {
+        ArrayList<MessagingCircularRegion> list = new ArrayList<MessagingCircularRegion>();
+        for (int i = 0; i < arr1.size(); i++) {
+            for (int j = 0; j < arr2.size(); j++) {
+                if (arr1.get(i).getId() == arr2.get(j).getId()) {
+                    list.add(arr1.get(i));
+                }
+            }
+        }
+        return list;
+    }
+    public  ArrayList<MessagingCircularRegion> getGFMonitoringOne(ArrayList<MessagingCircularRegion> provMessagingCircularRegions) {
+        ArrayList<MessagingCircularRegion> result=new ArrayList<MessagingCircularRegion>();
+        for(MessagingCircularRegion messagingCircularRegion:provMessagingCircularRegions){
+            if(messagingCircularRegion.getMonitoring()==1){
+                result.add(messagingCircularRegion);
+            }
+        }
+        return result;
+    }
+
+    public ArrayList<MessagingCircularRegion> symmetricDifference(ArrayList<MessagingCircularRegion> array1
+            ,ArrayList<MessagingCircularRegion> array2) {
+        ArrayList<MessagingCircularRegion> result=new ArrayList<MessagingCircularRegion>(array2);
+        for(MessagingCircularRegion messagingCircularRegion1:array1){
+            MessagingCircularRegion yesIdo=null;
+            for(MessagingCircularRegion messagingCircularRegion2:result){
+                if(messagingCircularRegion2.getId().equals(messagingCircularRegion1.getId())){
+                    yesIdo=messagingCircularRegion2;
+                    break;
+                }
+            }
+            if(yesIdo!=null){
+                result.remove(yesIdo); //lo tienen ambos
+            }else{
+                result.add(messagingCircularRegion1);// como no lo tiene lo agrego
+            }
+        }
+
+        return result;
+    }
+
 }

@@ -64,15 +64,11 @@ import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
 import java.text.Normalizer;
 import java.util.ArrayList;
-import java.util.Collections;
-import java.util.Comparator;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
-
-import static android.content.Context.LOCATION_SERVICE;
 
 
 /**
@@ -178,6 +174,7 @@ public class Messaging implements LifecycleObserver {
     public static final String MESSAGING_INVALID_DEVICE_LOCATION_REASON_CONFIG="Configuration_Disabled";
     public static final int LOCATION_REQUEST = 1000;
     public static final int GPS_REQUEST = 1001;
+    public static final int MAXIMUM_NUMBER_OF_MONITORED_REGIONS = 99;
 
     public static final String LOCATION_LAT="LOCATION_LAT";
     public static final String LOCATION_LON="LOCATION_LON";
@@ -190,6 +187,7 @@ public class Messaging implements LifecycleObserver {
     public static final String GOEOFENCE_RADIUS="radius";
     public static final String GOEOFENCE_TYPE="type";
     public static final String GOEOFENCE_EXPIRATION="expiration";
+    public static final String GOEOFENCE_MONITORING="monitoring";
     public static final String GOEOFENCE_TYPE_IN="in";
     public static final String GOEOFENCE_TYPE_OUT="out";
     public static final String GOEOFENCE_TYPE_BOTH="both";
@@ -228,6 +226,11 @@ public class Messaging implements LifecycleObserver {
     public static boolean enableLocationBackground=false;
 
     private String notificationIdParameter;
+
+    ArrayList<MessagingCircularRegion> nearestRegions;
+    ArrayList<MessagingCircularRegion> provMessagingCircularRegionsMonitoring;
+    ArrayList<MessagingCircularRegion> regionsToDelete;
+    ArrayList<MessagingCircularRegion> regionsToAdd;
 
 
 
@@ -313,8 +316,6 @@ public class Messaging implements LifecycleObserver {
                         wayLongitude = location.getLongitude();
                         MessagingLocation messagingLocation=new MessagingLocation(location);
                         Messaging.saveLastLocationInStorage(location);
-                        //sendEventToActivity(ACTION_FETCH_LOCATION,messagingLocation,context);
-                        //sendGlobalEventToActivity(ACTION_FETCH_LOCATION,messagingLocation);
                         sendGlobalLocationToActivity(ACTION_FETCH_LOCATION,wayLatitude,wayLongitude);
                         if (!isContinue) {
                         utils.showDebugLog(this,"Messaging","CLat "+wayLatitude+" CLong "+wayLongitude);
@@ -827,8 +828,8 @@ public class Messaging implements LifecycleObserver {
                                        String preProv=jsonObject.getJSONObject(Messaging.GET_GOEOFENCE_PAGINATION)
                                                .getString(Messaging.GET_GOEOFENCE_PREV);
                                        if(preProv.equals("null")){
-                                          // messaging.utils.deleteGeofenceLocal();
-                                           messaging.stopGeofenceSupervition();
+                                           //messaging.utils.deleteGeofenceLocal();
+                                           //messaging.stopGeofenceSupervition();
                                            Messaging.logOutProcess();
                                        }
 
@@ -856,7 +857,7 @@ public class Messaging implements LifecycleObserver {
 
                                             if(db.getAllGeoFenceToBd().size()>0 && messaging.utils.isLocation_allowed()) {
                                                 messaging.utils.showDebugLog(this,nameMethod,"start geofence ");
-                                                messaging.startGeofence();
+                                                messaging.startGeofence("");
                                                 messaging.sendEventToActivity(Messaging.ACTION_FETCH_GEOFENCE,db.getAllGeoFenceToBd(),messaging.context);
                                             }else{
                                                 messaging.utils.showDebugLog(this,nameMethod,
@@ -2091,7 +2092,7 @@ public class Messaging implements LifecycleObserver {
         if(messaging.utils.isLocation_allowed()) {
             MessagingDB db=new MessagingDB(messaging.context);
             if(db.getAllGeoFenceToBd().size()>0) {
-                messaging.startGeofence();
+                messaging.startGeofence("");
                 messaging.utils.showDebugLog(messaging, nameMethod, "Re-Register Geofence "+db.getAllGeoFenceToBd().size());
                 Toast.makeText(messaging.context,"Re-Register Geofence..... "+db.getAllGeoFenceToBd().size(),Toast.LENGTH_LONG).show();
             }else{
@@ -2108,52 +2109,76 @@ public class Messaging implements LifecycleObserver {
     }
 
     // Start Geofence creation process
-    void startGeofence() {
+    void startGeofence(String provOperation) {
     String nameMethod=new Object(){}.getClass().getEnclosingMethod().getName();
     final Messaging messaging= Messaging.getInstance();
     messaging.utils.showDebugLog(messaging,nameMethod,"Register Geofence");
-
-        ArrayList< MessagingCircularRegion> provMessagingCircularRegions;
         MessagingDB db=new MessagingDB(context);
-        provMessagingCircularRegions=db.getAllGeoFenceToBd();
-        //messaging.utils.showDebugLog(messaging,nameMethod,"GF from DB Sorter "+provMessagingCircularRegions);
-        final List<Geofence> geofencesToAdd = new ArrayList<>();
-        for(MessagingCircularRegion messagingCircularRegion:provMessagingCircularRegions){
-            Geofence geofence =messagingCircularRegion.getGeofence();
+        nearestRegions=db.getAllGeoFenceToBd();
+        provMessagingCircularRegionsMonitoring=messaging.utils.getGFMonitoringOne(nearestRegions);
+
+        messaging.utils.showDebugLog(messaging,nameMethod,"provMessagingCircularRegionsMonitoring "
+                +provMessagingCircularRegionsMonitoring.size());
+        final ArrayList<MessagingCircularRegion> closestRegions = new ArrayList<>();
+
+        for(MessagingCircularRegion messagingCircularRegion:nearestRegions){
+
             //messaging.utils.showDebugLog(messaging,nameMethod,"GF to add: "+geofence.toString());
-            geofencesToAdd.add(geofence);
-            if(geofencesToAdd.size()==99){
+            closestRegions.add(messagingCircularRegion);
+
+            if(closestRegions.size()==MAXIMUM_NUMBER_OF_MONITORED_REGIONS){
                 messaging.utils.showInfoLog(messaging,nameMethod,"Limit to GF to add: "
-                        +(geofencesToAdd.size()+1));
+                        +(closestRegions.size()+1));
                 Handler mHandler = new Handler(Looper.getMainLooper()) {
                     @Override
                     public void handleMessage(Message message) {
                         Toast.makeText(context,"Limit to GF to add: "
-                                +(geofencesToAdd.size()+1),Toast.LENGTH_LONG).show();
+                                +(closestRegions.size()+1),Toast.LENGTH_LONG).show();
                     }
                 };
                 mHandler.sendEmptyMessage(0);
             break;
             }
         }
-        GeofencingRequest geofenceRequest = createGeofenceRequest( geofencesToAdd );
-        addGeofence(geofenceRequest);
+        ArrayList<MessagingCircularRegion> intersetion=messaging.utils.
+                getIntersection(closestRegions,provMessagingCircularRegionsMonitoring);
+        messaging.utils.showInfoLog(messaging,nameMethod,"intersetion: "
+                +(intersetion.size()));
+        regionsToDelete=messaging.utils
+                .symmetricDifference(provMessagingCircularRegionsMonitoring,intersetion);
+        regionsToAdd=messaging.utils
+                .symmetricDifference(intersetion,closestRegions);
+        messaging.utils.deleteGeofenceLocal(regionsToDelete,provOperation);
+        if(regionsToAdd.size()>0){
+            messaging.utils.showInfoLog(messaging,nameMethod,"regionsToAdd: "
+                    +(regionsToAdd.size()));
+            GeofencingRequest geofenceRequest = createGeofenceRequest( regionsToAdd );
+            addGeofence(geofenceRequest);
+        }else{
+            messaging.utils.showInfoLog(messaging,nameMethod,"no regionsToAdd: "
+                    +(regionsToAdd.size()));
+            fetchGeofence(true,"");
+        }
+
     }
 
     //Create a Geofence Request
-
-    GeofencingRequest createGeofenceRequest(List<Geofence> geofences ) {
+    GeofencingRequest createGeofenceRequest(ArrayList<MessagingCircularRegion> provMessagingCircularRegions ) {
         nameMethod=new Object(){}.getClass().getEnclosingMethod().getName();
-        utils.showDebugLog(this,nameMethod,"createGeofenceRequest "+(geofences.size()+1));
+        List<Geofence> geofenceList=new ArrayList<>();
+        for(MessagingCircularRegion messagingCircularRegion:provMessagingCircularRegions){
+            geofenceList.add(messagingCircularRegion.getGeofence());
+        }
+        utils.showDebugLog(this,nameMethod,"createGeofenceRequest "
+                +(geofenceList.size()+1));
 
         return new GeofencingRequest.Builder()
                 .setInitialTrigger( GeofencingRequest.INITIAL_TRIGGER_ENTER )
-                .addGeofences( geofences )
+                .addGeofences( geofenceList )
                 .build();
     }
 
     // Add the created GeofenceRequest to the device's monitoring list
-
     void addGeofence(GeofencingRequest request) {
 
         if (ActivityCompat.checkSelfPermission(context, android.Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED
@@ -2168,8 +2193,25 @@ public class Messaging implements LifecycleObserver {
                         @Override
                         public void onSuccess(Void aVoid) {
                             nameMethod=new Object(){}.getClass().getEnclosingMethod().getName();
-                            utils.showDebugLog(this,nameMethod," Add Geofence ");
-
+                            utils.showDebugLog(this,nameMethod," Add Geofence "
+                                    +(regionsToAdd.size()+1));
+                            MessagingDB db=new MessagingDB(context);
+                            MessagingCircularRegion.Builder builder= new MessagingCircularRegion.Builder();
+                            for(MessagingCircularRegion messagingCircularRegion:regionsToAdd){
+                                MessagingCircularRegion geofence=builder
+                                        .initWith(messagingCircularRegion)
+                                        .setMonitoring(1)
+                                        .build();
+                                db.update(geofence,messagingCircularRegion.getId());
+                            }
+                            for(MessagingCircularRegion messagingCircularRegion:regionsToDelete){
+                                MessagingCircularRegion geofence=builder
+                                        .initWith(messagingCircularRegion)
+                                        .setMonitoring(0)
+                                        .build();
+                                db.update(geofence,messagingCircularRegion.getId());
+                            }
+                            fetchGeofence(false,"");
 
                         }
                     }).addOnFailureListener(new OnFailureListener() {
@@ -2242,12 +2284,15 @@ public class Messaging implements LifecycleObserver {
         if ( geoFencePendingIntent != null ){
             return geoFencePendingIntent;
         }
-        //Intent intent = new Intent(action);
+
         Intent intent = new Intent(context, MessaginGeofenceBroadcastReceiver.class);
-        utils.showDebugLog(this,nameMethod,"Intent "+intent);
+
+        //utils.showDebugLog(this,nameMethod,"List<Geofence> "+triggeringGeofences.toString());
         geoFencePendingIntent=PendingIntent.getBroadcast(
                 context, GEOFENCE_REQ_CODE, intent, PendingIntent.FLAG_UPDATE_CURRENT );
-
+//        Intent intento = new Intent();
+//        GeofencingEvent geofencingEvent = GeofencingEvent.fromIntent(intento);
+//        List<Geofence> triggeringGeofences = geofencingEvent.getTriggeringGeofences();
         return geoFencePendingIntent;
     }
 
