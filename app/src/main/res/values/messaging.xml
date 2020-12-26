@@ -4,4 +4,5 @@
     <bool name="analytics_allowed">true</bool>
     <bool name="location_allowed">true</bool>
     <bool name="logging_allowed">true</bool>
+    <bool name="locationPermissionAtStartup">false</bool>
 </resources>

@@ -21,6 +21,7 @@ import android.graphics.Color;
 import android.location.Location;
 import android.os.Build;
 import android.os.Bundle;
+import android.text.TextUtils;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -28,6 +29,7 @@ import android.view.View;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.CompoundButton;
+import android.widget.EditText;
 import android.widget.ImageButton;
 import android.widget.ListView;
 import android.widget.TextView;
@@ -159,7 +161,7 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
         new GpsUtils(this).turnGPSOn(new GpsUtils.onGpsListener() {
             @Override
             public void gpsStatus(boolean isGPSEnable) {
-                Log.d(CLASS_TAG,TAG+ " isGPS To Interface one "+isGPSEnable);
+
                 messaging.setGPS(isGPSEnable);
                 Log.d(CLASS_TAG,TAG+ " isGPS To Interface two "+messaging.isGPS());
             }
@@ -211,7 +213,7 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
                 showGofenceList=false;
                 return true;
             case R.id.action_permission:
-                Log.i(TAG, "INFO: " + CLASS_TAG + ": " + nameMethod + " has verify permission manual : "
+                Log.i(TAG, "INFO: " + CLASS_TAG + ": " + nameMethod + " Verify permission Automatic : "
                         + messaging.isEnable_permission_automatic());
                 if(messaging.isEnable_permission_automatic() ){
                     Messaging.requestPermissions(MapsActivity.this);
@@ -231,17 +233,64 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
             case R.id.action_sendEvent:
                 String provReason="Lorem Ipsum es simplemente el texto de relleno de las imprentas y archivos de texto Lorem Ipsum ha sido el texto de relleno estándar de las industrias desde el año 1500 cuando un impresor desconocido usó una galería de textos y los mezcló de tal manera que logró hacer un libro de textos especimen No sólo sobrevivió 500 años, sino que tambien ingresó como texto de relleno en documentos electrónicos, quedando esencialmente igual al original. Fue popularizado en los 60s con la creación de las hojas \"Letraset\", las cuales contenian pasajes de Lorem Ipsum, y más recientemente con software de autoedición, como por ejemplo Aldus PageMaker, el cual incluye versiones de Lorem Ipsum.";
                 //String provReason="Invalid push send";
+                String key="noti push";
                 Log.d(CLASS_TAG,TAG+ " provReason "+provReason.replaceAll("\\s",""));
-                Messaging.sendEventCustom("noti push",provReason);
+                createAlertCustomEvent(key,provReason);
                 Messaging.checkGPlayServiceStatus();
                 return true;
-
 //            case R.id.action_delete:
 //                //Messaging.deleteAlldB();
 //                return true;
         }
 
         return super.onOptionsItemSelected(item);
+    }
+
+    private void createAlertCustomEvent(String key1, String provReason) {
+        MaterialAlertDialogBuilder builder = new MaterialAlertDialogBuilder(this);
+        builder.setTitle("Send Event Custom");
+
+        // set the custom layout
+        final View customLayout = getLayoutInflater().inflate(R.layout.custom_layout_user, null);
+        builder.setView(customLayout);
+        EditText editText_key = customLayout.findViewById(R.id.editText_key);
+        editText_key.setHint("Key");
+        editText_key.setText(key1);
+
+        EditText editText_value = customLayout.findViewById(R.id.editText_value);
+        editText_value.setHint("Reason");
+        editText_value.setText(provReason);
+
+
+        // add a button
+        builder.setPositiveButton("Cancel", new DialogInterface.OnClickListener() {
+            @SuppressLint("SetTextI18n")
+            @Override
+            public void onClick(DialogInterface dialog, int which) {
+                // send data from the AlertDialog to the Activity
+               dialog.dismiss();
+
+            }
+        });
+
+        builder.setNeutralButton("Send", new DialogInterface.OnClickListener() {
+            @RequiresApi(api = Build.VERSION_CODES.KITKAT)
+            @Override
+            public void onClick(DialogInterface dialog, int which) {
+                String key = editText_key.getText().toString();
+                String value = editText_value.getText().toString();
+                if(!TextUtils.isEmpty(key) && !TextUtils.isEmpty(value)){
+                    Messaging.sendEventCustom(key,value);
+                }else{
+                    createAlertCustomEvent(key,value);
+                }
+                dialog.cancel();
+
+            }
+        });
+        // create and show the alert dialog
+        // AlertDialog dialog = builder.create();
+        builder.show();
     }
 
     @SuppressLint("SetTextI18n")

@@ -225,6 +225,11 @@ public class MainActivity extends AppCompatActivity {
 
             }
         });
+        Log.i(TAG, "INFO: " + CLASS_TAG + ": " + nameMethod + "Verify permission Automatic : "
+                + messaging.isEnable_permission_automatic());
+        if(messaging.isEnable_permission_automatic() ){
+            Messaging.requestPermissions(MainActivity.this);
+        }
 
     }
 
@@ -633,7 +638,7 @@ public class MainActivity extends AppCompatActivity {
             messagingDevArrayList.add("LocationEnable: " + messaging.isLocation_allowed());
             messagingDevArrayList.add("AnalyticsEnable: " + messaging.isAnalytics_allowed());
             messagingDevArrayList.add("Log Enable: " + messaging.isLogging_allowed());
-            messagingDevArrayList.add("Permission Automatic: " + messaging.isEnable_permission_automatic());
+            messagingDevArrayList.add("Automatic Permission: " + messaging.isEnable_permission_automatic());
             messagingDevArrayList.add("Enable Background location: " + Messaging.enableLocationBackground);
             list_device.setAdapter(messagingDevArrayAdapter);
         }

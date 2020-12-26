@@ -192,7 +192,7 @@ class MessagingSdkUtils {
     }
 
     public  boolean isAnalytics_allowed() {
-        String nameMethod=new Object(){}.getClass().getEnclosingMethod().getName();
+
         if(messagingStorageController.hasAnalyticsAllowed()==1){
             return messagingStorageController.isAnalyticsAllowed();
 
@@ -206,7 +206,7 @@ class MessagingSdkUtils {
     }
 
     public  boolean isLocation_allowed() {
-        String nameMethod=new Object(){}.getClass().getEnclosingMethod().getName();
+
         if(messagingStorageController.hasLocationAllowed()==1){
             return messagingStorageController.isLocationAllowed();
         }else{
@@ -219,7 +219,7 @@ class MessagingSdkUtils {
     }
 
     public  boolean isLogging_allowed() {
-        String nameMethod=new Object(){}.getClass().getEnclosingMethod().getName();
+
         if(messagingStorageController.hasLoggingAllowed()==1){
             return messagingStorageController.isLoggingAllowed();
         }else{
@@ -228,6 +228,15 @@ class MessagingSdkUtils {
             boolean value=context.getResources().getBoolean(key_logging_allowed);
             return value;
         }
+
+    }
+
+    public  boolean islocationPermissionAtStartup() {
+
+       int key_locationPermissionAtStartup = context.getResources()
+       .getIdentifier("locationPermissionAtStartup", "bool", context.getPackageName());
+       boolean value= context.getResources().getBoolean(key_locationPermissionAtStartup);
+       return value;
 
     }
 
@@ -246,13 +255,7 @@ class MessagingSdkUtils {
         //this.logging_allowed = logging_allowed;
     }
 
-    public boolean isEnable_permission_automatic() {
-        return enable_permission_automatic;
-    }
 
-    public void setEnable_permission_automatic(boolean enable_permission_automatic) {
-        this.enable_permission_automatic = enable_permission_automatic;
-    }
 
     public MessagingDevice getMessagingDevFromJson(JSONObject resp, JSONObject body, String id){
         String nameMethod=new Object(){}.getClass().getEnclosingMethod().getName();
@@ -418,7 +421,7 @@ class MessagingSdkUtils {
         showDebugLog(this,nameMethod, " messagingToken "+getMessagingToken());
         showDebugLog(this,nameMethod, " analytics_allowed "+isAnalytics_allowed());
         showDebugLog(this,nameMethod, " location_allowed "+isLocation_allowed());
-        showDebugLog(this,nameMethod, " permission_enable "+isEnable_permission_automatic());
+        showDebugLog(this,nameMethod, " permission_enable "+islocationPermissionAtStartup());
     }
 
     @RequiresApi(api = Build.VERSION_CODES.O)

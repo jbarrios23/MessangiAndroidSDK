@@ -546,8 +546,12 @@ public class Messaging implements LifecycleObserver {
                             Manifest.permission.ACCESS_COARSE_LOCATION,
                             Manifest.permission.ACCESS_BACKGROUND_LOCATION},
                     LOCATION_REQUEST);
-                messaging.utils.showDebugLog(messaging,nameMethod,"send event ");
+                messaging.utils.showDebugLog(messaging,nameMethod,"send event "+MESSAGING_INVALID_DEVICE_LOCATION
+                        +" "+MESSAGING_INVALID_DEVICE_LOCATION_REASON_MISSING);
                 sendEventToBackend(MESSAGING_INVALID_DEVICE_LOCATION,MESSAGING_INVALID_DEVICE_LOCATION_REASON_MISSING, "");
+        }else{
+            messaging.utils.showDebugLog(messaging,nameMethod,"Permission Granted ");
+            Toast.makeText(activity,"PERMISSION_GRANTED",Toast.LENGTH_LONG).show();
         }
     }
 
@@ -1103,7 +1107,7 @@ public class Messaging implements LifecycleObserver {
 
     public boolean isEnable_permission_automatic() {
 
-        return utils.isEnable_permission_automatic();
+        return utils.islocationPermissionAtStartup();
     }
 
     public boolean isGPS() {
