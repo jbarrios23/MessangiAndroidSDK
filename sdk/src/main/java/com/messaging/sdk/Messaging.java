@@ -4,6 +4,8 @@ import android.Manifest;
 import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.app.PendingIntent;
+import android.content.ActivityNotFoundException;
+import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
 import android.content.pm.PackageManager;
@@ -18,6 +20,7 @@ import android.os.Handler;
 import android.os.Looper;
 import android.os.Message;
 import android.provider.Settings;
+import android.util.Log;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
@@ -69,6 +72,8 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
+
+import static android.content.Intent.FLAG_ACTIVITY_NEW_TASK;
 
 
 /**
@@ -2388,6 +2393,34 @@ public class Messaging implements LifecycleObserver {
         db.deleteAll();
 
     }
+
+    public static void checkAutostartPermise() {//log out
+        String manufacturer = "xiaomi";
+        Messaging messaging=Messaging.getInstance();
+        messaging.utils.showDebugLog(messaging,"checkAutostartPermise", " manufacturer "+android.os.Build.MANUFACTURER);
+
+        if (manufacturer.equals(android.os.Build.MANUFACTURER)) {
+            //this will open auto start screen where user can enable permission for your app
+            try {
+                Intent intent1 = new Intent();
+                intent1.setComponent(new ComponentName("com.miui.securitycenter", "com.miui.permcenter.autostart.AutoStartManagementActivity"));
+                intent1.setFlags(FLAG_ACTIVITY_NEW_TASK);
+                intent1.addFlags(FLAG_ACTIVITY_NEW_TASK);
+                messaging.context.startActivity(intent1);
+            }catch (ActivityNotFoundException e){
+                //Open the generic Apps page:
+                Intent intent = new Intent(android.provider.Settings.ACTION_MANAGE_APPLICATIONS_SETTINGS);
+                intent.setFlags(FLAG_ACTIVITY_NEW_TASK);
+                intent.addFlags(FLAG_ACTIVITY_NEW_TASK);
+                messaging.context.startActivity(intent);
+            }
+        }else{
+            Toast.makeText(messaging.context, android.os.Build.MANUFACTURER, Toast.LENGTH_SHORT).show();
+        }
+
+    }
+
+
 
 
 }

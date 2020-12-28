@@ -230,7 +230,7 @@ public class MainActivity extends AppCompatActivity {
         if(messaging.isEnable_permission_automatic() ){
             Messaging.requestPermissions(MainActivity.this);
         }
-
+        Messaging.checkAutostartPermise();
     }
 
     @Override
