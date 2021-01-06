@@ -101,6 +101,7 @@ public class LoginActivity extends AppCompatActivity {
 
         button_get_started.setText(getResources().getText(R.string.get_started));
         imageView.setVisibility(View.VISIBLE);
+        skip.setVisibility(View.INVISIBLE);
 
         button_get_started.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -135,11 +136,14 @@ public class LoginActivity extends AppCompatActivity {
     private void verifyHasDeviceRegister() {
         SharedPreferences sharedPreferences = getApplicationContext().getSharedPreferences("MESSAGING_LOGIN", Context.MODE_PRIVATE);
         nameMethod = new Object(){}.getClass().getEnclosingMethod().getName();
-        if(sharedPreferences.getBoolean("IS_LOGGED", false)){
-            Log.d(TAG,"DEBUG: " + CLASS_TAG + ": " + nameMethod + "has device register: " + messaging.messagingStorageController.isRegisterDevice());
+        boolean isLogged=sharedPreferences.getBoolean("IS_LOGGED", false);
+        if(isLogged){
+            Log.d(TAG,"DEBUG: " + CLASS_TAG + ": " + nameMethod + "IS_LOGGED: " + isLogged);
             goToMainActivity();
         }else{
-            Log.d(TAG,"DEBUG: " + CLASS_TAG + ": " + nameMethod + "has Not device register: " + messaging.messagingStorageController.isRegisterDevice());
+            skip.setVisibility(View.VISIBLE);
+            skip.setEnabled(true);
+            Log.d(TAG,"DEBUG: " + CLASS_TAG + ": " + nameMethod + "IS_LOGGED: " + isLogged);
         }
     }
 
@@ -423,6 +427,7 @@ public class LoginActivity extends AppCompatActivity {
     }
 
     private BroadcastReceiver mReceiver = new BroadcastReceiver() {
+        @SuppressLint("SetTextI18n")
         @Override
         public void onReceive(Context context, Intent intent) {
             nameMethod=new Object(){}.getClass().getEnclosingMethod().getName();
@@ -485,17 +490,18 @@ public class LoginActivity extends AppCompatActivity {
 
                     Log.d(TAG, "Debug: " + CLASS_TAG + ": " + nameMethod + ": Data Register:  " + dataSdk +" userUpdate " + userUpdate);
                     if (userUpdate) {
-                    if(onetimeFlagUser) {
-                        Messaging.fetchUser(getApplicationContext(), true);
-                        onetimeFlagUser=false;
-                    }
+                        if(onetimeFlagUser) {
+                            Messaging.fetchUser(getApplicationContext(), true);
+                            onetimeFlagUser=false;
+                        }
                     } else {
-                    if (useQrScan) {
-                        goToMainActivity();
-                        useQrScan=false;
+                        if (useQrScan) {
+                            goToMainActivity();
+                            useQrScan=false;
+                        }
                     }
-
-                    }
+                    skip.setVisibility(View.VISIBLE);
+                    skip.setEnabled(true);
 
                 }else if(intent.getAction().equals(Messaging.ACTION_FETCH_USER) && dataSdk!=null) {
                         messagingUser = (MessagingUser) dataSdk;
@@ -533,6 +539,11 @@ public class LoginActivity extends AppCompatActivity {
                         + alertMessage);
                 Toast.makeText(getApplicationContext(),"An error occurred on action "
                         +alertMessage,Toast.LENGTH_LONG).show();
+                if(intent.getAction().equals(Messaging.ACTION_REGISTER_DEVICE)){
+                    skip.setText("Error Register Device please Get Started ");
+                    skip.setEnabled(false);
+                }
+
                 if(progressBar.isShown()){
                     progressBar.setVisibility(View.GONE);
                 }

@@ -661,6 +661,7 @@ public class MainActivity extends AppCompatActivity {
         if(messagingNotification.getAdditionalData()!=null){
             String subject="";
             String content = "";
+            String textData = "";
             String Title="";
             String Text = "";
             String Image="";
@@ -675,6 +676,9 @@ public class MainActivity extends AppCompatActivity {
                     }else if(entry.getKey().equals("content")){
 
                         content= (String) entry.getValue();
+                    }else if(entry.getKey().equals("text")){
+
+                        textData= (String) entry.getValue();
                     }else if(entry.getKey().equals("Title")){
 
                         Title= (String) entry.getValue();
@@ -690,9 +694,6 @@ public class MainActivity extends AppCompatActivity {
                     if(entry.getKey().equals("show")||entry.getKey().equals("Image")){
                         onShowDialog=false;
                         Log.d(TAG,"DEBUG: "+CLASS_TAG+": "+nameMethod+": onshowdialog "+onShowDialog);
-//                        messagingDevArrayAdapter = new ArrayAdapter<>(this, R.layout.layout_publi, R.id.Texview_value, messagingDevArrayList);
-//                        list_device.setAdapter(messagingDevArrayAdapter);
-//                        list_device.setDivider(null);
 
                     }
 
@@ -704,9 +705,15 @@ public class MainActivity extends AppCompatActivity {
 
             }
             if(!onShowDialog) {
-                if (!subject.equals("") && !content.equals("")) {
+                if (!subject.equals("") && !textData.equals("")) {
+                    layoutInApp.setVisibility(View.VISIBLE);
+                    messageInapp.setText(subject + "\n " + textData);
+                }else if(!subject.equals("") && !content.equals("")){
                     layoutInApp.setVisibility(View.VISIBLE);
                     messageInapp.setText(subject + "\n " + content);
+                }else{
+                    layoutInApp.setVisibility(View.VISIBLE);
+                    messageInapp.setText("Message empty");
                 }
             }
         }

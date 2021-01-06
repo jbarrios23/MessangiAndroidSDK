@@ -133,16 +133,16 @@ public class MessagingNotification implements Serializable {
          }
          messaging.utils.showDebugLog(this,nameMethod, "silent: "+silent);
          messaging.utils.showDebugLog(this,nameMethod, "sticky: "+sticky);
-         messaging.utils.showDebugLog(this,nameMethod, "defaultVibrateSettings: "+defaultVibrateSettings);
-         messaging.utils.showDebugLog(this,nameMethod, "icon: "+icon+" sound "+sound);
-         messaging.utils.showDebugLog(this,nameMethod, "imageUrl: "+imageUrl+" chanelId "+channelId);
-         messaging.utils.showDebugLog(this,nameMethod, "badge: "+badge+" ticker "+ticker);
-         //other
-         messaging.utils.showDebugLog(this,nameMethod, "bodyLocalizationArgs: "+bodyLocalizationArgs);
-         messaging.utils.showDebugLog(this,nameMethod, "bodyLocalizationKey: "+bodyLocalizationKey);
-         messaging.utils.showDebugLog(this,nameMethod, "color: "+color+" defaultLightSettings "+defaultLightSettings);
-         messaging.utils.showDebugLog(this,nameMethod, "defaultSound: "+defaultSound+" vibrateTimings "+vibrateTimings);
-         messaging.utils.showDebugLog(this,nameMethod, "localOnly: "+localOnly+" visibility "+visibility);
+//         messaging.utils.showDebugLog(this,nameMethod, "defaultVibrateSettings: "+defaultVibrateSettings);
+//         messaging.utils.showDebugLog(this,nameMethod, "icon: "+icon+" sound "+sound);
+//         messaging.utils.showDebugLog(this,nameMethod, "imageUrl: "+imageUrl+" chanelId "+channelId);
+//         messaging.utils.showDebugLog(this,nameMethod, "badge: "+badge+" ticker "+ticker);
+//         //other
+//         messaging.utils.showDebugLog(this,nameMethod, "bodyLocalizationArgs: "+bodyLocalizationArgs);
+//         messaging.utils.showDebugLog(this,nameMethod, "bodyLocalizationKey: "+bodyLocalizationKey);
+//         messaging.utils.showDebugLog(this,nameMethod, "color: "+color+" defaultLightSettings "+defaultLightSettings);
+//         messaging.utils.showDebugLog(this,nameMethod, "defaultSound: "+defaultSound+" vibrateTimings "+vibrateTimings);
+//         messaging.utils.showDebugLog(this,nameMethod, "localOnly: "+localOnly+" visibility "+visibility);
 
      }
 
@@ -161,7 +161,7 @@ public class MessagingNotification implements Serializable {
                  +notificationId);
          if(msgAppId!=null && msgAppId!="") {
              this.matchAppId = messaging.utils.verifyMatchAppId(msgAppId);
-             messaging.utils.showDebugLog(this,nameMethod, "MSGI_APPID: "
+         messaging.utils.showDebugLog(this,nameMethod, "MSGI_APPID: "
                      +msgAppId+" Verify: "+matchAppId);
          }else{
              this.matchAppId=true;
