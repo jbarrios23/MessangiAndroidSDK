@@ -4,12 +4,17 @@ import androidx.annotation.NonNull;
 import androidx.annotation.RequiresApi;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
+import androidx.core.app.NotificationCompat;
 import androidx.fragment.app.FragmentActivity;
 import androidx.localbroadcastmanager.content.LocalBroadcastManager;
 
 import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.app.AlertDialog;
+import android.app.Notification;
+import android.app.NotificationChannel;
+import android.app.NotificationManager;
+import android.app.PendingIntent;
 import android.content.BroadcastReceiver;
 import android.content.ComponentName;
 import android.content.Context;
@@ -18,6 +23,8 @@ import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.pm.ActivityInfo;
 import android.content.pm.PackageManager;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.graphics.Color;
 import android.location.Location;
 import android.os.Build;
@@ -61,7 +68,10 @@ import com.messaging.sdk.MessagingUser;
 
 import org.w3c.dom.Text;
 
+import java.io.IOException;
 import java.io.Serializable;
+import java.net.MalformedURLException;
+import java.net.URL;
 import java.util.ArrayList;
 import java.util.Map;
 
@@ -87,6 +97,10 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
     private Circle geoFenceLimits;
     public TextView textView;
     public boolean showGofenceList=false;
+    public boolean onShowDialog=true;
+    private NotificationManager notificationManager;
+    private static final String ADMIN_CHANNEL_ID ="admin_channel";
+    private static final String CHANNEL_ID = "uno";
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -554,7 +568,8 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
                     }else if(((intent.getAction().equals(Messaging.ACTION_GET_NOTIFICATION))||
                             (intent.getAction().equals(Messaging.ACTION_GET_NOTIFICATION_OPENED)))&& data!=null) {
                         messagingNotification = (MessagingNotification) data;
-                        showAlertNotification(messagingNotification, data);
+                        //showAlertNotification(messagingNotification, data);
+                        showAlertNotificationTwo(messagingNotification, data);
 
                     }else if(intent.getAction().equals(Messaging.ACTION_FETCH_GEOFENCE) && data!=null) {
                     Messaging.fetchLocation(MapsActivity.this,false);
@@ -703,6 +718,206 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
         // create and show the alert dialog
         AlertDialog dialog = builder.create();
         dialog.show();
+
+    }
+    @SuppressLint("SetTextI18n")
+    private void showAlertNotificationTwo(MessagingNotification messagingNotification, Serializable data) {
+        // create an alert builder
+        if(messagingNotification.getAdditionalData()!=null){
+            String titleData="";
+            String bodyData = "";
+            String textData = "";
+            String Title="";
+            String Text = "";
+            String Image="";
+            boolean showCustomNotification=false;
+
+            Log.d(TAG,"DEBUG: "+CLASS_TAG+": "+nameMethod+": data "+messagingNotification.getAdditionalData());
+            for (Map.Entry entry : messagingNotification.getAdditionalData().entrySet()) {
+                if(!entry.getKey().equals("profile")){
+                    //Log.d(TAG,"DEBUG: "+CLASS_TAG+": "+nameMethod+": key: "+entry.getKey() + " value: " + entry.getValue());
+                    if(entry.getKey().equals(Messaging.MESSAGING_TITLE)) {
+                        titleData= (String) entry.getValue();
+                    }else if(entry.getKey().equals(Messaging.MESSAGING_BODY)){
+                        bodyData= (String) entry.getValue();
+                    }else if(entry.getKey().equals("text")){
+
+                        textData= (String) entry.getValue();
+                    }else if(entry.getKey().equals("Title")){
+
+                        Title= (String) entry.getValue();
+                    }else if(entry.getKey().equals("Text")){
+
+                        Text= (String) entry.getValue();
+                    }else if(entry.getKey().equals("Image")){
+
+                        Image= (String) entry.getValue();
+                        showCustomNotification=true;
+                    }
+
+                    if(entry.getKey().equals("show")||entry.getKey().equals("Image")){
+                        onShowDialog=true;
+                        Log.d(TAG,"DEBUG: "+CLASS_TAG+": "+nameMethod+": onshowdialog "+onShowDialog);
+                    }
+
+                }
+            }
+            if(showCustomNotification){
+                showCustomNotification(Title,Text,Image);
+
+            }
+
+        }
+        MaterialAlertDialogBuilder builder = new MaterialAlertDialogBuilder(this);
+        // builder.setTitle("Notification");
+        // set the custom layout
+        //final View customLayout = getLayoutInflater().inflate(R.layout.custom_notification_layout, null);
+        final View customLayout = getLayoutInflater().inflate(R.layout.notification_layout, null);
+        builder.setView(customLayout);
+        //TextView data=customLayout.findViewById(R.id.data_noti);
+        ArrayList<String> messangiData = new ArrayList<>();
+        ArrayAdapter<String> messangiDataArrayAdapter;
+        ListView listView=customLayout.findViewById(R.id.list_data_noti);
+
+        //optional code
+        if(messagingNotification.getClickAction()!=null && data!=null){
+            String clickAction = messagingNotification.getClickAction();
+            if(onetimeFlag) {
+                //launchNotification(clickAction, getApplicationContext(), data);
+                onetimeFlag=false;
+            }
+        }
+
+        //optional code
+        if(messagingNotification.getDeepUriLink()!=null && data!=null){
+            String deepUriLink = messagingNotification.getDeepUriLink();
+            if(onetimeFlag) {
+                //launchBrowser(deepUriLink, this, data);
+                onetimeFlag = false;
+            }
+        }
+
+        if(messagingNotification != null){
+            messangiData.add("Title: "           + messagingNotification.getTitle());
+            messangiData.add("Body: "           + messagingNotification.getBody());
+            messangiData.add("ClickAction: "           + messagingNotification.getClickAction());
+            messangiData.add("DeepUriLink: "           + messagingNotification.getDeepUriLink());
+            messangiData.add("MessageId: "           + messagingNotification.getNotificationId());
+            messangiData.add("Silent: "           + messagingNotification.isSilent());
+            messangiData.add("Type: "           + messagingNotification.getType());
+            if(messagingNotification.getAdditionalData()!=null){
+                for (Map.Entry entry : messagingNotification.getAdditionalData().entrySet()) {
+                    if(!entry.getKey().equals("profile")){
+                        messangiData.add(entry.getKey() + ": " + entry.getValue());
+//                        if(entry.getKey().equals("show") && entry.getValue().equals(true)){
+//                            onShowDialog=false;
+//                            break;
+//                        }
+                    }
+                }
+            }
+            messangiDataArrayAdapter = new ArrayAdapter<>(this, R.layout.item_device, R.id.Texview_value, messangiData);
+            listView.setAdapter(messangiDataArrayAdapter);
+        }
+
+        // add a button
+        builder.setPositiveButton("Ok", new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialog, int which) {
+                // send data from the AlertDialog to the Activity
+                onetimeFlag=true;
+                dialog.dismiss();
+            }
+        });
+        if(onShowDialog) {
+            builder.show();
+        }else{
+            onShowDialog=true;
+        }
+
+    }
+
+    private void showCustomNotification(String title, String text, String image) {
+        nameMethod="showCustomNotification";
+        Log.d(TAG,"DEBUG: "+CLASS_TAG+": "+nameMethod+": start  ");
+        new Thread(new Runnable() {
+            @Override
+            public void run() {
+                URL url = null;
+                try {
+                    url = new URL(image);
+                    Bitmap bmp = BitmapFactory.decodeStream(url.openConnection().getInputStream());
+                    //Bitmap bmp = Messaging.getBitmapFromURL(image);
+                    Log.d(TAG,"DEBUG: "+CLASS_TAG+": "+nameMethod+": bitmap "+bmp);
+                    Intent notificationIntent=null;
+                    try {
+
+                        notificationIntent = new Intent(getApplicationContext(),
+                                Class.forName(messaging.getNameClass()));
+                        Log.d(TAG,"DEBUG: "+CLASS_TAG+": "+nameMethod+": name class "
+                                +messaging.getNameClass());
+
+
+                    } catch (ClassNotFoundException e) {
+                        e.printStackTrace();
+                        Log.e(TAG,"DEBUG: "+CLASS_TAG+": "+nameMethod+": error "+e.getMessage());
+
+                    }catch (NullPointerException e){
+                        e.printStackTrace();
+                        Log.e(TAG,"DEBUG: "+CLASS_TAG+": "+nameMethod+": error "+e.getMessage());
+                        notificationIntent = new Intent("android.intent.action.MAIN");
+                    }
+
+                    notificationIntent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
+
+                    final PendingIntent pendingIntent = PendingIntent.getActivity(getApplicationContext()
+                            , 0, notificationIntent,
+                            PendingIntent.FLAG_ONE_SHOT);
+                    notificationManager =
+                            (NotificationManager) getApplicationContext().getSystemService(Context.NOTIFICATION_SERVICE);
+
+                    if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.O) {
+                        //String CHANNEL_ID = "my_channel_01";
+                        CharSequence name = "my_channel";
+                        String Description = "This is my channel";
+                        int importance = NotificationManager.IMPORTANCE_HIGH;
+                        NotificationChannel mChannel = new NotificationChannel(CHANNEL_ID, name, importance);
+                        mChannel.setDescription(Description);
+                        mChannel.enableLights(true);
+                        mChannel.setLightColor(Color.RED);
+                        mChannel.enableVibration(true);
+                        mChannel.setVibrationPattern(new long[]{100, 200, 300, 400, 500, 400, 300, 200, 400});
+                        mChannel.setShowBadge(false);
+                        notificationManager.createNotificationChannel(mChannel);
+                    }
+
+
+                    Notification notification = new NotificationCompat.Builder(getApplicationContext(), CHANNEL_ID)
+                            .setSmallIcon(R.mipmap.ic_launcher)
+                            .setContentTitle(title)
+                            .setContentText(text)
+                            .setLargeIcon(bmp)
+                            .setNotificationSilent()
+                            .setContentIntent(pendingIntent)
+                            .setAutoCancel(true)
+                            .setStyle(new NotificationCompat.BigPictureStyle()
+                                    .bigPicture(bmp)
+                                    .bigLargeIcon(null))
+                            .build();
+
+                    notificationManager.notify(1 /* ID of notification */, notification);
+
+                } catch (MalformedURLException e) {
+                    e.printStackTrace();
+                    Log.e(TAG, "DEBUG: " + CLASS_TAG + ": " + nameMethod + ": error 1 " + e.getMessage());
+                } catch (IOException e) {
+                    e.printStackTrace();
+                    Log.e(TAG, "DEBUG: " + CLASS_TAG + ": " + nameMethod + ": error 1 " + e.getMessage());
+                }
+
+
+            }
+        }).start();
 
     }
 }

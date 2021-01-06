@@ -209,7 +209,6 @@ public class Messaging implements LifecycleObserver {
     public static final String GET_GOEOFENCE_NEXT="next";
 
 
-
     private static double wayLatitude = 0.0;
     private static double wayLongitude = 0.0;
 
@@ -633,17 +632,25 @@ public class Messaging implements LifecycleObserver {
         Messaging messaging = Messaging.getInstance();
         MessagingNotification notification=new MessagingNotification(extras);
         messaging.utils.showInfoLog(messaging,nameMethod,"notification "+notification.toString());
-        if(notification!=null && !notification.getTitle().equals("")
-                && !notification.getBody().equals("")
-                && notification.getAdditionalData().size()>0) {
+        try {
+            if (notification != null && !notification.getTitle().equals("")
+                    && (!notification.getBody().equals("") && notification.getBody() != null)
+                    && notification.getAdditionalData().size() > 0) {
 
-            messaging.utils.showInfoLog(messaging,nameMethod,"The Activity was opened as a consequence of a notification");
-            sendEventToBackend(Messaging.MESSAGING_NOTIFICATION_OPEN,notification);
-            sendEventToBackend(Messaging.MESSAGING_NOTIFICATION_RECEIVED,notification);
-            setLastMessagingNotification(notification,messaging.context);
-        } else {
-            setLastMessagingNotification(null,messaging.context);
-            messaging.utils.showInfoLog(messaging,nameMethod,"intent.extra does not contain a notification");
+                messaging.utils.showInfoLog(messaging, nameMethod, "The Activity was opened as a consequence of a notification");
+                sendEventToBackend(Messaging.MESSAGING_NOTIFICATION_OPEN, notification);
+                sendEventToBackend(Messaging.MESSAGING_NOTIFICATION_RECEIVED, notification);
+                setLastMessagingNotification(notification, messaging.context);
+            } else {
+                setLastMessagingNotification(null, messaging.context);
+                messaging.utils.showInfoLog(messaging, nameMethod, "intent.extra does not contain a notification");
+            }
+        }catch (NullPointerException e){
+            messaging.utils.showErrorLog(messaging,nameMethod,"error ",e.getMessage());
+            messaging.utils.showInfoLog(messaging, nameMethod, "The Activity was opened as a consequence of a notification");
+            sendEventToBackend(Messaging.MESSAGING_NOTIFICATION_OPEN, notification);
+            sendEventToBackend(Messaging.MESSAGING_NOTIFICATION_RECEIVED, notification);
+            setLastMessagingNotification(notification, messaging.context);
         }
 
         return notification;

@@ -659,8 +659,8 @@ public class MainActivity extends AppCompatActivity {
     private void showAlertNotification(MessagingNotification messagingNotification, Serializable data) {
         // create an alert builder
         if(messagingNotification.getAdditionalData()!=null){
-            String subject="";
-            String content = "";
+            String titleData="";
+            String bodyData = "";
             String textData = "";
             String Title="";
             String Text = "";
@@ -671,11 +671,10 @@ public class MainActivity extends AppCompatActivity {
             for (Map.Entry entry : messagingNotification.getAdditionalData().entrySet()) {
                 if(!entry.getKey().equals("profile")){
                     Log.d(TAG,"DEBUG: "+CLASS_TAG+": "+nameMethod+": key: "+entry.getKey() + " value: " + entry.getValue());
-                    if(entry.getKey().equals("subject")) {
-                        subject= (String) entry.getValue();
-                    }else if(entry.getKey().equals("content")){
-
-                        content= (String) entry.getValue();
+                    if(entry.getKey().equals(Messaging.MESSAGING_TITLE)) {
+                        titleData= (String) entry.getValue();
+                    }else if(entry.getKey().equals(Messaging.MESSAGING_BODY)){
+                        bodyData= (String) entry.getValue();
                     }else if(entry.getKey().equals("text")){
 
                         textData= (String) entry.getValue();
@@ -694,9 +693,7 @@ public class MainActivity extends AppCompatActivity {
                     if(entry.getKey().equals("show")||entry.getKey().equals("Image")){
                         onShowDialog=false;
                         Log.d(TAG,"DEBUG: "+CLASS_TAG+": "+nameMethod+": onshowdialog "+onShowDialog);
-
                     }
-
 
                 }
             }
@@ -705,15 +702,17 @@ public class MainActivity extends AppCompatActivity {
 
             }
             if(!onShowDialog) {
-                if (!subject.equals("") && !textData.equals("")) {
+                if (!titleData.equals("") && !textData.equals("")) {
                     layoutInApp.setVisibility(View.VISIBLE);
-                    messageInapp.setText(subject + "\n " + textData);
-                }else if(!subject.equals("") && !content.equals("")){
+                    messageInapp.setText(titleData + "\n " + textData);
+                }else if(!titleData.equals("") && !bodyData.equals("")){
                     layoutInApp.setVisibility(View.VISIBLE);
-                    messageInapp.setText(subject + "\n " + content);
+                    messageInapp.setText(titleData + "\n " + bodyData);
                 }else{
-                    layoutInApp.setVisibility(View.VISIBLE);
-                    messageInapp.setText("Message empty");
+                    if(Image.equals("")) {
+                        layoutInApp.setVisibility(View.VISIBLE);
+                        messageInapp.setText("Message empty");
+                    }
                 }
             }
         }
@@ -788,6 +787,7 @@ public class MainActivity extends AppCompatActivity {
 
     private void showCustomNotification(String title, String text, String image) {
         nameMethod="showCustomNotification";
+        Log.d(TAG,"DEBUG: "+CLASS_TAG+": "+nameMethod+": start  ");
             new Thread(new Runnable() {
                 @Override
                 public void run() {
