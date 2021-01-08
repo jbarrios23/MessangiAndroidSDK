@@ -115,6 +115,7 @@ public class MainActivity extends AppCompatActivity {
     public LinearLayout layoutInApp;
     public MessagingNotification notification;
     private static final String CHANNEL_ID = "uno";
+    public MessagingNotification provNoti=null;
 
     @SuppressLint("NewApi")
     @RequiresApi(api = Build.VERSION_CODES.JELLY_BEAN_MR2)
@@ -658,6 +659,7 @@ public class MainActivity extends AppCompatActivity {
     @SuppressLint("SetTextI18n")
     private void showAlertNotification(MessagingNotification messagingNotification, Serializable data) {
         // create an alert builder
+        String nameMethod="showAlertNotification";
         if(messagingNotification.getAdditionalData()!=null){
             String titleData="";
             String bodyData = "";
@@ -665,6 +667,7 @@ public class MainActivity extends AppCompatActivity {
             String Title="";
             String Text = "";
             String Image="";
+
             boolean showCustomNotification=false;
 
             Log.d(TAG,"DEBUG: "+CLASS_TAG+": "+nameMethod+": data "+messagingNotification.getAdditionalData());
@@ -746,24 +749,45 @@ public class MainActivity extends AppCompatActivity {
         }
 
         if(messagingNotification != null){
-            messangiData.add("Title: "           + messagingNotification.getTitle());
-            messangiData.add("Body: "           + messagingNotification.getBody());
-            messangiData.add("ClickAction: "           + messagingNotification.getClickAction());
-            messangiData.add("DeepUriLink: "           + messagingNotification.getDeepUriLink());
-            messangiData.add("MessageId: "           + messagingNotification.getNotificationId());
-            messangiData.add("Silent: "           + messagingNotification.isSilent());
-            messangiData.add("Type: "           + messagingNotification.getType());
-            if(messagingNotification.getAdditionalData()!=null){
-                for (Map.Entry entry : messagingNotification.getAdditionalData().entrySet()) {
-                    if(!entry.getKey().equals("profile")){
-                        messangiData.add(entry.getKey() + ": " + entry.getValue());
+
+            if(Static.messagingNotification!=null){
+                provNoti=Static.messagingNotification;
+                messangiData.add("Title: "           + provNoti.getTitle());
+                messangiData.add("Body: "           + provNoti.getBody());
+                messangiData.add("ClickAction: "           + provNoti.getClickAction());
+                messangiData.add("DeepUriLink: "           + provNoti.getDeepUriLink());
+                messangiData.add("MessageId: "           + provNoti.getNotificationId());
+                messangiData.add("Silent: "           + provNoti.isSilent());
+                messangiData.add("Type: "           + provNoti.getType());
+                if(provNoti.getAdditionalData()!=null){
+                    for (Map.Entry entry : provNoti.getAdditionalData().entrySet()) {
+                        if(!entry.getKey().equals("profile")){
+                            messangiData.add(entry.getKey() + ": " + entry.getValue());
+                        }
+                    }
+                }
+                Static.messagingNotification=null;
+            }else{
+                messangiData.add("Title: "           + messagingNotification.getTitle());
+                messangiData.add("Body: "           + messagingNotification.getBody());
+                messangiData.add("ClickAction: "           + messagingNotification.getClickAction());
+                messangiData.add("DeepUriLink: "           + messagingNotification.getDeepUriLink());
+                messangiData.add("MessageId: "           + messagingNotification.getNotificationId());
+                messangiData.add("Silent: "           + messagingNotification.isSilent());
+                messangiData.add("Type: "           + messagingNotification.getType());
+                if(messagingNotification.getAdditionalData()!=null){
+                    for (Map.Entry entry : messagingNotification.getAdditionalData().entrySet()) {
+                        if(!entry.getKey().equals("profile")){
+                            messangiData.add(entry.getKey() + ": " + entry.getValue());
 //                        if(entry.getKey().equals("show") && entry.getValue().equals(true)){
 //                            onShowDialog=false;
 //                            break;
 //                        }
+                        }
                     }
                 }
             }
+
             messangiDataArrayAdapter = new ArrayAdapter<>(this, R.layout.item_device, R.id.Texview_value, messangiData);
             listView.setAdapter(messangiDataArrayAdapter);
         }

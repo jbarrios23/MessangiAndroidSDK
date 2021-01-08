@@ -192,7 +192,7 @@ public class MessagingNotificationReceiver extends BroadcastReceiver {
             notificationIntent = new Intent(context, Class.forName(classNameProv));
             if(messagingNotification.getAdditionalData().size()>0) {
                 notificationIntent.putExtra(Messaging.INTENT_EXTRA_DATA, messagingNotification);
-                //notificationIntent.putExtra("enable", true);
+                Static.messagingNotification=messagingNotification;
             }
 
 
