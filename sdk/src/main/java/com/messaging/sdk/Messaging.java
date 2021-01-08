@@ -1622,7 +1622,7 @@ public class Messaging implements LifecycleObserver {
 
                 int code = urlConnection.getResponseCode();
                 if (code!=HttpURLConnection.HTTP_OK) {
-                    messaging.sendEventToActivity(ACTION_REGISTER_DEVICE,null,messaging.context);
+                    //messaging.sendEventToActivity(ACTION_REGISTER_DEVICE,null,messaging.context);
                     messaging.utils.showErrorLog(this,nameMethod,"Invalid response from server: " + code,"");
                     throw new IOException("Invalid response from server: " + code);
                 }else{
@@ -1652,13 +1652,12 @@ public class Messaging implements LifecycleObserver {
                 nameMethod=new Object(){}.getClass().getEnclosingMethod().getName();
                 messaging.utils.showHttpResponseLog(provUrl,messaging,nameMethod,"Post Logs Successful",response);
 
-
             }catch (NullPointerException e){
-                messaging.sendEventToActivity(ACTION_REGISTER_DEVICE,null,messaging.context);
+                //messaging.sendEventToActivity(ACTION_REGISTER_DEVICE,null,messaging.context);
                 messaging.utils.showErrorLog(this,nameMethod,"Logs Not Post ! NullPointerException ",e.getStackTrace().toString());
             } catch (JSONException e) {
                 e.printStackTrace();
-                messaging.sendEventToActivity(ACTION_REGISTER_DEVICE,null,messaging.context);
+                //messaging.sendEventToActivity(ACTION_REGISTER_DEVICE,null,messaging.context);
                 messaging.utils.showErrorLog(this,nameMethod,"Logs Not Post ! JSONException ",e.getStackTrace().toString());
             }
 

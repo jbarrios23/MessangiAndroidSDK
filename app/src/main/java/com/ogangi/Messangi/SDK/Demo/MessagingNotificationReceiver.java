@@ -189,7 +189,6 @@ public class MessagingNotificationReceiver extends BroadcastReceiver {
         Body=messagingNotification.getBody();
 
         try {
-
             notificationIntent = new Intent(context, Class.forName(classNameProv));
             if(messagingNotification.getAdditionalData().size()>0) {
                 notificationIntent.putExtra(Messaging.INTENT_EXTRA_DATA, messagingNotification);
