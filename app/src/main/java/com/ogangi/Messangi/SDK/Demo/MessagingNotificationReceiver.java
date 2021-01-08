@@ -171,7 +171,7 @@ public class MessagingNotificationReceiver extends BroadcastReceiver {
                 showCustomNotification(Title,Text,Image,context);
             }
             if(showCustomNotificationGeoPush){
-                showNotificationGP(messagingNotification.getTitle(),messagingNotification.getBody(),context);
+                showNotificationGP(messagingNotification,context);
             }
 
         }else{
@@ -179,12 +179,23 @@ public class MessagingNotificationReceiver extends BroadcastReceiver {
         }
     }
 
-    private void showNotificationGP(String title, String body, Context context) {
+    private void showNotificationGP(MessagingNotification notification, Context context) {
         String classNameProv=messaging.getNameClass();
         Intent notificationIntent=null;
+        String Title="";
+        String Body="";
+
+        Title=messagingNotification.getTitle();
+        Body=messagingNotification.getBody();
+
         try {
 
             notificationIntent = new Intent(context, Class.forName(classNameProv));
+            if(messagingNotification.getAdditionalData().size()>0) {
+                notificationIntent.putExtra(Messaging.INTENT_EXTRA_DATA, messagingNotification);
+                //notificationIntent.putExtra("enable", true);
+            }
+
 
 
         } catch (ClassNotFoundException e) {
@@ -212,8 +223,8 @@ public class MessagingNotificationReceiver extends BroadcastReceiver {
         Uri defaultSoundUri = RingtoneManager.getDefaultUri(RingtoneManager.TYPE_NOTIFICATION);
         NotificationCompat.Builder notificationBuilder = new NotificationCompat.Builder(context, ADMIN_CHANNEL_ID)
                 .setSmallIcon(messaging.icon)  //a resource for your custom small icon
-                .setContentTitle(title) //the "title" value you sent in your notification
-                .setContentText(body) //ditto
+                .setContentTitle(Title) //the "title" value you sent in your notification
+                .setContentText(Body) //ditto
                 .setAutoCancel(true)  //dismisses the notification on click
                 .setContentIntent(pendingIntent)
                 .setSound(defaultSoundUri);

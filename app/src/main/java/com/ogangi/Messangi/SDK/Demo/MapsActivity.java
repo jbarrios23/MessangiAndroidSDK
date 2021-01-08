@@ -206,7 +206,7 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
 
         switch (id){
             case R.id.action_get_geofences:
-                Toast.makeText(getApplicationContext(), "Geting geofence List....", Toast.LENGTH_SHORT).show();
+                Toast.makeText(getApplicationContext(), "Load geofence List....", Toast.LENGTH_SHORT).show();
                 Messaging.fetchGeofence(false,"");
                 if (geoFenceMarker != null) {
                     geoFenceMarker.remove();
@@ -218,7 +218,7 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
                 showGofenceList=true;
                 return true;
             case R.id.action_get_geofences_service:
-                Toast.makeText(getApplicationContext(), "Geting geofence List....", Toast.LENGTH_SHORT).show();
+                Toast.makeText(getApplicationContext(), "Load geofence List....", Toast.LENGTH_SHORT).show();
                 Messaging.fetchGeofence(true,"");
                 showGofenceList=true;
                 return true;
@@ -324,20 +324,31 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
         ListView listView=customLayout.findViewById(R.id.list_data_noti);
         if(geofenceFromdB.size()>0) {
             messangiGeofenceData.add("# Geofence "+geofenceFromdB.size());
-            messangiGeofenceData.add("Last Location "+"\n"+"Lat: "
-                    +Messaging.getLastLocation().getLatitude()+" Long: "
-                    +Messaging.getLastLocation().getLongitude());
-            final Location provLocation = Messaging.getLastLocation();
-            for (MessagingCircularRegion region : geofenceFromdB) {
-                messangiGeofenceData.add(region.toString());
-                if(provLocation!=null){
-                Location location1 = new Location(LOCATION_SERVICE);
-                location1.setLatitude(region.getLatitude());
-                location1.setLongitude(region.getLongitud());
-                double dist = provLocation.distanceTo(location1);
-                messangiGeofenceData.add("Distance: "+dist);
+            if(Messaging.getLastLocation()!=null) {
+                messangiGeofenceData.add("Last Location " + "\n" + "Lat: "
+                        + Messaging.getLastLocation().getLatitude() + " Long: "
+                        + Messaging.getLastLocation().getLongitude());
+                final Location provLocation = Messaging.getLastLocation();
+                for (MessagingCircularRegion region : geofenceFromdB) {
+                    messangiGeofenceData.add(region.toString());
+                    if(provLocation!=null){
+                        Location location1 = new Location(LOCATION_SERVICE);
+                        location1.setLatitude(region.getLatitude());
+                        location1.setLongitude(region.getLongitud());
+                        double dist = provLocation.distanceTo(location1);
+                        messangiGeofenceData.add("Distance: "+dist);
+                    }
                 }
+            }else{
+                messangiGeofenceData.add("Hasn't Last Location " );
+                for (MessagingCircularRegion region : geofenceFromdB) {
+                    messangiGeofenceData.add(region.toString());
+                    String dist = "Can't calculate";
+                    messangiGeofenceData.add("Distance: " + dist);
+                }
+
             }
+
         }else{
             Log.d(CLASS_TAG,TAG+ " Do not have geofence ");
             messangiGeofenceData.add(" Do not have Geofences yet! ");

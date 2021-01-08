@@ -906,8 +906,9 @@ public class Messaging implements LifecycleObserver {
             if(db.getAllGeoFenceToBd().size()>0 && messaging.utils.isLocation_allowed()) {
                 messaging.utils.showDebugLog(messaging, nameMethod, "send GF BD! "
                         +db.getAllGeoFenceToBd().size());
+
                 messaging.sendEventToActivity(Messaging.ACTION_FETCH_GEOFENCE, db.getAllGeoFenceToBd(), messaging.context);
-                //messaging.sendGlobalEventToActivity(Messaging.ACTION_FETCH_GEOFENCE, db.getAllGeoFenceToBd());
+
             }else{
                 Toast.makeText(messaging.context,"Has not Geofence yet!",Toast.LENGTH_LONG).show();
                 messaging.utils.showDebugLog(messaging, nameMethod, "has not Geofence yet! ");
