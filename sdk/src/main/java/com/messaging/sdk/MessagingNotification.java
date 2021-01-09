@@ -9,7 +9,6 @@ import androidx.annotation.RequiresApi;
 
 import com.google.firebase.messaging.RemoteMessage;
 
-import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
@@ -201,7 +200,7 @@ public class MessagingNotification implements Serializable {
              try {
                  JSONObject data=new JSONObject(additionalData.get(Messaging.MESSAGING_GEO_PUSH));
                  //JSONArray data=new JSONArray(additionalData.get(Messaging.MESSAGING_GEO_PUSH));
-                 this.renderNotification = messaging.utils.verifyIsValidGeoPush(data,messaging);
+                 this.renderNotification = messaging.utils.verifyIsValidGeoPush(data,messaging,notificationId);
                  //this.renderNotification = messaging.utils.verifyIsValidGeoPushTwo(data,messaging);
                  messaging.utils.showDebugLog(this,nameMethod, "MSGI_GEOPUSH: "
                          + renderNotification);
@@ -226,7 +225,7 @@ public class MessagingNotification implements Serializable {
              this.messagingGeoFencePushSinc=additionalData.get(Messaging.MESSAGING_GEOFENCE_SINC);
              messaging.utils.showDebugLog(this,nameMethod, "has GeoFencePushSinc 1: "
                      +additionalData.get(Messaging.MESSAGING_GEOFENCE_SINC));
-             messaging.utils.handleGeoFencePushParameterSinc(messagingGeoFencePushSinc,messaging);
+             messaging.utils.handleGeoFencePushParameterSinc(messagingGeoFencePushSinc,messaging,notificationId);
          }
 
          if(additionalData.get(Messaging.MESSAGING_PUBLISH_LOGS)!=null &&
@@ -294,7 +293,7 @@ public class MessagingNotification implements Serializable {
                 }else if(key.equals(Messaging.MESSAGING_GEO_PUSH)){
                     try {
                         JSONObject data=new JSONObject(additionalData.get(key));
-                        this.renderNotification = messaging.utils.verifyIsValidGeoPush(data,messaging);
+                        this.renderNotification = messaging.utils.verifyIsValidGeoPush(data,messaging, notificationId);
                         messaging.utils.showDebugLog(this,nameMethod, "MSGI_GEOPUSH: "
                                 + renderNotification);
                     } catch (JSONException e) {

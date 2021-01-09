@@ -695,6 +695,44 @@ public class MessagingStorageController {
         return result;
     }
 
+    /**
+     * Method save messagingHost
+     * @param token: messagingHost
+     */
+    public void saveNotificationId(String token){
+        nameMethod=new Object(){}.getClass().getEnclosingMethod().getName();
+        SharedPreferences.Editor data=mSharedPreferencesConfig.edit();
+        data.putString("messagingNotificationId",token);
+        data.apply();
+        messaging.utils.showDebugLog(this,nameMethod,"messagingNotificationId Saved "+token);
+
+    }
+    /**
+     * Method hasTokenRegister lets Know if messagingHost is registered in local storage
+     *
+     */
+    public boolean hasMessagingNotificationId(){
+        nameMethod=new Object(){}.getClass().getEnclosingMethod().getName();
+        boolean hasToken = false;
+        String token=mSharedPreferencesConfig.getString("messagingNotificationId","");
+        if(token.length()>0){
+            hasToken=true;
+
+        }
+
+        return hasToken;
+    }
+    /**
+     * Method get MessagingToken registered in local storage
+     *
+     */
+    public String getMessagingNotificationId(){
+        nameMethod=new Object(){}.getClass().getEnclosingMethod().getName();
+        String token=mSharedPreferencesConfig.getString("messagingNotificationId","");
+        messaging.utils.showDebugLog(this,nameMethod,"messagingNotificationId from Storage ");
+        return token;
+    }
+
 
 
 }

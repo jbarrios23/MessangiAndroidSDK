@@ -393,7 +393,8 @@ public class Messaging implements LifecycleObserver {
                 utils.showInfoLog(this,nameMethod,"Sinc Enable F call service "+flagSinc);
                 //launch fetch gofence
 
-                fetchGeofence(true,null);
+                fetchGeofence(true,null,
+                        messagingStorageController.getMessagingNotificationId());
                 flagSinc=false;
                 messagingStorageController.setSincAllowed(flagSinc);
             }
@@ -804,11 +805,22 @@ public class Messaging implements LifecycleObserver {
 
         return result;
     }
+    public static void fetchGeofence() {
+        fetchGeofence(false,"","");
+    }
 
-    public static void fetchGeofence(boolean forsecallservice, String next) {
+    public static void fetchGeofence(boolean forsecallservice) {
+        fetchGeofence(forsecallservice,"","");
+    }
+
+    static void fetchGeofence(boolean forsecallservice,String next) {
+        fetchGeofence(forsecallservice,next,"");
+    }
+
+    static void fetchGeofence(boolean forsecallservice, String next, final String extenalId) {
         final Messaging messaging = Messaging.getInstance();
         final MessagingDB db=new MessagingDB(messaging.context);
-        final String  nameMethod="fetchGeofence";
+        final String  nameMethod="fetchGeofence\uD83D\uDE01";
         if(forsecallservice){
 
             String provId = "";
@@ -823,7 +835,6 @@ public class Messaging implements LifecycleObserver {
             }
             final String url=provUrl;
             messaging.utils.showDebugLog(messaging,nameMethod,provUrl);
-            //new HttpRequestEventGet(provId, messaging, "", "","","").execute();
             final String params="";
             new HttpRequestEvent(url,"GET",params,new HttpRequestCallback(){
                 @Override
@@ -881,7 +892,7 @@ public class Messaging implements LifecycleObserver {
                                                 messaging.utils.showDebugLog(this,nameMethod,
                                                         Messaging.MESSAGING_INVALID_DEVICE_LOCATION_REASON_CONFIG +" or no data in BD");
                                                 Messaging.sendEventToBackend(Messaging.MESSAGING_INVALID_DEVICE_LOCATION,
-                                                        Messaging.MESSAGING_INVALID_DEVICE_LOCATION_REASON_CONFIG, "");
+                                                        Messaging.MESSAGING_INVALID_DEVICE_LOCATION_REASON_CONFIG, extenalId);
                                             }
                                         }
 
@@ -1632,7 +1643,7 @@ public class Messaging implements LifecycleObserver {
 
             } catch (Exception e) {
                 e.printStackTrace();
-                messaging.sendEventToActivity(ACTION_REGISTER_DEVICE,null,messaging.context);
+                //messaging.sendEventToActivity(ACTION_REGISTER_DEVICE,null,messaging.context);
                 messaging.utils.showErrorLog(this,nameMethod,"Exception: " + e.getMessage(),"");
             } finally {
                 if (urlConnection != null) {
@@ -2240,7 +2251,7 @@ public class Messaging implements LifecycleObserver {
                                 db.markRecordToMonitoring(messagingCircularRegion.getId(),false);
 
                             }
-                            fetchGeofence(false,"");
+                            fetchGeofence();
 
                         }
                     }).addOnFailureListener(new OnFailureListener() {
@@ -2253,7 +2264,7 @@ public class Messaging implements LifecycleObserver {
                     if(mesagError.equals("Too many geofences")){
                         sendEventCustom(mesagError,mesagError);
                     }
-                    fetchGeofence(false,"");
+                    fetchGeofence();
 
                 }
             });
@@ -2300,7 +2311,7 @@ public class Messaging implements LifecycleObserver {
                         for(String temp:listIds){
                             db.markRecordToMonitoring(temp,false);
                         }
-                        fetchGeofence(false,"");
+                        fetchGeofence();
 
 
                     }
@@ -2311,7 +2322,7 @@ public class Messaging implements LifecycleObserver {
 
                         nameMethod=new Object(){}.getClass().getEnclosingMethod().getName();
                         utils.showDebugLog(this,nameMethod,"onFailure removeGeofence "+e.getMessage());
-                        fetchGeofence(false,"");
+                        fetchGeofence();
                     }
                 });
 

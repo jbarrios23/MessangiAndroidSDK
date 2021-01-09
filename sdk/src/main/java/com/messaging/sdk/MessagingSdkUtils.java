@@ -20,10 +20,7 @@ import java.net.MalformedURLException;
 import java.net.URISyntaxException;
 import java.net.URL;
 import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.HashSet;
 import java.util.List;
-import java.util.Set;
 
 import static android.content.Context.LOCATION_SERVICE;
 
@@ -524,14 +521,16 @@ class MessagingSdkUtils {
         return builder.toString();
     }
 
-    public boolean verifyIsValidGeoPush(JSONObject jsonObject, Messaging messaging){
+    public boolean verifyIsValidGeoPush(JSONObject jsonObject, Messaging messaging, String notificationId){
         boolean result=false;
+        String externalId=notificationId;
         String nameMethod=new Object(){}.getClass().getEnclosingMethod().getName();
         if (ActivityCompat.checkSelfPermission(context, android.Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED
                 && ActivityCompat.checkSelfPermission(context, android.Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
             showDebugLog(this,nameMethod," Dont have permission for GeoPush yet! ");
+
             Messaging.sendEventToBackend(Messaging.MESSAGING_INVALID_DEVICE_LOCATION,
-                    Messaging.MESSAGING_INVALID_DEVICE_LOCATION_REASON_MISSING, "");
+                    Messaging.MESSAGING_INVALID_DEVICE_LOCATION_REASON_MISSING, externalId);
         }else {
             if(messaging.isGPS()){
                 showDebugLog(this,nameMethod,"location enable "
@@ -576,14 +575,14 @@ class MessagingSdkUtils {
                     showDebugLog(this,nameMethod,"Disable location Config for Geopush "
                             +Messaging.MESSAGING_INVALID_DEVICE_LOCATION_REASON_CONFIG);
                     Messaging.sendEventToBackend(Messaging.MESSAGING_INVALID_DEVICE_LOCATION,
-                            Messaging.MESSAGING_INVALID_DEVICE_LOCATION_REASON_CONFIG, "");
+                            Messaging.MESSAGING_INVALID_DEVICE_LOCATION_REASON_CONFIG, externalId);
 
                 }
             }else{
                 showDebugLog(this,nameMethod,"Disable location for Geopush "
                         +Messaging.MESSAGING_INVALID_DEVICE_LOCATION_REASON_LOCATION);
                 Messaging.sendEventToBackend(Messaging.MESSAGING_INVALID_DEVICE_LOCATION,
-                        Messaging.MESSAGING_INVALID_DEVICE_LOCATION_REASON_LOCATION, "");
+                        Messaging.MESSAGING_INVALID_DEVICE_LOCATION_REASON_LOCATION, externalId);
 
             }
 
@@ -771,7 +770,8 @@ class MessagingSdkUtils {
         return result;
     }
 
-    public void handleGeoFencePushParameterSinc(String messagingGeoFencePushSinc, Messaging messaging) {
+    public void handleGeoFencePushParameterSinc(String messagingGeoFencePushSinc, Messaging messaging,
+                                                String notificationId) {
         String nameMethod="handleGeoFencePushParameterSinc";
         //try {
 
@@ -787,13 +787,14 @@ class MessagingSdkUtils {
                 showDebugLog(this, nameMethod, "Sinc Enable call service : "
                         + " is F " + Messaging.isForeground);
 
-                Messaging.fetchGeofence(true,null);
+                Messaging.fetchGeofence(true,null,notificationId);
             }else {
                 Messaging.flagSinc=true;
                 Messaging.isBackground=true;
                 showDebugLog(this, nameMethod, "Sinc Enable call service : "
                         + " is B " + Messaging.isBackground+" sinc flag "+Messaging.flagSinc);
                 messaging.messagingStorageController.setSincAllowed(Messaging.flagSinc);
+                messaging.messagingStorageController.saveNotificationId(notificationId);
             }
 
 //        } catch (JSONException e) {

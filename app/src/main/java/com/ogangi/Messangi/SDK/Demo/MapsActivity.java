@@ -207,24 +207,23 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
         switch (id){
             case R.id.action_get_geofences:
                 Toast.makeText(getApplicationContext(), "Load geofence List....", Toast.LENGTH_SHORT).show();
-                Messaging.fetchGeofence(false,"");
+                Messaging.fetchGeofence();
                 if (geoFenceMarker != null) {
                     geoFenceMarker.remove();
                 }
                 if (geoFenceLimits != null ) {
                     geoFenceLimits.remove();
                 }
-
                 showGofenceList=true;
                 return true;
             case R.id.action_get_geofences_service:
                 Toast.makeText(getApplicationContext(), "Load geofence List....", Toast.LENGTH_SHORT).show();
-                Messaging.fetchGeofence(true,"");
+                Messaging.fetchGeofence(true);
                 showGofenceList=true;
                 return true;
             case R.id.action_sinc:
                 //gotoMapActivity();
-                Messaging.fetchGeofence(true,"");
+                Messaging.fetchGeofence(true);
                 showGofenceList=false;
                 return true;
             case R.id.action_permission:

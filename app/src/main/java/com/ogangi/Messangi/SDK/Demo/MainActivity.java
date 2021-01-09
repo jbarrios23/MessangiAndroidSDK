@@ -823,12 +823,10 @@ public class MainActivity extends AppCompatActivity {
                         Log.d(TAG,"DEBUG: "+CLASS_TAG+": "+nameMethod+": bitmap "+bmp);
                         Intent notificationIntent=null;
                         try {
-
                             notificationIntent = new Intent(getApplicationContext(),
                                     Class.forName(messaging.getNameClass()));
                             Log.d(TAG,"DEBUG: "+CLASS_TAG+": "+nameMethod+": name class "
                                     +messaging.getNameClass());
-
 
                         } catch (ClassNotFoundException e) {
                             e.printStackTrace();
@@ -862,7 +860,6 @@ public class MainActivity extends AppCompatActivity {
                             mChannel.setShowBadge(false);
                             notificationManager.createNotificationChannel(mChannel);
                         }
-
 
                         Notification notification = new NotificationCompat.Builder(getApplicationContext(), CHANNEL_ID)
                                 .setSmallIcon(R.mipmap.ic_launcher)
