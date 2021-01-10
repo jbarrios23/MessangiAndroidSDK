@@ -703,6 +703,7 @@ public class Messaging implements LifecycleObserver {
     final Messaging messaging = Messaging.getInstance();
     String provId = "";
     String provUrl = "";
+    String messageToast="";
 
         if (messaging.messagingDevice != null) {
             provId = messaging.messagingDevice.getId();
@@ -711,19 +712,41 @@ public class Messaging implements LifecycleObserver {
         }
         if(!externalId.equals("")){
             provUrl=messaging.utils.getMessagingHost()+"/devices/"+provId+"/event/"+nameEvent+"?externalId="+externalId+"&reason="+reason;
+
         }else{
             provUrl=messaging.utils.getMessagingHost()+"/devices/"+provId+"/event/"+nameEvent+"?reason="+reason;
+
         }
 
-
+        messageToast=nameEvent+" reason="+reason;
         if (messaging.utils.isAnalytics_allowed()) {
 
             new HttpRequestEvent(provUrl, "GET", nameEvent, null, messaging).execute();
+            final String finalMessageToast = messageToast;
+            Handler handler = new Handler(Looper.getMainLooper()) {
+                @SuppressLint("MissingPermission")
+                @Override
+                public void handleMessage(Message inputMessage) {
+                    Toast.makeText(messaging.context, finalMessageToast,Toast.LENGTH_LONG).show();
+                }
+            };
+            handler.sendEmptyMessage(0);
+
             messaging.utils.showInfoLog(messaging, nameMethod, "isAnalytics_allowed() "
                     + messaging.utils.isAnalytics_allowed());
         } else {
             messaging.utils.showInfoLog(messaging, nameMethod, "isAnalytics_allowed() "
                     + messaging.utils.isAnalytics_allowed());
+            Handler handler = new Handler(Looper.getMainLooper()) {
+                @SuppressLint("MissingPermission")
+                @Override
+                public void handleMessage(Message inputMessage) {
+                    Toast.makeText(messaging.context,"isAnalytics_allowed "
+                            + messaging.utils.isAnalytics_allowed(),Toast.LENGTH_LONG).show();
+                }
+            };
+            handler.sendEmptyMessage(0);
+
         }
     }
 
@@ -749,6 +772,15 @@ public class Messaging implements LifecycleObserver {
         }else{
             messaging.utils.showInfoLog(messaging,nameMethod,"isAnalytics_allowed() "
                     +messaging.utils.isAnalytics_allowed());
+            Handler handler = new Handler(Looper.getMainLooper()) {
+                @SuppressLint("MissingPermission")
+                @Override
+                public void handleMessage(Message inputMessage) {
+                    Toast.makeText(messaging.context,"isAnalytics_allowed "
+                            + messaging.utils.isAnalytics_allowed(),Toast.LENGTH_LONG).show();
+                }
+            };
+            handler.sendEmptyMessage(0);
         }
     }
 
@@ -788,6 +820,16 @@ public class Messaging implements LifecycleObserver {
         }else{
             messaging.utils.showInfoLog(messaging,nameMethod,"isAnalytics_allowed() "
                     +messaging.utils.isAnalytics_allowed());
+            Handler handler = new Handler(Looper.getMainLooper()) {
+                @SuppressLint("MissingPermission")
+                @Override
+                public void handleMessage(Message inputMessage) {
+                    Toast.makeText(messaging.context,"isAnalytics_allowed "
+                            + messaging.utils.isAnalytics_allowed(),Toast.LENGTH_LONG).show();
+                }
+            };
+            handler.sendEmptyMessage(0);
+
         }
     }
 
@@ -865,7 +907,7 @@ public class Messaging implements LifecycleObserver {
                                     if(jsonArrayItems.length()>0){
                                         messaging.utils.showDebugLog(this,nameMethod,"save Item to BD "+response);
                                         messaging.utils.processGeofenceList(jsonArrayItems);
-                                        //messaging.utils.showDebugLog(this,nameMethod,"DB "+db.getAllGeoFenceToBd().size());
+
                                     }else{
                                         Toast.makeText(messaging.context,"Has not Geofence yet!",Toast.LENGTH_LONG).show();
                                         messaging.utils.showDebugLog(this,nameMethod,"Do Not have Items of GF "+response);

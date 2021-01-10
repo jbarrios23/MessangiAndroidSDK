@@ -274,7 +274,7 @@ public class MessagingDB extends SQLiteOpenHelper {
         db.close();
         Messaging messaging=Messaging.getInstance();
         String nameMethod=new Object(){}.getClass().getEnclosingMethod().getName();
-        messaging.utils.showDebugLog(this,nameMethod,"markRecordToMonitoring data");
+        //messaging.utils.showDebugLog(this,nameMethod,"markRecordToMonitoring data");
 
     }
 

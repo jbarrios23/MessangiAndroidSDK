@@ -133,7 +133,7 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
                     if (messaging.isLocation_allowed()) {
                         Toast.makeText(getApplicationContext(), "Continue Location "+isChecked,Toast.LENGTH_SHORT).show();
                         Messaging.fetchLocation(MapsActivity.this, true);
-                        Log.d(CLASS_TAG, TAG + "Continue Location "+isChecked);
+                        Log.d(CLASS_TAG, TAG + " Continue Location "+isChecked);
                         Log.d(CLASS_TAG, TAG + " Priority " + Messaging.getLocationRequestPriority());
                         messaging.messagingStorageController.setLocationContinueAllowed(isChecked);
                     } else {
@@ -176,7 +176,6 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
         new GpsUtils(this).turnGPSOn(new GpsUtils.onGpsListener() {
             @Override
             public void gpsStatus(boolean isGPSEnable) {
-
                 messaging.setGPS(isGPSEnable);
                 Log.d(CLASS_TAG,TAG+ " isGPS To Interface two "+messaging.isGPS());
             }
@@ -329,7 +328,13 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
                         + Messaging.getLastLocation().getLongitude());
                 final Location provLocation = Messaging.getLastLocation();
                 for (MessagingCircularRegion region : geofenceFromdB) {
-                    messangiGeofenceData.add(region.toString());
+                    if(Utils.isValidLatLng(region.getLatitude(),region.getLongitud())) {
+                        messangiGeofenceData.add(region.toString()+"Valid Location ✅");
+                    }else {
+                        messangiGeofenceData.add(region.toString()+"\n"+"Invalid Location ✖");
+                    }
+
+
                     if(provLocation!=null){
                         Location location1 = new Location(LOCATION_SERVICE);
                         location1.setLatitude(region.getLatitude());
@@ -341,7 +346,11 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
             }else{
                 messangiGeofenceData.add("Hasn't Last Location " );
                 for (MessagingCircularRegion region : geofenceFromdB) {
-                    messangiGeofenceData.add(region.toString());
+                    if(Utils.isValidLatLng(region.getLatitude(),region.getLongitud())) {
+                        messangiGeofenceData.add(region.toString()+"Valid Location ✅");
+                    }else {
+                        messangiGeofenceData.add(region.toString()+"\n"+"Invalid Location ✖");
+                    }
                     String dist = "Can't calculate";
                     messangiGeofenceData.add("Distance: " + dist);
                 }
@@ -442,9 +451,7 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
     protected void onResume() {
         super.onResume();
         Log.d(CLASS_TAG,TAG+ " Resume "+messaging.isGPS());
-
-
-
+        Messaging.fetchGeofence();
     }
 
     /**
@@ -652,6 +659,9 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
                 messaging.setGPS(true);  // flag maintain before get location
                 Log.d(CLASS_TAG, TAG+" is gps "+messaging.isGPS());
             }
+        }else{
+            messaging.setGPS(false);
+            Log.d(CLASS_TAG, TAG+" Denai is gps "+messaging.isGPS());
         }
     }
 

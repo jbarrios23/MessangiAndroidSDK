@@ -217,7 +217,7 @@ public class MessagingNotification implements Serializable {
              this.messagingGeoFencePush=additionalData.get(Messaging.MESSAGING_GEOFENCE_PUSH);
              messaging.utils.showDebugLog(this,nameMethod, "has GeoFencePush 1: "
                      +additionalData.get(Messaging.MESSAGING_GEOFENCE_PUSH));
-             messaging.utils.handleGeoFencePushParameter(messagingGeoFencePush,messaging);
+             messaging.utils.handleGeoFencePushParameter(messagingGeoFencePush,messaging,notificationId);
          }
 
          if(additionalData.get(Messaging.MESSAGING_GEOFENCE_SINC)!=null &&
@@ -303,7 +303,7 @@ public class MessagingNotification implements Serializable {
                     this.messagingGeoFencePush=additionalData.get(key);
                     messaging.utils.showDebugLog(this,nameMethod, "has GeoFencePush 1: "
                             +additionalData.get(key));
-                    messaging.utils.handleGeoFencePushParameter(messagingGeoFencePush,messaging);
+                    messaging.utils.handleGeoFencePushParameter(messagingGeoFencePush,messaging, notificationId);
                 }else{
                     this.renderNotification =true;
                 }

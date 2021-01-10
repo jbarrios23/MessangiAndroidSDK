@@ -633,7 +633,8 @@ class MessagingSdkUtils {
         return result;
     }
 
-    public void handleGeoFencePushParameter(String messagingGeoFencePush, Messaging messaging) {
+    public void handleGeoFencePushParameter(String messagingGeoFencePush, Messaging messaging,
+                                            String notificationId) {
 
         String nameMethod=new Object(){}.getClass().getEnclosingMethod().getName();
         MessagingCircularRegion.Builder builder= new MessagingCircularRegion.Builder();
@@ -643,7 +644,7 @@ class MessagingSdkUtils {
                 && ActivityCompat.checkSelfPermission(context, android.Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
             showDebugLog(this,nameMethod," Dont have permission for GeoFence yet! ");
             Messaging.sendEventToBackend(Messaging.MESSAGING_INVALID_DEVICE_LOCATION,
-                    Messaging.MESSAGING_INVALID_DEVICE_LOCATION_REASON_MISSING, "");
+                    Messaging.MESSAGING_INVALID_DEVICE_LOCATION_REASON_MISSING, notificationId);
 
         }else {
             if(messaging.isGPS()){
@@ -709,7 +710,7 @@ class MessagingSdkUtils {
                                 showDebugLog(this,nameMethod,"Disable location config for GeoFence "
                                         +Messaging.MESSAGING_INVALID_DEVICE_LOCATION_REASON_CONFIG);
                                 Messaging.sendEventToBackend(Messaging.MESSAGING_INVALID_DEVICE_LOCATION,
-                                        Messaging.MESSAGING_INVALID_DEVICE_LOCATION_REASON_CONFIG, "");
+                                        Messaging.MESSAGING_INVALID_DEVICE_LOCATION_REASON_CONFIG, notificationId);
                             }
                         }
 
@@ -721,7 +722,7 @@ class MessagingSdkUtils {
                 showDebugLog(this,nameMethod,"Disable location for GeoFence "
                         +Messaging.MESSAGING_INVALID_DEVICE_LOCATION_REASON_LOCATION);
                 Messaging.sendEventToBackend(Messaging.MESSAGING_INVALID_DEVICE_LOCATION,
-                        Messaging.MESSAGING_INVALID_DEVICE_LOCATION_REASON_LOCATION, "");
+                        Messaging.MESSAGING_INVALID_DEVICE_LOCATION_REASON_LOCATION, notificationId);
 
             }
 
@@ -746,11 +747,11 @@ class MessagingSdkUtils {
                         .setExpiration(provExpiration)
                         .build();
                 db.saveGeofence(geofence);
-             /*}else{
+            // }else{
                 messaging.utils.showDebugLog(this,nameMethod,"Invalid latitude "
                         +temp.getDouble(Messaging.GOEOFENCE_LAT));
 
-             }*/
+             //}
             }
 
 
@@ -773,11 +774,6 @@ class MessagingSdkUtils {
     public void handleGeoFencePushParameterSinc(String messagingGeoFencePushSinc, Messaging messaging,
                                                 String notificationId) {
         String nameMethod="handleGeoFencePushParameterSinc";
-        //try {
-
-//            JSONObject jsonArray=new JSONObject(messagingGeoFencePushSinc);
-//            showDebugLog(this,nameMethod,"Sinc"
-//                    +jsonArray.toString());
             showDebugLog(this, nameMethod, "state : "
                     + " is F " + Messaging.isForeground);
             showDebugLog(this, nameMethod, "state : "
@@ -796,12 +792,6 @@ class MessagingSdkUtils {
                 messaging.messagingStorageController.setSincAllowed(Messaging.flagSinc);
                 messaging.messagingStorageController.saveNotificationId(notificationId);
             }
-
-//        } catch (JSONException e) {
-//            e.printStackTrace();
-//
-//        }
-
     }
 
     public void deleteBdAndGeofenceLocal() {

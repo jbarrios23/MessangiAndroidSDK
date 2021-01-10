@@ -103,5 +103,14 @@ public class Utils {
         return provMessagingCircularRegions;
     }
 
+    public static boolean isValidLatLng(double lat, double lng){
+
+        if(lat < -90 || lat > 90 || lng < -180 || lng > 180)
+        {
+            return false;
+        }
+
+        return true;
+    }
 
 }

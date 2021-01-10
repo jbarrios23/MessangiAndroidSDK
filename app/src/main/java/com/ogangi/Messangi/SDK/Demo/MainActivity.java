@@ -216,6 +216,9 @@ public class MainActivity extends AppCompatActivity {
                 if((position==12)||(position==13)||(position==14)) {
                     showDialogSelectionConfig();
                 }
+                if((position==07)) {
+                    createAlert();
+                }
             }
         });
 
@@ -231,7 +234,15 @@ public class MainActivity extends AppCompatActivity {
         if(messaging.isEnable_permission_automatic() ){
             Messaging.requestPermissions(MainActivity.this);
         }
-        Messaging.checkAutostartPermise();
+        //Messaging.checkAutostartPermise();
+
+        new GpsUtils(this).turnGPSOn(new GpsUtils.onGpsListener() {
+            @Override
+            public void gpsStatus(boolean isGPSEnable) {
+                messaging.setGPS(isGPSEnable);
+                Log.d(CLASS_TAG,TAG+ " isGPS To Interface two "+messaging.isGPS());
+            }
+        });
     }
 
     @Override
@@ -333,6 +344,7 @@ public class MainActivity extends AppCompatActivity {
         Log.i(TAG,"INFO: "+CLASS_TAG+": "+nameMethod+": "+notification);
         Messaging.fetchDevice(false, getApplicationContext());
         messaging.showAnalyticAllowedState();
+        Log.d(CLASS_TAG, TAG+" state GPS "+messaging.isGPS());
 
 
     }
@@ -615,6 +627,7 @@ public class MainActivity extends AppCompatActivity {
 
         nameMethod=new Object(){}.getClass().getEnclosingMethod().getName();
         Log.d(TAG,"DEBUG: "+CLASS_TAG+": "+nameMethod+": Tags selection final was "+ messagingDevice.getTags());
+        messagingDevice.save(this);
     }
 
     private void showData() {
@@ -1063,7 +1076,11 @@ public class MainActivity extends AppCompatActivity {
                 messaging.setGPS(true);  // flag maintain before get location
                 Log.d(CLASS_TAG, TAG+" is gps "+messaging.isGPS());
             }
-        }
+        }else{
+        messaging.setGPS(false);
+        Log.d(CLASS_TAG, TAG+" Denai is gps "+messaging.isGPS());
+    }
+
     }
 
 
