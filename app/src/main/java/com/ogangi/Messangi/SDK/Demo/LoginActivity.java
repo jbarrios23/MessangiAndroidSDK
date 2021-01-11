@@ -138,12 +138,12 @@ public class LoginActivity extends AppCompatActivity {
         nameMethod = new Object(){}.getClass().getEnclosingMethod().getName();
         boolean isLogged=sharedPreferences.getBoolean("IS_LOGGED", false);
         if(isLogged){
-            Log.d(TAG,"DEBUG: " + CLASS_TAG + ": " + nameMethod + "IS_LOGGED: " + isLogged);
+            Log.d(TAG,"DEBUG: " + CLASS_TAG + ": " + nameMethod + " IS_LOGGED: " + isLogged);
             goToMainActivity();
         }else{
             skip.setVisibility(View.VISIBLE);
             skip.setEnabled(true);
-            Log.d(TAG,"DEBUG: " + CLASS_TAG + ": " + nameMethod + "IS_LOGGED: " + isLogged);
+            Log.d(TAG,"DEBUG: " + CLASS_TAG + ": " + nameMethod + " IS_LOGGED: " + isLogged);
         }
     }
 

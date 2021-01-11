@@ -168,7 +168,7 @@ public class MessagingDB extends SQLiteOpenHelper {
                         location1.setLongitude(o1.getLongitud());
                         dist1 = provLocation.distanceTo(location1);
                     }else{
-                        messaging.utils.showDebugLog(this,nameMethod,"erase this GF "
+                        messaging.utils.showDebugLog(this,nameMethod,"erasing this GF "
                                 +o1.getId()+" dist1 "+dist1);
                     }
 
@@ -179,7 +179,7 @@ public class MessagingDB extends SQLiteOpenHelper {
                         location2.setLongitude(o2.getLongitud());
                         dist2 = provLocation.distanceTo(location2);
                     }else{
-                        messaging.utils.showDebugLog(this,nameMethod,"erase this GF "
+                        messaging.utils.showDebugLog(this,nameMethod,"erasing this GF "
                                 +o2.getId()+" dist2 "+dist2);
                     }
 

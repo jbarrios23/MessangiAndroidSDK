@@ -365,7 +365,7 @@ public class Messaging implements LifecycleObserver {
         if(messagingStorageController.isRegisterDevice()){
             messagingDevice = messagingStorageController.getDevice();
             messagingDevice.checkSdkVersion(context);
-            //identifier=1;
+
             if(!messagingStorageController.isNotificationManually() && messagingStorageController.hasTokenRegister()
                     && messagingDevice.getPushToken().equals("")){
                 utils.showInfoLog(this,nameMethod,"Save device with token");
@@ -586,8 +586,6 @@ public class Messaging implements LifecycleObserver {
                     public void handleMessage(Message inputMessage) {
                     messaging.utils.showDebugLog(messaging,nameMethod," Continue Location on ");
                     fusedLocationClient.requestLocationUpdates(locationRequest, locationCallback,Looper.getMainLooper());
-
-
                     }
                 };
                 handler.sendEmptyMessage(0);
@@ -722,30 +720,12 @@ public class Messaging implements LifecycleObserver {
         if (messaging.utils.isAnalytics_allowed()) {
 
             new HttpRequestEvent(provUrl, "GET", nameEvent, null, messaging).execute();
-            final String finalMessageToast = messageToast;
-            Handler handler = new Handler(Looper.getMainLooper()) {
-                @SuppressLint("MissingPermission")
-                @Override
-                public void handleMessage(Message inputMessage) {
-                    Toast.makeText(messaging.context, finalMessageToast,Toast.LENGTH_LONG).show();
-                }
-            };
-            handler.sendEmptyMessage(0);
-
             messaging.utils.showInfoLog(messaging, nameMethod, "isAnalytics_allowed() "
                     + messaging.utils.isAnalytics_allowed());
         } else {
             messaging.utils.showInfoLog(messaging, nameMethod, "isAnalytics_allowed() "
                     + messaging.utils.isAnalytics_allowed());
-            Handler handler = new Handler(Looper.getMainLooper()) {
-                @SuppressLint("MissingPermission")
-                @Override
-                public void handleMessage(Message inputMessage) {
-                    Toast.makeText(messaging.context,"isAnalytics_allowed "
-                            + messaging.utils.isAnalytics_allowed(),Toast.LENGTH_LONG).show();
-                }
-            };
-            handler.sendEmptyMessage(0);
+
 
         }
     }
@@ -772,15 +752,7 @@ public class Messaging implements LifecycleObserver {
         }else{
             messaging.utils.showInfoLog(messaging,nameMethod,"isAnalytics_allowed() "
                     +messaging.utils.isAnalytics_allowed());
-            Handler handler = new Handler(Looper.getMainLooper()) {
-                @SuppressLint("MissingPermission")
-                @Override
-                public void handleMessage(Message inputMessage) {
-                    Toast.makeText(messaging.context,"isAnalytics_allowed "
-                            + messaging.utils.isAnalytics_allowed(),Toast.LENGTH_LONG).show();
-                }
-            };
-            handler.sendEmptyMessage(0);
+
         }
     }
 
@@ -820,15 +792,6 @@ public class Messaging implements LifecycleObserver {
         }else{
             messaging.utils.showInfoLog(messaging,nameMethod,"isAnalytics_allowed() "
                     +messaging.utils.isAnalytics_allowed());
-            Handler handler = new Handler(Looper.getMainLooper()) {
-                @SuppressLint("MissingPermission")
-                @Override
-                public void handleMessage(Message inputMessage) {
-                    Toast.makeText(messaging.context,"isAnalytics_allowed "
-                            + messaging.utils.isAnalytics_allowed(),Toast.LENGTH_LONG).show();
-                }
-            };
-            handler.sendEmptyMessage(0);
 
         }
     }
@@ -929,7 +892,7 @@ public class Messaging implements LifecycleObserver {
                                                 messaging.utils.showDebugLog(this,nameMethod,"start geofence ");
                                                 messaging.startGeofence(null);
                                                 messaging.sendEventToActivity(Messaging.ACTION_FETCH_GEOFENCE,db.getAllGeoFenceToBd(),messaging.context);
-                                                //messaging.sendGlobalEventToActivity(Messaging.ACTION_FETCH_GEOFENCE,db.getAllGeoFenceToBd());
+
                                             }else{
                                                 messaging.utils.showDebugLog(this,nameMethod,
                                                         Messaging.MESSAGING_INVALID_DEVICE_LOCATION_REASON_CONFIG +" or no data in BD");
@@ -957,32 +920,22 @@ public class Messaging implements LifecycleObserver {
 
         }else{
             if(db.getAllGeoFenceToBd().size()>0 && messaging.utils.isLocation_allowed()) {
-                messaging.utils.showDebugLog(messaging, nameMethod, "send GF BD! "
+                messaging.utils.showDebugLog(messaging, nameMethod, "send to Activity GF from dB! "
                         +db.getAllGeoFenceToBd().size());
-
                 messaging.sendEventToActivity(Messaging.ACTION_FETCH_GEOFENCE, db.getAllGeoFenceToBd(), messaging.context);
 
             }else{
                 Toast.makeText(messaging.context,"Has not Geofence yet!",Toast.LENGTH_LONG).show();
-                messaging.utils.showDebugLog(messaging, nameMethod, "has not Geofence yet! ");
+                messaging.utils.showDebugLog(messaging, nameMethod, "Has not Geofence yet! ");
 
             }
         }
-
-
-
-
-
     }
 
 
     public String getPackageName() {
         return packageName;
     }
-
-
-
-
 
     public void stopServiceLocation(){
         Intent intent = new Intent(context, MessagingLocationService.class);
@@ -1192,30 +1145,7 @@ public class Messaging implements LifecycleObserver {
         Messaging.isContinue = isContinue;
     }
 
-    public static void turnGPSOff(){
-        String nameMethod=new Object(){}.getClass().getEnclosingMethod().getName();
-        Messaging messaging=Messaging.getInstance();
-        messaging.utils.showDebugLog(messaging,nameMethod,"GPS OFF ");
-//        LocationManager loc = (LocationManager) messaging.context.getSystemService( Context.LOCATION_SERVICE );
-//        if( loc.isProviderEnabled(android.location.LocationManager.GPS_PROVIDER ) )
-//        {
-//            Toast.makeText(messaging.context, "Please turn off GPS", Toast.LENGTH_LONG).show();
-//            Intent myIntent = new Intent( Settings.ACTION_LOCATION_SOURCE_SETTINGS );
-//            myIntent.setFlags(FLAG_ACTIVITY_NEW_TASK);
-//            messaging.context.startActivity(myIntent);
-//
-//        }
 
-        String provider = Settings.Secure.getString(messaging.context.getContentResolver(), Settings.Secure.LOCATION_PROVIDERS_ALLOWED);
-        if(provider.contains("gps")){ //if gps is enabled
-            messaging.utils.showDebugLog(messaging,nameMethod,"GPS OFF 2 ");
-            final Intent poke = new Intent();
-            poke.setClassName("com.android.settings", "com.android.settings.widget.SettingsAppWidgetProvider");
-            poke.addCategory(Intent.CATEGORY_ALTERNATIVE);
-            poke.setData(Uri.parse("3"));
-            messaging.context.sendBroadcast(poke);
-        }
-    }
 
     public static void turnOFFUpdateLocation(){
         String nameMethod=new Object(){}.getClass().getEnclosingMethod().getName();
@@ -1675,7 +1605,7 @@ public class Messaging implements LifecycleObserver {
 
                 int code = urlConnection.getResponseCode();
                 if (code!=HttpURLConnection.HTTP_OK) {
-                    //messaging.sendEventToActivity(ACTION_REGISTER_DEVICE,null,messaging.context);
+
                     messaging.utils.showErrorLog(this,nameMethod,"Invalid response from server: " + code,"");
                     throw new IOException("Invalid response from server: " + code);
                 }else{
@@ -1685,7 +1615,7 @@ public class Messaging implements LifecycleObserver {
 
             } catch (Exception e) {
                 e.printStackTrace();
-                //messaging.sendEventToActivity(ACTION_REGISTER_DEVICE,null,messaging.context);
+
                 messaging.utils.showErrorLog(this,nameMethod,"Exception: " + e.getMessage(),"");
             } finally {
                 if (urlConnection != null) {
@@ -1706,11 +1636,9 @@ public class Messaging implements LifecycleObserver {
                 messaging.utils.showHttpResponseLog(provUrl,messaging,nameMethod,"Post Logs Successful",response);
 
             }catch (NullPointerException e){
-                //messaging.sendEventToActivity(ACTION_REGISTER_DEVICE,null,messaging.context);
                 messaging.utils.showErrorLog(this,nameMethod,"Logs Not Post ! NullPointerException ",e.getStackTrace().toString());
             } catch (JSONException e) {
-                e.printStackTrace();
-                //messaging.sendEventToActivity(ACTION_REGISTER_DEVICE,null,messaging.context);
+
                 messaging.utils.showErrorLog(this,nameMethod,"Logs Not Post ! JSONException ",e.getStackTrace().toString());
             }
 
@@ -2447,40 +2375,17 @@ public class Messaging implements LifecycleObserver {
 
     }
 
+
+    public static void logOutProcessTokenPush() {//log out
+        Messaging messaging=Messaging.getInstance();
+        messaging.messagingDevice.setStatusNotificationPush(false,messaging.context);
+    }
     public static void logOutProcess() {//log out
         Messaging messaging=Messaging.getInstance();
         MessagingDB db=new MessagingDB(messaging.context);
         db.deleteAll();
 
     }
-
-    public static void checkAutostartPermise() {//log out
-        String manufacturer = "xiaomi";
-        Messaging messaging=Messaging.getInstance();
-        messaging.utils.showDebugLog(messaging,"checkAutostartPermise", " manufacturer "+android.os.Build.MANUFACTURER);
-
-        if (manufacturer.equals(android.os.Build.MANUFACTURER)) {
-            //this will open auto start screen where user can enable permission for your app
-            try {
-                Intent intent1 = new Intent();
-                intent1.setComponent(new ComponentName("com.miui.securitycenter", "com.miui.permcenter.autostart.AutoStartManagementActivity"));
-                intent1.setFlags(FLAG_ACTIVITY_NEW_TASK);
-                intent1.addFlags(FLAG_ACTIVITY_NEW_TASK);
-                messaging.context.startActivity(intent1);
-            }catch (ActivityNotFoundException e){
-                //Open the generic Apps page:
-                Intent intent = new Intent(android.provider.Settings.ACTION_MANAGE_APPLICATIONS_SETTINGS);
-                intent.setFlags(FLAG_ACTIVITY_NEW_TASK);
-                intent.addFlags(FLAG_ACTIVITY_NEW_TASK);
-                messaging.context.startActivity(intent);
-            }
-        }else{
-            Toast.makeText(messaging.context, android.os.Build.MANUFACTURER, Toast.LENGTH_SHORT).show();
-        }
-
-    }
-
-
 
 
 }

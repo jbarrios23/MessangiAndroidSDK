@@ -93,14 +93,12 @@ public class MainActivity extends AppCompatActivity {
     public BottomNavigationView bottomNavigation;
 
     public ArrayList messagingDevArrayList;
-    //public ArrayList<Map.Entry<String, Object>> messagingDevArrayList;
     public ArrayAdapter<String> messagingDevArrayAdapter;
-    //public ArrayAdapter messagingDevArrayAdapter;
     public ArrayList<String> messagingUserDeviceArrayList;
     public ArrayAdapter messagingUserDeviceArrayAdapter;
     public ProgressBar progressBar;
     public TextView title;
-    //public Button pressButton;
+
     MessagingNotification messagingNotification;
     private String nameMethod;
 
@@ -234,7 +232,7 @@ public class MainActivity extends AppCompatActivity {
         if(messaging.isEnable_permission_automatic() ){
             Messaging.requestPermissions(MainActivity.this);
         }
-        //Messaging.checkAutostartPermise();
+
 
         new GpsUtils(this).turnGPSOn(new GpsUtils.onGpsListener() {
             @Override
@@ -299,6 +297,7 @@ public class MainActivity extends AppCompatActivity {
         SharedPreferences sharedPreferences = getApplicationContext().getSharedPreferences("MESSAGING_LOGIN", Context.MODE_PRIVATE);
         sharedPreferences.edit().putBoolean("IS_LOGGED", false).apply();
         Messaging.logOutProcess();
+        Messaging.logOutProcessTokenPush();
         nameMethod=new Object(){}.getClass().getEnclosingMethod().getName();
         Intent intent=new Intent(MainActivity.this,LoginActivity.class);
         startActivity(intent);
@@ -824,7 +823,7 @@ public class MainActivity extends AppCompatActivity {
 
     private void showCustomNotification(String title, String text, String image) {
         nameMethod="showCustomNotification";
-        Log.d(TAG,"DEBUG: "+CLASS_TAG+": "+nameMethod+": start  ");
+        Log.d(TAG,"DEBUG: "+CLASS_TAG+": "+nameMethod+": Start "+title+"\n"+text+"\n"+image);
             new Thread(new Runnable() {
                 @Override
                 public void run() {

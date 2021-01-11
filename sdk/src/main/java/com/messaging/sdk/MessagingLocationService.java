@@ -65,15 +65,15 @@ public class MessagingLocationService extends Service {
         this.nameMethod="onCreate";
 
         mTimer=new Timer();
-        //mTimer.schedule(new TimerTaskToGetLocation(),5,notify_interval);
+
         messaging.utils.showDebugLog(this,nameMethod,"Create Service");
         messaging.utils.showDebugLog(this,nameMethod,"Priority "+getLocationRequestPriority());
         LocationManager locationManager = (LocationManager) getSystemService(LOCATION_SERVICE);
         if (locationManager.isProviderEnabled(LocationManager.GPS_PROVIDER)){
-            //isGPS=true;
+
             messaging.setGPS(true);
         }else{
-            //isGPS=false;
+
             messaging.setGPS(false);
         }
 
@@ -105,7 +105,7 @@ public class MessagingLocationService extends Service {
 
         notificationIntent = new Intent("android.intent.action.MAIN");
     }
-    //fetchLocation(true, Messaging.MessagingLocationPriority.PRIORITY_HIGH_ACCURACY);
+
     Messaging.fetchLocation(null,true);
     //return super.onStartCommand(intent, flags, startId);
         return START_STICKY;

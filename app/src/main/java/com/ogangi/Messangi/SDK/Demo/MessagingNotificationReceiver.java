@@ -168,7 +168,7 @@ public class MessagingNotificationReceiver extends BroadcastReceiver {
 
             }
             if(showCustomNotification){
-                showCustomNotification(Title,Text,Image,context);
+                showCustomNotification(Title,Text,Image,context,messagingNotification);
             }
             if(showCustomNotificationGeoPush){
                 showNotificationGP(messagingNotification,context);
@@ -251,8 +251,9 @@ public class MessagingNotificationReceiver extends BroadcastReceiver {
 
     }
 
-    private void showCustomNotification(String title, String text, String image, Context context) {
+    private void showCustomNotification(String title, String text, String image, Context context, MessagingNotification messagingNotification) {
         nameMethod="showCustomNotification";
+        Log.d(TAG,"DEBUG: "+CLASS_TAG+": "+nameMethod+": Start "+title+"\n"+text+"\n"+image);
         new Thread(new Runnable() {
             @Override
             public void run() {
@@ -265,10 +266,14 @@ public class MessagingNotificationReceiver extends BroadcastReceiver {
                     Intent notificationIntent=null;
                     try {
 
-                        notificationIntent = new Intent(context,
+                    notificationIntent = new Intent(context,
                                 Class.forName(messaging.getNameClass()));
                         Log.d(TAG,"DEBUG: "+CLASS_TAG+": "+nameMethod+": name class "
                                 +messaging.getNameClass());
+                        if(messagingNotification.getAdditionalData().size()>0) {
+                            notificationIntent.putExtra(Messaging.INTENT_EXTRA_DATA, messagingNotification);
+                            Static.messagingNotification=messagingNotification;
+                        }
 
 
                     } catch (ClassNotFoundException e) {

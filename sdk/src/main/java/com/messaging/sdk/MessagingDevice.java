@@ -82,17 +82,16 @@ public class MessagingDevice implements Serializable {
     }
 
     /**
-     * Method for get Device registered from service
+     * Method for status of Notification push
      @param context: instance context
      @param enable : boolean enable.
      */
     public void setStatusNotificationPush(boolean enable,Context context){
         nameMethod=new Object(){}.getClass().getEnclosingMethod().getName();
         final MessagingStorageController messagingStorageController = Messaging.getInstance().messagingStorageController;
-        messagingStorageController.setNotificationManually(true);
+        messagingStorageController.setNotificationManually(enable);
         if(messagingStorageController.hasTokenRegister()&& enable){
             pushToken= messagingStorageController.getToken();
-
         }else{
             pushToken="";
 
@@ -349,7 +348,7 @@ public class MessagingDevice implements Serializable {
             requestBody.put(Messaging.MESSAGING_DEVICE_MODEL, getModel());
             requestBody.put(Messaging.MESSAGING_DEVICE_OS, getOs());
             requestBody.put(Messaging.MESSAGING_DEVICE_SDK_VERSION, getSdkVersion());
-            messaging.utils.showDebugLog(this,"requestJsonBodyForUpdate Type ",getType());
+            messaging.utils.showDebugLog(this,"requestJsonBodyForUpdate ",requestBody.toString());
 
         } catch (JSONException e) {
             e.printStackTrace();
