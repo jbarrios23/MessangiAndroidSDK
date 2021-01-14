@@ -467,13 +467,12 @@ class MessagingSdkUtils {
                     (jsonObject.has(Messaging.MESSAGING_APP_HOST))){
                 //create device
                 showDebugLog(this,nameMethod, "Reload SDK ans create device ");
+                Messaging.logOutProcess();
                 if(messagingStorageController.isRegisterDevice()){
                     messagingStorageController.saveDevice(null,null,null);
                     messagingStorageController.saveUserByDevice(null);
                     messagingDevice=null;
                     messagingUser=null;
-                    Messaging.logOutProcess();
-
                 }
                 messaging.createDeviceParameters();
             }else{
@@ -748,8 +747,8 @@ class MessagingSdkUtils {
                         .build();
                 db.saveGeofence(geofence);
             // }else{
-                messaging.utils.showDebugLog(this,nameMethod,"Invalid latitude "
-                        +temp.getDouble(Messaging.GOEOFENCE_LAT));
+                //messaging.utils.showDebugLog(this,nameMethod,"Invalid latitude "
+                  //      +temp.getDouble(Messaging.GOEOFENCE_LAT));
 
              //}
             }
@@ -792,6 +791,19 @@ class MessagingSdkUtils {
                 messaging.messagingStorageController.setSincAllowed(Messaging.flagSinc);
                 messaging.messagingStorageController.saveNotificationId(notificationId);
             }
+    }
+
+    public void deleteDbGeofenceLocal() {
+        String nameMethod="deleteGeofenceLocal";
+        MessagingDB db=new MessagingDB(context);
+        Messaging messaging=Messaging.getInstance();
+        if(db.getAllGeoFenceToBd().size()>0) {
+
+            db.deleteAll();
+        }else{
+            messaging.utils.showDebugLog(this,nameMethod,"Don not have GF in DB");
+        }
+
     }
 
     public void deleteBdAndGeofenceLocal() {

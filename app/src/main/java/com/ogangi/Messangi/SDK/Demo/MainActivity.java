@@ -297,7 +297,6 @@ public class MainActivity extends AppCompatActivity {
         SharedPreferences sharedPreferences = getApplicationContext().getSharedPreferences("MESSAGING_LOGIN", Context.MODE_PRIVATE);
         sharedPreferences.edit().putBoolean("IS_LOGGED", false).apply();
         Messaging.logOutProcess();
-        Messaging.logOutProcessTokenPush();
         nameMethod=new Object(){}.getClass().getEnclosingMethod().getName();
         Intent intent=new Intent(MainActivity.this,LoginActivity.class);
         startActivity(intent);

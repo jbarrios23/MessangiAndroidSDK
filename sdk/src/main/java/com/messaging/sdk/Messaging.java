@@ -438,14 +438,12 @@ public class Messaging implements LifecycleObserver {
 
     public void reloadSdkParameter(){
         setConfigParameterFromAppToLogin(prvTokenApp,provHostApp);
+        logOutProcess();
         if(messagingStorageController.isRegisterDevice()){
             messagingStorageController.saveDevice(null,null,null);
             messagingStorageController.saveUserByDevice(null);
             messagingDevice=null;
             messagingUser=null;
-            logOutProcess();
-
-
         }
         createDeviceParameters();
     }
@@ -861,9 +859,9 @@ public class Messaging implements LifecycleObserver {
                                        String preProv=jsonObject.getJSONObject(Messaging.GET_GOEOFENCE_PAGINATION)
                                                .getString(Messaging.GET_GOEOFENCE_PREV);
                                        if(preProv.equals("null")){
-                                           //messaging.utils.deleteGeofenceLocal();
                                            messaging.stopGeofenceSupervition();
-                                           Messaging.logOutProcess();
+                                           messaging.utils.deleteDbGeofenceLocal();
+
                                        }
 
                                     }
@@ -2375,16 +2373,11 @@ public class Messaging implements LifecycleObserver {
 
     }
 
-
-    public static void logOutProcessTokenPush() {//log out
-        Messaging messaging=Messaging.getInstance();
-        messaging.messagingDevice.setStatusNotificationPush(false,messaging.context);
-    }
     public static void logOutProcess() {//log out
         Messaging messaging=Messaging.getInstance();
         MessagingDB db=new MessagingDB(messaging.context);
         db.deleteAll();
-
+        messaging.messagingDevice.setStatusNotificationPush(false,messaging.context);
     }
 
 
