@@ -31,8 +31,6 @@ public class ExampleActivity extends AppCompatActivity {
     private String nameMethod;
     private ListView printData;
     public Map<String, String> additionalData;
-    //public ArrayList<Map.Entry<String, String>> dataArrayList;
-    //public ArrayAdapter dataAdapter;
     public ArrayList<String> messangiData;
     public ArrayAdapter<String> messangiDataArrayAdapter;
     public MessagingNotification messagingNotification;
@@ -42,8 +40,6 @@ public class ExampleActivity extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        //getWindow().requestFeature(Window.FEATURE_ACTION_BAR);
-        //getActionBar().hide();
         setContentView(R.layout.activity_example);
         printData=findViewById(R.id.lista_data);
         nameMethod=new Object(){}.getClass().getEnclosingMethod().getName();
@@ -86,9 +82,7 @@ public class ExampleActivity extends AppCompatActivity {
             }
 
         }
-
         messangiDataArrayAdapter = new ArrayAdapter<>(this, R.layout.item_device, R.id.Texview_value, messangiData);
-        //dataAdapter = new ArrayAdapter<>(this, R.layout.item_device, R.id.Texview_value, dataArrayList);
         printData.setAdapter(messangiDataArrayAdapter);
         Messaging.checkNotification(extras);
 

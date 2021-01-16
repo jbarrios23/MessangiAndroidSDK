@@ -2335,7 +2335,7 @@ public class Messaging implements LifecycleObserver {
                 }
             }
             //data.setText(stringBuilder.toString());
-            messaging.utils.showDebugLog(messaging,nameMethod,stringBuilder.toString());
+            //messaging.utils.showDebugLog(messaging,nameMethod,stringBuilder.toString());
 
         }
         catch (IOException e) {

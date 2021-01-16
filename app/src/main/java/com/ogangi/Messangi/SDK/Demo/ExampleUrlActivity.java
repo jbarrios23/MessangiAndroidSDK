@@ -30,8 +30,6 @@ public class ExampleUrlActivity extends AppCompatActivity {
     private String nameMethod;
     private ListView printData;
     public Map<String, String> additionalData;
-//    public ArrayList<Map.Entry<String, Object>> dataArrayList;
-//    public ArrayAdapter dataAdapter;
     public ArrayList<String> messangiData;
     public ArrayAdapter<String> messangiDataArrayAdapter;
     public MessagingNotification messagingNotification;
@@ -39,8 +37,6 @@ public class ExampleUrlActivity extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-//        getWindow().requestFeature(Window.FEATURE_ACTION_BAR);
-//        getSupportActionBar().hide();
         setContentView(R.layout.activity_example_url);
         printData=findViewById(R.id.lista_data);
         nameMethod=new Object(){}.getClass().getEnclosingMethod().getName();
@@ -89,13 +85,6 @@ public class ExampleUrlActivity extends AppCompatActivity {
             Log.i(TAG,"INFO: "+CLASS_TAG+" data: "+intent.getData());
             Log.i(TAG,"INFO: "+CLASS_TAG+" param1: "+intent.getData().getQueryParameter("param1"));
             Log.i(TAG,"INFO: "+CLASS_TAG+" Package: "+intent.getPackage());
-
-//            additionalData.put("action",intent.getAction());
-//            additionalData.put("scheme",intent.getScheme());
-//            additionalData.put("data", String.valueOf(intent.getData()));
-//            additionalData.put("param1",intent.getData().getQueryParameter("param1"));
-//            additionalData.put("param2",intent.getData().getQueryParameter("param2"));
-//            additionalData.put("Package",intent.getPackage());
             messangiData.add("action "+intent.getAction());
             messangiData.add("scheme "+intent.getScheme());
             messangiData.add("data "+ String.valueOf(intent.getData()));
@@ -105,7 +94,6 @@ public class ExampleUrlActivity extends AppCompatActivity {
 
         }
         messangiDataArrayAdapter = new ArrayAdapter<>(this, R.layout.item_device, R.id.Texview_value, messangiData);
-        //dataAdapter = new ArrayAdapter<>(this, R.layout.item_device, R.id.Texview_value, dataArrayList);
         printData.setAdapter(messangiDataArrayAdapter);
 
     }

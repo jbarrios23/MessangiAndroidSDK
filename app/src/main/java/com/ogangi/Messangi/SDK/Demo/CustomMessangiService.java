@@ -1,6 +1,9 @@
 package com.ogangi.Messangi.SDK.Demo;
 
+import android.os.Build;
 import android.util.Log;
+
+import androidx.annotation.RequiresApi;
 
 import com.google.firebase.messaging.RemoteMessage;
 import com.messaging.sdk.MessagingService;
@@ -20,6 +23,7 @@ public class CustomMessangiService extends MessagingService {
     }
 
 
+    @RequiresApi(api = Build.VERSION_CODES.O)
     @Override
     public void onMessageReceived(RemoteMessage remoteMessage) {
 

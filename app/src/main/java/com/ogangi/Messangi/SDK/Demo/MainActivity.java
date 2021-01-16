@@ -135,10 +135,7 @@ public class MainActivity extends AppCompatActivity {
 
         bottomNavigation = findViewById(R.id.bottom_navigation);
 
-//        device = findViewById(R.id.device);
-//        user = findViewById(R.id.user);
-//        tags = findViewById(R.id.tag);
-//        save = findViewById(R.id.save);
+
         title_device=findViewById(R.id.textView);
         messageInapp=findViewById(R.id.texview_inapp);
         layoutInApp=findViewById(R.id.botones);
@@ -168,7 +165,7 @@ public class MainActivity extends AppCompatActivity {
                         messagingUserDeviceArrayList.clear();
                         Messaging.fetchDevice(true, getApplicationContext());
                         Messaging.fetchUser(getApplicationContext(), true);
-                        //Messaging.fetchUser(getApplicationContext(), true);
+
                         return true;
                 }
 
@@ -289,7 +286,6 @@ public class MainActivity extends AppCompatActivity {
     private void gotoMapActivity() {
         Intent intent=new Intent(MainActivity.this,MapsActivity.class);
         startActivity(intent);
-        //MainActivity.this.finish();
 
     }
 
@@ -325,8 +321,7 @@ public class MainActivity extends AppCompatActivity {
                 new IntentFilter(Messaging.ACTION_SAVE_USER));
         LocalBroadcastManager.getInstance(this).registerReceiver(mReceiver,
                 new IntentFilter(Messaging.ACTION_FETCH_LOCATION));
-//        LocalBroadcastManager.getInstance(this).registerReceiver(mReceiver,
-//                new IntentFilter(Messaging.ACTION_FETCH_GEOFENCE));
+
 
 
     }
@@ -343,8 +338,6 @@ public class MainActivity extends AppCompatActivity {
         Messaging.fetchDevice(false, getApplicationContext());
         messaging.showAnalyticAllowedState();
         Log.d(CLASS_TAG, TAG+" state GPS "+messaging.isGPS());
-
-
     }
 
 
@@ -641,8 +634,6 @@ public class MainActivity extends AppCompatActivity {
             messagingDevArrayList.add("Os: " + messagingDevice.getOs());
             messagingDevArrayList.add("SdkVersion: " + messagingDevice.getSdkVersion());
             messagingDevArrayList.add("Tags: " + messagingDevice.getTags());
-//            messagingDevArrayList.add("Timestamp: " + messagingDevice.getTimestamp());
-//            messagingDevArrayList.add("Transaction: " + messagingDevice.getTransaction());
             messagingDevArrayList.add("ExternalId: " + messaging.getExternalId());
             messagingDevArrayList.add("Config: ");
             messagingDevArrayList.add("Host: " + messaging.getMessagingHost());
@@ -919,20 +910,10 @@ public class MainActivity extends AppCompatActivity {
             public void onClick(DialogInterface dialog, int which) {
                 // send data from the AlertDialog to the Activity
                 dialog.dismiss();
-
-
             }
         });
 
-//        builder.setNegativeButton("Close", new DialogInterface.OnClickListener() {
-//            @Override
-//            public void onClick(DialogInterface dialog, int which) {
-//                onetimeFlag=true;
-//                dialog.cancel();
-//
-//
-//            }
-//        });
+
         // create and show the alert dialog
         AlertDialog dialog = builder.create();
         dialog.show();

@@ -39,8 +39,6 @@ public class ExampleURLSchemasActivity extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-//        getWindow().requestFeature(Window.FEATURE_ACTION_BAR);
-//        getSupportActionBar().hide();
         setContentView(R.layout.activity_example_u_r_l_schemas);
         printData=findViewById(R.id.lista_data);
         messangiData=new ArrayList<>();
@@ -86,13 +84,6 @@ public class ExampleURLSchemasActivity extends AppCompatActivity {
             Log.i(TAG,"INFO: "+CLASS_TAG+" data: "+intent.getData());
             Log.i(TAG,"INFO: "+CLASS_TAG+" param1: "+intent.getData().getQueryParameter("param1"));
             Log.i(TAG,"INFO: "+CLASS_TAG+" Package: "+intent.getPackage());
-
-//            additionalData.put("action",intent.getAction());
-//            additionalData.put("scheme",intent.getScheme());
-//            additionalData.put("data", String.valueOf(intent.getData()));
-//            additionalData.put("param1",intent.getData().getQueryParameter("param1"));
-//            additionalData.put("param2",intent.getData().getQueryParameter("param2"));
-//            additionalData.put("Package",intent.getPackage());
             messangiData.add("action "+intent.getAction());
             messangiData.add("scheme "+intent.getScheme());
             messangiData.add("data "+ String.valueOf(intent.getData()));
@@ -102,7 +93,6 @@ public class ExampleURLSchemasActivity extends AppCompatActivity {
         }
 
         messangiDataArrayAdapter = new ArrayAdapter<>(this, R.layout.item_device, R.id.Texview_value, messangiData);
-        //dataAdapter = new ArrayAdapter<>(this, R.layout.item_device, R.id.Texview_value, dataArrayList);
         printData.setAdapter(messangiDataArrayAdapter);
     }
 

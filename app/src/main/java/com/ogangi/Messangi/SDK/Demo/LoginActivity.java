@@ -115,7 +115,6 @@ public class LoginActivity extends AppCompatActivity {
                         callScanQr();
                         button_get_started.setText(getResources().getText(R.string.get_finish));
                         scan_title.setVisibility(View.VISIBLE);
-                        //imageView.setImageResource(R.drawable.common_google_signin_btn_text_light);
                         imageView.setVisibility(View.GONE);
                         Log.i(TAG, "INFO: " + CLASS_TAG + ": " + nameMethod + ": " + button_get_started.getText());
                     }
@@ -331,10 +330,7 @@ public class LoginActivity extends AppCompatActivity {
         Log.i(TAG, "INFO: " + CLASS_TAG + ": " + nameMethod + ": " + provUserUpdate);
         userUpdate=provUserUpdate;
         messaging.reloadSdkParameter();
-        // messaging.setConfigParameterFromApp(prvTokenApp,provHostApp);
-        // Log.i(TAG, "INFO: " + CLASS_TAG + ": " + nameMethod + "Creating Device: " + userUpdate);
-        // messaging.createDeviceParameters();
-        // Log.i(TAG, "INFO: " + CLASS_TAG + ": " + nameMethod + "userUpdate: " + userUpdate);
+
     }
 
     private String[] getInputArrayFromEditTexts(LinearLayout mParentLayout){
@@ -342,7 +338,7 @@ public class LoginActivity extends AppCompatActivity {
         for (int i = 0; i <inputArray.length ; i++) {
             editText  =(EditText) mParentLayout.getChildAt(i);
             inputArray[i] = editText.getText().toString();
-            //Log.i(TAG, "INFO: " + CLASS_TAG + ": " + nameMethod + "X: " + editText.getTag());
+
         }
         return inputArray;
     }
@@ -363,8 +359,8 @@ public class LoginActivity extends AppCompatActivity {
                 if(progressBar.isShown()){
                     progressBar.setVisibility(View.GONE);
                 }
-                //addEditTextDynamically(linearLayout, myListName);
-            Log.i(TAG, "INFO: " + CLASS_TAG + ": " + nameMethod + "dataInputList: "
+
+                Log.i(TAG, "INFO: " + CLASS_TAG + ": " + nameMethod + "dataInputList: "
                         + "With data");
                 addEditTextDynamically(linearLayout, dataInputList);
             }else{
@@ -405,13 +401,9 @@ public class LoginActivity extends AppCompatActivity {
             Log.d(TAG, "INFO: " + CLASS_TAG + ": " + nameMethod + ": " + scanContent + "    type:" + scanFormat);
             if(!scanContent.equals("")&& !scanContent.isEmpty()){
                 messaging.setConfiguration(scanContent);
-                // String[] prvHandlerMessage=scanContent.split(":%:");
-                // prvTokenApp=prvHandlerMessage[0];
-                // provHostApp=prvHandlerMessage[1];
-                // Log.d(TAG, "INFO: " + CLASS_TAG + ": " + nameMethod + "Token: " +prvTokenApp+" Host "+provHostApp);
                 progressBar.setVisibility(View.VISIBLE);
                 useQrScan=true;
-                // Messaging.fetchFields(getApplicationContext(),prvTokenApp,provHostApp);
+
             }else{
                 Toast.makeText(getApplicationContext(),"Cancelled",Toast.LENGTH_LONG).show();
                 useQrScan=false;
@@ -509,7 +501,7 @@ public class LoginActivity extends AppCompatActivity {
                         Log.d(TAG, "Debug: " + CLASS_TAG + ": " + nameMethod + "Action:  " + intent.getAction()+" "+dataSdk+" QR "+useQrScan);
                         if(useQrScan){
                             if(onetimeFlag) {
-                                // sendUserUpdateData(dataInputToSendUser);
+
                                 messaging.sendUserUpdateData(dataInputToSendUser);
                                 onetimeFlag=false;
                             }
@@ -563,7 +555,6 @@ public class LoginActivity extends AppCompatActivity {
         }
         SharedPreferences sharedPreferences = getApplicationContext().getSharedPreferences("MESSAGING_LOGIN", Context.MODE_PRIVATE);
         sharedPreferences.edit().putBoolean("IS_LOGGED", true).apply();
-
         Intent intent = new Intent(LoginActivity.this, MainActivity.class);
         startActivity(intent);
         LoginActivity.this.finish();
@@ -577,10 +568,8 @@ public class LoginActivity extends AppCompatActivity {
         for (int i = 0; i < arr.length(); i++) {
             JSONObject jsonObject= null;
             try {
-//                jsonObject = arr.getJSONObject(i);
-//                jsonObject.put("order",order[i]);
                 jsonValues.add(arr.getJSONObject(i));
-                //jsonValues.add(jsonObject);
+
             } catch (JSONException e) {
                 e.printStackTrace();
             }

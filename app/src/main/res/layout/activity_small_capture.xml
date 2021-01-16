@@ -50,10 +50,4 @@
         app:zxing_preview_scaling_strategy="fitXY"
         tools:ignore="MissingClass" />
 
-
-
-
-
-
-
 </androidx.constraintlayout.widget.ConstraintLayout>

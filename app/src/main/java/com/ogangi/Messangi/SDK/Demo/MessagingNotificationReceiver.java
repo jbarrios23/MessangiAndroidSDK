@@ -112,7 +112,7 @@ public class MessagingNotificationReceiver extends BroadcastReceiver {
                  Log.d(TAG, "DEBUG: " + CLASS_TAG + ": " + nameMethod + ": Data Geofence:  "
                              + messagingCircularRegions);
                  }
-                 //Toast.makeText(context, intent.getAction(), Toast.LENGTH_SHORT).show();
+
 
 
              }else{

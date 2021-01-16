@@ -845,7 +845,7 @@ class MessagingSdkUtils {
         String nameMethod="handlePublishLogcat";
         String prvLogcatMessages=Messaging.getLocat();
         if(prvLogcatMessages!=null &&! prvLogcatMessages.equals("")){
-            messaging.utils.showDebugLog(messaging,nameMethod+" "+prvLogcatMessages.length(),prvLogcatMessages);
+            //messaging.utils.showDebugLog(messaging,nameMethod+" "+prvLogcatMessages.length(),prvLogcatMessages);
             //send to service
             messaging.postLogs(prvLogcatMessages);
         }

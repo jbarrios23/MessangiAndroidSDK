@@ -109,7 +109,6 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
         setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_PORTRAIT);
         Toolbar toolbar = findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
-        //getSupportActionBar().setDisplayShowTitleEnabled(false);
         messaging=Messaging.getInstance();
         getLocation=findViewById(R.id.button_get_location);
         getLocationC=findViewById(R.id.button_get_location_c);
@@ -120,10 +119,6 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
         SupportMapFragment mapFragment = (SupportMapFragment) getSupportFragmentManager()
                 .findFragmentById(R.id.map);
         mapFragment.getMapAsync(this);
-
-
-
-
 
         getLocationC.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
             @Override
@@ -150,9 +145,7 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
             }
         });
 
-
-
-           turnOffLocationButton.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
+        turnOffLocationButton.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
                @Override
                public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
                    if (isChecked) {
@@ -251,9 +244,7 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
                 createAlertCustomEvent(key,provReason);
                 Messaging.checkGPlayServiceStatus();
                 return true;
-//            case R.id.action_delete:
-//                //Messaging.deleteAlldB();
-//                return true;
+
         }
 
         return super.onOptionsItemSelected(item);
@@ -492,7 +483,7 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
             float zoom = 15f;
             CameraUpdate cameraUpdate = CameraUpdateFactory.newLatLngZoom(latLng, zoom);
 
-            //mMap.animateCamera(cameraUpdate);
+            mMap.animateCamera(cameraUpdate);
             mMap.moveCamera(cameraUpdate);
             mMap.setMapType(GoogleMap.MAP_TYPE_HYBRID);
         }
@@ -585,24 +576,22 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
                     }else if(((intent.getAction().equals(Messaging.ACTION_GET_NOTIFICATION))||
                             (intent.getAction().equals(Messaging.ACTION_GET_NOTIFICATION_OPENED)))&& data!=null) {
                         messagingNotification = (MessagingNotification) data;
-                        //showAlertNotification(messagingNotification, data);
+
                         showAlertNotificationTwo(messagingNotification, data);
 
                     }else if(intent.getAction().equals(Messaging.ACTION_FETCH_GEOFENCE) && data!=null) {
                     Messaging.fetchLocation(MapsActivity.this,false);
                     messagingCircularRegions = (ArrayList<MessagingCircularRegion>) data;
                     if (geoFenceMarker != null) {
-                       // Log.e(TAG, "DEBUG: " + CLASS_TAG + ": " + nameMethod + ": geoFenceMarker.remove():" );
+
                         geoFenceMarker.remove();
                     }
                     if (geoFenceLimits != null ) {
-                        //Log.e(TAG, "DEBUG: " + CLASS_TAG + ": " + nameMethod + ": geoFenceLimits.remove():" );
+
                         geoFenceLimits.remove();
                     }
                     for(MessagingCircularRegion temp:messagingCircularRegions){
-//                    Log.d(TAG, "DEBUG: " + CLASS_TAG + ": " + nameMethod + ": Data Location Lat:  "
-//                                + temp.getLatitude()+" Long: "+temp.getLongitud()+" radius "+temp.getRadius()
-//                                +" trigger "+temp.getTrigger());
+//
                         LatLng prov=new LatLng(temp.getLatitude(),temp.getLongitud());
                         markerForGeofence(prov,temp.getRadius(),temp.getMonitoring()
                                 ,messagingCircularRegions.size(),temp.getId());
@@ -934,7 +923,6 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
                     e.printStackTrace();
                     Log.e(TAG, "DEBUG: " + CLASS_TAG + ": " + nameMethod + ": error 1 " + e.getMessage());
                 }
-
 
             }
         }).start();

@@ -20,8 +20,7 @@ public class MyApplication extends Application {
     @Override
     public void onCreate() {
         super.onCreate();
-        Log.d(CLASS_TAG,TAG+"App created "+this.getClass().getSimpleName());
-
+        Log.d(CLASS_TAG,TAG+" App created "+this.getClass().getSimpleName());
     }
 
 
