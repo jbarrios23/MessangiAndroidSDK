@@ -218,8 +218,7 @@ public class Messaging implements LifecycleObserver {
     private static LocationRequest locationRequest;
     private static LocationCallback locationCallback;
     private static FusedLocationProviderClient fusedLocationClient;
-//    public static boolean isForeground = false;
-//    public static boolean isBackground = false;
+
     public static boolean isForeground;
     public static boolean isBackground;
     public static boolean flagSinc = false;
@@ -305,6 +304,7 @@ public class Messaging implements LifecycleObserver {
         Messaging.setLocationRequestWithPriority(MessagingLocationPriority.PRIORITY_NO_POWER);
         utils.showDebugLog(this,nameMethod,"Priority "+Messaging.getLocationRequestPriority());
 
+        //locationManager
         locationCallback=new LocationCallback(){
             @Override
             public void onLocationResult(LocationResult locationResult) {
@@ -339,7 +339,6 @@ public class Messaging implements LifecycleObserver {
             };
         };
 
-
     }
 
     public static synchronized Messaging getInstance(Context context) {
@@ -356,7 +355,7 @@ public class Messaging implements LifecycleObserver {
     }
 
     /**
-     * Method that initializes OnLifecycleEvent
+     * Method of initializes OnLifecycleEvent
      */
     @OnLifecycleEvent(Lifecycle.Event.ON_START)
     public void onEnterForeground() {
@@ -382,7 +381,7 @@ public class Messaging implements LifecycleObserver {
                 setLastMessagingNotification(null, context);
             }else{
                 utils.showInfoLog(this,nameMethod,"Security does not match");
-                //Toast.makeText(context,"Security does not match",Toast.LENGTH_LONG).show();
+
             }
         }
         isForeground=true;
@@ -392,7 +391,6 @@ public class Messaging implements LifecycleObserver {
             if(messagingStorageController.isSincAllowed()){
                 utils.showInfoLog(this,nameMethod,"Sinc Enable F call service "+flagSinc);
                 //launch fetch gofence
-
                 fetchGeofence(true,null,
                         messagingStorageController.getMessagingNotificationId());
                 flagSinc=false;
@@ -423,7 +421,10 @@ public class Messaging implements LifecycleObserver {
         }
 
     }
-
+    /**
+     * Method to setConfiguration from LoginActivity
+     * @param scanContent: text with values scan from LoginActivity
+     */
     public void setConfiguration(String scanContent) {
         nameMethod=new Object(){}.getClass().getEnclosingMethod().getName();
         utils.showDebugLog(this,nameMethod, "scanContent: " +scanContent);
@@ -435,7 +436,10 @@ public class Messaging implements LifecycleObserver {
         Messaging.fetchFields(context,prvTokenApp,provHostApp);
 
     }
-
+    /**
+     * Method to reloadSdkParameter To LoginActivity, delete previus device and create new
+     * using createDeviceParameters method
+     */
     public void reloadSdkParameter(){
         setConfigParameterFromAppToLogin(prvTokenApp,provHostApp);
         logOutProcess();
@@ -447,16 +451,22 @@ public class Messaging implements LifecycleObserver {
         }
         createDeviceParameters();
     }
-
+    /**
+     * Method to sendUserUpdateData from LoginActivity only if it's necessary
+     *
+     */
     public void sendUserUpdateData(HashMap<String, String> dataInputToSendUser){
         for (Map.Entry<String, String> entry : dataInputToSendUser.entrySet()) {
             messagingUser.addProperty(entry.getKey(),entry.getValue());
         }
-
         messagingUser.save(context);
-
     }
 
+    /**
+     *  Method to setLocationRequestWithPriority from AnyActivity
+     *  With this method, the priority of the geolocation is established and it is
+     *  differentiated by the time in which the location is requested.
+     */
     public static LocationRequest setLocationRequestWithPriority(MessagingLocationPriority priority){
         if(locationRequest==null) {
             locationRequest = LocationRequest.create();
@@ -491,6 +501,10 @@ public class Messaging implements LifecycleObserver {
         return locationRequest;
     }
 
+    /**
+     *  Method to getLocationRequestWithPriority from AnyActivity or AnyClass
+     *  With this method, the priority of the geolocation is observed at any time.
+     */
     public static String getLocationRequestPriority(){
         String result = "";
         if(locationRequest!=null){
@@ -509,7 +523,11 @@ public class Messaging implements LifecycleObserver {
     }
 
 
-
+    /**
+     * Method to fetchLocation from AnyActivity or AnyClass
+     * @param activity: context from make the fetch.
+     * @param isContinue: continuously or by a single shot.
+     */
     public static void fetchLocation(Activity activity,boolean isContinue){
 
         String nameMethod=new Object(){}.getClass().getEnclosingMethod().getName();
@@ -528,7 +546,10 @@ public class Messaging implements LifecycleObserver {
         getLastLocation(activity);
 
     }
-
+    /**
+     * Method to checkSelfPermissions from AnyActivity or AnyClass
+     *
+     */
     public static void checkSelfPermissions(){
         String nameMethod=new Object(){}.getClass().getEnclosingMethod().getName();
         Messaging messaging=Messaging.getInstance();
@@ -538,7 +559,10 @@ public class Messaging implements LifecycleObserver {
             sendEventToBackend(MESSAGING_INVALID_DEVICE_LOCATION,MESSAGING_INVALID_DEVICE_LOCATION_REASON_MISSING, "");
         }
     }
-
+    /**
+     * Method to requestPermissions from AnyActivity or AnyClass
+     * @param activity: context from make the fetch.
+     * */
     public static void requestPermissions(Activity activity){
         String nameMethod=new Object(){}.getClass().getEnclosingMethod().getName();
         Messaging messaging=Messaging.getInstance();
@@ -557,7 +581,10 @@ public class Messaging implements LifecycleObserver {
             Toast.makeText(activity,"PERMISSION_GRANTED",Toast.LENGTH_LONG).show();
         }
     }
-
+    /**
+     * Method to getLastLocation from AnyActivity or AnyClass
+     * @param activity: context from make the getLastLocation.
+     * */
     @SuppressLint("InlinedApi")
     private static void getLastLocation(Activity activity) {
         final String nameMethod=new Object(){}.getClass().getEnclosingMethod().getName();
@@ -577,7 +604,6 @@ public class Messaging implements LifecycleObserver {
             }
         } else {
             if (isContinue) {
-
                 Handler handler = new Handler(Looper.getMainLooper()) {
                     @SuppressLint("MissingPermission")
                     @Override
@@ -587,15 +613,16 @@ public class Messaging implements LifecycleObserver {
                     }
                 };
                 handler.sendEmptyMessage(0);
-
             } else {
                 getCurrentLocation();
 
             }
         }
-
     }
-
+    /**
+     * Method to getCurrentLocation from AnyClass
+     *
+     * */
     @SuppressLint("MissingPermission")
     private static void getCurrentLocation() {
         final Messaging messaging=Messaging.getInstance();
@@ -611,8 +638,6 @@ public class Messaging implements LifecycleObserver {
                             messaging.utils.showDebugLog(messaging,nameMethod," Lat "+wayLatitude+" Long "+wayLongitude);
                             MessagingLocation messagingLocation=new MessagingLocation(location);
                             Messaging.saveLastLocationInStorage(location);
-                            //messaging.sendEventToActivity(ACTION_FETCH_LOCATION,messagingLocation,messaging.context);
-                            //messaging.sendGlobalEventToActivity(ACTION_FETCH_LOCATION,messagingLocation);
                             messaging.sendGlobalLocationToActivity(ACTION_FETCH_LOCATION,wayLatitude,wayLongitude);
                         } else {
                             messaging.utils.showDebugLog(messaging,nameMethod,"requestLocationUpdates ");
@@ -622,7 +647,10 @@ public class Messaging implements LifecycleObserver {
                 });
 
     }
-
+    /**
+     * Method to checkNotification from AnyActivity
+     * @param extras : data of Notification
+     * */
     @RequiresApi(api = Build.VERSION_CODES.O)
     public static MessagingNotification checkNotification(Bundle extras){
         String nameMethod=new Object(){}.getClass().getEnclosingMethod().getName();
@@ -652,7 +680,11 @@ public class Messaging implements LifecycleObserver {
 
         return notification;
     }
-
+    /**
+     * Method to sendEventCustom from AnyActivity or Class
+     * @param snakeCases : key for event custom.
+     * @param reason : cause of event custom.
+     * */
     @RequiresApi(api = Build.VERSION_CODES.KITKAT)
     public static void sendEventCustom(String snakeCases, String reason){
         String nameMethod=new Object(){}.getClass().getEnclosingMethod().getName();
@@ -673,7 +705,10 @@ public class Messaging implements LifecycleObserver {
 
         sendEventToBackend(provSnake,provReason,"");
     }
-
+    /**
+     * Method to stringProcess URLEncoder.encode from Class
+     * * @param reason : cause of event custom.
+     * */
     @RequiresApi(api = Build.VERSION_CODES.KITKAT)
     private static String stringProcess(String reason) {
         Messaging messaging=Messaging.getInstance();
@@ -693,7 +728,12 @@ public class Messaging implements LifecycleObserver {
 
         return provReason;
     }
-
+    /**
+     * Method to sendEventToBackend from AnyActivity or Class
+     * @param nameEvent : name of Event.
+     * @param reason : cause of event custom.
+     * @param externalId : id from Notification.
+     * */
     public static void sendEventToBackend(String nameEvent, String reason, String externalId) {
     String nameMethod=new Object(){}.getClass().getEnclosingMethod().getName();
     final Messaging messaging = Messaging.getInstance();
@@ -727,7 +767,11 @@ public class Messaging implements LifecycleObserver {
 
         }
     }
-
+    /**
+     * Method to sendEventToBackend from AnyActivity or Class
+     * @param nameEvent : name of Event.
+     * @param messagingNotification: MessagingNotification object for get Id of Notificacion.
+     * */
     public static void sendEventToBackend(String nameEvent,MessagingNotification messagingNotification) {
         String nameMethod=new Object(){}.getClass().getEnclosingMethod().getName();
         final Messaging messaging = Messaging.getInstance();
@@ -753,7 +797,11 @@ public class Messaging implements LifecycleObserver {
 
         }
     }
-
+    /**
+     * Method to sendEventGeofenceToBackend from AnyActivity or Class
+     * @param typeAction : in or out.
+     * @param geofenceId: Id of Geofence.
+     * */
     public static void sendEventGeofenceToBackend(String typeAction,String geofenceId) {
         final String nameMethod="sendEventGeofenceToBackend";
         final Messaging messaging = Messaging.getInstance();
@@ -766,7 +814,7 @@ public class Messaging implements LifecycleObserver {
         }
         final String provUrl = messaging.utils.getMessagingHost()+"/devices/"+provId+"/region/"+typeAction+"/"+geofenceId;
         if(messaging.utils.isAnalytics_allowed()) {
-            //new HttpRequestEventGet(provId, messaging, nameEvent, reason,typeAction,geofenceId).execute();
+
             new HttpRequestEvent(provUrl,"GET",typeAction,new HttpRequestCallback(){
                 @Override
                 void onSuccess(Object o) {
@@ -793,7 +841,10 @@ public class Messaging implements LifecycleObserver {
 
         }
     }
+    /**
+     * Method to  getGeofenceFromdB from AnyActivity or Class
 
+     * */
     public static ArrayList<MessagingCircularRegion> getGeofenceFromdB() {
         final Messaging messaging = Messaging.getInstance();
         final MessagingDB db=new MessagingDB(messaging.context);
@@ -808,10 +859,16 @@ public class Messaging implements LifecycleObserver {
 
         return result;
     }
+    /**
+     * Method to fetchGeofence from AnyActivity or Class
+     * */
     public static void fetchGeofence() {
         fetchGeofence(false,"","");
     }
-
+    /**
+     * Method to fetchGeofence from AnyActivity or Class
+     * @param forsecallservice :allows you to make the request through the service
+     * */
     public static void fetchGeofence(boolean forsecallservice) {
         fetchGeofence(forsecallservice,"","");
     }
@@ -930,17 +987,21 @@ public class Messaging implements LifecycleObserver {
         }
     }
 
-
+    /**
+     * Method to getPackageName from AnyActivity or Class
+     *
+     * */
     public String getPackageName() {
         return packageName;
     }
-
+    /**
+     * Method to stopServiceLocation from AnyActivity or Class
+     * let make stop of background location
+     * */
     public void stopServiceLocation(){
         Intent intent = new Intent(context, MessagingLocationService.class);
         context.stopService(intent);
     }
-
-
     /**
      * Method that Get Last Notification
      *
@@ -1015,7 +1076,10 @@ public class Messaging implements LifecycleObserver {
 
         return androidId;
     }
-
+    /**
+     * Method to getSdkVersion device from Class
+     *
+     * */
     public String getSdkVersion() {
         return sdkVersion;
     }
@@ -1024,7 +1088,10 @@ public class Messaging implements LifecycleObserver {
 
         this.sdkVersion = sdkVersion;
     }
-
+    /**
+     * Method to getLanguage device from Class
+     *
+     * */
     public String getLanguage() {
         return language;
     }
@@ -1058,35 +1125,45 @@ public class Messaging implements LifecycleObserver {
         this.os = os;
     }
 
+    /**
+     * Method to setConfigParameterFromAppToLogin device from ActivityLogin
+     *
+     * */
     void setConfigParameterFromAppToLogin(String token, String Host){
         utils.saveConfigParameterFromApp(token,Host);
     }
-
-    public static void setConfigParameterTokenAndHost(String token, String host){
-        Messaging messaging=Messaging.getInstance();
-        messaging.utils.saveConfigParameterFromApp(token,host);
-
-    }
-
+    /**
+     * Method to setLocationAllowed from Activity or Class
+     * @param enable :true or false
+     * */
     public static void setLocationAllowed(boolean enable){
         Messaging messaging=Messaging.getInstance();
         messaging.utils.setLocation_allowed(enable);
 
     }
-
+    /**
+     * Method to setAnalytincAllowed from Activity or Class
+     * @param enable :true or false
+     * */
     public static void setAnalytincAllowed(boolean enable){
         Messaging messaging=Messaging.getInstance();
         messaging.utils.setAnalytics_allowed(enable);
 
     }
-
+    /**
+     * Method to setLogingAllowed from Activity or Class
+     * @param enable :true or false
+     * */
     public static void setLogingAllowed(boolean enable){
         Messaging messaging=Messaging.getInstance();
         messaging.utils.setLogging_allowed(enable);
 
     }
 
-
+    /**
+     * Method to showAnalyticAllowedState on Activity or Class
+     *
+     * */
     public void showAnalyticAllowedState(){
         nameMethod=new Object(){}.getClass().getEnclosingMethod().getName();
         utils.isAnalytics_allowed();
@@ -1101,32 +1178,44 @@ public class Messaging implements LifecycleObserver {
 
         return utils.getMessagingHost();
     }
-
+    /**
+     * get config parameter from app
+     */
     public String getMessagingToken() {
 
         return utils.getMessagingToken();
     }
-
+    /**
+     * get config parameter from app
+     */
     public boolean isAnalytics_allowed() {
 
         return utils.isAnalytics_allowed();
     }
-
+    /**
+     * get config parameter from app
+     */
     public boolean isLocation_allowed() {
 
         return utils.isLocation_allowed();
     }
-
+    /**
+     * get config parameter from app
+     */
     public boolean isLogging_allowed() {
 
         return utils.isLogging_allowed();
     }
-
+    /**
+     * get config parameter from app
+     */
     public boolean isEnable_permission_automatic() {
 
         return utils.islocationPermissionAtStartup();
     }
-
+    /**
+     * get state of GPS from app
+     */
     public boolean isGPS() {
         return messagingStorageController.isGPSAllowed();
     }
@@ -1135,16 +1224,9 @@ public class Messaging implements LifecycleObserver {
         messagingStorageController.setGPSAllowed(GPS);
         isGPS = GPS;
     }
-    public static boolean isIsContinue() {
-        return isContinue;
-    }
-
-    public static void setIsContinue(boolean isContinue) {
-        Messaging.isContinue = isContinue;
-    }
-
-
-
+    /**
+     * turnOFFUpdateLocation
+     */
     public static void turnOFFUpdateLocation(){
         String nameMethod=new Object(){}.getClass().getEnclosingMethod().getName();
         Messaging messaging=Messaging.getInstance();
@@ -1153,12 +1235,18 @@ public class Messaging implements LifecycleObserver {
             fusedLocationClient.removeLocationUpdates(locationCallback);
         }
     }
-
+    /**
+     * Method to saveLastLocationInStorage from Activity or Class
+     * @param location : Location Object
+     * */
     public static void saveLastLocationInStorage(Location location){
         Messaging messaging=Messaging.getInstance();
         messaging.messagingStorageController.saveCurrentLocation(location);
     }
-
+    /**
+     * Method to getLastLocation from Storage
+     *
+     * */
     public static Location getLastLocation(){
         Messaging messaging=Messaging.getInstance();
         if(messaging.messagingStorageController.hasLastLocation()){
@@ -1169,11 +1257,17 @@ public class Messaging implements LifecycleObserver {
 
     }
 
-
+    /**
+     * Method to Know isLogged
+     *
+     * */
     public boolean isLogged() {
         return messagingStorageController.isRegisterDevice();
     }
-
+    /**
+     * Method to checkGPlayServiceStatus
+     * installed or update
+     * */
     public static void checkGPlayServiceStatus(){
         String nameMethod="GetGPlayServiceStatus";
         Messaging messaging=Messaging.getInstance();
@@ -1187,8 +1281,6 @@ public class Messaging implements LifecycleObserver {
             messaging.utils.showDebugLog(messaging,nameMethod,"please udpate your google play service "+status);
             Toast.makeText(messaging.context,"please udpate your google play service",Toast.LENGTH_SHORT).show();
         }
-
-
     }
 
     /**
@@ -1263,7 +1355,9 @@ public class Messaging implements LifecycleObserver {
             return capitalize(manufacturer) + " " + model;
         }
     }
-
+    /**
+     * Method for capitalize
+     */
     private String capitalize(String s) {
         if (s == null || s.length() == 0) {
             return "";
@@ -1768,6 +1862,7 @@ public class Messaging implements LifecycleObserver {
         }
 
     }
+
     private static class HTTPReqTaskGetUser extends AsyncTask<Void,Void,String> {
 
         public String deviceId;
@@ -1983,9 +2078,10 @@ public class Messaging implements LifecycleObserver {
             }
         }
     }
-
-
-
+    /**
+     * Method to HttpRequestCallback from AnyActivity or Class
+     *
+     * */
     public static class HttpRequestCallback{
         void onSuccess(Object o){}
         void onFailure(Object o){}
@@ -2084,10 +2180,10 @@ public class Messaging implements LifecycleObserver {
         }
     }
 
-    //Geofence stuff
-
-
-
+    /**
+     * Method to re_registerGeofence from Boot complete
+     *
+     * */
     public static void re_registerGeofence(){
         final Messaging messaging= Messaging.getInstance();
         String nameMethod=new Object(){}.getClass().getEnclosingMethod().getName();
@@ -2112,7 +2208,11 @@ public class Messaging implements LifecycleObserver {
 
     }
 
-    // Start Geofence creation process
+
+    /**
+     * Method to Start Geofence creation process
+     * @param geofenceToRegister : list of Geofences to register
+     * */
     void startGeofence(ArrayList<String> geofenceToRegister) {
     String nameMethod=new Object(){}.getClass().getEnclosingMethod().getName();
     final Messaging messaging= Messaging.getInstance();
@@ -2123,7 +2223,7 @@ public class Messaging implements LifecycleObserver {
         final ArrayList<MessagingCircularRegion> closestRegions = new ArrayList<>();
         for(MessagingCircularRegion messagingCircularRegion:nearestRegions){
 
-            //messaging.utils.showDebugLog(messaging,nameMethod,"GF to add: "+geofence.toString());
+
             closestRegions.add(messagingCircularRegion);
 
             if(closestRegions.size()==MAXIMUM_NUMBER_OF_MONITORED_REGIONS){
@@ -2175,7 +2275,11 @@ public class Messaging implements LifecycleObserver {
 
     }
 
-    //Create a Geofence Request
+
+    /**
+     * Method to Create a Geofence Request
+     * @param provMessagingCircularRegions : list of GCircularRegions to request
+     * */
     GeofencingRequest createGeofenceRequest(ArrayList<MessagingCircularRegion> provMessagingCircularRegions ) {
         nameMethod=new Object(){}.getClass().getEnclosingMethod().getName();
         List<Geofence> geofenceList=new ArrayList<>();
@@ -2191,7 +2295,11 @@ public class Messaging implements LifecycleObserver {
                 .build();
     }
 
-    // Add the created GeofenceRequest to the device's monitoring list
+    //
+    /**
+     * Method to Add the created GeofenceRequest to the device's monitoring list
+     * @param request : GeofencingRequest Object.
+     * */
     void addGeofence(GeofencingRequest request) {
 
         if (ActivityCompat.checkSelfPermission(context, android.Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED
@@ -2239,7 +2347,10 @@ public class Messaging implements LifecycleObserver {
         }
 
     }
-
+    /**
+     * Method to stopGeofenceSupervition
+     * remove all Geofence list
+     * */
     void stopGeofenceSupervition(){
 
         geofencingClient.removeGeofences(createGeofencePendingIntent())
@@ -2263,7 +2374,10 @@ public class Messaging implements LifecycleObserver {
         });
 
     }
-
+    /**
+     * Method to removeGeofence
+     * @param listIds :ids of Geofence to remove.
+     * */
     void removeGeofence(final List<String> listIds){
         nameMethod="removeGeofence";
         utils.showDebugLog(this,nameMethod,"removeGeofence "+listIds.toString());
@@ -2295,7 +2409,9 @@ public class Messaging implements LifecycleObserver {
                 });
 
     }
-
+    /**
+     * Method to createGeofencePendingIntent
+     * */
     PendingIntent createGeofencePendingIntent() {
         nameMethod="createGeofencePendingIntent";
         if ( geoFencePendingIntent != null ){
@@ -2304,16 +2420,16 @@ public class Messaging implements LifecycleObserver {
 
         Intent intent = new Intent(context, MessaginGeofenceBroadcastReceiver.class);
 
-        //utils.showDebugLog(this,nameMethod,"List<Geofence> "+triggeringGeofences.toString());
+
         geoFencePendingIntent=PendingIntent.getBroadcast(
                 context, GEOFENCE_REQ_CODE, intent, PendingIntent.FLAG_UPDATE_CURRENT );
-//        Intent intento = new Intent();
-//        GeofencingEvent geofencingEvent = GeofencingEvent.fromIntent(intento);
-//        List<Geofence> triggeringGeofences = geofencingEvent.getTriggeringGeofences();
+
         return geoFencePendingIntent;
     }
 
-
+    /**
+     * Method to getLocat
+     * */
     public static String getLocat(){
         Messaging messaging=Messaging.getInstance();
         String nameMethod="getLocat";
@@ -2334,8 +2450,7 @@ public class Messaging implements LifecycleObserver {
 
                 }
             }
-            //data.setText(stringBuilder.toString());
-            //messaging.utils.showDebugLog(messaging,nameMethod,stringBuilder.toString());
+
 
         }
         catch (IOException e) {
@@ -2344,35 +2459,10 @@ public class Messaging implements LifecycleObserver {
         return stringBuilder.toString();
     }
 
-    public static Bitmap getBitmapFromURL(final String src) {
-        final Messaging messaging=Messaging.getInstance();
-        final String nameMethod="getBitmapFromURL";
-        final Bitmap[] myBitmap = new Bitmap[1];
-        new Thread(new Runnable() {
-            @Override
-            public void run() {
-
-                try {
-                    URL url = new URL(src);
-                    HttpURLConnection connection = (HttpURLConnection) url.openConnection();
-                    connection.setDoInput(true);
-                    connection.connect();
-                    InputStream input = connection.getInputStream();
-                    myBitmap[0] = BitmapFactory.decodeStream(input);
-
-                } catch (IOException e) {
-                    // Log exception
-                    e.printStackTrace();
-                    messaging.utils.showErrorLog(messaging,nameMethod,"Error ",e.getLocalizedMessage());
-                }
-
-            }
-        }).start();
-
-        return myBitmap[0];
-
-    }
-
+    /**
+     * Method to logOutProcess
+     * put pusToken="" and update device
+     * */
     public static void logOutProcess() {//log out
         Messaging messaging=Messaging.getInstance();
         MessagingDB db=new MessagingDB(messaging.context);
