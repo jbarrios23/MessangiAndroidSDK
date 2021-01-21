@@ -14,7 +14,9 @@ import java.util.Collections;
 import java.util.Comparator;
 
 import static android.content.Context.LOCATION_SERVICE;
-
+/**
+ * class MessagingDB let stable Instances, local Storage data from Geofence.
+ */
 public class MessagingDB extends SQLiteOpenHelper {
 
     public static final int MESSAGING_DATABASE_VERSION = 1;
@@ -37,22 +39,31 @@ public class MessagingDB extends SQLiteOpenHelper {
     public MessagingDB(@Nullable Context context) {
         super(context, MESSAGING_DATABASE_NAME, null, MESSAGING_DATABASE_VERSION);
     }
-
+    /**
+     * Method of create table
+     */
     @Override
     public void onCreate(SQLiteDatabase db) {
         db.execSQL(SQL_CREAR);
     }
-
+    /**
+     * Method of upgrade table
+     */
     @Override
     public void onUpgrade(SQLiteDatabase db, int oldVersion, int newVersion) {
         db.execSQL("DROP TABLE IF EXISTS " + MESSAGING_TABLA_GEOFENCE);
         onCreate(db);
     }
-
+    /**
+     * Method of Downgrade table
+     */
     public void onDowngrade(SQLiteDatabase db, int oldVersion, int newVersion) {
         onUpgrade(db, oldVersion, newVersion);
     }
-
+    /**
+     * Method of saveGeofence on table
+     * @param messagingCircularRegion : MessagingCircularRegion object
+     */
     public void saveGeofence(MessagingCircularRegion messagingCircularRegion){
         SQLiteDatabase db = this.getWritableDatabase();
         String provId=messagingCircularRegion.getId();
@@ -74,7 +85,10 @@ public class MessagingDB extends SQLiteOpenHelper {
         messaging.utils.showDebugLog(this,nameMethod,"Save data");
 
     }
-
+    /**
+     * Method of getGeoFenceToBd sorted from table
+     * @param geoFenID : id of Geofence
+     */
     public MessagingCircularRegion getGeoFenceToBd(String geoFenID){
         SQLiteDatabase db = this.getReadableDatabase();
         String[] projection = {MESSAGING_COLUMNA_ID, Messaging.GOEOFENCE_ID,
@@ -118,7 +132,10 @@ public class MessagingDB extends SQLiteOpenHelper {
         db.close();
         return null;
     }
-
+    /**
+     * Method of getAllGeoFenceToBd from table
+     *
+     */
     public ArrayList< MessagingCircularRegion> getAllGeoFenceToBd() {
         SQLiteDatabase db = this.getReadableDatabase();
         final ArrayList<MessagingCircularRegion> result = new ArrayList<>();
@@ -196,7 +213,11 @@ public class MessagingDB extends SQLiteOpenHelper {
         }
     return  result;
     }
-
+    /**
+     * Method of update Geofence on table
+     * @param messagingCircularRegion : MessagingCircularRegion object
+     * @param geoFenID : ID of Geofence to update.
+     */
     public void update(MessagingCircularRegion messagingCircularRegion,String geoFenID){
 
         SQLiteDatabase db = this.getWritableDatabase();
@@ -220,6 +241,10 @@ public class MessagingDB extends SQLiteOpenHelper {
 
     }
 
+    /**
+     * Method of markRecordToDelete Geofence on table
+     * @param geoFenID : ID of Geofence to Mark.
+     */
     public void markRecordToDelete(String geoFenID){
 
         SQLiteDatabase db = this.getWritableDatabase();
@@ -239,6 +264,10 @@ public class MessagingDB extends SQLiteOpenHelper {
 
     }
 
+    /**
+     * Method of clearMonitoring Geofence on table
+     *
+     */
     public void clearMonitoring(){
 
         SQLiteDatabase db = this.getWritableDatabase();
@@ -256,6 +285,11 @@ public class MessagingDB extends SQLiteOpenHelper {
         messaging.utils.showDebugLog(this,nameMethod,"clearMonitoring data");
 
     }
+    /**
+     * Method of markRecordToMonitoring Geofence on table
+     * @param geoFenID: ID of Geofence to MarkRecord
+     * @param status : true or false
+     */
     public void markRecordToMonitoring(String geoFenID, boolean status){
 
         SQLiteDatabase db = this.getWritableDatabase();
@@ -277,7 +311,9 @@ public class MessagingDB extends SQLiteOpenHelper {
         //messaging.utils.showDebugLog(this,nameMethod,"markRecordToMonitoring data");
 
     }
-
+    /**
+     * Method of deleteMarked Geofence on table
+     */
     public void deleteMarked(){
         Messaging messaging=Messaging.getInstance();
         String nameMethod=new Object(){}.getClass().getEnclosingMethod().getName();
@@ -294,7 +330,10 @@ public class MessagingDB extends SQLiteOpenHelper {
             messaging.utils.showErrorLog(this,nameMethod,"error deleteMarked","");
         }
     }
-
+    /**
+     * Method of delete Geofence on table
+     * @param geoFenID :ID of Geofence to delete.
+     */
     public void delete(String geoFenID){
         Messaging messaging=Messaging.getInstance();
         String nameMethod=new Object(){}.getClass().getEnclosingMethod().getName();
@@ -311,6 +350,10 @@ public class MessagingDB extends SQLiteOpenHelper {
             messaging.utils.showErrorLog(this,nameMethod,"error delete data","");
         }
     }
+    /**
+     * Method of deleteAll Geofence on table
+     *
+     */
     public void deleteAll(){
         Messaging messaging=Messaging.getInstance();
         String nameMethod=new Object(){}.getClass().getEnclosingMethod().getName();

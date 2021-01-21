@@ -7,7 +7,10 @@ import android.util.Log;
 import com.google.android.gms.location.Geofence;
 
 import java.io.Serializable;
-
+/**
+ * class MessagingGeofence implements MessagingRegion,
+ *  to handle Geofence Params.
+ */
 public class MessagingGeofence implements MessagingRegion, Serializable {
 
     protected String id;
@@ -41,7 +44,10 @@ public class MessagingGeofence implements MessagingRegion, Serializable {
     }
 
 
-
+    /**
+     * Method to create Builder of this Class
+     *
+     * */
     public static class Builder{
 
         private MessagingGeofence product;
@@ -51,10 +57,6 @@ public class MessagingGeofence implements MessagingRegion, Serializable {
             return this;
         }
 
-//        public MessagingGeofence.Builder setMessagingGeoFenceTrigger(Messaging.MessagingGeoFenceTrigger messagingGeoFenceTrigger) {
-//            prepare().messagingGeoFenceTrigger = messagingGeoFenceTrigger;
-//            return this;
-//        }
 
         public MessagingGeofence.Builder setMessagingGeoFenceTrigger(String trigger) {
             if(trigger.equals(Messaging.GOEOFENCE_TYPE_IN)){
@@ -86,7 +88,6 @@ public class MessagingGeofence implements MessagingRegion, Serializable {
             this.product=null;
             return provGeofence;
         }
-
 
     }
 

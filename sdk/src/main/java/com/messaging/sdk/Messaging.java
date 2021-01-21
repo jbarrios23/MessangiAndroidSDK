@@ -2278,7 +2278,7 @@ public class Messaging implements LifecycleObserver {
 
     /**
      * Method to Create a Geofence Request
-     * @param provMessagingCircularRegions : list of GCircularRegions to request
+     * @param provMessagingCircularRegions : list of CircularRegions to request
      * */
     GeofencingRequest createGeofenceRequest(ArrayList<MessagingCircularRegion> provMessagingCircularRegions ) {
         nameMethod=new Object(){}.getClass().getEnclosingMethod().getName();

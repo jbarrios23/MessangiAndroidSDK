@@ -18,9 +18,11 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Objects;
 
+/**
+ * class MessagingNotification handle notification
+ * event in foreground and background.
+ */
 public class MessagingNotification implements Serializable {
-
-    //common
 
     private String notificationId;
     private String type;
@@ -132,16 +134,7 @@ public class MessagingNotification implements Serializable {
          }
          messaging.utils.showDebugLog(this,nameMethod, "silent: "+silent);
          messaging.utils.showDebugLog(this,nameMethod, "sticky: "+sticky);
-//         messaging.utils.showDebugLog(this,nameMethod, "defaultVibrateSettings: "+defaultVibrateSettings);
-//         messaging.utils.showDebugLog(this,nameMethod, "icon: "+icon+" sound "+sound);
-//         messaging.utils.showDebugLog(this,nameMethod, "imageUrl: "+imageUrl+" chanelId "+channelId);
-//         messaging.utils.showDebugLog(this,nameMethod, "badge: "+badge+" ticker "+ticker);
-//         //other
-//         messaging.utils.showDebugLog(this,nameMethod, "bodyLocalizationArgs: "+bodyLocalizationArgs);
-//         messaging.utils.showDebugLog(this,nameMethod, "bodyLocalizationKey: "+bodyLocalizationKey);
-//         messaging.utils.showDebugLog(this,nameMethod, "color: "+color+" defaultLightSettings "+defaultLightSettings);
-//         messaging.utils.showDebugLog(this,nameMethod, "defaultSound: "+defaultSound+" vibrateTimings "+vibrateTimings);
-//         messaging.utils.showDebugLog(this,nameMethod, "localOnly: "+localOnly+" visibility "+visibility);
+
 
      }
 

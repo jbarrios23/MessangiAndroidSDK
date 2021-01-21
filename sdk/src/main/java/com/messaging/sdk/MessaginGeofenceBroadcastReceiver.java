@@ -13,7 +13,10 @@ import com.google.android.gms.location.GeofencingEvent;
 
 import java.util.ArrayList;
 import java.util.List;
-
+/**
+ * class MessaginGeofenceBroadcastReceiver let stable BroadcastReceiver,
+ * for Handle Geofence event
+ */
 public class MessaginGeofenceBroadcastReceiver extends BroadcastReceiver {
     public Messaging messaging;
     public String nameMethod;
@@ -37,9 +40,7 @@ public class MessaginGeofenceBroadcastReceiver extends BroadcastReceiver {
 
 
         messaging.utils.showDebugLog(this,nameMethod,"MessaginGeofenceBroadcastReceiver "+intent.getExtras().toString());
-
         nameMethod = new Object() {}.getClass().getEnclosingMethod().getName();
-
         GeofencingEvent geofencingEvent = GeofencingEvent.fromIntent(intent);
 
 
@@ -58,8 +59,7 @@ public class MessaginGeofenceBroadcastReceiver extends BroadcastReceiver {
 
         messaging.utils.showDebugLog(this,nameMethod,geofenceTransition
                 +" "+triggeringGeofences.toString()+" "+intent.getAction());
-        //messaging.utils.showDebugLog(this,nameMethod,"example: "+Messaging.MessagingGeoFenceTrigger.ENTER.getTrigger());
-        //messaging.utils.showDebugLog(this,nameMethod,"example: "+Messaging.MessagingGeoFenceTrigger.EXIT.getTrigger());
+
 
         // Test that the reported transition was of interest.
 
@@ -78,10 +78,6 @@ public class MessaginGeofenceBroadcastReceiver extends BroadcastReceiver {
         if (geofenceTransition == Messaging.MessagingGeoFenceTrigger.ENTER.getTrigger() ||
                 geofenceTransition == Messaging.MessagingGeoFenceTrigger.EXIT.getTrigger()) {
 
-            // Get the geofences that were triggered. A single event can trigger
-            // multiple geofences.
-            //List<Geofence> triggeringGeofences = geofencingEvent.getTriggeringGeofences();
-
             // Get the transition details as a String.
             String geofenceTransitionDetails = getGeofenceTransitionDetails(
                     this,
@@ -97,7 +93,10 @@ public class MessaginGeofenceBroadcastReceiver extends BroadcastReceiver {
 
         }
     }
-
+    /**
+     * Method to convert Geofence To Circularregion
+     * @param geofencingEvent :event to convert.
+     */
     private ArrayList<MessagingCircularRegion> convertGeofenceToCircularregion(GeofencingEvent geofencingEvent) {
         nameMethod="convertGeofenceToCircularregion";
         ArrayList<MessagingCircularRegion> regions = new ArrayList<>();
@@ -124,15 +123,23 @@ public class MessaginGeofenceBroadcastReceiver extends BroadcastReceiver {
 
 
     }
-
+    /**
+     * Method to sendNotification
+     * @param geofenceTransitionDetails :geofence Transition Details.
+     * @param context :context .
+     */
     private void sendNotification(String geofenceTransitionDetails, Context context) {
         nameMethod = new Object() {}.getClass().getEnclosingMethod().getName();
         messaging.utils.showDebugLog(this,nameMethod,geofenceTransitionDetails);
         Toast.makeText(context,geofenceTransitionDetails,Toast.LENGTH_LONG).show();
-        //aca se debe notificar a las analiticas de un geofence.
 
     }
-
+    /**
+     * Method to getGeofence Transition Details
+     * @param geofenceBroadcastReceiver :MessaginGeofenceBroadcastReceiver Transition Details.
+     * @param geofenceTransition:Trigger of GF.
+     * @param triggeringGeofences: list of Gf triggering.
+     */
     private String getGeofenceTransitionDetails(MessaginGeofenceBroadcastReceiver geofenceBroadcastReceiver,
                                                 int geofenceTransition,
                                                 List<Geofence> triggeringGeofences) {
@@ -148,8 +155,6 @@ public class MessaginGeofenceBroadcastReceiver extends BroadcastReceiver {
             status = "in";
         else if ( geofenceTransition == Messaging.MessagingGeoFenceTrigger.EXIT.getTrigger() )
             status = "out ";
-
-        //Messaging.sendEventGeofenceToBackend(status,ge);
 
         return status +" "+ TextUtils.join( ", ", triggeringGeofencesList);
 

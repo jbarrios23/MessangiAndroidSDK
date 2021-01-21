@@ -3,7 +3,10 @@ package com.messaging.sdk;
 import com.google.android.gms.location.Geofence;
 
 import java.io.Serializable;
-
+/**
+ * class MessagingCircularRegion let stable Instances, getGeofence and create Builder for handle
+ * GeoFence stuff.
+ */
 public class MessagingCircularRegion extends MessagingGeofence implements Serializable {
 
     private double latitude;
@@ -20,13 +23,14 @@ public class MessagingCircularRegion extends MessagingGeofence implements Serial
         this.monitoring = 0;
         this.isafterToDelete=0;
     }
-
+    /**
+     * Method to getGeofence previus validate long and lat
+     *
+     * */
     @Override
     public Geofence getGeofence() {
         messagingSdkUtils=new MessagingSdkUtils();
         Messaging messaging=Messaging.getInstance();
-//        messaging.utils.showDebugLog(this,"GetGeofence Valid Location",
-//                messagingSdkUtils.isValidLatLng(latitude,longitud));
         if(messagingSdkUtils.isValidLatLng(latitude,longitud)){
             return new Geofence.Builder()
                     .setRequestId(id)
@@ -45,29 +49,47 @@ public class MessagingCircularRegion extends MessagingGeofence implements Serial
         }
     }
 
-
+    /**
+     * Method to getLatitude of Geofence
+     *
+     * */
     public double getLatitude() {
         return latitude;
     }
-
+    /**
+     * Method to getLongitud of Geofence
+     *
+     * */
     public double getLongitud() {
         return longitud;
     }
-
+    /**
+     * Method to getRadius of Geofence
+     *
+     * */
     public int getRadius() {
         return radius;
     }
-
+    /**
+     * Method to getMonitoring of Geofence
+     *
+     * */
     public int getMonitoring() {
         return monitoring;
     }
-
+    /**
+     * Method to isAfterTodelete
+     *
+     * */
     public boolean isAfterTodelete() {
 
         return isafterToDelete==1;
     }
 
-
+    /**
+     * Method to create Builder of this Class
+     *
+     * */
     public static class Builder{
 
         private MessagingCircularRegion product;

@@ -239,20 +239,26 @@ class MessagingSdkUtils {
 
     public void setAnalytics_allowed(boolean analytics_allowed) {
         messagingStorageController.setAnalyticsAllowed(analytics_allowed);
-        //this.analytics_allowed = analytics_allowed;
+
     }
 
     public void setLocation_allowed(boolean location_allowed) {
         messagingStorageController.setLocationAllowed(location_allowed);
-        //this.location_allowed = location_allowed;
+
     }
 
     public void setLogging_allowed(boolean logging_allowed) {
         messagingStorageController.setLoggingAllowed(logging_allowed);
-        //this.logging_allowed = logging_allowed;
+
     }
 
+    /**
+     * Method getMessagingDevFromJson to build messagingDevice
+     @param resp: response JSON.
+     @param body: body Json
+     @param id: id
 
+     */
 
     public MessagingDevice getMessagingDevFromJson(JSONObject resp, JSONObject body, String id){
         String nameMethod=new Object(){}.getClass().getEnclosingMethod().getName();
@@ -310,7 +316,11 @@ class MessagingSdkUtils {
 
         return messagingDevice;
     }
-
+    /**
+     * Method getMessagingDevFromJsonOnlyResp to build messagingDevice
+     @param resp: response JSON.
+     @param pushToken: push token to put
+     */
     public MessagingDevice getMessagingDevFromJsonOnlyResp(JSONObject resp, String pushToken){
         MessagingDevice messagingDevice =new MessagingDevice();
         try {
@@ -410,7 +420,9 @@ class MessagingSdkUtils {
         return result;
 
     }
-
+    /**
+     * Method show Config Parameter
+     */
     public void showConfigParameter(){
         String nameMethod=new Object(){}.getClass().getEnclosingMethod().getName();
         showDebugLog(this,nameMethod," logging_allowed "+isLogging_allowed());
@@ -420,7 +432,11 @@ class MessagingSdkUtils {
         showDebugLog(this,nameMethod, " location_allowed "+isLocation_allowed());
         showDebugLog(this,nameMethod, " permission_enable "+islocationPermissionAtStartup());
     }
-
+    /**
+     * Method save Config Parameter
+     * @param parameter
+     * @param messaging
+     */
     @RequiresApi(api = Build.VERSION_CODES.O)
     public void saveConfigParameter(String parameter, Messaging messaging){
         String nameMethod=new Object(){}.getClass().getEnclosingMethod().getName();
@@ -485,13 +501,21 @@ class MessagingSdkUtils {
             showErrorLog(this,nameMethod,"error ",e.getMessage());
         }
     }
-
+    /**
+     * Method save Config Parameter
+     * @param token
+     * @param Host
+     */
     public void saveConfigParameterFromApp(String token, String Host){
         String nameMethod=new Object(){}.getClass().getEnclosingMethod().getName();
         setMessagingToken(token);
         setMessagingHost(Host);
     }
-
+    /**
+     * Method valid url
+     * @param url
+     *
+     */
     public boolean isValidURL(String url) {
 
         try {
@@ -502,7 +526,11 @@ class MessagingSdkUtils {
 
         return true;
     }
-
+    /**
+     * Method toUpperSnakeCase
+     * @param variableName
+     *
+     */
     public String toUpperSnakeCase(String variableName) {
         StringBuilder builder = new StringBuilder();
         char[] nameChars = variableName.toCharArray();
@@ -519,7 +547,13 @@ class MessagingSdkUtils {
         }
         return builder.toString();
     }
-
+    /**
+     * Method verify Is Valid GeoPush
+     * @param jsonObject
+     * @param messaging
+     * @param notificationId
+     *
+     */
     public boolean verifyIsValidGeoPush(JSONObject jsonObject, Messaging messaging, String notificationId){
         boolean result=false;
         String externalId=notificationId;
@@ -590,48 +624,13 @@ class MessagingSdkUtils {
         return result;
     }
 
-    public boolean verifyIsValidGeoPushTwo(JSONArray jsonArray, Messaging messaging){
-        String nameMethod=new Object(){}.getClass().getEnclosingMethod().getName();
-        boolean result=false;
-        for(int i=0;i<jsonArray.length();i++){
-            try {
-            JSONObject jsonObject=jsonArray.getJSONObject(i);
-            if(jsonObject.has(Messaging.GOEOFENCE_LONG) && jsonObject.has(Messaging.GOEOFENCE_LAT)
-                    && jsonObject.has(Messaging.GOEOFENCE_RADIUS)){
-
-                    double provLongitude=jsonObject.getDouble(Messaging.GOEOFENCE_LONG);
-                    double provLatitude=jsonObject.getDouble(Messaging.GOEOFENCE_LAT);
-                    double provRadius=jsonObject.getInt(Messaging.GOEOFENCE_RADIUS);
-                    Location location=new Location(LOCATION_SERVICE);
-                    location.setLatitude(provLatitude);
-                    location.setLongitude(provLongitude);
-                    showDebugLog(this,nameMethod,"GeoPush location lat: "+provLatitude
-                            +" Long: "+provLongitude);
-                    if(messaging.messagingStorageController.hasLastLocation()){
-                        Location lastLocation=messaging.messagingStorageController.getLastLocationSaved();
-                        showDebugLog(this,nameMethod,"last location lat: "+lastLocation.getLatitude()
-                                +" Long: "+lastLocation.getLongitude());
-                        showDebugLog(this,nameMethod,"distance calculate "+lastLocation.distanceTo(location)
-                                +" Radius "+provRadius);
-                        if(lastLocation.distanceTo(location)<=provRadius){
-                            result=true;
-                        }
-
-                    }else{
-                        result=false;
-                    }
-               }
-            } catch (JSONException e) {
-                e.printStackTrace();
-                showErrorLog(this,nameMethod,"Error "+e.getStackTrace(),"");
-                result=false;
-            }
-
-        }
-        //Log.d(TAG,"verifyMatchAppId "+mgsAppId+" host "+messagingToken+" result "+result);
-        return result;
-    }
-
+    /**
+     * Method handle GeoFence Push Parameter
+     * @param messagingGeoFencePush
+     * @param messaging
+     * @param notificationId
+     *
+     */
     public void handleGeoFencePushParameter(String messagingGeoFencePush, Messaging messaging,
                                             String notificationId) {
 
@@ -728,6 +727,10 @@ class MessagingSdkUtils {
         }
     }
 
+    /**
+     * Method  process Geofence List
+     * @param jsonArrayItems
+     */
     public void processGeofenceList(JSONArray jsonArrayItems) {
         Messaging messaging=Messaging.getInstance();
         MessagingDB db=new MessagingDB(context);
@@ -758,7 +761,10 @@ class MessagingSdkUtils {
             e.printStackTrace();
         }
     }
-
+    /**
+     * Method  getListOfId
+     * @param prMessagingCircularRegions
+     */
     private List<String> getListOfId(ArrayList<MessagingCircularRegion> prMessagingCircularRegions) {
         String nameMethod="getListOfId";
         List<String> result=new ArrayList<>();
@@ -769,7 +775,11 @@ class MessagingSdkUtils {
                 + " id to remove " + result.size());
         return result;
     }
-
+    /**
+     * Method  handle GeoFence Push Parameter Sinc
+     * @param messagingGeoFencePushSinc
+     * @param messaging
+     */
     public void handleGeoFencePushParameterSinc(String messagingGeoFencePushSinc, Messaging messaging,
                                                 String notificationId) {
         String nameMethod="handleGeoFencePushParameterSinc";
@@ -792,7 +802,10 @@ class MessagingSdkUtils {
                 messaging.messagingStorageController.saveNotificationId(notificationId);
             }
     }
+    /**
+     * Method  deleteDbGeofenceLocal
 
+     */
     public void deleteDbGeofenceLocal() {
         String nameMethod="deleteGeofenceLocal";
         MessagingDB db=new MessagingDB(context);
@@ -806,20 +819,10 @@ class MessagingSdkUtils {
 
     }
 
-    public void deleteBdAndGeofenceLocal() {
-        String nameMethod="deleteGeofenceLocal";
-        MessagingDB db=new MessagingDB(context);
-        Messaging messaging=Messaging.getInstance();
-        if(db.getAllGeoFenceToBd().size()>0) {
-            ArrayList<MessagingCircularRegion> prMessagingCircularRegions = db.getAllGeoFenceToBd();
-            List<String> removeIds = getListOfId(prMessagingCircularRegions);
-            messaging.removeGeofence(removeIds);
-            db.deleteAll();
-        }else{
-            messaging.utils.showDebugLog(this,nameMethod,"Don not have GF in DB");
-        }
-
-    }
+    /**
+     * Method  deleteGeofenceLocal
+        @param regionsToDelete
+     */
 
     public void deleteGeofenceLocal(ArrayList<MessagingCircularRegion> regionsToDelete) {
         String nameMethod="deleteGeofenceLocalOnly";
@@ -831,15 +834,15 @@ class MessagingSdkUtils {
             messaging.removeGeofence(removeIds);
 
         }else{
-//            if(provOperation.equals("")) {
-//                messaging.stopGeofenceSupervition();
-//                messaging.utils.showDebugLog(this,nameMethod,"stopGeofenceSupervition() ");
-//            }
+
             messaging.utils.showDebugLog(this,nameMethod,"Don not have GF to delete");
         }
 
     }
+    /**
+     * Method  handlePublishLogcat
 
+     */
     public void handlePublishLogcat() {
         Messaging messaging=Messaging.getInstance();
         String nameMethod="handlePublishLogcat";
@@ -851,7 +854,11 @@ class MessagingSdkUtils {
         }
 
     }
-
+    /**
+     * Method  isValidLatLng
+     @param lat
+     @param lng
+     */
     public boolean isValidLatLng(double lat, double lng){
 
         if(lat < -90 || lat > 90 || lng < -180 || lng > 180)
@@ -877,7 +884,11 @@ class MessagingSdkUtils {
                 return "Unknown error: " + Integer.toString(errorCode);
         }
     }
-
+    /**
+     * Method  getIntersection
+     @param arr1
+     @param arr2
+     */
     public  ArrayList<MessagingCircularRegion> getIntersection(ArrayList<MessagingCircularRegion> arr1,
                                            ArrayList<MessagingCircularRegion> arr2) {
         ArrayList<MessagingCircularRegion> list = new ArrayList<MessagingCircularRegion>();
@@ -890,6 +901,10 @@ class MessagingSdkUtils {
         }
         return list;
     }
+    /**
+     * Method  getGFMonitoringOne
+     @param provMessagingCircularRegions
+     */
     public  ArrayList<MessagingCircularRegion> getGFMonitoringOne(ArrayList<MessagingCircularRegion> provMessagingCircularRegions) {
         ArrayList<MessagingCircularRegion> result=new ArrayList<MessagingCircularRegion>();
         for(MessagingCircularRegion messagingCircularRegion:provMessagingCircularRegions){
@@ -899,7 +914,11 @@ class MessagingSdkUtils {
         }
         return result;
     }
-
+    /**
+     * Method  symmetricDifference
+     @param array1
+     @param array2
+     */
     public ArrayList<MessagingCircularRegion> symmetricDifference(ArrayList<MessagingCircularRegion> array1
             ,ArrayList<MessagingCircularRegion> array2) {
         ArrayList<MessagingCircularRegion> result=new ArrayList<MessagingCircularRegion>(array2);
