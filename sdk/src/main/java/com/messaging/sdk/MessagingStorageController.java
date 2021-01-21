@@ -491,7 +491,7 @@ public class MessagingStorageController {
     }
 
     /**
-     * Method save token
+     * Method save Current Location
      * @param location: last location received
      */
     public void saveCurrentLocation(Location location){
@@ -512,7 +512,7 @@ public class MessagingStorageController {
 
     }
     /**
-     * Method hasTokenRegister lets Know if token is registered in local storage
+     * Method hasLastLocation lets Know if location is registered in local storage
      *
      */
     public boolean hasLastLocation(){
@@ -523,11 +523,11 @@ public class MessagingStorageController {
             hasToken=true;
 
         }
-        //messaging.utils.showDebugLog(this,nameMethod,"Token Push from storage controller");
+
         return hasToken;
     }
     /**
-     * Method get token registered in local storage
+     * Method get Location registered in local storage
      *
      */
     public Location getLastLocationSaved(){
@@ -554,7 +554,7 @@ public class MessagingStorageController {
     }
 
     /**
-     * Method setAnalyticsAllowed
+     * Method setSincAllowed
      * @param enable : enable
      */
     public void setSincAllowed(boolean enable){
@@ -567,13 +567,12 @@ public class MessagingStorageController {
 
     }
     /**
-     * Method hasTokenRegister lets Know if messagingHost is registered in local storage
+     * Method hasSincAllowed lets Know if has Sinc parameter is registered in local storage
      *
      */
     public int hasSincAllowed(){
         nameMethod=new Object(){}.getClass().getEnclosingMethod().getName();
         int token=mSharedPreferencesConfig.getInt("SincAllowedInt",0);
-        //messaging.utils.showDebugLog(this,nameMethod,"has AnalyticsAllowed "+token);
         return token;
     }
 
@@ -584,7 +583,7 @@ public class MessagingStorageController {
     }
 
     /**
-     * Method setLocationAllowed
+     * Method setGPSAllowed
      * @param enable : enable
      */
     public void setGPSAllowed(boolean enable){
@@ -627,7 +626,6 @@ public class MessagingStorageController {
     public int hasLocationContinueAllowed(){
         nameMethod=new Object(){}.getClass().getEnclosingMethod().getName();
         int token=mSharedPreferencesConfig.getInt("LocationContinueAllowedInt",0);
-        //messaging.utils.showDebugLog(this,nameMethod,"has LocationAllowed "+token);
         return token;
     }
 
@@ -654,7 +652,6 @@ public class MessagingStorageController {
     public int hasLocationBackgroundAllowed(){
         nameMethod=new Object(){}.getClass().getEnclosingMethod().getName();
         int token=mSharedPreferencesConfig.getInt("LocationBackgroundAllowedInt",0);
-        //messaging.utils.showDebugLog(this,nameMethod,"has LocationAllowed "+token);
         return token;
     }
 
@@ -682,7 +679,7 @@ public class MessagingStorageController {
         nameMethod=new Object(){}.getClass().getEnclosingMethod().getName();
         boolean result=false;
         int token=mSharedPreferencesConfig.getInt("LocationProritySelected",0);
-        //messaging.utils.showDebugLog(this,nameMethod,"has LocationAllowed "+token);
+
         if(token!=0){
             result=true;
         }
@@ -696,19 +693,19 @@ public class MessagingStorageController {
     }
 
     /**
-     * Method save messagingHost
-     * @param token: messagingHost
+     * Method save NotificationId
+     * @param notificationId: Id of notification.
      */
-    public void saveNotificationId(String token){
+    public void saveNotificationId(String notificationId){
         nameMethod=new Object(){}.getClass().getEnclosingMethod().getName();
         SharedPreferences.Editor data=mSharedPreferencesConfig.edit();
-        data.putString("messagingNotificationId",token);
+        data.putString("messagingNotificationId",notificationId);
         data.apply();
-        messaging.utils.showDebugLog(this,nameMethod,"messagingNotificationId Saved "+token);
+        messaging.utils.showDebugLog(this,nameMethod,"messagingNotificationId Saved "+notificationId);
 
     }
     /**
-     * Method hasTokenRegister lets Know if messagingHost is registered in local storage
+     * Method hasMessagingNotificationId lets Know if NotificationId is registered in local storage
      *
      */
     public boolean hasMessagingNotificationId(){
@@ -723,16 +720,13 @@ public class MessagingStorageController {
         return hasToken;
     }
     /**
-     * Method get MessagingToken registered in local storage
+     * Method get NotificationId registered in local storage
      *
      */
     public String getMessagingNotificationId(){
         nameMethod=new Object(){}.getClass().getEnclosingMethod().getName();
-        String token=mSharedPreferencesConfig.getString("messagingNotificationId","");
         messaging.utils.showDebugLog(this,nameMethod,"messagingNotificationId from Storage ");
-        return token;
+        return mSharedPreferencesConfig.getString("messagingNotificationId","");
     }
-
-
 
 }

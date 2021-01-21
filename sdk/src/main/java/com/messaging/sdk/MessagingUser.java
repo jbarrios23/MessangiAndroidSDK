@@ -25,19 +25,15 @@ import java.util.Map;
 import static com.messaging.sdk.MessagingDevice.toMap;
 
 /**
- * class MessagingUser is used for handle User parameter in SDK and make service
- * update user.
+ * class MessagingUser is used for handle User parameter in SDK and has service
+ * to update user.
  */
 public class MessagingUser implements Serializable {
 
 
     private  ArrayList<MessagingDevice> devices;
-
-
     private  final Map<String, String> properties = new HashMap<>();
-
     protected String id;
-
     private String nameMethod;
 
 
@@ -52,8 +48,6 @@ public class MessagingUser implements Serializable {
         //direct access to the singletone instance defined in Messangi
         return Messaging.getInstance().messagingUser;
     }
-
-
 
     public MessagingUser() {
         this.devices = new ArrayList<>();
@@ -74,7 +68,6 @@ public class MessagingUser implements Serializable {
         provPro.remove("timestamp");
         JSONObject requestUpdateBody=new JSONObject(provPro);
         new HTTPReqTaskPutUserByDevice(deviceId,requestUpdateBody,context, messaging).execute();
-
 
     }
 
@@ -108,9 +101,6 @@ public class MessagingUser implements Serializable {
         return devices;
     }
 
-    //public void setDevices(ArrayList<MessagingDevice> devices) {
-      //  this.devices = devices;
-    //}
 
     /**
      * Method that send Parameter (Ej: messagingDevice or MessagingUser) registered to Activity
@@ -124,8 +114,6 @@ public class MessagingUser implements Serializable {
         intent.putExtra(Messaging.INTENT_EXTRA_HAS_ERROR,something==null);
         LocalBroadcastManager.getInstance(context).sendBroadcast(intent);
     }
-
-
 
     /**
      * Method for parse data and convert to MessagingUser Object
@@ -193,7 +181,6 @@ public class MessagingUser implements Serializable {
      */
     public String getExternalID(){
 
-
         if(properties.containsKey("externalID")){
             return (String) properties.get("externalID");
         }
@@ -208,7 +195,7 @@ public class MessagingUser implements Serializable {
      * @return : Instance MessagingUser;
      */
 
-    public MessagingUser setEmail(String value){
+    MessagingUser setEmail(String value){
 
         properties.put("email",value);
         return this;
@@ -220,7 +207,7 @@ public class MessagingUser implements Serializable {
      * @param value : example 5555555
      * @return : Instance MessagingUser;
      */
-    public MessagingUser setPhone(String value){
+    MessagingUser setPhone(String value){
 
         properties.put("phone",value);
         return this;
@@ -232,7 +219,7 @@ public class MessagingUser implements Serializable {
      * @param value : example 555Jggf
      * @return : Instance MessagingUser;
      */
-    public MessagingUser setExternalID(String value){
+     MessagingUser setExternalID(String value){
 
     properties.put("externalID",value);
 
@@ -286,7 +273,6 @@ public class MessagingUser implements Serializable {
 
                 String authToken= messaging.utils.getMessagingToken();
                 JSONObject postData = jsonObject;
-                //provUrl= messaging.utils.getMessagingHost()+"/users?device="+deviceId;
                 provUrl= messaging.utils.getMessagingHost()+"/users/"+deviceId;
                 messaging.utils.showHttpRequestLog(provUrl, MessagingUser.this,nameMethod,"PUT",postData.toString());
                 URL url = new URL(provUrl);
@@ -306,7 +292,7 @@ public class MessagingUser implements Serializable {
 
                 int code = urlConnection.getResponseCode();
                 if (code !=  200) {
-                    //sendEventToActivity(Messaging.ACTION_SAVE_USER,null,context);
+
                     sendEventToActivity(Messaging.ACTION_SAVE_USER,null,context);
                     messaging.utils.showErrorLog(this,nameMethod,"Invalid response from server: " + code,"");
                     throw new IOException("Invalid response from server: " + code);
@@ -339,13 +325,10 @@ public class MessagingUser implements Serializable {
             try{
 
                     messaging.utils.showHttpResponseLog(provUrl, MessagingUser.this,nameMethod,"User Update Successful",response);
-//                    JSONObject resp=new JSONObject(response);
-//                    JSONObject data=resp.getJSONObject("subscriber").getJSONObject("data");
                     Map<String, String> resultMap=toMap(jsonObject);
                     messaging.messagingStorageController.saveUserByDevice(resultMap);
                     messaging.messagingUser = MessagingUser.parseData(resultMap);
                     sendEventToActivity(Messaging.ACTION_SAVE_USER,messaging.messagingUser, context);
-
 
             }catch (NullPointerException e){
                 sendEventToActivity(Messaging.ACTION_SAVE_USER,null,context);

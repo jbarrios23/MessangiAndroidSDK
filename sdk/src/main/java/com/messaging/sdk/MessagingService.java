@@ -73,10 +73,8 @@ public class MessagingService extends FirebaseMessagingService  {
                 messaging.utils.showDebugLog(this, nameMethod, "GEO_PUSH not process");
             }
         }else{
-            messaging.utils.showDebugLog(this,nameMethod,"Security does not match");
+                messaging.utils.showDebugLog(this,nameMethod,"Security does not match");
         }
-
-
 
     }
 

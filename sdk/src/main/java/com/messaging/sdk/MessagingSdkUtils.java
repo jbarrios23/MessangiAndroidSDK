@@ -23,7 +23,10 @@ import java.util.ArrayList;
 import java.util.List;
 
 import static android.content.Context.LOCATION_SERVICE;
-
+/**
+ * class MessagingSdkUtils let stable Instances, handle
+ * config parameter and Geofence stuff.
+ */
 class MessagingSdkUtils {
 
 
