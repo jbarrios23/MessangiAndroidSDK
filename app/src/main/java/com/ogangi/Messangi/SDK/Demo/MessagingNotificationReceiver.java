@@ -83,8 +83,6 @@ public class MessagingNotificationReceiver extends BroadcastReceiver {
             }else if(intent.getAction().equals(Messaging.ACTION_FETCH_LOCATION)){
                  wayLatitude = intent.getDoubleExtra(Messaging.INTENT_EXTRA_DATA_lAT,0.00);
                  wayLongitude = intent.getDoubleExtra(Messaging.INTENT_EXTRA_DATA_lONG,0.00);
-
-
                  Location location=new Location(LOCATION_SERVICE);
                  location.setLatitude(wayLatitude);
                  location.setLongitude(wayLongitude);
@@ -127,9 +125,16 @@ public class MessagingNotificationReceiver extends BroadcastReceiver {
         }
 
     }
-
-    private void handleDataNotification(Serializable data, Intent intent, Context context, String action, boolean isInBackground) {
-
+    /**
+     * Method to handleDataNotification
+     * @param context
+     * @param action
+     * @param intent
+     * @param data
+     * @param isInBackground
+     * */
+    private void handleDataNotification(Serializable data, Intent intent,
+                                        Context context, String action, boolean isInBackground) {
         if(isInBackground){
 
             messagingNotification = (MessagingNotification) data;
@@ -185,8 +190,8 @@ public class MessagingNotificationReceiver extends BroadcastReceiver {
         String Title="";
         String Body="";
 
-        Title=messagingNotification.getTitle();
-        Body=messagingNotification.getBody();
+        Title=notification.getTitle();
+        Body=notification.getBody();
 
         try {
             notificationIntent = new Intent(context, Class.forName(classNameProv));
@@ -194,8 +199,6 @@ public class MessagingNotificationReceiver extends BroadcastReceiver {
                 notificationIntent.putExtra(Messaging.INTENT_EXTRA_DATA, messagingNotification);
                 Static.messagingNotification=messagingNotification;
             }
-
-
 
         } catch (ClassNotFoundException e) {
             e.printStackTrace();
@@ -251,7 +254,8 @@ public class MessagingNotificationReceiver extends BroadcastReceiver {
 
     }
 
-    private void showCustomNotification(String title, String text, String image, Context context, MessagingNotification messagingNotification) {
+    private void showCustomNotification(String title, String text, String image,
+                                        Context context, MessagingNotification messagingNotification) {
         nameMethod="showCustomNotification";
         Log.d(TAG,"DEBUG: "+CLASS_TAG+": "+nameMethod+": Start "+title+"\n"+text+"\n"+image);
         new Thread(new Runnable() {
@@ -318,8 +322,6 @@ public class MessagingNotificationReceiver extends BroadcastReceiver {
                     e.printStackTrace();
                     Log.e(TAG, "DEBUG: " + CLASS_TAG + ": " + nameMethod + ": error 1 " + e.getMessage());
                 }
-
-
             }
         }).start();
 

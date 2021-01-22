@@ -2375,9 +2375,21 @@ public class Messaging implements LifecycleObserver {
 
     }
     /**
+     * Method to stopGeofencesSupervition
+     *
+     * */
+    public static void stopGeofencesSupervition(){
+        Messaging messaging=Messaging.getInstance();
+        messaging.stopGeofenceSupervition();
+    }
+
+
+    /**
      * Method to removeGeofence
      * @param listIds :ids of Geofence to remove.
      * */
+
+
     void removeGeofence(final List<String> listIds){
         nameMethod="removeGeofence";
         utils.showDebugLog(this,nameMethod,"removeGeofence "+listIds.toString());

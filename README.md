@@ -14,6 +14,19 @@ It is a tool that allows you to add the following functionalities to your soluti
 - Register device characteristics (UUID, Type, Language, OS Version, Model).
 - Associate labels to the device.
 - Save customizable user information.
+- Set up for Geofence monitoring.
+- Receive push notification and add Geofence.
+- Receive push notification and update Geofence.
+- Receive push notification and delete Geofence.
+- Create Geofence Object builder.
+- Specfy Geofence and initial triggers.
+- Use a boadcast receiver for Geofence Transition.
+- Sort the geofences based on the last location obtained and record up to 100 geofences.
+- Handle geofence transitions.
+- Stop geofence Monitoring.
+- Reduction power consumption.
+- Re-register geofences only when required.
+- Handle InAppPush and Silent Push.
 
 ## Requirements
 ---
@@ -65,6 +78,7 @@ Put the configuration file in the values folder of the Android project
   <bool name="analytics_allowed">boolean condition</bool>
   <bool name="location_allowed">boolean condition</bool>
   <bool name="logging_allowed">boolean condition</bool>
+  <bool name="locationPermissionAtStartup">boolean condition</bool>
 </resources>
 ```
 ### 4) Put LocalBroadcastReceiver in Activity project.
@@ -76,8 +90,7 @@ import com.ogangi.messangi.sdk.Messangi;
 
 public class MainActivity extends AppCompatActivity{
     ...
-    
-           ...
+       ...
         @Override
     protected void onStart() {
         super.onStart();
@@ -103,9 +116,9 @@ Using fetchDevice device delivers the instance of a device, by internal memory, 
        LocalBroadcastManager.getInstance(this).unregisterReceiver(mReceiver);
         super.onDestroy();
     }
-Unregister Receiver in actinvtiy main.
+Unregister Receiver in main Activity.
 
-If you want to get a response from the fetch device request you should implement a LocalBroadcastReceiver in the main activity:
+If you want to get a response from the fetch device request you should implement a LocalBroadcastReceiver in the main Activity:
  
 ```java
 private BroadcastReceiver mReceiver=new BroadcastReceiver() {
@@ -115,31 +128,53 @@ private BroadcastReceiver mReceiver=new BroadcastReceiver() {
             
             if (!hasError ) {
                 Serializable data=intent.getSerializableExtra(Messaging.INTENT_EXTRA_DATA);
-                if(intent.getAction().equals(Messaging.ACTION_FETCH_DEVICE)&& data!=null){
-                    messagingDevice = (MessagingDevice) data; //you can cast this for get information
-                    //or messagingDevice = MessagingDevice.getInstance();
-                    .....
-                }else if(intent.getAction().equals(Messaging.ACTION_FETCH_USER)&& data!=null){
-                    messagingUser =(MessagingUser) data;
-                    //or messagingUser = MessagingUser.getInstance();
-                    .......
-                }else if(((intent.getAction().equals(Messaging.ACTION_GET_NOTIFICATION))||(intent.getAction().equals(Messaging.ACTION_GET_NOTIFICATION_OPENED)))&& data!=null){
-                    messagingNotification=(MessagingNotification)data;
-                    .....
-                }else if(intent.getAction().equals(Messaging.ACTION_SAVE_DEVICE)&& data!=null) {
-                    messagingDevice = (MessagingDevice) data; //you can cast this for get information
-                    //or messagingDevice = MessagingDevice.getInstance();
-                   ......
-                }else if(intent.getAction().equals(Messaging.ACTION_SAVE_USER)&& data!=null) {
-                    messagingUser =(MessagingUser) data; //you can cast this for get information
-                    //or messagingUser = MessagingUser.getInstance();
-                    
-            }else if(intent.getAction().equals(Messaging.ACTION_REGISTER_DEVICE) ) {
-                    messagingDevice = (MessagingDevice)data;
-                    //or messagingDevice = MessagingDevice.getInstance();
-                ......
-                } 
-                .....
+                switch (intent.getAction()){
+                    case Messaging.ACTION_REGISTER_DEVICE:
+                        messagingDevice = (MessagingDevice) data;
+                       ...
+                    break;
+                    case Messaging.ACTION_FETCH_DEVICE:
+                        messagingDevice = (MessagingDevice) data;
+                        //or messagingDevice = MessagingDevice.getInstance();
+                        ....
+                        if(messagingUser == null){
+                            Messaging.fetchUser(getApplicationContext(),false);
+                        }
+                        ....
+                    break;
+                    case Messaging.ACTION_SAVE_DEVICE:
+                        messagingDevice = (MessagingDevice) data;
+                        ....
+                        if(messagingUser != null){
+                            Messaging.fetchUser(getApplicationContext(),true);
+                        }
+                        ......
+                        break;
+
+                    case Messaging.ACTION_FETCH_USER:
+                        messagingUser = (MessagingUser) data;
+                        //or messagingUser = MessagingUser.getInstance();
+                        .....
+                        break;
+                    case Messaging.ACTION_SAVE_USER:
+                        messagingUser = (MessagingUser) data;
+                        .....
+                        break;
+                    case Messaging.ACTION_GET_NOTIFICATION:
+                        messagingNotification = (MessagingNotification) data;
+                        ....
+                        break;
+                    case Messaging.ACTION_GET_NOTIFICATION_OPENED:
+                        messagingNotification = (MessagingNotification) data;
+                        ...
+                        break;
+                    case Messaging.ACTION_FETCH_LOCATION:
+                    MessagingLocation messagingLocation = (MessagingLocation) data;
+                        .....
+                        break;
+                    default:
+                        break;
+                }
             }else{
                 Toast.makeText(getApplicationContext(),"An error occurred on action "
                         +intent.getAction(),Toast.LENGTH_LONG).show();
@@ -147,7 +182,7 @@ private BroadcastReceiver mReceiver=new BroadcastReceiver() {
             ......
         }
     };
-   //you can see all the implementation in example app
+   //you can observe all the implementation in example app
 ```
 ### 5) Put BroadcastReceiver in app project.
 Put BroadcastReceiver in app project, example:
@@ -158,8 +193,7 @@ import com.ogangi.messangi.sdk.Messangi;
 
 public class MessagingNotificationReceiver extends BroadcastReceiver{
     ...
-    
-           ...
+      ...
         @Override
     public void onReceive(Context context, Intent intent) {
        boolean hasError=intent.getBooleanExtra(Messaging.INTENT_EXTRA_HAS_ERROR,true);
@@ -167,27 +201,220 @@ public class MessagingNotificationReceiver extends BroadcastReceiver{
         if (!hasError ) {
             String action=intent.getAction();
             Serializable data = intent.getSerializableExtra(Messaging.INTENT_EXTRA_DATA);
+            //optional code to determinate if app is Background or not
+            ActivityManager.RunningAppProcessInfo myProcess = new ActivityManager.RunningAppProcessInfo();
+            ActivityManager.getMyMemoryState(myProcess);
+            boolean isInBackground = myProcess.importance != ActivityManager.RunningAppProcessInfo.IMPORTANCE_FOREGROUND;
+            
             if(intent.getAction().equals(Messaging.ACTION_GET_NOTIFICATION)&& data!=null){
             ........
+            }else if(intent.getAction().equals(Messaging.ACTION_FETCH_LOCATION)){
+                wayLatitude = intent.getDoubleExtra(Messaging.INTENT_EXTRA_DATA_lAT,0.00);
+                 wayLongitude = intent.getDoubleExtra(Messaging.INTENT_EXTRA_DATA_lONG,0.00);
+                 Location location=new Location(LOCATION_SERVICE);
+                 location.setLatitude(wayLatitude);
+                 location.setLongitude(wayLongitude);
+                 MessagingLocation messagingLocation=new MessagingLocation(location);
+                 if(isInBackground){
+                    .......
+                 }else{
+                     sendEventToActivity(Messaging.ACTION_FETCH_LOCATION,messagingLocation,context);
+                     .......
+                 }
+            }else if(intent.getAction().equals(Messaging.ACTION_GEOFENCE_ENTER)
+                     ||intent.getAction().equals(Messaging.ACTION_GEOFENCE_EXIT)
+                     ||intent.getAction().equals(Messaging.ACTION_FETCH_GEOFENCE)){
+                        if(isInBackground){
+                        ..... 
+                        }else{
+                         sendEventToActivity(Messaging.ACTION_FETCH_GEOFENCE,messagingCircularRegions,context);
+                         }
+                         
             }
-            }
-                .....
+        }
+        .....
     }
-    //to send data to Activity if app is foreground
+    //to Handle InAppPush, SIlent Push and Geopush
+    private void handleDataNotification(Serializable data, Intent intent,
+                                        Context context, String action, boolean isInBackground) {
+        if(isInBackground){
+            messagingNotification = (MessagingNotification) data;
+            String subject="";
+            String content = "";
+            String Title="";
+            String Text = "";
+            String Image="";
+            boolean showCustomNotification=false;
+            boolean showCustomNotificationGeoPush=false;
+            for (Map.Entry entry : messagingNotification.getAdditionalData().entrySet()) {
+                if(!entry.getKey().equals("profile")){
+                    if(entry.getKey().equals("subject")) {
+                        subject= (String) entry.getValue();
+                    }else if(entry.getKey().equals("content")){
+                        content= (String) entry.getValue();
+                    }else if(entry.getKey().equals("Title")){
+                        Title= (String) entry.getValue();
+                    }else if(entry.getKey().equals("Text")){
+                        Text= (String) entry.getValue();
+                    }else if(entry.getKey().equals("Image")){
+                        Image= (String) entry.getValue();
+                        showCustomNotification=true;
+                    }else if(entry.getKey().equals("MSGI_GEOPUSH")){
+                        showCustomNotificationGeoPush=true;
+                    }
+                }
+            }
+            if(showCustomNotification){
+                showCustomNotification(Title,Text,Image,context,messagingNotification);
+            }
+            if(showCustomNotificationGeoPush){
+                showNotificationGP(messagingNotification,context);
+            }
+
+        }else{
+            sendEventToActivity(action,data,context);
+        }
+    }
+    //to Handle SIlent Push with image and data
+    private void showCustomNotification(String title, String text, String image, 
+                                        Context context, MessagingNotification messagingNotification) {
+        nameMethod="showCustomNotification";
+        new Thread(new Runnable() {
+            @Override
+            public void run() {
+                URL url = null;
+                try {
+                    url = new URL(image);
+                    Bitmap bmp = BitmapFactory.decodeStream(url.openConnection().getInputStream());
+                    Intent notificationIntent=null;
+                    try {
+                    notificationIntent = new Intent(context,
+                                Class.forName(messaging.getNameClass()));
+                        if(messagingNotification.getAdditionalData().size()>0) {
+                            notificationIntent.putExtra(Messaging.INTENT_EXTRA_DATA, messagingNotification);
+                            Static.messagingNotification=messagingNotification;
+                        }
+                    } catch (ClassNotFoundException e) {
+                        e.printStackTrace();
+                       ....
+                    }catch (NullPointerException e){
+                        e.printStackTrace();
+                        notificationIntent = new Intent("android.intent.action.MAIN");
+                    }
+                    notificationIntent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
+                    final PendingIntent pendingIntent = PendingIntent.getActivity(context
+                            , 0, notificationIntent,
+                            PendingIntent.FLAG_ONE_SHOT);
+                    notificationManager =
+                            (NotificationManager) context.getSystemService(Context.NOTIFICATION_SERVICE);
+                    Notification notification = new NotificationCompat.Builder(context, CHANNEL_ID)
+                            .setSmallIcon(R.mipmap.ic_launcher)
+                            .setContentTitle(title)
+                            .setContentText(text)
+                            .setLargeIcon(bmp)
+                            .setContentIntent(pendingIntent)
+                            .setAutoCancel(true)
+                            .setNotificationSilent()
+                            .setStyle(new NotificationCompat.BigPictureStyle()
+                                    .bigPicture(bmp)
+                                    .bigLargeIcon(null))
+                            .build();
+
+                notificationManager.notify(1 /* ID of notification */, notification);
+                    
+                } catch (MalformedURLException e) {
+                    e.printStackTrace();
+                    ....
+                } catch (IOException e) {
+                    e.printStackTrace();
+                    .....
+                }
+            }
+        }).start();
+    }
+    
+    //to handle Geopush in Background
+    private void showNotificationGP(MessagingNotification notification, Context context) {
+        String classNameProv=messaging.getNameClass();
+        Intent notificationIntent=null;
+        String Title="";
+        String Body="";
+        Title=notification.getTitle();
+        Body=notification.getBody();
+        try {
+            notificationIntent = new Intent(context, Class.forName(classNameProv));
+            if(messagingNotification.getAdditionalData().size()>0) {
+                notificationIntent.putExtra(Messaging.INTENT_EXTRA_DATA, messagingNotification);
+                Static.messagingNotification=messagingNotification;
+            }
+
+        } catch (ClassNotFoundException e) {
+            e.printStackTrace();
+
+        }catch (NullPointerException e){
+            e.printStackTrace();
+            notificationIntent = new Intent("android.intent.action.MAIN");
+        }
+
+        notificationIntent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
+        final PendingIntent pendingIntent = PendingIntent.getActivity(context, 0, notificationIntent,
+                PendingIntent.FLAG_ONE_SHOT);
+        notificationManager = (NotificationManager) context.getSystemService(Context.NOTIFICATION_SERVICE);
+
+        //Setting notification for Android Oreo or higer.
+        if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.O) {
+            setupChannels(context);
+        }
+        int notificationId = new Random().nextInt(60000);
+
+        // Create the notification.
+        Uri defaultSoundUri = RingtoneManager.getDefaultUri(RingtoneManager.TYPE_NOTIFICATION);
+        NotificationCompat.Builder notificationBuilder = new NotificationCompat.Builder(context, ADMIN_CHANNEL_ID)
+                .setSmallIcon(messaging.icon)  //a resource for your custom small icon
+                .setContentTitle(Title) //the "title" value you sent in your notification
+                .setContentText(Body) //ditto
+                .setAutoCancel(true)  //dismisses the notification on click
+                .setContentIntent(pendingIntent)
+                .setSound(defaultSoundUri);
+
+        NotificationManager notificationManager =
+                (NotificationManager) context.getSystemService(Context.NOTIFICATION_SERVICE);
+        notificationManager.notify(notificationId /* ID of notification */, notificationBuilder.build());
+
+    }
+
+    @RequiresApi(api = Build.VERSION_CODES.O)
+    private void setupChannels(Context context) {
+        CharSequence adminChannelName = context.getString(com.messaging.sdk.R.string.notifications_admin_channel_name);
+        String adminChannelDescription = context.getString(com.messaging.sdk.R.string.notifications_admin_channel_description);
+        NotificationChannel adminChannel;
+        adminChannel = new NotificationChannel(ADMIN_CHANNEL_ID, adminChannelName, NotificationManager.IMPORTANCE_LOW);
+        adminChannel.setDescription(adminChannelDescription);
+        adminChannel.enableLights(true);
+        adminChannel.setLightColor(Color.RED);
+        adminChannel.enableVibration(true);
+        if (notificationManager != null) {
+            notificationManager.createNotificationChannel(adminChannel);
+        }
+    }
+    
+   /**
+     * Method that send Parameter (Ej: messagingDevice or MessagingUser) registered to Activity
+     * @param something : Object Serializable for send to activity (Ej messagingDevice).
+     * @param context : context instance
+     */
     private void sendEventToActivity(String action,Serializable something, Context context) {
-        
         if(something!=null) {
             Intent intent = new Intent(action);
             intent.putExtra(Messaging.INTENT_EXTRA_DATA, something);
             intent.putExtra(Messaging.INTENT_EXTRA_HAS_ERROR, something == null);
             LocalBroadcastManager.getInstance(context).sendBroadcast(intent);
         }else{
-            //error
+            .... 
         }
     }
-    
 ```
-Please declare BroadcastReceiver in Manifest.xml of app project, example:
+Please declare BroadcastReceivers in Manifest.xml of app project, example:
 
 ```xml
 <?xml version="1.0" encoding="utf-8"?>
@@ -206,7 +433,19 @@ Please declare BroadcastReceiver in Manifest.xml of app project, example:
             android:exported="false"
             tools:ignore="Instantiatable">
             <intent-filter>
-                <action android:name="com.messaging.sdk.PUSH_NOTIFICATION"/>
+               <action android:name="com.messaging.sdk.PUSH_NOTIFICATION"/>
+               <action android:name="com.messaging.sdk.ACTION_FETCH_LOCATION"/>
+               <action android:name="com.messaging.sdk.ACTION_GEOFENCE_ENTER"/>
+               <action android:name="com.messaging.sdk.ACTION_GEOFENCE_EXIT"/>
+            </intent-filter>
+        </receiver>
+        <receiver
+            android:name="com.messaging.sdk.MessaginGeofenceBroadcastReceiver"
+            android:enabled="true"
+            android:exported="true">
+            <intent-filter>
+                <action android:name="android.intent.action.BOOT_COMPLETED" />
+                <category android:name="android.intent.category.DEFAULT" />
             </intent-filter>
         </receiver>
     </application>
@@ -220,7 +459,8 @@ Please declare BroadcastReceiver in Manifest.xml of app project, example:
 ## Usage
 To make use of the functionalities that Messanging SDK offers, the Messaging class is available, to obtain the instance of this class you can do: 
 ```java
-Messaging messaging=Messaging.getInstance(this);//get Instance of Messaging.. 
+Messaging messaging=Messaging.getInstance(this);//get Instance of Messaging..
+//or Messaging messaging=Messaging.getInstance();//get Instance of Messaging..
 ```
 All the services offered by this library are provided by means of an instance of the Messaging class, and it can be obtained that it was indicated later.
 ```java
@@ -251,6 +491,10 @@ Method that make Update of paramenter Device using service, this method use Bora
 ```java
      messagingDevice.save(getApplicationContext());
 ```
+Method to set status of Notification push receiver (true o false), this method is used to enable Notification push listening.
+```java
+     messagingDevice.setStatusNotificationPush(false, getApplicationContext());
+```
 Method for get User by Device registered from service, allows effective device search in three ways: by instance, by shared variable or by service. this method use BoradcastReceiver for send Instance from SDK to Activity.See point number 4.
 When forsecallservice=true, search device parameters through the service.
 ```java
@@ -259,15 +503,57 @@ When forsecallservice=true, search device parameters through the service.
 Method that make Update of User parameter using service, this method use BoradcastReceiver for send Instance from SDK to Activity.See point number 4.
 
 ```java
-     messagingUser.save(getApplicationContext());;
+     messagingUser.save(getApplicationContext());
 ```
 Method for add Property to user, example: name, lastname, email or phone,  key : example name
      value : example Jose, then you can use messagingUser.save(getApplicationContext());
      for update User data.
      
 ```java
-     messagingUser.save(getApplicationContext());;
+     messagingUser.addProperty(key, value);
 ```
+Method for ask if auntomatic permission is enable, use for get permission of location from app is instaled.
+     
+```java
+     messaging.isEnable_permission_automatic();
+```
+Method for make request permission of location from app. 
+```java
+     Messaging.requestPermissions(AnyActivity.this);
+```
+Method for set state of GPS in SDK. 
+```java
+     messaging.setGPS(isGPSEnable);
+```
+Method to logOut process, deleting dB local of Geofence and disable listening of Notification push. 
+```java
+     Messaging.logOutProcess();
+```
+Method to set Location Allowed in sdk (true or false). 
+```java
+     Messaging.setLocationAllowed(isChecked);
+```
+Method to set Analytic Allowed in sdk (true or false). 
+```java
+    Messaging.setAnalytincAllowed(isChecked);
+```
+Method to set Loging Allowed in sdk (true or false). 
+```java
+    Messaging.setLogingAllowed(isChecked);
+```
+Method to get Location Allowed state (true or false). 
+```java
+    messaging.isLocation_allowed();
+```
+Method to get Loging Allowed state (true or false). 
+```java
+    messaging.isLogging_allowed();
+```
+Method to get Analytics Allowed state (true or false). 
+```java
+    messaging.isAnalytics_allowed();
+```
+
 
 ## Example - Getting MessagingDevice
 ```java

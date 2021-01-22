@@ -279,9 +279,7 @@ public class MainActivity extends AppCompatActivity {
         return super.onOptionsItemSelected(item);
     }
 
-    private void stopService() {
-       messaging.stopServiceLocation();
-    }
+
 
     private void gotoMapActivity() {
         Intent intent=new Intent(MainActivity.this,MapsActivity.class);

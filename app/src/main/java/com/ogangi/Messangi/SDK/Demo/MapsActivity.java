@@ -626,6 +626,7 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
                 if (grantResults.length > 0
                         && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
                         Messaging.fetchLocation(MapsActivity.this,false);
+                        Messaging.stopGeofencesSupervition();
                 } else {
                     Toast.makeText(getApplicationContext(), "Permission denied", Toast.LENGTH_SHORT).show();
                     permissionsDenied();
