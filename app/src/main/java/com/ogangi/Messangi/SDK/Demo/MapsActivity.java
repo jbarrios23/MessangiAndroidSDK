@@ -130,15 +130,18 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
                         Messaging.fetchLocation(MapsActivity.this, true);
                         Log.d(CLASS_TAG, TAG + " Continue Location "+isChecked);
                         Log.d(CLASS_TAG, TAG + " Priority " + Messaging.getLocationRequestPriority());
-                        messaging.messagingStorageController.setLocationContinueAllowed(isChecked);
+                        //messaging.messagingStorageController.setLocationContinueAllowed(isChecked);
+                        Messaging.setLocationContinueAllowed(isChecked);
                     } else {
-                        messaging.messagingStorageController.setLocationContinueAllowed(false);
+                        //messaging.messagingStorageController.setLocationContinueAllowed(false);
+                        Messaging.setLocationContinueAllowed(false);
                         Log.d(CLASS_TAG, TAG + " isLocation_allowed " + messaging.isLocation_allowed());
                     }
                 } else {
                     // The toggle is disabled
                     Messaging.turnOFFUpdateLocation();
-                    messaging.messagingStorageController.setLocationContinueAllowed(isChecked);
+                    //messaging.messagingStorageController.setLocationContinueAllowed(isChecked);
+                    Messaging.setLocationContinueAllowed(isChecked);
                     Log.d(CLASS_TAG, TAG + "Continue Location "+isChecked);
                     Toast.makeText(getApplicationContext(), "Continue Location "+isChecked,Toast.LENGTH_SHORT).show();
                 }
@@ -151,16 +154,18 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
                    if (isChecked) {
                        // The toggle is enabled
                        Toast.makeText(getApplicationContext(),"Get Location in Background "+isChecked,Toast.LENGTH_SHORT).show();
-                       Log.d(CLASS_TAG, TAG + "Get Location in Background "+isChecked);
+                       Log.d(CLASS_TAG, TAG + " Get Location in Background "+isChecked);
                        Messaging.enableLocationBackground=true;
-                       messaging.messagingStorageController.setLocationBackgroundAllowed(isChecked);
+                       //messaging.messagingStorageController.setLocationBackgroundAllowed(isChecked);
+                       Messaging.setLocationBackgroundAllowed(isChecked);
                    } else {
                        // The toggle is disabled
                        Toast.makeText(getApplicationContext(),"Get Location in Background "+isChecked,Toast.LENGTH_SHORT).show();
                        Log.d(CLASS_TAG, TAG + "Get Location in Background "+isChecked);
                        Messaging.enableLocationBackground=false;
                        Messaging.turnOFFUpdateLocation();
-                       messaging.messagingStorageController.setLocationBackgroundAllowed(isChecked);
+                       //messaging.messagingStorageController.setLocationBackgroundAllowed(isChecked);
+                       Messaging.setLocationBackgroundAllowed(isChecked);
                    }
                }
            });
@@ -174,11 +179,18 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
             }
         });
 
-        if(messaging.messagingStorageController.hasLocationContinueAllowed()==1){
-            getLocationC.setChecked(messaging.messagingStorageController.isLocationContinueAllowed());
+//        if(messaging.messagingStorageController.hasLocationContinueAllowed()==1){
+//            getLocationC.setChecked(messaging.messagingStorageController.isLocationContinueAllowed());
+//        }
+//        if(messaging.messagingStorageController.hasLocationBackgroundAllowed()==1){
+//            turnOffLocationButton.setChecked(messaging.messagingStorageController.isLocationBackgroundAllowed());
+//        }
+
+        if(Messaging.hasLocationContinueAllowed()){
+            getLocationC.setChecked(Messaging.getLocationContinueAllowed());
         }
-        if(messaging.messagingStorageController.hasLocationBackgroundAllowed()==1){
-            turnOffLocationButton.setChecked(messaging.messagingStorageController.isLocationBackgroundAllowed());
+        if(Messaging.hasLocationBackgroundAllowed()){
+            turnOffLocationButton.setChecked(Messaging.getLocationBackgroundAllowed());
         }
 
 
@@ -380,7 +392,8 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
         Messaging.turnOFFUpdateLocation();
         getLocationC.setChecked(false);
         String[] items = {"PRIORITY_BALANCED_POWER_ACCURACY","PRIORITY_HIGH_ACCURACY","PRIORITY_LOW_POWER","PRIORITY_NO_POWER"};
-        int checkedItem = messaging.messagingStorageController.getLocationProritySelected();
+        //int checkedItem = messaging.messagingStorageController.getLocationProritySelected();
+        int checkedItem = Messaging.getLocationProritySelected();
         alertDialog.setSingleChoiceItems(items, checkedItem, new DialogInterface.OnClickListener() {
             @Override
             public void onClick(DialogInterface dialog, int which) {
@@ -388,22 +401,26 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
                     case 0:
                         Toast.makeText(MapsActivity.this, "PRIORITY_BALANCED_POWER_ACCURACY", Toast.LENGTH_LONG).show();
                         Messaging.setLocationRequestWithPriority(PRIORITY_BALANCED_POWER_ACCURACY);
-                        messaging.messagingStorageController.setLocationProritySelected(which);
+                        //messaging.messagingStorageController.setLocationProritySelected(which);
+                        Messaging.setLocationProritySelected(which);
                         break;
                     case 1:
                         Toast.makeText(MapsActivity.this, "PRIORITY_HIGH_ACCURACY", Toast.LENGTH_LONG).show();
                         Messaging.setLocationRequestWithPriority(PRIORITY_HIGH_ACCURACY);
-                        messaging.messagingStorageController.setLocationProritySelected(which);
+                        //messaging.messagingStorageController.setLocationProritySelected(which);
+                        Messaging.setLocationProritySelected(which);
                         break;
                     case 2:
                         Toast.makeText(MapsActivity.this, "PRIORITY_LOW_POWER", Toast.LENGTH_LONG).show();
                         Messaging.setLocationRequestWithPriority(PRIORITY_LOW_POWER);
-                        messaging.messagingStorageController.setLocationProritySelected(which);
+                        //messaging.messagingStorageController.setLocationProritySelected(which);
+                        Messaging.setLocationProritySelected(which);
                         break;
                     case 3:
                         Toast.makeText(MapsActivity.this, "PRIORITY_NO_POWER", Toast.LENGTH_LONG).show();
                         Messaging.setLocationRequestWithPriority(PRIORITY_NO_POWER);
-                        messaging.messagingStorageController.setLocationProritySelected(which);
+                        //messaging.messagingStorageController.setLocationProritySelected(which);
+                        Messaging.setLocationProritySelected(which);
                         break;
 
                 }
@@ -419,10 +436,6 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
         alertDialog.setCancelable(false);
         alertDialog.show();
 
-    }
-
-    private void stopService() {
-        messaging.stopServiceLocation();
     }
 
     @Override

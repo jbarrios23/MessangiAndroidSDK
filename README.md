@@ -553,7 +553,95 @@ Method to get Analytics Allowed state (true or false).
 ```java
     messaging.isAnalytics_allowed();
 ```
+Method to set Location Continue Allowed state (true or false). 
+```java
+    Messaging.setLocationContinueAllowed(isChecked);
+```
+Method to fetch Location contunue mode (true parameter) 
+```java
+    Messaging.fetchLocation(AnyActivity.this, true);
+```
+Method to remove Location Updates continue or one shot. 
+```java
+   Messaging.turnOFFUpdateLocation();
+```
+Method to enable Location Updates in Background mode. 
+```java
+   Messaging.enableLocationBackground=true or false;
+```
+Method to set Location Backgroun Allowed state (true or false). 
+```java
+    Messaging.setLocationBackgroundAllowed(isChecked);
+```
+Method to know if has Location Continue Allowed 
+```java
+    Messaging.hasLocationContinueAllowed();
+```
+Method to get Location Continue Allowed state
+```java
+    Messaging.getLocationContinueAllowed();
+```
+Method to know if has Location Background Allowed 
+```java
+    Messaging.hasLocationBackgroundAllowed();
+```
+Method to get Location Background Allowed state
+```java
+    Messaging.getLocationBackgroundAllowed();
+```
+Method to fetch Geofences from service or local base data
+```java
+    Messaging.fetchGeofence(); //from base data
+    or Messaging.fetchGeofence(true); //from service
+```
+Method to get enable permission automatic state
+```java
+    messaging.isEnable_permission_automatic();
+```
 
+Method to request location from app.
+```java
+    Messaging.requestPermissions(AnyActivity.this);
+```
+Method to get location allowed state.
+```java
+    messaging.isLocation_allowed();
+```
+Method to get logging allowed state.
+```java
+    messaging.isLogging_allowed();
+```
+Method to get Analytics allowed state.
+```java
+    messaging.isAnalytics_allowed();
+```
+Method to check GPlay Service Status.
+```java
+   Messaging.checkGPlayServiceStatus();
+```
+Method to send Event Custom from app to backend.
+```java
+   Messaging.sendEventCustom(key,value);
+```
+Method to get last location saved from storage.
+```java
+   Messaging.getLastLocation();
+```
+Method to set Location Request With Priority.
+```java
+   Messaging.setLocationRequestWithPriority(PRIORITY_BALANCED_POWER_ACCURACY);
+   or Messaging.setLocationRequestWithPriority(PRIORITY_HIGH_ACCURACY);
+   or Messaging.setLocationRequestWithPriority(PRIORITY_LOW_POWER); 
+   or Messaging.setLocationRequestWithPriority(PRIORITY_NO_POWER);
+```
+Method to set Location Request Selected.
+```java
+    Messaging.setLocationProritySelected(which);
+```
+Method to stop Geofences Supervition.
+```java
+    Messaging.stopGeofencesSupervition();
+```
 
 ## Example - Getting MessagingDevice
 ```java
@@ -659,7 +747,7 @@ public class MainActivity extends AppCompatActivity{
    
 ```
 ## Full implementation example:
- in MainActivity.java
+ To MainActivity.java
 ```java
 package com.ogangi.Messangi.SDK.Demo;
 ....
@@ -696,30 +784,34 @@ public class MainActivity extends AppCompatActivity {
         messaging = Messaging.getInstance(this);
         messaging.getExternalId());// get external ID using Sdk.
 
-        device.setOnClickListener(new View.OnClickListener() {
+        bottomNavigation.setOnNavigationItemSelectedListener(new BottomNavigationView.OnNavigationItemSelectedListener() {
             @Override
-            public void onClick(View v) {
-               ...
-                Messaging.fetchDevice(true);
-                Messaging.fetchUser(getApplicationContext(), true);
-                
-            }
-        });
-
-       save.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                if (messangingDevice.getTags().size() > 0) {
-                    progressBar.setVisibility(View.VISIBLE);
-                    messagingDevice.save(getApplicationContext());//save parameter in backend using service.
-                } else {
-                    Toast.makeText(getApplicationContext(), "Nothing to save", Toast.LENGTH_LONG).show();
+            public boolean onNavigationItemSelected(@NonNull MenuItem item) {
+                int id = item.getItemId();
+                switch (id){
+                    case R.id.action_add_info:
+                        createAlertUser();
+                        return true;
+                    case R.id.action_refresh:
+                        Messaging.fetchDevice(true, getApplicationContext());
+                        Messaging.fetchUser(getApplicationContext(), true);
+                        ......
+                        return true;
                 }
+
+                return false;
             }
         });
 
         //for handle notification from background
-    Bundle extras=getIntent().getExtras();
+    Bundle extras = null;
+        if(Static.extras!=null){
+        extras=Static.extras;
+        Static.extras=null;
+        }else{
+            extras=getIntent().getExtras();
+            
+        }
         if(extras!=null){
             isBackground=extras.getBoolean("isInBackground",false);
             
@@ -734,8 +826,56 @@ public class MainActivity extends AppCompatActivity {
                 MessagingNotification notification=Messaging.checkNotification(extras);
                 .....
             }
-
         }
+        if(messaging.isEnable_permission_automatic() ){
+            Messaging.requestPermissions(MainActivity.this);
+        }
+    //status of Gps and turn on Gps automatic    
+    new GpsUtils(this).turnGPSOn(new GpsUtils.onGpsListener() {
+            @Override
+            public void gpsStatus(boolean isGPSEnable) {
+                messaging.setGPS(isGPSEnable);
+               }
+        });
+    }
+    
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        getMenuInflater().inflate(R.menu.menu_main, menu);
+        menu.findItem(R.id.action_visibility).setIcon(R.drawable.ic_baseline_visibility_24);
+        return true;
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        int id = item.getItemId();
+
+        switch (id){
+            case R.id.action_visibility:
+                if(messagingDevice.isEnableNotificationPush()) {
+                    Toast.makeText(getApplicationContext(), "Disable Notification Push", Toast.LENGTH_LONG).show();
+                    messagingDevice.setStatusNotificationPush(false, getApplicationContext());
+                    progressBar.setVisibility(View.VISIBLE);
+                    item.setIcon(R.drawable.ic_baseline_visibility_off_24);
+                } else {
+                    Toast.makeText(getApplicationContext(), "Enable Notification Push", Toast.LENGTH_LONG).show();
+                    messagingDevice.setStatusNotificationPush(true, getApplicationContext());
+                    progressBar.setVisibility(View.VISIBLE);
+                    item.setIcon(R.drawable.ic_baseline_visibility_24);
+                }
+                return true;
+            case R.id.action_location:
+                gotoMapActivity();
+                return true;
+            case R.id.action_logout:
+                goToLogin();
+                return true;
+            case R.id.action_getLog:
+                showAlertGetLogCat();
+                return true;
+        }
+
+        return super.onOptionsItemSelected(item);
     }
 
     @Override
@@ -755,6 +895,8 @@ public class MainActivity extends AppCompatActivity {
                 new IntentFilter(Messaging.ACTION_REGISTER_DEVICE));
         LocalBroadcastManager.getInstance(this).registerReceiver(mReceiver,
                 new IntentFilter(Messaging.ACTION_SAVE_USER));
+        LocalBroadcastManager.getInstance(this).registerReceiver(mReceiver,
+                new IntentFilter(Messaging.ACTION_FETCH_LOCATION));
     }
 
     @SuppressLint("SetTextI18n")
@@ -767,50 +909,71 @@ public class MainActivity extends AppCompatActivity {
     private BroadcastReceiver mReceiver=new BroadcastReceiver() {
         @Override
         public void onReceive(Context context, Intent intent) {
-            
-
-            boolean hasError=intent.getBooleanExtra(Messaging.INTENT_EXTRA_HAS_ERROR,true);
-            
-            if (!hasError ) {
-                Serializable data=intent.getSerializableExtra(Messaging.INTENT_EXTRA_DATA);
-                if(intent.getAction().equals(Messaging.ACTION_FETCH_DEVICE)&& data!=null){
-                    messagingDevice = (MessagingDevice) data; //you can cast this for get information
-                    //or messagingDevice = MessagingDevice.getInstance();
-                    showdevice(messagingDevice);
-
-                }else if(intent.getAction().equals(Messaging.ACTION_FETCH_USER)&& data!=null){
-                    messagingUser =(MessagingUser) data;
-                    //or messagingUser = MessagingUser.getInstance();
-                    shwUser(messagingUser);
-
-                }else if(((intent.getAction().equals(Messaging.ACTION_GET_NOTIFICATION))||(intent.getAction().equals(Messaging.ACTION_GET_NOTIFICATION_OPENED)))&& data!=null){
-                    messagingNotification=(MessagingNotification)data;
-                    .....
-
-                }else if(intent.getAction().equals(Messaging.ACTION_SAVE_DEVICE)&& data!=null) {
-                    messagingDevice = (MessagingDevice) data; //you can cast this for get information
-                    //or messagingDevice = MessagingDevice.getInstance();
-                    //for condition of save (user or device);
-                    Toast.makeText(getApplicationContext(),intent.getAction(),Toast.LENGTH_LONG).show();
-                    showdevice(messagingDevice);
-                }else if(intent.getAction().equals(Messaging.ACTION_SAVE_USER)&& data!=null) {
-                    messagingUser =(MessagingUser) data; //you can cast this for get information
-                    //or messagingUser = MessagingUser.getInstance();
-                    //for condition of save (user or device);
-                    Toast.makeText(getApplicationContext(),intent.getAction(),Toast.LENGTH_LONG).show();
-                    shwUser(messagingUser);
-                } else {
-                    Toast.makeText(getApplicationContext(),intent.getAction(),Toast.LENGTH_LONG).show();
+            nameMethod = new Object(){}.getClass().getEnclosingMethod().getName();
+            boolean hasError = intent.getBooleanExtra(Messaging.INTENT_EXTRA_HAS_ERROR,true);
+           
+            String alertMessage = getResources().getString(getResources().getIdentifier(intent.getAction(), "string", getPackageName()));
+            if (!hasError) {
+                Serializable data = intent.getSerializableExtra(Messaging.INTENT_EXTRA_DATA);
+               
+                if(data == null){
+                    if(progressBar.isShown()){
+                        progressBar.setVisibility(View.GONE);
+                    }
+                    return;
                 }
 
-            }else{
+                switch (intent.getAction()){
+                    case Messaging.ACTION_REGISTER_DEVICE:
+                        messagingDevice = (MessagingDevice) data;
+                        ....
+                    break;
+                    case Messaging.ACTION_FETCH_DEVICE:
+                        messagingDevice = (MessagingDevice) data;
+                        
+                        if(messagingUser == null){
+                            Messaging.fetchUser(getApplicationContext(),false);
+                        }
+                        ......
+                    break;
+                    case Messaging.ACTION_SAVE_DEVICE:
+                        messagingDevice = (MessagingDevice) data;
+                        if(messagingUser != null){
+                            
+                            Messaging.fetchUser(getApplicationContext(),true);
+                        }
+                        ......
+                        break;
 
-                Toast.makeText(getApplicationContext(),"An error occurred on action "
-                        +intent.getAction(),Toast.LENGTH_LONG).show();
+                    case Messaging.ACTION_FETCH_USER:
+                        messagingUser = (MessagingUser) data;
+                        .....
+                        break;
+                    case Messaging.ACTION_SAVE_USER:
+                        messagingUser = (MessagingUser) data;
+                        .....
+                        break;
+                    case Messaging.ACTION_GET_NOTIFICATION:
+                        messagingNotification = (MessagingNotification) data;
+                        .....
+                        break;
+                    case Messaging.ACTION_GET_NOTIFICATION_OPENED:
+                        messagingNotification = (MessagingNotification) data;
+                        .......
+                        break;
+                    case Messaging.ACTION_FETCH_LOCATION:
+                        MessagingLocation messagingLocation = (MessagingLocation) data;
+                        ........
+                        break;
+                    default:
+                        break;
+                }
+            } else {
+            Toast.makeText(getApplicationContext(),"An error occurred on action "
+                    + alertMessage,Toast.LENGTH_LONG).show();
                 if(progressBar.isShown()){
                     progressBar.setVisibility(View.GONE);
                 }
-
             }
             if(progressBar.isShown()){
                 progressBar.setVisibility(View.GONE);
@@ -827,7 +990,14 @@ public class MainActivity extends AppCompatActivity {
 For handle Notification in Background you must use this code in Activity:
 ```java
         //for handle notification from background
-        Bundle extras=getIntent().getExtras();
+        Bundle extras = null;
+        if(Static.extras!=null){
+        extras=Static.extras;
+        Static.extras=null;
+        }else{
+            extras=getIntent().getExtras();
+            Log.i(TAG, "INFO: " + CLASS_TAG + ": " + nameMethod + "extras: " + extras);
+        }
         if(extras!=null){
             isBackground=extras.getBoolean("isInBackground",false);
             if(isBackground) {
@@ -841,6 +1011,46 @@ For handle Notification in Background you must use this code in Activity:
             }
         }
 ```
+For handle request permission result you must use this code in Activity:
+```java
+        @SuppressLint("MissingPermission")
+    @Override
+    public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
+        super.onRequestPermissionsResult(requestCode, permissions, grantResults);
+        switch (requestCode) {
+            case 1000: {
+                // If request is cancelled, the result arrays are empty.
+                if (grantResults.length > 0
+                        && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+                    Messaging.fetchLocation(MainActivity.this,true);
+                } else {
+                    Toast.makeText(getApplicationContext(), "Permission denied", Toast.LENGTH_SHORT).show();
+                    permissionsDenied();
+                }
+                break;
+            }
+        }
+    }
+```
+For handle GPS request status result you must use this code in Activity:
+```java
+     @Override
+    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+        if (resultCode == Activity.RESULT_OK) {
+            if (requestCode == Messaging.GPS_REQUEST) {
+                messaging.setGPS(true);  // flag maintain before get location
+                Log.d(CLASS_TAG, TAG+" is gps "+messaging.isGPS());
+            }
+        }else{
+        messaging.setGPS(false);
+        Log.d(CLASS_TAG, TAG+" Denai is gps "+messaging.isGPS());
+    }
+}
+```
+## Full implementation example:
+ To MapsActivity.java
+
 ## more detail see example app (demoApp)
 
  if you want handle from app the notification you can create class in app project named CustomMessangiService, example:

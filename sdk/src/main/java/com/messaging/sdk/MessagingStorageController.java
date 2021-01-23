@@ -542,7 +542,7 @@ public class MessagingStorageController {
             location.setLongitude(Double.parseDouble(lon));
         }
 
-        messaging.utils.showDebugLog(this,nameMethod,"getLastLocation from storage");
+        //messaging.utils.showDebugLog(this,nameMethod,"getLastLocation from storage");
         return location;
     }
 
@@ -671,7 +671,7 @@ public class MessagingStorageController {
         data.putInt("LocationProritySelected",enable);
 
         data.apply();
-        messaging.utils.showDebugLog(this,nameMethod,"Set LocationBackgroundAllowed "+enable);
+        messaging.utils.showDebugLog(this,nameMethod,"Set LocationProritySelected "+enable);
 
     }
 

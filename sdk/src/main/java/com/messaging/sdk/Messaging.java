@@ -2227,8 +2227,9 @@ public class Messaging implements LifecycleObserver {
             closestRegions.add(messagingCircularRegion);
 
             if(closestRegions.size()==MAXIMUM_NUMBER_OF_MONITORED_REGIONS){
+                int numberClosesRegions=closestRegions.size()+1;
                 messaging.utils.showInfoLog(messaging,nameMethod,"Limit to GF to add: "
-                        +(closestRegions.size()+1));
+                        +numberClosesRegions);
                 Handler mHandler = new Handler(Looper.getMainLooper()) {
                     @Override
                     public void handleMessage(Message message) {
@@ -2314,8 +2315,9 @@ public class Messaging implements LifecycleObserver {
                         @Override
                         public void onSuccess(Void aVoid) {
                             nameMethod=new Object(){}.getClass().getEnclosingMethod().getName();
+                            int reguinAdd=regionsToAdd.size()+1;
                             utils.showDebugLog(this,nameMethod," Add Geofence "
-                                    +(regionsToAdd.size()+1));
+                                    +reguinAdd);
                             MessagingDB db=new MessagingDB(context);
                             MessagingCircularRegion.Builder builder= new MessagingCircularRegion.Builder();
                             for(MessagingCircularRegion messagingCircularRegion:regionsToAdd){
@@ -2335,11 +2337,11 @@ public class Messaging implements LifecycleObserver {
                 @Override
                 public void onFailure(@NonNull Exception e) {
                     nameMethod=new Object(){}.getClass().getEnclosingMethod().getName();
-                    utils.showErrorLog(this,nameMethod," Add Geofence "+e.getMessage(),"");
-                    String mesagError=utils.getErrorString(Integer.parseInt(e.getMessage()));
-                    if(mesagError.equals("Too many geofences")){
-                        sendEventCustom(mesagError,mesagError);
-                    }
+                    int errorCode=Integer.parseInt(e.getMessage().split(":")[0]);
+                    utils.showErrorLog(this,nameMethod," Add Geofence error "+errorCode,"");
+                    String mesagError=utils.getErrorString(errorCode);
+                    utils.showErrorLog(this,nameMethod," Add Geofence error "+mesagError,"");
+                    sendEventCustom(mesagError,mesagError);
                     fetchGeofence();
 
                 }
@@ -2480,6 +2482,95 @@ public class Messaging implements LifecycleObserver {
         MessagingDB db=new MessagingDB(messaging.context);
         db.deleteAll();
         messaging.messagingDevice.setStatusNotificationPush(false,messaging.context);
+    }
+
+    /**
+     * Method to setLocationContinueAllowed from Activity or Class
+     * @param state : ture or false)
+     * */
+    public static void setLocationContinueAllowed(boolean state){
+        Messaging messaging=Messaging.getInstance();
+        messaging.messagingStorageController.setLocationContinueAllowed(state);
+    }
+    /**
+     * Method to Know if hasLocationContinueAllowed
+     *
+     * */
+    public static boolean hasLocationContinueAllowed(){
+        Messaging messaging=Messaging.getInstance();
+        if(messaging.messagingStorageController.hasLocationContinueAllowed()==1){
+            return true;
+        }else {
+            return false;
+        }
+
+    }
+
+    /**
+     * Method to Know if getLocationContinueAllowed
+     *
+     * */
+    public static boolean getLocationContinueAllowed(){
+        Messaging messaging=Messaging.getInstance();
+        return messaging.messagingStorageController.isLocationContinueAllowed();
+    }
+
+    /**
+     * Method to setLocationBackgroundAllowed from Activity or Class
+     * @param state : ture or false)
+     * */
+    public static void setLocationBackgroundAllowed(boolean state){
+        Messaging messaging=Messaging.getInstance();
+        messaging.messagingStorageController.setLocationBackgroundAllowed(state);
+    }
+    /**
+     * Method to Know if hasLocationBackgroundAllowed
+     *
+     * */
+    public static boolean hasLocationBackgroundAllowed(){
+        Messaging messaging=Messaging.getInstance();
+        if(messaging.messagingStorageController.hasLocationBackgroundAllowed()==1){
+            return true;
+        }else {
+            return false;
+        }
+
+    }
+
+    /**
+     * Method to Know if getLocationBackgroundAllowed
+     *
+     * */
+    public static boolean getLocationBackgroundAllowed(){
+        Messaging messaging=Messaging.getInstance();
+        return messaging.messagingStorageController.isLocationBackgroundAllowed();
+    }
+
+    /**
+     * Method to setLocationProritySelected from Activity or Class
+     * @param state : ture or false)
+     * */
+    public static void setLocationProritySelected(int state){
+        Messaging messaging=Messaging.getInstance();
+        messaging.messagingStorageController.setLocationProritySelected(state);
+    }
+    /**
+     * Method to Know if hasLocationProritySelected
+     *
+     * */
+    public static boolean hasLocationProritySelected(){
+        Messaging messaging=Messaging.getInstance();
+        return messaging.messagingStorageController.hasLocationProritySelected();
+
+    }
+
+    /**
+     * Method to Know if getLocationProritySelected
+     *
+     * */
+    public static int getLocationProritySelected(){
+        Messaging messaging=Messaging.getInstance();
+        return messaging.messagingStorageController.getLocationProritySelected();
     }
 
 

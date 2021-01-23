@@ -438,10 +438,8 @@ public class LoginActivity extends AppCompatActivity {
                         JSONObject temp=new JSONObject(data);
                         JSONObject temp1=temp.getJSONObject(Messaging.MESSAGING_DATA);
                         JSONArray arr = temp1.getJSONArray(Messaging.FETCH_FIELDS_COLUMNS);
-
                         JSONArray sortedJsonArray =getJsonArraySorted(arr);
-                    Log.d(TAG,"DEBUG: "+CLASS_TAG+": "+nameMethod+": sortedJsonArray:  "
-                    + sortedJsonArray.toString());
+                    Log.d(TAG,"DEBUG: "+CLASS_TAG+": "+nameMethod+": sortedJsonArray:  "+ sortedJsonArray.toString());
                     if(arr.length()>0) {
                         dataInputList = new ArrayList<HashMap<String, String>>();
                         for (int i = 0; i < sortedJsonArray.length(); i++) {
