@@ -8,12 +8,8 @@ import android.content.IntentFilter;
 import android.content.SharedPreferences;
 import android.content.pm.ActivityInfo;
 import android.os.Bundle;
-import android.os.Handler;
-import android.os.Message;
-import android.telephony.PhoneNumberUtils;
 import android.util.Log;
 import android.view.View;
-import android.view.Window;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageView;
@@ -23,16 +19,13 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.appcompat.app.AppCompatActivity;
-import androidx.appcompat.widget.Toolbar;
 import androidx.localbroadcastmanager.content.LocalBroadcastManager;
 
 import com.google.zxing.integration.android.IntentIntegrator;
 import com.google.zxing.integration.android.IntentResult;
 import com.messaging.sdk.Messaging;
-
 import com.messaging.sdk.MessagingDevice;
 import com.messaging.sdk.MessagingUser;
-import com.ogangi.Messangi.SDK.Demo.scanqr.CaptureActivityAnyOrientation;
 import com.ogangi.Messangi.SDK.Demo.scanqr.SmallCaptureActivity;
 
 import org.json.JSONArray;
@@ -40,8 +33,6 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.io.Serializable;
-import java.text.ParseException;
-import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
@@ -49,9 +40,7 @@ import java.util.Comparator;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.regex.Pattern;
 
-import static android.text.InputType.TYPE_CLASS_NUMBER;
 import static android.text.InputType.TYPE_CLASS_PHONE;
 import static android.text.InputType.TYPE_CLASS_TEXT;
 
