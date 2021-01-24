@@ -2463,6 +2463,59 @@ Bundle extras=getIntent().getExtras();
         }
 ```
 
+## To handle Geofence:
+
+Create an activity (as MapActivity) in the demo app that allows you to use google maps to draw the location and geofences.
+
+When creating an activity that handles google maps, a google_map_api.xml file is automatically created to place the google_maps_key from the google maps API.
+
+For more detail see: https://developers.google.com/maps/premium/apikey/maps-android-apikey
+
+```xml
+<resources>
+    <!--
+    TODO: Before you run your application, you need a Google Maps API key.
+
+    To get one, follow this link, follow the directions and press "Create" at the end:
+
+    You can also add your credentials to an existing key, using these values:
+
+    Package name:
+    com.ogangi.Messangi.SDK.Demo
+
+    Alternatively, follow the directions here:
+    https://developers.google.com/maps/documentation/android/start#get-key
+
+    Once you have your key (it starts with "AIza"), replace the "google_maps_key"
+    string in this file.
+    -->
+    <string name="google_maps_key" templateMergeStrategy="preserve" translatable="false">API_KEY_HERE</string>
+</resources>
+<!--
+             The API key for Google Maps-based APIs is defined as a string resource.
+             (See the file "res/values/google_maps_api.xml").
+             Note that the API key is linked to the encryption key used to sign the APK.
+             You need a different API key for each encryption key, including the release key that is used to
+             sign the APK for publishing.
+             You can define the keys for the debug and release targets in src/debug/ and src/release/.
+             this code is created in Manifest.xml demo app
+        -->
+        <meta-data
+            android:name="com.google.android.geo.API_KEY"
+            android:value="@string/google_maps_key" />
+```
+When entering the maps activity, the Geofences stored in the local database of the SDK are automatically loaded (if they are loaded).
+
+<img src="mapgeo_1.jpg" />
+
+Load Geofence from data base:
+
+<img src="mapgeo_2.jpg" />
+
+If the location of the device is within the geofence, a push notification is automatically received:
+
+<img src="mapgeo_3.jpg" />
+
 The implementation of this functionality in the demo app of this repository, in the main activity you have an **example code**.
 
 
