@@ -2516,7 +2516,39 @@ If the location of the device is within the geofence, a push notification is aut
 
 <img src="mapgeo_3.jpg" />
 
-The implementation of this functionality in the demo app of this repository, in the main activity you have an **example code**.
+you can move around geofence zone:
+
+<img src="mapgeo_4.jpg" />
+<img src="mapgeo_5.jpg" />
+
+MapActivity has other fuction described in a drop-down menu, which is displayed by pressing the three dots found at the top right of the screen:
+
+<img src="mapgeo_6.jpg" />
+
+If you select some Get Geofence (from service or data base), a list of geofences ordered by proximity to the last location is displayed, by making movements close to the geofence the list can be updated:
+
+<img src="mapgeo_7.jpg" />
+
+If you select Prority Location, a list of Priority option is displayed, just pick one:
+
+<img src="mapgeo_8.jpg" />
+
+If you select Send Event Custom, a form is displayed, just fill in the data of the form and press the option send:
+
+<img src="mapgeo_9.jpg" />
+
+The SDK has three ways to get the location of the device:
+
+1.-Location of a single shot (found in the drop-down menu).
+2.-Continuous location (shown in the following figure).
+
+<img src="mapgeo_10.jpg" />
+
+3.-Continuous location in the background (shown in the following figure).
+
+<img src="mapgeo_11.jpg" />
+
+The implementation of this functionality in the demo app of this repository, in the main activity,LoginActivity and MapActivity you have an **example code**.
 
 
 ## Author
