@@ -2481,7 +2481,9 @@ public class Messaging implements LifecycleObserver {
         Messaging messaging=Messaging.getInstance();
         MessagingDB db=new MessagingDB(messaging.context);
         db.deleteAll();
-        messaging.messagingDevice.setStatusNotificationPush(false,messaging.context);
+        if(messaging.messagingDevice!=null) {
+            messaging.messagingDevice.setStatusNotificationPush(false, messaging.context);
+        }
     }
 
     /**

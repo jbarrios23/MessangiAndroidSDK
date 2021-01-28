@@ -208,7 +208,7 @@ public class MainActivity extends AppCompatActivity {
             @Override
             public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
                 Log.i(TAG, "INFO: " + CLASS_TAG + ": " + nameMethod + ": " + position);
-                if((position==12)||(position==13)||(position==14)) {
+                if((position==11)||(position==12)||(position==13)) {
                     showDialogSelectionConfig();
                 }
                 if((position==07)) {
@@ -632,8 +632,7 @@ public class MainActivity extends AppCompatActivity {
             messagingDevArrayList.add("Os: " + messagingDevice.getOs());
             messagingDevArrayList.add("SdkVersion: " + messagingDevice.getSdkVersion());
             messagingDevArrayList.add("Tags: " + messagingDevice.getTags());
-            messagingDevArrayList.add("ExternalId: " + messaging.getExternalId());
-            messagingDevArrayList.add("Config: ");
+            messagingDevArrayList.add("Config Parameter: ");
             messagingDevArrayList.add("Host: " + messaging.getMessagingHost());
             messagingDevArrayList.add("AppToken: " + messaging.getMessagingToken());
             messagingDevArrayList.add("LocationEnable: " + messaging.isLocation_allowed());
