@@ -2291,7 +2291,7 @@ public class Messaging implements LifecycleObserver {
                 +(geofenceList.size()+1));
 
         return new GeofencingRequest.Builder()
-                .setInitialTrigger( GeofencingRequest.INITIAL_TRIGGER_ENTER )
+                .setInitialTrigger(GeofencingRequest.INITIAL_TRIGGER_ENTER)
                 .addGeofences( geofenceList )
                 .build();
     }

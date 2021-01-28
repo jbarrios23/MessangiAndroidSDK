@@ -152,10 +152,9 @@ public class MessaginGeofenceBroadcastReceiver extends BroadcastReceiver {
 
         String status = null;
         if (geofenceTransition == Messaging.MessagingGeoFenceTrigger.ENTER.getTrigger() )
-            status = "in";
+            status = "ENTER";
         else if ( geofenceTransition == Messaging.MessagingGeoFenceTrigger.EXIT.getTrigger() )
-            status = "out ";
-
+            status = "EXIT ";
         return status +" "+ TextUtils.join( ", ", triggeringGeofencesList);
 
     }
