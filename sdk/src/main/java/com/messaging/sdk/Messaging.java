@@ -421,6 +421,16 @@ public class Messaging implements LifecycleObserver {
         }
 
     }
+
+    /**
+     * Method to set Configuration From Scan QR from LoginActivity
+     * @param scanContent: text with values scan from LoginActivity
+     */
+    public static void setConfigurationFromScan(String scanContent) {
+        Messaging messaging=Messaging.getInstance();
+        messaging.setConfiguration(scanContent);
+    }
+
     /**
      * Method to setConfiguration from LoginActivity
      * @param scanContent: text with values scan from LoginActivity
@@ -440,7 +450,7 @@ public class Messaging implements LifecycleObserver {
      * Method to reloadSdkParameter To LoginActivity, delete previus device and create new
      * using createDeviceParameters method
      */
-    public void reloadSdkParameter(){
+    public void resetAndCreateDevice(){
         setConfigParameterFromAppToLogin(prvTokenApp,provHostApp);
         logOutProcess();
         if(messagingStorageController.isRegisterDevice()){
@@ -451,6 +461,16 @@ public class Messaging implements LifecycleObserver {
         }
         createDeviceParameters();
     }
+
+    /**
+     * Method to resetAndCreateDeviceNew From LoginActivity, delete previus device and create new
+     * using createDeviceParameters method
+     */
+    public static void resetAndCreateDeviceNew(){
+        Messaging messaging=Messaging.getInstance();
+        messaging.resetAndCreateDevice();
+    }
+
     /**
      * Method to sendUserUpdateData from LoginActivity only if it's necessary
      *
@@ -460,6 +480,15 @@ public class Messaging implements LifecycleObserver {
             messagingUser.addProperty(entry.getKey(),entry.getValue());
         }
         messagingUser.save(context);
+    }
+
+    /**
+     * Method to sendUserUpdateData from LoginActivity only if it's necessary
+     *
+     */
+    public static void sendUserUpdateDataFromLogin(HashMap<String, String> dataInputToSendUser){
+        Messaging messaging=Messaging.getInstance();
+        messaging.sendUserUpdateData(dataInputToSendUser);
     }
 
     /**

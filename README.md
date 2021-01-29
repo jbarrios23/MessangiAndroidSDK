@@ -642,6 +642,18 @@ Method to stop Geofences Supervition.
 ```java
     Messaging.stopGeofencesSupervition();
 ```
+Method to set and handle scan Content in system.
+```java
+    Messaging.setConfigurationFromScan(scanContent);
+```
+Method to set Config Parameter From App in SDK, Reset base data o geofence, delete device and user from storage and create New device  .
+```java
+    Messaging.resetAndCreateDeviceNew();
+```
+Method to send and update user data.  .
+```java
+    Messaging.sendUserUpdateDataFromLogin(dataInputToSendUser);
+```
 
 ## Example - Getting MessagingDevice
 ```java
@@ -1921,7 +1933,7 @@ public class LoginActivity extends AppCompatActivity {
     private void reloadSdkParameter(boolean provUserUpdate) {
         nameMethod="reloadSdkParameter";
         userUpdate=provUserUpdate;
-        messaging.reloadSdkParameter();
+        Messaging.resetAndCreateDeviceNew();
 
     }
 
@@ -1986,7 +1998,7 @@ public class LoginActivity extends AppCompatActivity {
 
            
             if(!scanContent.equals("")&& !scanContent.isEmpty()){
-                messaging.setConfiguration(scanContent);
+                Messaging.setConfigurationFromScan(scanContent);
                 progressBar.setVisibility(View.VISIBLE);
                 useQrScan=true;
 
@@ -2079,7 +2091,7 @@ public class LoginActivity extends AppCompatActivity {
                         if(useQrScan){
                             if(onetimeFlag) {
 
-                                messaging.sendUserUpdateData(dataInputToSendUser);
+                        Messaging.sendUserUpdateDataFromLogin(dataInputToSendUser);
                                 onetimeFlag=false;
                             }
                         }

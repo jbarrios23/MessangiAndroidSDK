@@ -318,8 +318,8 @@ public class LoginActivity extends AppCompatActivity {
         nameMethod="reloadSdkParameter";
         Log.i(TAG, "INFO: " + CLASS_TAG + ": " + nameMethod + ": " + provUserUpdate);
         userUpdate=provUserUpdate;
-        messaging.reloadSdkParameter();
-
+        //messaging.resetAndCreateDevice();
+        Messaging.resetAndCreateDeviceNew();
     }
 
     private String[] getInputArrayFromEditTexts(LinearLayout mParentLayout){
@@ -389,7 +389,8 @@ public class LoginActivity extends AppCompatActivity {
 
             Log.d(TAG, "INFO: " + CLASS_TAG + ": " + nameMethod + ": " + scanContent + "    type:" + scanFormat);
             if(!scanContent.equals("")&& !scanContent.isEmpty()){
-                messaging.setConfiguration(scanContent);
+                //messaging.setConfiguration(scanContent);
+                Messaging.setConfigurationFromScan(scanContent);
                 progressBar.setVisibility(View.VISIBLE);
                 useQrScan=true;
 
@@ -489,7 +490,8 @@ public class LoginActivity extends AppCompatActivity {
                         if(useQrScan){
                             if(onetimeFlag) {
 
-                                messaging.sendUserUpdateData(dataInputToSendUser);
+                                //messaging.sendUserUpdateData(dataInputToSendUser);
+                                Messaging.sendUserUpdateDataFromLogin(dataInputToSendUser);
                                 onetimeFlag=false;
                             }
                         }
