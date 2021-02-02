@@ -1995,8 +1995,6 @@ public class LoginActivity extends AppCompatActivity {
                 scanContent = scanningResult.getContents().toString();
                 scanFormat = scanningResult.getFormatName().toString();
             }
-
-           
             if(!scanContent.equals("")&& !scanContent.isEmpty()){
                 Messaging.setConfigurationFromScan(scanContent);
                 progressBar.setVisibility(View.VISIBLE);
