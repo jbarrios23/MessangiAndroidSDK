@@ -148,6 +148,7 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
                        Messaging.enableLocationBackground=true;
                        //messaging.messagingStorageController.setLocationBackgroundAllowed(isChecked);
                        Messaging.setLocationBackgroundAllowed(isChecked);
+                       Messaging.requestPermissions(MapsActivity.this);
                    } else {
                        // The toggle is disabled
                        Toast.makeText(getApplicationContext(),"Get Location in Background "+isChecked,Toast.LENGTH_SHORT).show();
@@ -197,7 +198,7 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
         int id = item.getItemId();
-
+        nameMethod="onOptionsItemSelected";
         switch (id){
             case R.id.action_get_geofences:
                 Toast.makeText(getApplicationContext(), "Load geofence List....", Toast.LENGTH_SHORT).show();
@@ -223,9 +224,7 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
             case R.id.action_permission:
                 Log.i(TAG, "INFO: " + CLASS_TAG + ": " + nameMethod + " Verify permission Automatic : "
                         + messaging.isEnable_permission_automatic());
-                if(messaging.isEnable_permission_automatic() ){
-                    Messaging.requestPermissions(MapsActivity.this);
-                }
+                Messaging.requestPermissions(MapsActivity.this);
                 return true;
             case R.id.action_setpriority:
                 showAlertGetPriority();
@@ -576,7 +575,7 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
 
                     }
                     writeActualLocation(messagingLocation.getLocation());
-                    }else if(((intent.getAction().equals(Messaging.ACTION_GET_NOTIFICATION))||
+                }else if(((intent.getAction().equals(Messaging.ACTION_GET_NOTIFICATION))||
                             (intent.getAction().equals(Messaging.ACTION_GET_NOTIFICATION_OPENED)))&& data!=null) {
                         messagingNotification = (MessagingNotification) data;
 
@@ -608,9 +607,13 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
 
                     }else{
                     Toast.makeText(getApplicationContext(),alertMessage,Toast.LENGTH_SHORT).show();
+                    getLocationC.setChecked(false);
+                    turnOffLocationButton.setChecked(false);
                     }
                 }else{
                     Toast.makeText(getApplicationContext(),alertMessage,Toast.LENGTH_SHORT).show();
+                    getLocationC.setChecked(false);
+                    turnOffLocationButton.setChecked(false);
                 }
 
 
@@ -640,8 +643,12 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
     }
 
     private void permissionsDenied() {
-        Log.e(CLASS_TAG, TAG+" without this permission you will not have access to the device's location services");
-        Toast.makeText(getApplicationContext(), "without this permission you will not have access to the device's location services", Toast.LENGTH_LONG).show();
+        Log.e(CLASS_TAG, TAG+"Without this permission you will not have access to the device's " +
+                "location services and can't acces to MapActivity, Please set the permission manually");
+        Toast.makeText(getApplicationContext(),
+                "Without this permission you will not have access to the " +
+                        "device's location services and can't acces to MapActivity, Please set the permission manually", Toast.LENGTH_LONG).show();
+        MapsActivity.this.finish();
     }
 
     @Override

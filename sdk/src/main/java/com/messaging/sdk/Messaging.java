@@ -3,10 +3,12 @@ package com.messaging.sdk;
 import android.Manifest;
 import android.annotation.SuppressLint;
 import android.app.Activity;
+import android.app.AlertDialog;
 import android.app.PendingIntent;
 import android.content.ActivityNotFoundException;
 import android.content.ComponentName;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.graphics.Bitmap;
@@ -597,14 +599,9 @@ public class Messaging implements LifecycleObserver {
         Messaging messaging=Messaging.getInstance();
         if (ActivityCompat.checkSelfPermission(messaging.context, android.Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED
                 && ActivityCompat.checkSelfPermission(messaging.context, android.Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
-            ActivityCompat.requestPermissions(activity,
-                    new String[]{android.Manifest.permission.ACCESS_FINE_LOCATION,
-                            Manifest.permission.ACCESS_COARSE_LOCATION,
-                            Manifest.permission.ACCESS_BACKGROUND_LOCATION},
-                    LOCATION_REQUEST);
-                messaging.utils.showDebugLog(messaging,nameMethod,"send event "+MESSAGING_INVALID_DEVICE_LOCATION
-                        +" "+MESSAGING_INVALID_DEVICE_LOCATION_REASON_MISSING);
-                sendEventToBackend(MESSAGING_INVALID_DEVICE_LOCATION,MESSAGING_INVALID_DEVICE_LOCATION_REASON_MISSING, "");
+            messaging.utils.showDebugLog(messaging,nameMethod,"Check permisse ");
+            showProminentDisclosureLocation(activity,messaging);
+            sendEventToBackend(MESSAGING_INVALID_DEVICE_LOCATION,MESSAGING_INVALID_DEVICE_LOCATION_REASON_MISSING, "");
         }else{
             messaging.utils.showDebugLog(messaging,nameMethod,"Permission Granted ");
             Toast.makeText(activity,"PERMISSION_GRANTED",Toast.LENGTH_LONG).show();
@@ -615,30 +612,29 @@ public class Messaging implements LifecycleObserver {
      * @param activity: context from make the getLastLocation.
      * */
     @SuppressLint("InlinedApi")
-    private static void getLastLocation(Activity activity) {
+    private static void getLastLocation(final Activity activity) {
+
         final String nameMethod=new Object(){}.getClass().getEnclosingMethod().getName();
         final Messaging messaging=Messaging.getInstance();
+
         if (ActivityCompat.checkSelfPermission(messaging.context, android.Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED
                 && ActivityCompat.checkSelfPermission(messaging.context, android.Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
             if(activity!=null) {
-                ActivityCompat.requestPermissions(activity,
-                        new String[]{android.Manifest.permission.ACCESS_FINE_LOCATION,
-                                Manifest.permission.ACCESS_COARSE_LOCATION,
-                                Manifest.permission.ACCESS_BACKGROUND_LOCATION},
-                        LOCATION_REQUEST);
+                showProminentDisclosureLocation(activity,messaging);
             }else{
-
                 messaging.utils.showDebugLog(messaging,nameMethod," Activity null send event ");
                 sendEventToBackend(MESSAGING_INVALID_DEVICE_LOCATION,MESSAGING_INVALID_DEVICE_LOCATION_REASON_MISSING, "");
+                messaging.stopServiceLocation();
             }
-        } else {
+
+        }else{
             if (isContinue) {
                 Handler handler = new Handler(Looper.getMainLooper()) {
                     @SuppressLint("MissingPermission")
                     @Override
                     public void handleMessage(Message inputMessage) {
-                    messaging.utils.showDebugLog(messaging,nameMethod," Continue Location on ");
-                    fusedLocationClient.requestLocationUpdates(locationRequest, locationCallback,Looper.getMainLooper());
+                        messaging.utils.showDebugLog(messaging,nameMethod," Continue Location on ");
+                        fusedLocationClient.requestLocationUpdates(locationRequest, locationCallback,Looper.getMainLooper());
                     }
                 };
                 handler.sendEmptyMessage(0);
@@ -647,6 +643,44 @@ public class Messaging implements LifecycleObserver {
 
             }
         }
+    }
+    /**
+     * Method to requestPermissionLocation from this Class
+     * @param activity :Activity context
+     * */
+    private static void requestPermissionLocation(Activity activity) {
+        ActivityCompat.requestPermissions(activity,
+                new String[]{android.Manifest.permission.ACCESS_FINE_LOCATION,
+                        Manifest.permission.ACCESS_COARSE_LOCATION,
+                        Manifest.permission.ACCESS_BACKGROUND_LOCATION},
+                LOCATION_REQUEST);
+    }
+    /**
+     * Method to show Prominent Disclosure Location from this Class
+     * @param activity :Activity context
+     * @param messaging*/
+    private static void showProminentDisclosureLocation(final Activity activity, final Messaging messaging) {
+        final String nameMethod="showProminentDisclosureLocation";
+        AlertDialog.Builder dialogBuilder = new AlertDialog.Builder(activity)
+                .setCancelable(false);
+        dialogBuilder.setTitle(activity.getResources().getString(R.string.location_acces))
+                .setMessage(activity.getResources().getString(R.string.location_text))
+                .setIcon(R.drawable.locationicon)
+                .setPositiveButton(activity.getResources().getString(R.string.location_ok), new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+                        dialog.dismiss();
+                        messaging.utils.showDebugLog(messaging, nameMethod, " requestPermissionLocation ");
+                        Messaging.requestPermissionLocation(activity);
+                    }
+                })
+                .setNegativeButton(activity.getResources().getString(R.string.location_not), new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+                            messaging.sendEventToActivity(ACTION_FETCH_LOCATION,null,messaging.context);
+                    }
+                });
+        dialogBuilder.show();
     }
     /**
      * Method to getCurrentLocation from AnyClass
@@ -1007,7 +1041,6 @@ public class Messaging implements LifecycleObserver {
                 messaging.utils.showDebugLog(messaging, nameMethod, "send to Activity GF from dB! "
                         +db.getAllGeoFenceToBd().size());
                 messaging.sendEventToActivity(Messaging.ACTION_FETCH_GEOFENCE, db.getAllGeoFenceToBd(), messaging.context);
-
             }else{
                 Toast.makeText(messaging.context,"Has not Geofence yet!",Toast.LENGTH_LONG).show();
                 messaging.utils.showDebugLog(messaging, nameMethod, "Has not Geofence yet! ");

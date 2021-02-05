@@ -24,6 +24,7 @@
         <service
             android:name=".MessagingLocationService"
             android:enabled="true"
+            android:foregroundServiceType="location"
             android:exported="true" />
 
         <provider

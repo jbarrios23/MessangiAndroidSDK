@@ -1,6 +1,13 @@
 <resources>
     <string name="app_name">SDK</string>
-    <string name="app_name_notification">SDK Location On</string>
+    <string name="app_name_notification">Location Backgorund On</string>
     <string name="notifications_admin_channel_name">uno</string>
     <string name="notifications_admin_channel_description">dos</string>
+    <string name="location_acces">Location Access</string>
+    <string name="location_text">This app collects location data to enable Geofence
+        (please use Allow all the time permise), GPS location in the foreground or
+        in the background enabled from the app,
+        even when the app is closed or not in use and it is also used to support advertising.</string>
+    <string name="location_ok">Get permission</string>
+    <string name="location_not">No Thanks</string>
 </resources>
