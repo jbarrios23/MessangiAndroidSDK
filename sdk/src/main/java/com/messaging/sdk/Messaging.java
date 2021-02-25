@@ -453,16 +453,28 @@ public class Messaging implements LifecycleObserver {
      * using createDeviceParameters method
      */
     public void resetAndCreateDevice(){
+        Messaging messaging=Messaging.getInstance();
         setConfigParameterFromAppToLogin(prvTokenApp,provHostApp);
-        logOutProcess();
-        if(messagingStorageController.isRegisterDevice()){
-            messagingStorageController.saveDevice(null,null,null);
-            messagingStorageController.saveUserByDevice(null);
-            messagingDevice=null;
-            messagingUser=null;
-        }
+        resetDevice();
         createDeviceParameters();
     }
+
+    /**
+     * Method to resetDevice, delete previus device of data local
+     *
+     */
+    public static void resetDevice(){
+        Messaging messaging=Messaging.getInstance();
+        if(messaging.messagingStorageController.isRegisterDevice()){
+            messaging.messagingStorageController.saveDevice(null,null,null);
+            messaging.messagingStorageController.saveUserByDevice(null);
+            messaging.messagingDevice=null;
+            messaging.messagingUser=null;
+            messaging.utils
+                    .showInfoLog(messaging,"resetAndCreateDevice","reset device");
+        }
+    }
+
 
     /**
      * Method to resetAndCreateDeviceNew From LoginActivity, delete previus device and create new
@@ -470,6 +482,7 @@ public class Messaging implements LifecycleObserver {
      */
     public static void resetAndCreateDeviceNew(){
         Messaging messaging=Messaging.getInstance();
+        logOutProcess();
         messaging.resetAndCreateDevice();
     }
 
@@ -2545,6 +2558,8 @@ public class Messaging implements LifecycleObserver {
         db.deleteAll();
         if(messaging.messagingDevice!=null) {
             messaging.messagingDevice.setStatusNotificationPush(false, messaging.context);
+            messaging.utils
+                    .showInfoLog(messaging,"LogOut Process","setStatusNotificationPush false");
         }
     }
 

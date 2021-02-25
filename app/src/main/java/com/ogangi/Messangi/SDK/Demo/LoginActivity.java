@@ -105,6 +105,8 @@ public class LoginActivity extends AppCompatActivity {
                         button_get_started.setText(getResources().getText(R.string.get_finish));
                         scan_title.setVisibility(View.VISIBLE);
                         imageView.setVisibility(View.GONE);
+                        //sera aca preguntar si hay disp y actualizarlo
+
                         Log.i(TAG, "INFO: " + CLASS_TAG + ": " + nameMethod + ": " + button_get_started.getText());
                     }
                 }
@@ -319,6 +321,7 @@ public class LoginActivity extends AppCompatActivity {
         Log.i(TAG, "INFO: " + CLASS_TAG + ": " + nameMethod + ": " + provUserUpdate);
         userUpdate=provUserUpdate;
         //messaging.resetAndCreateDevice();
+
         Messaging.resetAndCreateDeviceNew();
     }
 

@@ -480,20 +480,15 @@ class MessagingSdkUtils {
 
                 setAnalytics_allowed(provEnable);
             }
-
-
             if((jsonObject.has(Messaging.MESSAGING_APP_TOKEN))||
                     (jsonObject.has(Messaging.MESSAGING_APP_HOST))){
                 //create device
                 showDebugLog(this,nameMethod, "Reload SDK ans create device ");
                 Messaging.logOutProcess();
-                if(messagingStorageController.isRegisterDevice()){
-                    messagingStorageController.saveDevice(null,null,null);
-                    messagingStorageController.saveUserByDevice(null);
-                    messagingDevice=null;
-                    messagingUser=null;
-                }
+                Messaging.resetDevice();
                 messaging.createDeviceParameters();
+
+
             }else{
                 showDebugLog(this,nameMethod, "Not Reload SDK");
 
