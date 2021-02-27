@@ -197,6 +197,7 @@ public class MessagingNotification implements Serializable {
                  //this.renderNotification = messaging.utils.verifyIsValidGeoPushTwo(data,messaging);
                  messaging.utils.showDebugLog(this,nameMethod, "MSGI_GEOPUSH: "
                          + renderNotification);
+
              } catch (JSONException e) {
                  e.printStackTrace();
              }

@@ -555,6 +555,7 @@ class MessagingSdkUtils {
     public boolean verifyIsValidGeoPush(JSONObject jsonObject, Messaging messaging, String notificationId){
         boolean result=false;
         String externalId=notificationId;
+        messaging.messagingStorageController.saveNotificationId(notificationId);
         String nameMethod=new Object(){}.getClass().getEnclosingMethod().getName();
         if (ActivityCompat.checkSelfPermission(context, android.Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED
                 && ActivityCompat.checkSelfPermission(context, android.Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
@@ -588,16 +589,29 @@ class MessagingSdkUtils {
                                         +" Radius "+provRadius);
                                 if(lastLocation.distanceTo(location)<=provRadius){
                                     result=true;
+                                    messaging.utils.showDebugLog(this, nameMethod, "GEO_PUSH process");
+                                    Messaging.sendEventToBackend(Messaging.MESSAGING_GEOPUSH_PROCESS,
+                                            Messaging.MESSAGING_GEOPUSH_PROCESS, externalId);
+                                }else {
+                                    messaging.utils.showDebugLog(this, nameMethod, "GEO_PUSH not process");
+                                    Messaging.sendEventToBackend(Messaging.MESSAGING_GEOPUSH_PROCESS,
+                                            Messaging.MESSAGING_GEOPUSH_NO_PROCESS, externalId);
                                 }
 
                             }else{
                                 result=false;
+                                messaging.utils
+                                        .showDebugLog(this, nameMethod, "GEO_PUSH not process");
+                                Messaging.sendEventToBackend(Messaging.MESSAGING_GEOPUSH_PROCESS,
+                                        Messaging.MESSAGING_GEOPUSH_NO_PROCESS, externalId);
                             }
 
                         } catch (JSONException e) {
                             e.printStackTrace();
                             showErrorLog(this,nameMethod,"Error "+e.getStackTrace(),"");
                             result=false;
+                            Messaging.sendEventToBackend(Messaging.MESSAGING_GEOPUSH_PROCESS,
+                                    Messaging.MESSAGING_GEOPUSH_NO_PROCESS, externalId);
                         }
 
                     }

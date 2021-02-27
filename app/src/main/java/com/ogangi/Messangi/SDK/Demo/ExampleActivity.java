@@ -61,6 +61,7 @@ public class ExampleActivity extends AppCompatActivity {
 
             Log.i(TAG, "INFO DATA BUILD: " + CLASS_TAG + " data: " + additionalData);
             Log.i(TAG, "INFO DATA BUILD: " + CLASS_TAG + " data 2: " + messangiData);
+            Messaging.checkNotification(extras);
 
 
         }else{
@@ -84,7 +85,7 @@ public class ExampleActivity extends AppCompatActivity {
         }
         messangiDataArrayAdapter = new ArrayAdapter<>(this, R.layout.item_device, R.id.Texview_value, messangiData);
         printData.setAdapter(messangiDataArrayAdapter);
-        Messaging.checkNotification(extras);
+
 
     }
 

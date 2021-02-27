@@ -67,10 +67,12 @@ public class MessagingService extends FirebaseMessagingService  {
 
             Messaging.sendEventToBackend(Messaging.MESSAGING_NOTIFICATION_RECEIVED, messagingNotification);
             if (messagingNotification.isRenderNotification()) {
-                messaging.utils.showDebugLog(this, nameMethod, "GEO_PUSH process");
+                messaging.utils.showDebugLog(this, nameMethod, "message process");
                 messaging.sendGlobalEventToActivity(Messaging.ACTION_GET_NOTIFICATION, messagingNotification);
+
             } else {
-                messaging.utils.showDebugLog(this, nameMethod, "GEO_PUSH not process");
+                messaging.utils.showDebugLog(this, nameMethod, "message not process");
+
             }
         }else{
                 messaging.utils.showDebugLog(this,nameMethod,"Security does not match");

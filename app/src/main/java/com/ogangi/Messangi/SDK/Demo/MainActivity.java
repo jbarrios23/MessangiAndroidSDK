@@ -751,6 +751,7 @@ public class MainActivity extends AppCompatActivity {
 
             if(Static.messagingNotification!=null){
                 provNoti=Static.messagingNotification;
+
                 messangiData.add("Title: "           + provNoti.getTitle());
                 messangiData.add("Body: "           + provNoti.getBody());
                 messangiData.add("ClickAction: "           + provNoti.getClickAction());
@@ -762,10 +763,12 @@ public class MainActivity extends AppCompatActivity {
                     for (Map.Entry entry : provNoti.getAdditionalData().entrySet()) {
                         if(!entry.getKey().equals("profile")){
                             messangiData.add(entry.getKey() + ": " + entry.getValue());
+
                         }
                     }
                 }
                 Static.messagingNotification=null;
+
             }else{
                 messangiData.add("Title: "           + messagingNotification.getTitle());
                 messangiData.add("Body: "           + messagingNotification.getBody());
@@ -778,13 +781,11 @@ public class MainActivity extends AppCompatActivity {
                     for (Map.Entry entry : messagingNotification.getAdditionalData().entrySet()) {
                         if(!entry.getKey().equals("profile")){
                             messangiData.add(entry.getKey() + ": " + entry.getValue());
-//                        if(entry.getKey().equals("show") && entry.getValue().equals(true)){
-//                            onShowDialog=false;
-//                            break;
-//                        }
+//
                         }
                     }
                 }
+
             }
 
             messangiDataArrayAdapter = new ArrayAdapter<>(this, R.layout.item_device, R.id.Texview_value, messangiData);

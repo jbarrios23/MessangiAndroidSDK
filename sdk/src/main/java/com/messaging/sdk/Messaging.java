@@ -75,6 +75,7 @@ import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 
+
 import static android.content.Intent.FLAG_ACTIVITY_NEW_TASK;
 
 
@@ -170,6 +171,8 @@ public class Messaging implements LifecycleObserver {
 
     public static final String MESSAGING_NOTIFICATION_OPEN="NOTIFICATION_OPEN";
     public static final String MESSAGING_NOTIFICATION_RECEIVED="NOTIFICATION_RECEIVED";
+    public static final String MESSAGING_GEOPUSH_PROCESS="GEOPUSH_PROCESS";
+    public static final String MESSAGING_GEOPUSH_NO_PROCESS="GEOPUSH_NOT_PROCESS";
     public static final String MESSAGING_DEVICE="device";
     public static final String MESSAGING_DATA="data";
 
@@ -748,6 +751,7 @@ public class Messaging implements LifecycleObserver {
             }
         }catch (NullPointerException e){
             messaging.utils.showErrorLog(messaging,nameMethod,"error ",e.getMessage());
+            //for Geopush handle push from background mode.
             messaging.utils.showInfoLog(messaging, nameMethod, "The Activity was opened as a consequence of a notification");
             sendEventToBackend(Messaging.MESSAGING_NOTIFICATION_OPEN, notification);
             sendEventToBackend(Messaging.MESSAGING_NOTIFICATION_RECEIVED, notification);
@@ -860,10 +864,19 @@ public class Messaging implements LifecycleObserver {
             provId=messaging.messagingStorageController.getDevice().getId();
         }
 
-        provUrl = messaging.utils.getMessagingHost()+"/devices/"+provId+"/event/"+nameEvent+"?externalId="+messagingNotification.getNotificationId();
-
+        if(messagingNotification.getNotificationId()!=null) {
+            provUrl = messaging.utils.getMessagingHost() + "/devices/" + provId + "/event/" + nameEvent + "?externalId=" + messagingNotification.getNotificationId();
+        }else{
+            String msgId="";
+            messaging.utils.showDebugLog(messaging,"sendEventToBackend","Aditional data  "
+                    +messagingNotification);
+            if(messaging.messagingStorageController.hasMessagingNotificationId()){
+                msgId=messaging.messagingStorageController.getMessagingNotificationId();
+            }
+            provUrl = messaging.utils.getMessagingHost() + "/devices/" + provId + "/event/" + nameEvent + "?externalId=" + msgId;
+        }
         if(messaging.utils.isAnalytics_allowed()) {
-            //new HttpRequestEventGet(provId, messaging, nameEvent, reason,typeAction,geofenceId).execute();
+
             new HttpRequestEvent(provUrl,"GET",nameEvent,null,messaging).execute();
             messaging.utils.showInfoLog(messaging,nameMethod,"isAnalytics_allowed() "
                     +messaging.utils.isAnalytics_allowed());
@@ -873,6 +886,10 @@ public class Messaging implements LifecycleObserver {
 
         }
     }
+
+
+
+
     /**
      * Method to sendEventGeofenceToBackend from AnyActivity or Class
      * @param typeAction : in or out.
