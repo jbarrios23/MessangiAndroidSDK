@@ -52,6 +52,7 @@ import androidx.localbroadcastmanager.content.LocalBroadcastManager;
 import com.google.android.gms.location.LocationRequest;
 import com.google.android.material.bottomnavigation.BottomNavigationView;
 import com.google.android.material.dialog.MaterialAlertDialogBuilder;
+import com.journeyapps.barcodescanner.Util;
 import com.messaging.sdk.Messaging;
 import com.messaging.sdk.MessagingDevice;
 import com.messaging.sdk.MessagingLocation;
@@ -160,11 +161,16 @@ public class MainActivity extends AppCompatActivity {
                         return true;
                     case R.id.action_refresh:
                         Log.i(TAG,"INFO: " + CLASS_TAG + ": " + nameMethod + ": " + messaging.getExternalId());
-                        progressBar.setVisibility(View.VISIBLE);
-                        messagingDevArrayList.clear();
-                        messagingUserDeviceArrayList.clear();
-                        Messaging.fetchDevice(true, getApplicationContext());
-                        Messaging.fetchUser(getApplicationContext(), true);
+
+                        if(Utils.isConnectionAvailable(getApplicationContext())){
+                            progressBar.setVisibility(View.VISIBLE);
+                            messagingDevArrayList.clear();
+                            messagingUserDeviceArrayList.clear();
+                            Messaging.fetchDevice(true, getApplicationContext());
+                            Messaging.fetchUser(getApplicationContext(), true);
+                        }else{
+                            Toast.makeText(getApplicationContext(),"Not Wi-FI or Connection Data enable try again... ",Toast.LENGTH_LONG).show();
+                        }
 
                         return true;
                 }
@@ -254,15 +260,23 @@ public class MainActivity extends AppCompatActivity {
         switch (id){
             case R.id.action_visibility:
                 if(messagingDevice.isEnableNotificationPush()) {
-                    Toast.makeText(getApplicationContext(), "Disable Notification Push", Toast.LENGTH_LONG).show();
-                    messagingDevice.setStatusNotificationPush(false, getApplicationContext());
-                    progressBar.setVisibility(View.VISIBLE);
-                    item.setIcon(R.drawable.ic_baseline_visibility_off_24);
+                    if(Utils.isConnectionAvailable(getApplicationContext())) {
+                        Toast.makeText(getApplicationContext(), "Disable Notification Push", Toast.LENGTH_LONG).show();
+                        messagingDevice.setStatusNotificationPush(false, getApplicationContext());
+                        progressBar.setVisibility(View.VISIBLE);
+                        item.setIcon(R.drawable.ic_baseline_visibility_off_24);
+                    }else{
+                        Toast.makeText(getApplicationContext(),"Not Wi-FI or Connection Data enable try again... ",Toast.LENGTH_LONG).show();
+                    }
                 } else {
-                    Toast.makeText(getApplicationContext(), "Enable Notification Push", Toast.LENGTH_LONG).show();
-                    messagingDevice.setStatusNotificationPush(true, getApplicationContext());
-                    progressBar.setVisibility(View.VISIBLE);
-                    item.setIcon(R.drawable.ic_baseline_visibility_24);
+                    if(Utils.isConnectionAvailable(getApplicationContext())) {
+                        Toast.makeText(getApplicationContext(), "Enable Notification Push", Toast.LENGTH_LONG).show();
+                        messagingDevice.setStatusNotificationPush(true, getApplicationContext());
+                        progressBar.setVisibility(View.VISIBLE);
+                        item.setIcon(R.drawable.ic_baseline_visibility_24);
+                    }else{
+                        Toast.makeText(getApplicationContext(),"Not Wi-FI or Connection Data enable try again... ",Toast.LENGTH_LONG).show();
+                    }
                 }
                 return true;
             case R.id.action_location:
@@ -332,7 +346,8 @@ public class MainActivity extends AppCompatActivity {
         messagingDevArrayList.clear();
         messagingUserDeviceArrayList.clear();
         progressBar.setVisibility(View.VISIBLE);
-        Log.i(TAG,"INFO: "+CLASS_TAG+": "+nameMethod+": "+notification);
+        Log.i(TAG,"INFO: "+CLASS_TAG+": "+nameMethod+" is conection enable: "
+                +Utils.isConnectionAvailable(this));
         Messaging.fetchDevice(false, getApplicationContext());
         messaging.showAnalyticAllowedState();
         Log.d(CLASS_TAG, TAG+" state GPS "+messaging.isGPS());
@@ -524,11 +539,16 @@ public class MainActivity extends AppCompatActivity {
                 String key = editText_key.getText().toString();
                 EditText editText_value = customLayout.findViewById(R.id.editText_value);
                 String value = editText_value.getText().toString();
-                if(!TextUtils.isEmpty(key) && !TextUtils.isEmpty(value)){
-                    messagingUser.addProperty(key, value);
-                    createAlertUser();
-                } else {
-                    Toast.makeText(getApplicationContext(), "Invalid Field", Toast.LENGTH_LONG).show();
+                if(Utils.isConnectionAvailable(getApplicationContext())) {
+                    if (!TextUtils.isEmpty(key) && !TextUtils.isEmpty(value)) {
+                        messagingUser.addProperty(key, value);
+                        createAlertUser();
+                    } else {
+                        Toast.makeText(getApplicationContext(), "Invalid Field", Toast.LENGTH_LONG).show();
+                    }
+                }else{
+
+                    Toast.makeText(getApplicationContext(),"Not Wi-FI or Connection Data enable try again... ",Toast.LENGTH_LONG).show();
                 }
             }
         });
@@ -540,11 +560,15 @@ public class MainActivity extends AppCompatActivity {
                 String key = editText_key.getText().toString();
                 EditText editText_value = customLayout.findViewById(R.id.editText_value);
                 String value = editText_value.getText().toString();
-                if(!TextUtils.isEmpty(key) && !TextUtils.isEmpty(value)){
-                    messagingUser.addProperty(key, value);
+                if(Utils.isConnectionAvailable(getApplicationContext())) {
+                    if (!TextUtils.isEmpty(key) && !TextUtils.isEmpty(value)) {
+                        messagingUser.addProperty(key, value);
+                    }
+                    dialog.cancel();
+                    sendDialogDataToUser();
+                }else{
+                    Toast.makeText(getApplicationContext(),"Not Wi-FI or Connection Data enable try again... ",Toast.LENGTH_LONG).show();
                 }
-                dialog.cancel();
-                sendDialogDataToUser();
             }
         });
         // create and show the alert dialog
@@ -556,6 +580,7 @@ public class MainActivity extends AppCompatActivity {
         nameMethod = new Object(){}.getClass().getEnclosingMethod().getName();
         Log.d(TAG,"DEBUG: " + CLASS_TAG + ": " + nameMethod + ": For update" + messagingUser.getProperties());
         progressBar.setVisibility(View.VISIBLE);
+
         messagingUser.save(getApplicationContext());
     }
 
@@ -613,10 +638,13 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private void sendDialogDataToActivity() {
-
         nameMethod=new Object(){}.getClass().getEnclosingMethod().getName();
         Log.d(TAG,"DEBUG: "+CLASS_TAG+": "+nameMethod+": Tags selection final was "+ messagingDevice.getTags());
-        messagingDevice.save(this);
+        if(Utils.isConnectionAvailable(getApplicationContext())) {
+            messagingDevice.save(this);
+        }else{
+            Toast.makeText(getApplicationContext(),"Not Wi-FI or Connection Data enable try again... ",Toast.LENGTH_LONG).show();
+        }
     }
 
     private void showData() {
@@ -692,7 +720,7 @@ public class MainActivity extends AppCompatActivity {
                         showCustomNotification=true;
                     }
 
-                    if(entry.getKey().equals("show")||entry.getKey().equals("Image")){
+                    if((entry.getKey().equals("show")||entry.getKey().equals("Image"))&&(entry.getKey().equals("MSGI_GEOPUSH"))){
                         onShowDialog=false;
                         Log.d(TAG,"DEBUG: "+CLASS_TAG+": "+nameMethod+": onshowdialog "+onShowDialog);
                     }
@@ -977,7 +1005,11 @@ public class MainActivity extends AppCompatActivity {
 
                         if(messagingUser != null){
                             Log.d(TAG,"DEBUG: " + CLASS_TAG + ": " + nameMethod + ": messagingUser E :  " + messagingUser.toString());
-                            Messaging.fetchUser(getApplicationContext(),true);
+                            if(Utils.isConnectionAvailable(getApplicationContext())) {
+                                Messaging.fetchUser(getApplicationContext(), true);
+                            }else{
+                                Toast.makeText(getApplicationContext(),"Not Wi-FI or Connection Data enable try again... ",Toast.LENGTH_LONG).show();
+                            }
                         }
                         showData();
                         break;

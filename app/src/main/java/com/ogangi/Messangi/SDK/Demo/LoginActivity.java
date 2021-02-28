@@ -23,6 +23,7 @@ import androidx.localbroadcastmanager.content.LocalBroadcastManager;
 
 import com.google.zxing.integration.android.IntentIntegrator;
 import com.google.zxing.integration.android.IntentResult;
+import com.journeyapps.barcodescanner.Util;
 import com.messaging.sdk.Messaging;
 import com.messaging.sdk.MessagingDevice;
 import com.messaging.sdk.MessagingUser;
@@ -474,8 +475,12 @@ public class LoginActivity extends AppCompatActivity {
                     Log.d(TAG, "Debug: " + CLASS_TAG + ": " + nameMethod + ": Data Register:  " + dataSdk +" userUpdate " + userUpdate);
                     if (userUpdate) {
                         if(onetimeFlagUser) {
-                            Messaging.fetchUser(getApplicationContext(), true);
-                            onetimeFlagUser=false;
+                            if(Utils.isConnectionAvailable(getApplicationContext())) {
+                                Messaging.fetchUser(getApplicationContext(), true);
+                                onetimeFlagUser = false;
+                            }else{
+                                Toast.makeText(getApplicationContext(),"Not Wi-FI or Connection Data enable try again... ",Toast.LENGTH_LONG).show();
+                            }
                         }
                     } else {
                         if (useQrScan) {

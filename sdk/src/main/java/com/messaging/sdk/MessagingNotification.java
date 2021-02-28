@@ -204,6 +204,7 @@ public class MessagingNotification implements Serializable {
 
          }else{
              this.renderNotification =true;
+             messaging.messagingStorageController.saveNotificationId(notificationId);
          }
 
          if(additionalData.get(Messaging.MESSAGING_GEOFENCE_PUSH)!=null &&

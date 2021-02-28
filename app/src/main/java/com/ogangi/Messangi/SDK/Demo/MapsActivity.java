@@ -213,13 +213,21 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
                 return true;
             case R.id.action_get_geofences_service:
                 Toast.makeText(getApplicationContext(), "Load geofence List....", Toast.LENGTH_SHORT).show();
-                Messaging.fetchGeofence(true);
-                showGofenceList=true;
+                if(Utils.isConnectionAvailable(getApplicationContext())) {
+                    Messaging.fetchGeofence(true);
+                    showGofenceList = true;
+                }else{
+                    Toast.makeText(getApplicationContext(),"Not Wi-FI or Connection Data enable try again... ",Toast.LENGTH_LONG).show();
+                }
                 return true;
             case R.id.action_sinc:
                 //gotoMapActivity();
-                Messaging.fetchGeofence(true);
-                showGofenceList=false;
+                if(Utils.isConnectionAvailable(getApplicationContext())) {
+                    Messaging.fetchGeofence(true);
+                    showGofenceList = false;
+                }else{
+                    Toast.makeText(getApplicationContext(),"Not Wi-FI or Connection Data enable try again... ",Toast.LENGTH_LONG).show();
+                }
                 return true;
             case R.id.action_permission:
                 Log.i(TAG, "INFO: " + CLASS_TAG + ": " + nameMethod + " Verify permission Automatic : "
@@ -285,7 +293,11 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
                 String key = editText_key.getText().toString();
                 String value = editText_value.getText().toString();
                 if(!TextUtils.isEmpty(key) && !TextUtils.isEmpty(value)){
-                    Messaging.sendEventCustom(key,value);
+                    if(Utils.isConnectionAvailable(getApplicationContext())) {
+                        Messaging.sendEventCustom(key, value);
+                    }else {
+                        Toast.makeText(getApplicationContext(),"Not Wi-FI or Connection Data enable try again... ",Toast.LENGTH_LONG).show();
+                    }
                 }else{
                     createAlertCustomEvent(key,value);
                 }
@@ -556,7 +568,7 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
             String alertMessage = getResources().getString(getResources().getIdentifier(intent.getAction(), "string", getPackageName()));
             Toast.makeText(getApplicationContext(), alertMessage, Toast.LENGTH_LONG).show();
             Log.d(TAG,"DEBUG: " + CLASS_TAG + ": " + nameMethod + ":   " + alertMessage);
-            //Log.d(TAG,"DEBUG: "+CLASS_TAG+": "+nameMethod+": Has error:  "+ hasError);
+
             if (!hasError ) {
                 Serializable data=intent.getSerializableExtra(Messaging.INTENT_EXTRA_DATA);
 

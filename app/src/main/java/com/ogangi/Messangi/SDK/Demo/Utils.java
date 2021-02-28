@@ -1,7 +1,14 @@
 package com.ogangi.Messangi.SDK.Demo;
 
 import android.annotation.SuppressLint;
+import android.content.Context;
 import android.location.Location;
+import android.net.ConnectivityManager;
+import android.net.Network;
+import android.net.NetworkInfo;
+import android.util.Log;
+
+import androidx.annotation.NonNull;
 
 import com.messaging.sdk.MessagingCircularRegion;
 
@@ -15,7 +22,8 @@ import java.util.regex.Pattern;
 import static android.content.Context.LOCATION_SERVICE;
 
 public class Utils {
-
+    public static String CLASS_TAG=MainActivity.class.getSimpleName();
+    public static String TAG="MESSAGING";
 
     /**
      * Validation of Phone Number
@@ -118,6 +126,21 @@ public class Utils {
         }
 
         return true;
+    }
+
+    /**
+     *validate is Connection Available
+     */
+    public static boolean isConnectionAvailable(Context context){
+
+        ConnectivityManager cm =
+                (ConnectivityManager)context.getSystemService(Context.CONNECTIVITY_SERVICE);
+
+        NetworkInfo activeNetwork = cm.getActiveNetworkInfo();
+        boolean isConnected = activeNetwork != null &&
+                activeNetwork.isConnectedOrConnecting();
+
+        return  isConnected;
     }
 
 }
